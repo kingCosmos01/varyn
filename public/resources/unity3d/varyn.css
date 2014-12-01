@@ -1,0 +1,211 @@
+body {
+    padding: 0;
+    margin: 4 4 4 4;
+    color: #000000;
+    background-color: #e6cedf;
+    font-style:normal;
+    font-family: 'Segoe UI', 'Proxima Nova', 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+}
+
+footer {
+    clear: both;
+    position: relative;
+    margin-top: 3em;
+}
+
+#header
+{
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#Local-Sites
+{
+    width: 700px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#External-Sites
+{
+    width: 700px;
+    border: 1px solid #a21e8e;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#Class-Work
+{
+    width: 700px;
+    border: 1px solid #a21e8e;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#Client-Projects
+{
+    width: 700px;
+    border: 1px solid #a21e8e;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#Links
+{
+    width: 700px;
+    border: 1px solid #a21e8e;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#Dead-Projects
+{
+    width: 700px;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#HTML5-Projects
+{
+    width: 700px;
+    border: 1px solid #a21e8e;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.smft {
+    color:black;
+    font-style:normal;
+    font-family:Verdana, Arial, Helv, Helvetica, sans-serif;
+    font-size:60%;
+}
+
+.copyright {
+	font-family: Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	font-weight: normal;
+	color: #a8a8a8;
+	padding-top: 1px;
+	padding-right: 6px;
+}
+
+h1{
+    font-family: 'Segoe UI', 'Proxima Nova', 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+	font-size: 24px;
+	font-style: normal;
+	font-weight:bolder;
+	color: #15408e;
+	line-height:32px;
+   margin: 12px 6px 2px 0px;
+}
+
+h2{
+    font-family: 'Segoe UI', 'Proxima Nova', 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+	font-size: 22px;
+	font-style:italic;
+	font-weight: bold;
+	color: #15408e;
+	margin: 12px 6px 2px 0px;
+}
+
+h3{
+    font-family: 'Segoe UI', 'Proxima Nova', 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+	font-size: 18px;
+	font-style: normal;
+	font-weight: bold;
+	color: #15408e;
+   margin: 12px 6px 2px 0px;
+}
+
+h4{
+    font-family: 'Segoe UI', 'Proxima Nova', 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+	font-size: 14px;
+	font-style: normal;
+	font-weight: bold;
+	color: #15408e;
+   margin: 12px 6px 2px 0px;
+}
+
+blockquote {
+    font-family: 'Segoe UI', 'Proxima Nova', 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+	font-size: 12px;
+	font-style: italic;
+}
+
+a, a:link, a:visited {
+    font-family: 'Segoe UI', 'Proxima Nova', 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+	font-size: 16px;
+	color: #666666;
+	text-decoration: none;
+	font-weight: bold;
+}
+
+a:hover {
+	text-decoration: underline;
+	color: #999999;
+}
+
+a:active {
+	text-decoration: none;
+}
+
+a.smalllink, a.smalllink:link, a.smalllink:visited {
+    font-family: 'Segoe UI', 'Proxima Nova', 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+    font-size: 9px;
+    color: #666666;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+a.smalllink:hover {
+    text-decoration: underline;
+    color: #999999;
+}
+
+a.smalllink:active {
+    text-decoration: none;
+}
+
+p {
+    font-family: 'Segoe UI', 'Proxima Nova', 'Helvetica Neue', 'Helvetica', Arial, sans-serif;
+	font-size: 12px;
+	font-weight: normal;
+	color: #000000;
+	margin: 2px 4px 12px 12px;
+}
+
+.followsection {
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+}
+.followsection a { color:#15408e; overflow:hidden; }
+.followsection p { margin-top:2px; margin-bottom:2px; }
+.followsection #followlist { width:auto; overflow:hidden; }
+.followsection #followlist li { float: left; }
+.followsection #followlist li a {
+	display: block;
+	float: left;
+	width: 32px;
+	height: 32px;
+	background-position: 0 0;
+	background-repeat: no-repeat;
+	text-indent: -9999px;
+	margin-right: 4px;
+}
+#icon-twitter a {
+	background-image:url(/images/twitter.png);
+}
+#icon-linkedin a {
+	background-image:url(/images/linkedin.png);
+}
+#icon-facebook a {
+	background-image:url(/images/facebook.png);
+}
+

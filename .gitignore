@@ -1,0 +1,8 @@
+# .gitignore for website projects
+*.log
+*.zip
+.idea
+.DS_Store
+thumbs.db
+Thumbs.db
+data/
