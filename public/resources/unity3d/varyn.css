@@ -46,6 +46,15 @@ footer {
     margin-right: auto;
 }
 
+#Class-Projects
+{
+    width: 700px;
+    border: 1px solid #a21e8e;
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 #Client-Projects
 {
     width: 700px;
@@ -185,6 +194,7 @@ p {
 	padding: 0 0 0 0;
 	margin: 0 0 0 0;
 }
+
 .followsection a { color:#15408e; overflow:hidden; }
 .followsection p { margin-top:2px; margin-bottom:2px; }
 .followsection #followlist { width:auto; overflow:hidden; }
@@ -199,12 +209,15 @@ p {
 	text-indent: -9999px;
 	margin-right: 4px;
 }
+
 #icon-twitter a {
-	background-image:url(/images/twitter.png);
+	background-image:url("/images/twitter.png");
 }
+
 #icon-linkedin a {
 	background-image:url(/images/linkedin.png);
 }
+
 #icon-facebook a {
 	background-image:url(/images/facebook.png);
 }
