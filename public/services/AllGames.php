@@ -1,10 +1,10 @@
 <?php
-require_once('../common/common.php');
+    require_once('../../services/common.php');
 
-$query = '';
-if (isset($_REQUEST['q'])) {
-    $query = $_REQUEST['q'];
-}
+    $query = '';
+    if (isset($_REQUEST['q'])) {
+        $query = $_REQUEST['q'];
+    }
 
  ?>
 <!DOCTYPE html>

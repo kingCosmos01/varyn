@@ -1,15 +1,14 @@
 <?php
-require_once('common/common.php');
+    require_once('../services/common.php');
 
-if (isset($_REQUEST['game_id'])) {
-    $game_id = $_REQUEST['game_id'];
-} elseif (isset($_REQUEST['id'])) {
-    $game_id = $_REQUEST['id'];
-} else {
-    $game_id = 1000;
-}
-$site_id = 106;
-$today = date('M d, Y');
+    if (isset($_REQUEST['game_id'])) {
+        $game_id = $_REQUEST['game_id'];
+    } elseif (isset($_REQUEST['id'])) {
+        $game_id = $_REQUEST['id'];
+    } else {
+        $game_id = 1000;
+    }
+    $today = date('M d, Y');
 
 // Name, Desc, width, height, style/genre, plugin, src, bgcolor
 $games_table = array(1000 => array('Zam BeeZee', 'Action/Word game hybrid - Make as many words as you can and fill up the honey barrel before time runs out!', 800, 600, 6, 2, 'zmbz.dcr', '#eeeeee'),

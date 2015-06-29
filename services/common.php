@@ -220,6 +220,30 @@
         return $errorCode;
     }
 
+    function dbFetch ($result) {
+        return $result->fetch();
+    }
+
+    function dbRowCount ($result) {
+        return $result->rowCount();
+    }
+
+    function dbLastInsertId ($db) {
+        $lastId = 0; // error
+        if ($db != null) {
+            $lastId = $db->lastInsertId();
+        }
+        return $lastId;
+    }
+
+    function dbClearResults ($results) {
+        // Clear any query results still pending on the connection
+        if ($results != null) {
+            $results->closeCursor();
+        }
+    }
+
+
     function callEnginesisAPI ($fn, $serverURL, $paramArray) {
         /**
          * callEnginesisAPI: Make an Enginesis API request over the WWW
@@ -303,7 +327,7 @@
     }
 
     $page = '';
-    $siteId = 105;
+    $siteId = 106;
     $isLoggedIn = isLoggedInUser();
     $server = '';
     $stage = '';

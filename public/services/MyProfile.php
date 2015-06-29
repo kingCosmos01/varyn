@@ -1,28 +1,29 @@
 <?php
-require_once('../common/common.php');
+    require_once('../../services/common.php');
 
-$action = '';
-if (isset($_POST["action"])) {
-    $action = $_POST["action"];
-}
-if ($action == 'login') {
-    $username = $_POST["username"];
-    $password = $_POST["password"];
-} elseif ($action == 'register') {
-    $action = 'register';
-    $username = $_POST["username"];
-    $password = $_POST["password"];
-    $email = $_POST["email"];
-    $fullname = $_POST["fullname"];
-    $location = $_POST["location"];
-    $tagline = $_POST["tagline"];
-    $dateOfBirth = $_POST["dob"];
-    $captcha = $_POST["captcha"];
-} elseif ($action == 'forgotpassword') {
-} else {
-    $username = '';
-    $password = '';
-}
+    $action = '';
+    if (isset($_POST["action"])) {
+        $action = $_POST["action"];
+    }
+    if ($action == 'login') {
+        $username = $_POST["username"];
+        $password = $_POST["password"];
+    } elseif ($action == 'register') {
+        $action = 'register';
+        $username = $_POST["username"];
+        $password = $_POST["password"];
+        $email = $_POST["email"];
+        $fullname = $_POST["fullname"];
+        $location = $_POST["location"];
+        $tagline = $_POST["tagline"];
+        $dateOfBirth = $_POST["dob"];
+        $captcha = $_POST["captcha"];
+    } elseif ($action == 'forgotpassword') {
+        // TODO: Need forgot password form
+    } else {
+        $username = '';
+        $password = '';
+    }
 
  ?>
 <!DOCTYPE html>
