@@ -12,7 +12,7 @@ if ( ! defined('ROOTPATH') ) {
     define('ROOTPATH', $_SERVER['DOCUMENT_ROOT']);
 }
 
-require_once(ROOTPATH . '/common/common.php');
+require_once(ROOTPATH . '/../services/common.php');
 $page = 'blog';
 
 ?><!DOCTYPE html>

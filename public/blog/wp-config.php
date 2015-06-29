@@ -1,4 +1,6 @@
 <?php
+    require_once('../../services/common.php');
+
 /**
  * The base configurations of the WordPress.
  *
@@ -16,16 +18,16 @@
 
 // ** MySQL settings - You can get this info from your web host ** //
 /** The name of the database for WordPress */
-define('DB_NAME', 'wordpressvaryn');
+define('DB_NAME', $sqlDatabaseConnectionInfo['db']);
 
 /** MySQL database username */
-define('DB_USER', 'varynwp');
+define('DB_USER', $sqlDatabaseConnectionInfo['user']);
 
 /** MySQL database password */
-define('DB_PASSWORD', 'm3@tEr45');
+define('DB_PASSWORD', $sqlDatabaseConnectionInfo['password']);
 
 /** MySQL hostname */
-define('DB_HOST', 'localhost');
+define('DB_HOST', $sqlDatabaseConnectionInfo['host']);
 
 /** Database Charset to use in creating database tables. */
 define('DB_CHARSET', 'utf8');

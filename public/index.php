@@ -1,5 +1,5 @@
 <?php
-require_once('common/common.php');
+require_once('../services/common.php');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -47,7 +47,7 @@ require_once('common/common.php');
 <body>
 <div id="page_container">
 <?php
-include_once('common/header.php');
+    include_once('common/header.php');
  ?>
 <div id="page_content_area" data-role="content">
 <div id="top_promo_area" data-role="none">
@@ -102,28 +102,28 @@ include_once('common/header.php');
 <div id="promos_top">
     <div id="promo_item_wide" name="promo_item_1042">
         <a href="/play.php?id=1042">
-            <img class="promo_item_wide_img" src="<?php echo($server);?>/games/skywords/images/50x50.jpg" width="60" height="60" border="0" title="promo-name" align="left" />
+            <img class="promo_item_wide_img" src="<?php echo($webServer);?>/games/skywords/images/50x50.jpg" width="60" height="60" border="0" title="promo-name" align="left" />
             <h5>Skywords</h5>
             <p class="promo_text">Search for words in a jumble of letters. Find all the words in record time and beat your friends. New challege every day.</p>
         </a>
     </div>
     <div id="promo_item_wide" name="promo_item_1044">
         <a href="/play.php?id=1044">
-            <img class="promo_item_wide_img" src="<?php echo($server);?>/games/kanyeWestGloryHog/images/50x50.jpg" width="60" height="60" border="0" title="promo-name" align="left" />
+            <img class="promo_item_wide_img" src="<?php echo($webServer);?>/games/kanyeWestGloryHog/images/50x50.jpg" width="60" height="60" border="0" title="promo-name" align="left" />
             <h5>Glory Hog</h5>
             <p class="promo_text">Can you help Kanye grab all the awards and hog your way to glory?</p>
         </a>
     </div>
     <div id="promo_item_wide" name="promo_item_1061">
         <a href="/play.php?id=1070">
-            <img class="promo_item_wide_img" src="<?php echo($server);?>/games/closestToThePin/images/50x50.jpg" width="60" height="60" border="0" title="promo-name" align="left" />
+            <img class="promo_item_wide_img" src="<?php echo($webServer);?>/games/closestToThePin/images/50x50.jpg" width="60" height="60" border="0" title="promo-name" align="left" />
             <h5>Closest To The Pin</h5>
             <p class="promo_text">Test your <em>golf skills</em>! The pressure is on you, and you have only one swing. Can you get closest to the pin?</p>
         </a>
     </div>
     <div id="promo_item_wide" name="promo_item_1043">
         <a href="/play.php?id=1075">
-            <img class="promo_item_wide_img" src="<?php echo($server);?>/games/borderSecurity/images/50x50.jpg" width="60" height="60" border="0" title="promo-name" align="left" />
+            <img class="promo_item_wide_img" src="<?php echo($webServer);?>/games/borderSecurity/images/50x50.jpg" width="60" height="60" border="0" title="promo-name" align="left" />
             <h5>Border Security</h5>
             <p class="promo_text">Awaken your inner Homeland Security and protect the borders! Prevent unwanted and unlikely peoples from crossing the border.</p>
         </a>
@@ -136,7 +136,7 @@ include_once('common/header.php');
     <div class="games_promo">
         <div class="game_tab"><div class="game_tab_name">Zam BeeZee</div></div>
         <div class="game_tab_middle">
-            <a href="/play.php?game_id=1000" title="Play Zam BeeZee on Varyn now"><img class="game_tab_img" src="<?php echo($server);?>/games/zamBeeZeeOnline/images/128x75.jpg" border="0" width="128" height="75" alt="Play Zam BeeZee on Varyn now" /></a>
+            <a href="/play.php?game_id=1000" title="Play Zam BeeZee on Varyn now"><img class="game_tab_img" src="<?php echo($webServer);?>/games/zamBeeZeeOnline/images/128x75.jpg" border="0" width="128" height="75" alt="Play Zam BeeZee on Varyn now" /></a>
             <div class="game_tab_desc">Most addictive Action/Word game hybrid ever! Make as many words as you can and fill up the honey barrel before time runs out!</div>
         </div>
         <div class="game_tab_bottom"><a class="game_tab_play_btn" href="/play.php?game_id=1000" title="Play Zam BeeZee on Varyn now"><span>Play Now</span></a></div>
@@ -144,7 +144,7 @@ include_once('common/header.php');
     <div class="games_promo">
         <div class="game_tab"><div class="game_tab_name">Skywords</div></div>
         <div class="game_tab_middle">
-            <a href="/play.php?game_id=1042" title="Play Skywords on Varyn now"><img class="game_tab_img" src="<?php echo($server);?>/games/skywords/images/128x75.jpg" border="0" width="128" height="75" alt="Play Skywords on Varyn now" /></a>
+            <a href="/play.php?game_id=1042" title="Play Skywords on Varyn now"><img class="game_tab_img" src="<?php echo($webServer);?>/games/skywords/images/128x75.jpg" border="0" width="128" height="75" alt="Play Skywords on Varyn now" /></a>
             <div class="game_tab_desc">Search for words in a jumble of letters. Find all the words in record time and beat your friends. New challege every day.</div>
         </div>
         <div class="game_tab_bottom"><a class="game_tab_play_btn" href="/play.php?game_id=1042" title="Play Skywords on Varyn now"><span>Play Now</span></a></div>
@@ -152,7 +152,7 @@ include_once('common/header.php');
     <div class="games_promo">
         <div class="game_tab"><div class="game_tab_name">Microbe Muncher</div></div>
         <div class="game_tab_middle">
-            <a href="/play.php?game_id=1046" title="Play Microbe Muncher on Varyn now"><img class="game_tab_img" src="<?php echo($server);?>/games/microbeMuncher/images/128x75.jpg" border="0" width="128" height="75" alt="Play Microbe Muncher on Varyn now" /></a>
+            <a href="/play.php?game_id=1046" title="Play Microbe Muncher on Varyn now"><img class="game_tab_img" src="<?php echo($webServer);?>/games/microbeMuncher/images/128x75.jpg" border="0" width="128" height="75" alt="Play Microbe Muncher on Varyn now" /></a>
             <div class="game_tab_desc">Slither around eating microbes as quick as you can while avoiding ugly viruses looking to infect you.</div>
         </div>
         <div class="game_tab_bottom"><a class="game_tab_play_btn" href="/play.php?game_id=1046" title="Play Microbe Muncher on Varyn now"><span>Play Now</span></a></div>
