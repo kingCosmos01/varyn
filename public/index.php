@@ -83,7 +83,7 @@ require_once('../services/common.php');
     </div>
     <div id="topad" align="center" valign="middle">
         <div id="boxAd300">
-            <!-- <iframe src="<?php echo($webserver);?>/common/gad300.html" frameborder="0" scrolling="no" style="width: 300px; height: 250px; overflow: hidden; z-index: 9999; left: 0px; bottom: 0px; display: inline-block;"></iframe> -->
+            <!-- <iframe src="<?php echo($webServer);?>/common/gad300.html" frameborder="0" scrolling="no" style="width: 300px; height: 250px; overflow: hidden; z-index: 9999; left: 0px; bottom: 0px; display: inline-block;"></iframe> -->
             <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
             <!-- Varyn-300x250-Main -->
             <ins class="adsbygoogle"
