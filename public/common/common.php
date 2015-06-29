@@ -11,8 +11,7 @@ if ( ! defined('ROOTPATH') ) {
 }
 date_default_timezone_set('America/New_York');
 
-function isLoggedInUser ()
-{
+function isLoggedInUser () {
     // check we have the Enginesis authtoken in engsession cookie
     if (isset($_COOKIE['engsession'])) {
         $authtoken = $_COOKIE['engsession'];
@@ -21,6 +20,16 @@ function isLoggedInUser ()
         $isLoggedIn = false;
     }
     return $isLoggedIn;
+}
+
+function getServiceProtocol () {
+    // return http or https
+    if (isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1) || isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
+        $protocol = 'https:';
+    } else {
+        $protocol = 'http:';
+    }
+    return $protocol;
 }
 
 $page = '';
@@ -43,7 +52,8 @@ if (strpos($server, '-l.') > 0) {
 } elseif (strpos($server, '-x.') > 0) {
     $stage = '-x';
 }
-$server = 'http://www.enginesis' . $stage . '.com';
-$webserver = 'http://www.varyn' . $stage . '.com';
+$httpProtocol = getServiceProtocol();
+$server = $httpProtocol . '//www.enginesis' . $stage . '.com';
+$webserver = $httpProtocol . '//www.varyn' . $stage . '.com';
 
 ?>
