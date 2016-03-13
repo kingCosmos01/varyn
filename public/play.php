@@ -1,294 +1,415 @@
 <?php
     require_once('../services/common.php');
-
-    if (isset($_REQUEST['game_id'])) {
-        $game_id = $_REQUEST['game_id'];
-    } elseif (isset($_REQUEST['id'])) {
-        $game_id = $_REQUEST['id'];
-    } else {
-        $game_id = 1000;
+    $page = 'play';
+    $search = getPostOrRequestVar('q', null);
+    if ($search != null) {
+        header('location:/allgames.php?q=' . $search);
+        exit;
     }
-    $today = date('M d, Y');
+    $showSubscribe = getPostOrRequestVar('s', '0');
+    $gameId = getPostOrRequestVar('id', '');
+    if ($gameId == '') {
+        $gameId = getPostOrRequestVar('gameid', '');
+    }
+    if ($gameId == '') {
+        $gameId = getPostOrRequestVar('game_id', '');
+    }
+    if ($gameId == '') {
+        $gameId = getPostOrRequestVar('gameId', '');
+    }
+    if ($gameId == '') {
+        $gameId = getPostOrRequestVar('gameName', '');
+    }
+    if ($gameId == '') {
+        $gameId = getPostOrRequestVar('gamename', '');
+    }
+    if ($gameId == '') {
+        $gameId = getPostOrRequestVar('g', '');
+    }
+    if ($gameId == '') {
+        header("Location: /allgames.php");
+    }
+    $gameWidth = 1024;
+    $gameHeight = 768;
+    $gameDescription = '';
+    $gameInfo = null;
+    $receivedGameInfo = false;
+    $gameContainerHTML = '';
+    $isPlayBuzzSpecialCase = false;
 
-// Name, Desc, width, height, style/genre, plugin, src, bgcolor
-$games_table = array(1000 => array('Zam BeeZee', 'Action/Word game hybrid - Make as many words as you can and fill up the honey barrel before time runs out!', 800, 600, 6, 2, 'zmbz.dcr', '#eeeeee'),
-                     1001 => array('Capital Collision', 'Shoot your way through 5 levels of arcade action and discover the truth behind the politics.', 400, 450, 2, 1, 'CCMasterFile.swf', '#000000'),
-                     1002 => array('Mah Jongg Classic', 'Match tiles and clear the board in this classic game of Mah Jongg solitaire. Play fast and use strategy to maximize your score.', 848, 604, 4, 2, 'mahjongg_load.dcr', '#000000'),
-                     1004 => array('Karoshi Suicide Salaryman', 'Lost all your money? Fine, now you lose your life! Punish this pawn of industry by pushing him down a path of destruction!', 704, 488, 2, 1, 'skywords.swf', '#eeeeee'),
-                     1005 => array('Missile Defense', 'My cities are in peril! Fortunately, I have awesome laser towers and trigger happy fingers for the alien smackdown.', 600, 500, 2, 1, 'skywords.swf', '#eeeeee'),
-                     1006 => array('Block Drop', 'Find your way home by jumping from block to block but don\'t let the diamond fall. Don\'t. Let. The. Diamond. Fall.', 700, 500, 4, 1, 'skywords.swf', '#eeeeee'),
-                     1008 => array('Parking Frenzy', 'Cram cars carefully and crash-free! Precise parking prepares proud & pleasant peoples!', 752, 564, 2, 1, 'skywords.swf', '#eeeeee'),
-                     1010 => array('Pencil Racer 3', 'Pencil Racer is now officially off the hook. Drivable vehicles, hazards, powerups, collectibles - make killer tracks and share them. Can your friends drive the tracks you create?', 700, 600, 2, 1, 'skywords.swf', '#ffffff'),
-                     1012 => array('Celebrity Snapshot', 'Make a few bucks by catching celebs in the act. Avoid getting your lights punched out by bodyguards!', 752, 564, 2, 1, 'skywords.swf', '#eeeeee'),
-                     1013 => array('Sniper Assassin 3', 'Sir Sniper has found his wife\'s killer. But the story only gets more complicated. Fortunately, there\'s plenty of bullets to go around!', 600, 450, 2, 1, 'skywords.swf', '#eeeeee'),
-                     1014 => array('Bubble Tanks 2', 'Travel through giant bubbles, destroy enemy tanks, take their bubbles to fuel your growth.', 500, 400, 2, 1, 'skywords.swf', '#eeeeee'),
-                     1016 => array('Gem Craft', 'Havoc and corruption swarms through the land, and you are one of those few wizards who can put an end to it. Create and combine magic gems, put them into your towers and banish the monsters back to hell!', 640, 480, 2, 22, 'skywords.swf', '#eeeeee'),
-                     1018 => array('Money Seize', 'Sir Reginald MoneySeize II, Esq. must collect coins to fund construction of the tallest tower in the world!', 640, 480, 2, 1, 'skywords.swf', '#eeeeee'),
-                     1020 => array('Slider Puzzle', 'Reconstruct the photo in as few moves as you can. The faster you do it, the higher your score.', 320, 480, 10, 2, 'slidepuz.dcr', '#000000'),
-                     1023 => array('Street Fighter II: Champion Edition', 'The top-selling arcade fighter classic from Capcom, just like you remember it.', 768, 448, 10, 1, 'skywords.swf', '#eeeeee'),
-                     1026 => array('NYC Marathon Quiz', 'Test your knowledge of the New York City Marathon.', 320, 480, 16, 1, 'skywords.swf', '#eeeeee'),
-                     1035 => array('Pink Floyd Inquisition', 'Test your knowledge of the origins and legacy of the psychedelic classic rock band Pink Floyd.', 320, 480, 16, 1, 'skywords.swf', '#eeeeee'),
-                     1042 => array('Skywords', 'Search for words in a jumble of letters. Find all the words in record time and beat your friends. New challenge every day.', 760, 508, 6, 1, 'skywords.swf', '#eeeeee'),
-                     1043 => array('The Winter of Discontent', 'Battle the North Pole\'s true indigenous life with a taste of their own medicine. Can you stop the Ice King before he rallys his forces against you?', 640, 440, 2, 1, 'winterOfDiscontent.swf', '#eeeeee'),
-                     1044 => array('Kanye West Glory Hog', 'Can you help Kanye grab all the awards and hog your way to glory?', 660, 528, 2, 1, 'stacker.swf', '#000000'),
-                     1046 => array('Microbe Muncher', 'Slither around eating microbes as quick as you can while avoiding ugly viruses looking to infect you.', 700, 525, 2, 1, 'microbe_muncher_preloader.swf', '#eeeeee'),
-                     1047 => array('Morningstar', 'Point \'n click adventure: your spaceship has crash landed on an alien planet. Are you resourceful enough to find a way to get back home?', 800, 600, 13, 1, 'morningstar.swf', '#eeeeee'),
-                     1049 => array('Air Traffic Chief', 'You control the busy skies and guide planes and helicopters to safe landing. Keep your cool, don\'t let the traffic overwhelm you, and don\'t crash!', 670, 550, 2, 1, 'skywords.swf', '#eeeeee'),
-                     1050 => array('Mini Golf', 'Grab your putter and pick your colored ball - it\'s time to play Mini Golf! It\'s as much fun as the amusement park, only online.', 415, 372, 2, 2, 'rcmgload.dcr', '#666666'),
-                     1053 => array('Night of My Living Friends', 'Protect your friends from the zombie hoard! Lob all types of explosive devices at the undead as they try to grab your friends and take them where they can do unspeakable things.', 640, 440, 2, 1, 'nightOfMyLivingFriends.swf', '#666666'),
-                     1054 => array('Texas Mahjong', 'Texas Mahjong combines the simplicity of Mahjong with the strategy of Poker to create an entirely new solitaire experience.', 780, 520, 2, 1, 'skywords.swf', '#eeeeee'),
-                     1055 => array('Kings of Leon Pigeon Bomber', 'Rock out on bass and avoid the pigeon bombs to give the audience a great show!', 550, 440, 2, 1, 'pigeonDrop.swf', '#eeeeee'),
-                     1056 => array('Z-Day Armory', 'Manage your weapon cache to fight the impending zombie threat. Match 3 and win! Your typical match-3 game, because every site has to have one of these!', 660, 440, 2, 1, 'zDayArmory.swf', '#000000'),
-                     1063 => array('Thank You All!', 'Leo won another award and he just won\'t shut up about it. Help Leo thank all his adoring fans!', 550, 440, 2, 1, 'ThankYouGame.swf', '#999999'),
-                     1064 => array('Fire \'em All', 'With the election fast approaching, you\'re campaign budget is leaking fast and your supporters are not returing your calls. Can you reduce staff in time?', 550, 440, 2, 1, 'fireemall.swf', '#0033cc'),
-                     1065 => array('Rally Driver', 'Don\'t be late for the interview! Skip traffic or bump and pound your way earning power ups - whatever it takes to rock the road!', 650, 392, 2, 1, 'rsr_car.swf', '#cccccc'),
-                     1066 => array('Leap of the Ninja', 'The Ninja is cool and crafty. With the grace of the crane and speed of the hawk, he leaps his way to ever higher goals. Help him leap his way to the top.', 500, 420, 2, 1, 'ninja2.swf', '#000000'),
-                     1067 => array('Run Batman Run!', 'It seems like everyone is chasing after the Dark Knight. It is up to you to guide the caped crusader through the city to avoid his adversaries.', 550, 440, 2, 1, 'chaseJumpGame.swf', '#000000'),
-                     1069 => array('Memory Match', 'You think you have a good memory? See how many levels you can master in our memory match game that will make your head spin! Can you earn the crown?', 960, 720, 4, 10, 'games/memoryMatch.html', '#0da110'),
-                     1070 => array('Closest To The Pin', 'Test your golf skills with the 7 iron. The pressure is on you, and you have only one swing. Can you get closest to the pin?', 600, 450, 2, 1, 'ctp.swf', '#ffffff'),
-                     1071 => array('Air Wolf', 'The wolves are out of control and taking over the pristine Alaska wilderness. Can Sarah Palin save the environment?', 550, 440, 2, 1, 'airwolf.swf', '#ffffff'),
-                     1072 => array('I Love Toys', 'Hey! The 80\'s called and they want their toys back. Spin and match the toys from a bygone era.', 592, 454, 2, 1, 'ilovetoys.swf', '#ffffff'),
-                     1073 => array('Volcano', 'Rotate the pieces of pipe to create a path for the lava to follow from entry to exit. Can you find the path to safety?', 550, 440, 2, 1, 'Volcano.swf', '#ffffff'),
-                     1074 => array('Sudoku', 'The popular 9x9 numbers game. Arrange the numbers such that each number appears once in each row, column and 3x3 grid. A real brain teaser!', 592, 454, 2, 1, 'sudoku.swf', '#ffffff'),
-                     1075 => array('Border Security', 'Awaken your inner Homeland Security and protect the borders! Prevent unwanted and unlikely peoples from crossing the border.', 550, 440, 2, 1, 'bordersecurity.swf', '#ffffff'),
-                     1076 => array('Sound Box', 'Put on your best beats as you create the drum, bass, sound fx, and voice over tracks and share it with your friends.', 550, 440, 18, 2, 'load.dcr', '#ffffff'),
-                     1077 => array('Poker Slots', 'A video poker game and slot machine in one game! Spin the reels, make good hands, get big payouts!', 800, 600, 9, 10, 'index.html', '#000000'),
-                     1078 => array('Survival Island', 'You are stranded on a remote island and must find a way to signal for help. Use your ingenuity to solve this puzzle.', 800, 600, 9, 6, 'index.html', '#000000'),
-                     1079 => array('Revenge of Arcade', 'You were once the boss in the arcades. Now the machines want their revenge! Play through video game history to beat the arcade.', 550, 440, 2, 1, 'retroArcade.swf', '#72A5C5'),
-                     1080 => array('Memory Match', 'Use your brain skills and concentrate to find all the matches on the board.', 750, 500, 2, 1, 'mtvMemoryMatch.swf', '#72A5C5'),
-                     1081 => array('Hock A Loogie', 'The boys want to cause some trouble at school and have some fun on everyone.', 650, 480, 2, 1, 'BBHL.swf', '#72A5C5'),
-                     1082 => array('Holiday Card', 'Chime along with our holiday e-card.', 959, 651, 18, 1, 'carolingBells.swf', '#C9E0F6'),
-                     1083 => array('Match Master', 'You think you have a good memory? See how many levels you can master in our memory challenge to take the Match Master Crown!', 960, 720, 2, 1, 'index.html', '#72A5C5'),
-                     1084 => array('Real Housewives Memory Challenge', 'You think you have a good memory? See how many levels you can master in our memory challenge to take the Real Housewives Award!', 960, 720, 2, 1, 'index.html', '#FFFFFF'),
-                     1085 => array('Top Chef Memory Challenge', 'You think you have a good memory? See how many levels you can master in our memory challenge to take the Top Chef Crown!', 960, 720, 2, 1, 'index.html', '#FFFFFF'),
-                     );
-if ( ! isset($games_table[$game_id])) {
-    $game_id = 1000;
-}
-$game_info = $games_table[$game_id];
-$game_name = $game_info[0];
-$game_desc = $game_info[1];
-$game_width = $game_info[2];
-$game_height = $game_info[3];
-$game_style = $game_info[4];
-$game_plugin_type = $game_info[5];
-$game_src = '/games/' . $game_info[6];
-$game_bg_color = $game_info[7];
-$game_img = '/images/games/' . $game_id . '-128x75.jpg';
-$game_dom_id = 'game';
-if ($game_id == 1035 || $game_id == 1026) { // hack for the quizzes until i can figure out why they don't work on a different site id.
-    $site_id = 100;
-}
+    // get game info: we need the game info immediately in order to build the page
+    // TODO: GameGet only works for numeric game_id, if game name we need to call GameGetByName
+
+    if (is_numeric($gameId)) {
+        $response = callEnginesisAPI('GameGet', $enginesisServer . '/index.php', array('site_id' => $siteId, 'game_id' => $gameId, 'response' => 'json'));
+    } else {
+        $response = callEnginesisAPI('GameGetByName', $enginesisServer . '/index.php', array('site_id' => $siteId, 'game_name' => $gameId, 'response' => 'json'));
+    }
+    if ($response != null) {
+        $responseObject = json_decode($response);
+        if ($responseObject != null) {
+            if ($responseObject->results->status->success == '0') {
+                header("Location: /missing.php");
+                exit(0);
+            } else {
+                $gameInfo = $responseObject->results->result[0];
+                if ($gameInfo != null) {
+                    $receivedGameInfo = true;
+                    $gameId = $gameInfo->game_id;
+                    $gameName = $gameInfo->game_name;
+                    $title = $gameInfo->title;
+                    $gameImg = 'http://enginesis.varyn.com/games/' . $gameName . '/images/600x450.png';
+                    $gameImg2 = 'http://enginesis.varyn.com/games/' . $gameName . '/images/586x308.png';
+                    $gameThumb = 'http://enginesis.varyn.com/games/' . $gameName . '/images/50x50.png';
+                    $gameLink = 'http://www.varyn.com/play.php?gameid=' . $gameId;
+                    $gameOGLink = 'http://www.varyn.com/play/' . $gameId;
+                    $gameDesc = $gameInfo->short_desc;
+                    $gameContainerHTML = setGameContainer($gameInfo, $enginesisServer, $siteId, $gameId);
+                }
+            }
+        }
+    }
+    if ( ! $receivedGameInfo) {
+        header("Location: /missing.php");
+        exit(0);
+    }
+
+    function setGameContainer ($gameInfo, $enginesisServer, $siteId, $gameId) {
+        // generate the necessary HTML to setup the game container div
+
+        $width = $gameInfo->width;
+        $height = $gameInfo->height;
+        $bgcolor = '#' . $gameInfo->bgcolor;
+        $pluginId = $gameInfo->game_plugin_id;
+        $allowScroll = $gameInfo->popup == 0 ? 'no' : 'yes';
+        if ($pluginId == 9) { // embed
+            $gameContainerHTML = '<div id="gameContainer-iframe" style="position: relative; margin: 0 auto; width: 100%; height: 100%;">' . $gameInfo->game_link . '</div>';
+        } else {
+            if ($pluginId == 10) { // canvas
+                if (strpos($gameInfo->game_link, '://') > 0) {
+                    $gameLink = $gameInfo->game_link;
+                } else {
+                    $gameLink = $enginesisServer . '/games/' . $gameInfo->game_name . '/' . $gameInfo->game_link;
+                }
+            } else {
+                $gameLink = $enginesisServer . '/games/play.php?site_id=' . $siteId . '&game_id=' . $gameId;
+            }
+            $gameContainerHTML = '<iframe id="gameContainer-iframe" src="' . $gameLink . '" allowfullscreen scrolling="' . $allowScroll . '" width="' . $width . '" height="' . $height . '" border="0"></iframe>';
+        }
+        return $gameContainerHTML;
+    }
+
+    // TODO: Setup Facebook app and add     <meta property="fb:app_id" content="###" />
 ?>
 <!DOCTYPE html>
+<html lang="en">
 <head>
-	<title>Varyn Games | Play <?php echo($game_name);?></title>
-	<meta name="title" content="Varyn Games Play <?php echo($game_name);?>" />
-	<meta name="description" content="<?php echo($game_name);?>: <?php echo($game_desc);?>" />
-	<link rel="image_src" href="<?php echo($game_img);?>" />
-	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-	<META NAME="Description" CONTENT="Varyn"/>
-	<META NAME="Keywords" CONTENT="Varyn"/>
-	<META NAME="Author" content="Varyn"/>
-	<META NAME="Copyright" content="Copyright © 2014 Varyn. All rights reserved."/>
-	<meta name="google-site-verification" content="" />
-	<meta property="og:title" content="Varyn Games Play <?php echo($game_name);?>" />
-	<meta property="og:description" content="<?php echo($game_name);?>: <?php echo($game_desc);?>" />
-	<meta property="og:type" content="website" />
-	<meta property="og:url" content="http://www.varyn.com" />
-	<meta property="og:image" content="http://www.varyn.com/images/share_img_0.jpg" />
-	<meta property="og:image" content="http://www.varyn.com/images/share_img_1.jpg" />
-	<meta property="og:image" content="http://www.varyn.com/images/share_img_2.jpg" />
-	<meta property="og:site_name" content="Varyn" />
-	<meta property="og:type" content="website" />
-	<meta property="fb:admins" content="726468316" />
-	<meta property="fb:app_id" content="" />
-    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <title><?php echo($title);?> on Varyn.com</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="cache-control" content="max-age=0" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="description" content="<?php echo($gameDesc);?>">
+    <meta name="author" content="Varyn">
+    <link href="/common/bootstrap.min.css" rel="stylesheet">
+    <link href="/common/carousel.css" rel="stylesheet">
+    <link href="/common/varyn.css" rel="stylesheet">
+    <link rel="icon" href="<?php echo($gameThumb);?>">
+    <link rel="icon" type="image/png" href="/favicon-48x48.png" sizes="48x48"/>
     <link rel="icon" type="image/png" href="/favicon-196x196.png" sizes="196x196">
     <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
     <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
     <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
-    <meta name="msapplication-TileColor" content="#b91d47">
-    <meta name="msapplication-TileImage" content="/mstile-144x144.png">
-    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.css" />
-    <link href="common/main.css" rel="stylesheet" type="text/css">
-    <script type="text/javascript" src="/common/head.min.js"></script>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-60x60.png" sizes="60x60"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-72x72.png" sizes="72x72"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-76x76.png"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-76x76.png" sizes="76x76"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-114x114.png" sizes="114x114"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-120x120.png" sizes="120x120"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-152x152.png" sizes="152x152"/>
+    <link rel="shortcut icon" href="<?php echo($gameThumb);?>">
+    <meta property="og:title" content="<?php echo($title);?> on varyn.com">
+    <meta property="og:url" content="<?php echo($gameOGLink);?>">
+    <meta property="og:site_name" content="varyn">
+    <meta property="og:description" content="<?php echo($gameDesc);?>">
+    <meta property="og:image" content="<?php echo($gameImg);?>"/>
+    <meta property="og:image" content="<?php echo($gameImg2);?>"/>
+    <meta property="og:image" content="<?php echo($gameThumb);?>"/>
+    <meta property="og:type" content="game"/>
+    <meta name="twitter:card" content="photo"/>
+    <meta name="twitter:site" content="@varyndev"/>
+    <meta name="twitter:creator" content="@varyndev"/>
+    <meta name="twitter:title" content="<?php echo($title);?> on Varyn.com"/>
+    <meta name="twitter:image:src" content="<?php echo($gameImg);?>"/>
+    <meta name="twitter:domain" content="varyn.com"/>
+    <script src="/common/head.min.js"></script>
+    <script type="text/javascript">
+
+        var enginesisServer = '';
+
+        function initApp() {
+            var gameId = "<?php echo($gameId);?>",
+                serverStage = "<?php echo($stage);?>",
+                serverHostDomain = 'varyn' + serverStage + '.com';
+
+            enginesisServer = 'enginesis.' + serverHostDomain;
+            document.domain = serverHostDomain;
+            window.EnginesisSession = enginesis(<?php echo($siteId);?>, 0, 0, enginesisServer, '', '', 'en', enginesisCallBack);
+            EnginesisSession.siteListGamesRandom(24, null);
+            EnginesisSession.developerGet(<?php echo($gameInfo->developer_id);?>);
+            setGameContainer();
+            if (EnginesisSession.isTouchDevice()) {
+                window.addEventListener('orientationchange', resetGameFrameSize, false);
+            }
+            // window.addEventListener('resize', resetGameFrameSize, false); // we are hoping the responsive page will handle this for us
+        }
+
+        function enginesisCallBack (enginesisResponse) {
+            var succeeded,
+                errorMessage;
+
+            if (enginesisResponse != null && enginesisResponse.fn != null) {
+                succeeded = enginesisResponse.results.status.success;
+                errorMessage = enginesisResponse.results.status.message;
+                switch (enginesisResponse.fn) {
+                    case "NewsletterAddressAssign":
+                        handleNewsletterServerResponse(succeeded);
+                        break;
+                    case "DeveloperGet":
+                        setGameDeveloper(enginesisResponse.results.result[0]);
+                        break;
+                    case "SiteListGamesRandom":
+                        if (succeeded == 1) {
+                            gameListGamesResponse(enginesisResponse.results.result, "PlayPageGamesArea", 9, false);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        function setGameDeveloper (developerInfo) {
+            var developerInfoDiv = document.getElementById("gameDeveloper");
+            if (developerInfoDiv != null) {
+                if (developerInfo.logo_img_url != null && developerInfo.logo_img_url != '') {
+                    developerInfoDiv.innerHTML = "<h4>Developed By:</h4><p><a href=\"" + developerInfo.web_site_url + "\" target=\"_new\"><img src=\"http://www.enginesis.com" + developerInfo.logo_img_url + "\" width=100 height=50 style=\"margin-right: 20px;\"/></a></p>";
+                } else {
+                    developerInfoDiv.innerHTML = "<h4>Developed By:</h4><p><a href=\"" + developerInfo.web_site_url + "\" target=\"_new\">" + developerInfo.organization_name + "</a></p>";
+                }
+            }
+        }
+
+        function resetGameFrameSize () {
+            fitGameToFullScreen();
+            window.location.reload();
+        }
+
+        function showOnlyTheGame (showFlag) {
+            // show/hide all divs except the gameContainer
+            var hideTheseElements = ['playgame-navbar', 'playgame-InfoPanel', 'playgame-BottomPanel'],
+                unwantedElement,
+                elementDiv,
+                showStyle;
+
+            if (showFlag) {
+                showStyle = 'none';
+            } else {
+                showStyle = 'block';
+            }
+            for (unwantedElement in hideTheseElements) {
+                elementDiv = document.getElementById(hideTheseElements[unwantedElement]);
+                if (elementDiv != null) {
+                    elementDiv.style.display = showStyle;
+                }
+            }
+            fitGameToFullScreen();
+        }
+
+        function fitGameToFullScreen () {
+            // Resize the game containers to the full extent of the available window, then let the game deal with that stage size.
+            var elementDiv,
+                width,
+                height;
+
+            width = window.innerWidth;
+            height = window.innerHeight;
+            elementDiv = document.getElementById("gameContainer-iframe");
+            if (elementDiv != null) {
+                elementDiv.style.width = width + "px";
+                elementDiv.style.maxWidth = width + "px";
+                elementDiv.style.height = height + "px";
+                elementDiv.style.maxHeight = height + "px";
+            }
+            elementDiv = document.getElementById("gameContainer");
+            if (elementDiv != null) {
+                elementDiv.style.width = width + "px";
+                elementDiv.style.maxWidth = width + "px";
+                elementDiv.style.height = height + "px";
+                elementDiv.style.maxHeight = height + "px";
+            }
+            elementDiv = document.getElementById("topContainer");
+            if (elementDiv != null) {
+                elementDiv.style.margin = "0";
+                elementDiv.style.padding = "0";
+                elementDiv.style.top = "0";
+                elementDiv.style.left = "0";
+                elementDiv.style.width = width + "px";
+                elementDiv.style.maxWidth = width + "px";
+                elementDiv.style.height = height + "px";
+                elementDiv.style.maxHeight = height + "px";
+            }
+            elementDiv = document.body;
+            if (elementDiv != null) {
+                elementDiv.style.margin = "0";
+                elementDiv.style.padding = "0";
+                elementDiv.style.top = "0";
+                elementDiv.style.left = "0";
+                elementDiv.style.width = width + "px";
+                elementDiv.style.maxWidth = width + "px";
+                elementDiv.style.height = height + "px";
+                elementDiv.style.maxHeight = height + "px";
+            }
+        }
+
+        function setGameContainer () {
+            var gameContainerDiv = document.getElementById("gameContainer"),
+                gameContainerIframe,
+                requiredAspectRatio,
+                width = <?php echo($gameInfo->width);?>,
+                height = <?php echo($gameInfo->height);?>,
+                pluginId = <?php echo($gameInfo->game_plugin_id);?>,
+                isTouchDevice = EnginesisSession.isTouchDevice(),
+                embedOnTouchDevice = false;
+
+            // we want to size the container to the size of the game and center it in the panel div.
+
+            EnginesisSession.gameWidth = width;
+            EnginesisSession.gameHeight = height;
+            if (height < width) {
+                requiredAspectRatio = height / width;
+            } else {
+                requiredAspectRatio = width / height;
+            }
+            EnginesisSession.gameAspectRatio = requiredAspectRatio; // cache the ideal aspect ratio to use when the frame is resized
+            EnginesisSession.gamePluginId = pluginId;
+            if (gameContainerDiv != null) {
+                embedOnTouchDevice = isTouchDevice && EnginesisSession.gamePluginId == 9;
+                if (EnginesisSession.gamePluginId == 9) {
+                    gameContainerDiv.style['overflow-y'] = "scroll";
+                    gameContainerDiv.style['overflow-x'] = "hidden";
+                    gameContainerDiv.style['-webkit-overflow-scrolling'] = "touch";
+                    if (isTouchDevice) {
+                        // if we are on mobile and this is an Embed type game, just embed the game link directly into the div.
+                        showOnlyTheGame(true);
+                    }
+//                    gameContainerDiv.style.width = width + "px";
+//                    gameContainerDiv.style.maxWidth = width + "px";
+//                    gameContainerDiv.style.height = height + "px";
+//                    gameContainerDiv.style.maxHeight = height + "px";
+                    gameContainerDiv.style.paddingTop = "0";
+                    // insertAndExecute("gameContainer", gameData.game_link);
+                } else {
+//                    if (EnginesisSession.gamePluginId == 10) {
+//                        if (gameData.game_link.indexOf('://') > 0) {
+//                            gameLink = gameData.game_link;
+//                        } else {
+//                            gameLink = enginesisHost + "/games/" + gameData.game_name + "/" + gameData.game_link;
+//                        }
+//                    } else {
+//                        gameLink = enginesisHost + "/games/play.php?site_id=<?php //echo($siteId);?>//&game_id=<?php //echo($gameId);?>//";
+//                    }
+//                    gameContainerDiv.innerHTML = "<iframe id=\"gameContainer-iframe\" src=\"" + gameLink + "\" allowfullscreen scrolling=\"" + allowScroll + "\" width=\"" + width + "\" height=\"" + height + "\"/>";
+                }
+                if (isTouchDevice && EnginesisSession.gamePluginId == 10) {
+                    showOnlyTheGame(true);
+                } else if ( ! embedOnTouchDevice) {
+                    if (gameContainerDiv.clientWidth >= width) { // the game will fit the available space
+                        gameContainerIframe = document.getElementById("gameContainer-iframe");
+                        if (gameContainerIframe != null) {
+                            gameContainerIframe.style.width = width + "px";
+                            gameContainerIframe.style.maxWidth = width + "px";
+                            gameContainerIframe.style.height = height + "px";
+                            gameContainerIframe.style.maxHeight = height + "px";
+                        }
+                        gameContainerDiv.style.width = width + "px";
+                        gameContainerDiv.style.maxWidth = width + "px";
+                        gameContainerDiv.style.height = height + "px";
+                        gameContainerDiv.style.maxHeight = height + "px";
+                    } else if ( ! (EnginesisSession.gamePluginId == 9)) { // iframe game does not fit
+                        gameContainerDiv.style.paddingTop = (requiredAspectRatio * 100) + "%";
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 <body>
-<div id="page_container">
 <?php
-$page = 'play';
-include_once('common/header.php');
+    include_once('common/header.php');
 ?>
-    <div id="page_content_area" data-role="content">
-        <div id="game_container" style="width: <?php echo($game_width);?>px; height: <?php echo($game_height + 30);?>px;">
-            <iframe src="<?php echo($server);?>/games/play.php?site_id=<?php echo($site_id);?>&game_id=<?php echo($game_id);?>" width="<?php echo($game_width);?>" height="<?php echo($game_height);?>" frameborder="0" scrolling="no" marginwidth="0" marginheight="0" allowfullscreen title="<?php echo($game_desc);?>"></iframe>
-	    </div>
-        <div id="game_info">
-            <div class="followgame">
-                <ul id="followlist">
-                    <li id="icon-favorite"><a href="https://enginesis.com/index.php?<?php echo($game_id);?>" title="Add <?php echo($game_name);?> to your favorites">Favorite</a></li>
-                    <li id="icon-twitter"><a href="http://twitter.com/<?php echo($game_name);?>" title="Share <?php echo($game_name);?> on Twitter" target="_new">Share on Twitter</a></li>
-                    <li id="icon-facebook"><a href="http://www.facebook.com/<?php echo($game_name);?>" title="Share <?php echo($game_name);?> on Facebook" target="_new">Share on Facebook</a></li>
-                    <li><div id="sharethis"><script type="text/javascript" src="http://w.sharethis.com/button/sharethis.js#publisher=9e9438c3-2278-4f6e-b0f9-f7533b8689cb&amp;type=website&amp;embeds=true&amp;style=rotate"></script></div></li>
-                </ul>
-            </div>
-            <h3><?php echo($game_name);?></h3>
-            <p><?php echo($game_desc);?></p><br />
-            <p>Your best score: 99,999; last played: Jan 10, 2013</p>
-        </div>
-        <table id="content_module_two_column">
-            <tr>
-            <td width="50%">
-                <div id="game_leaderboard">
-                    <div class="content_module_half_header">
-                        <h3>Leaders</h3>
-                    </div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">1.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">2.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">3.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">4.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">5.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">6.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">7.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">8.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">9.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">10.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">11.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">12.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">13.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">14.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">15.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">16.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">17.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">18.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">19.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">20.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">21.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">22.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">23.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">24.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
-                    <div class="leaderboard_entry"><div class="leaderboard_rank">25.</div>&nbsp;<div class="leaderboard_img"><a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="25" height="25" border="0" title="View public profile of member Dark Matters" /></a></div><div class="leaderboard_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div><div class="leaderboard_score">99,999</div></div>
+<div id="topContainer" class="container top-promo-area">
+    <div id="gameContainer" class="row"><?php echo($gameContainerHTML);?></div>
+    <div id="playgame-InfoPanel" class="row">
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <div id="gameInfo">
+                <?php
+                if ($receivedGameInfo) {
+                    $shareFacebook = '<li><a href="https://www.facebook.com/sharer/sharer.php?u=' . $gameOGLink . '" target="_blank" title="Share ' . $title . ' with your Facebook network"><div class="facebook-small"></div></a></li>';
+                    $shareGoogle = '<li><a href="https://plus.google.com/share?url=' . $gameLink . '" target="_blank" title="Share ' . $title . ' with your Google Plus circles"><div class="gplus-small"></div></a></li>';
+                    $shareTwitter = '<li><a href="http://twitter.com/share?text=Play ' . $title . ' on varyn.com:&url=' . $gameLink . '&via=varyn" target="_blank" title="Share ' . $title . ' with your Twitter followers"><div class="twitter-small"></div></a></li>';
+                    $shareEmail = '<li><a href="mailto:?subject=Check out ' . $title . ' on varyn.com&body=I played ' . $title . ' on varyn.com and thought you would like to check it out: ' . $gameLink . '" title="Share ' . $title . ' by email"><div class="email-small"></div></a></li>';
+                    echo('<div class="social-game-info"><ul>' . $shareFacebook . $shareGoogle . $shareTwitter . $shareEmail . '</ul></div><h2>' . $title . '</h2><p>' . $gameInfo->long_desc . '</p>');
+                } else {
+                    echo('<p>No information regarding your request. Please check your entry.</p>');
+                }
+                ?>
                 </div>
-            </td>
-            <td width="50%">
-                <div class="content_modules_half">
-                    <div class="content_module_half_header">
-                        <h3>If you like this, try one of these:</h3>
-                    </div>
-                    <div class="games_promo">
-                        <div class="game_tab"><div class="game_tab_name">Closest To The Pin</div></div>
-                        <div class="game_tab_middle">
-                            <a href="/play.php?game_id=1070" title="Play Closest To The Pin on Varyn now"><img class="game_tab_img" src="<?php echo($server);?>/games/closestToThePin/images/128x75.jpg" border="0" width="128" height="75" alt="Play Closest To The Pin on Varyn now" /></a>
-                            <div class="game_tab_desc">Test your <em>golf skills</em>! The pressure is on you, and you have only one swing. Can you get closest to the pin?</div>
-                        </div>
-                        <div class="game_tab_bottom"><a class="game_tab_play_btn" href="/play.php?game_id=1070" title="Play Closest To The Pin on Varyn now"><span>Play Now</span></a></div>
-                    </div>
-                    <div class="games_promo">
-                        <div class="game_tab"><div class="game_tab_name">Zam BeeZee</div></div>
-                        <div class="game_tab_middle">
-                            <a href="/play.php?game_id=1000" title="Play Zam BeeZee on Varyn now"><img class="game_tab_img" src="<?php echo($server);?>/games/zamBeeZeeOnline/images/128x75.jpg" border="0" width="128" height="75" alt="Play Zam BeeZee on Varyn now" /></a>
-                            <div class="game_tab_desc">Most addictive Action/Word game hybrid ever! Make as many words as you can and fill up the honey barrel before time runs out!</div>
-                        </div>
-                        <div class="game_tab_bottom"><a class="game_tab_play_btn" href="/play.php?game_id=1000" title="Play Zam BeeZee on Varyn now"><span>Play Now</span></a></div>
-                    </div>
-                    <div class="games_promo">
-                        <div class="game_tab"><div class="game_tab_name">Skywords</div></div>
-                        <div class="game_tab_middle">
-                            <a href="/play.php?game_id=1042" title="Play Skywords on Varyn now"><img class="game_tab_img" src="<?php echo($server);?>/games/skywords/images/128x75.jpg" border="0" width="128" height="75" alt="Play Skywords on Varyn now" /></a>
-                            <div class="game_tab_desc">Search for words in a jumble of letters. Find all the words in record time and beat your friends. New challege every day.</div>
-                        </div>
-                        <div class="game_tab_bottom"><a class="game_tab_play_btn" href="/play.php?game_id=1042" title="Play Skywords on Varyn now"><span>Play Now</span></a></div>
-                    </div>
-                    <div class="games_promo">
-                        <div class="game_tab"><div class="game_tab_name">Poker Slots!</div></div>
-                        <div class="game_tab_middle">
-                            <a href="/play.php?game_id=1077" title="Play Poker Slots on Varyn now"><img class="game_tab_img" src="<?php echo($server);?>/games/pokerslots/images/128x75.png" border="0" width="128" height="75" alt="Play Poker Slots on Varyn now" /></a>
-                            <div class="game_tab_desc">A video poker game and slot machine in one game! Spin the reels, make good hands, get big payouts!</div>
-                        </div>
-                        <div class="game_tab_bottom"><a class="game_tab_play_btn" href="/play.php?game_id=1077" title="Play Poker Slots on Varyn now"><span>Play Now</span></a></div>
-                    </div>
-                    <div class="games_promo">
-                        <div class="game_tab"><div class="game_tab_name">Kanye West Glory Hog</div></div>
-                        <div class="game_tab_middle">
-                            <a href="/play.php?game_id=1044" title="Play Kanye West Glory Hog on Varyn now"><img class="game_tab_img" src="<?php echo($server);?>/games/kanyeWestGloryHog/images/128x75.jpg" border="0" width="128" height="75" alt="Play Kanye West Glory Hog on Varyn now" /></a>
-                            <div class="game_tab_desc">Can you help Kanye grab all the awards and hog your way to glory?</div>
-                        </div>
-                        <div class="game_tab_bottom"><a class="game_tab_play_btn" href="/play.php?game_id=1044" title="Play Kanye West Glory Hog on Varyn now"><span>Play Now</span></a></div>
-                    </div>
-                    <div class="games_promo">
-                        <div class="game_tab"><div class="game_tab_name">Border Security</div></div>
-                        <div class="game_tab_middle">
-                            <a href="/play.php?game_id=1075" title="Play Border Security on Varyn now"><img class="game_tab_img" src="<?php echo($server);?>/games/borderSecurity/images/128x75.jpg" border="0" width="128" height="75" alt="Play Border Security on Varyn now" /></a>
-                            <div class="game_tab_desc">Awaken your inner Homeland Security and protect the borders! Prevent unwanted and unlikely peoples from crossing the border.</div>
-                        </div>
-                        <div class="game_tab_bottom"><a class="game_tab_play_btn" href="/play.php?game_id=1075" title="Play Border Security on Varyn now"><span>Play Now</span></a></div>
-                    </div>
-                    <div class="games_promo">
-                        <div class="game_tab"><div class="game_tab_name">Microbe Muncher</div></div>
-                        <div class="game_tab_middle">
-                            <a href="/play.php?game_id=1046" title="Play Microbe Muncher on Varyn now"><img class="game_tab_img" src="<?php echo($server);?>/games/microbeMuncher/images/128x75.jpg" border="0" width="128" height="75" alt="Play Microbe Muncher on Varyn now" /></a>
-                            <div class="game_tab_desc">Slither around eating microbes as quick as you can while avoiding ugly viruses looking to infect you.</div>
-                        </div>
-                        <div class="game_tab_bottom"><a class="game_tab_play_btn" href="/play.php?game_id=1046" title="Play Microbe Muncher on Varyn now"><span>Play Now</span></a></div>
-                    </div>
-                    <div class="games_promo">
-                        <div class="game_tab"><div class="game_tab_name">Mah Jongg Classic</div></div>
-                        <div class="game_tab_middle">
-                            <a href="/play.php?game_id=1002" title="Play Mah Jongg Classic on Varyn now"><img class="game_tab_img" src="<?php echo($server);?>/games/mahJonggClassic/images/128x75.jpg" border="0" width="128" height="75" alt="Play Mah Jongg Classic on Varyn now" /></a>
-                            <div class="game_tab_desc">Match tiles and clear the board in this classic game of Mah Jongg solitaire. Play fast and use strategy to maximize your score.</div>
-                        </div>
-                        <div class="game_tab_bottom"><a class="game_tab_play_btn" href="/play.php?game_id=1002" title="Play Mah Jongg Classic on Varyn now"><span>Play Now</span></a></div>
-                    </div>
-                    <div class="games_promo">
-                        <div class="game_tab"><div class="game_tab_name">Air Wolf</div></div>
-                        <div class="game_tab_middle">
-                            <a href="/play.php?game_id=1071" title="Play Air Wolf on Varyn now"><img class="game_tab_img" src="<?php echo($server);?>/games/airwolf/images/128x75.jpg" border="0" width="128" height="75" alt="Play Air Wolf on Varyn now" /></a>
-                            <div class="game_tab_desc">The wolves are out of control and taking over the pristine Alaska wilderness. Can Sarah Palin save the environment?</div>
-                        </div>
-                        <div class="game_tab_bottom"><a class="game_tab_play_btn" href="/play.php?game_id=1071" title="Play Air Wolf on Varyn now"><span>Play Now</span></a></div>
-                    </div>
+                <div id="gameDeveloper">
                 </div>
-            </td>
-            </tr>
-        </table>
-        <div id="content_modules">
-            <div id="content_modules_header" class="content_module_header">
-                <h3>User Comments</h3>
-            </div>
-            <div class="comment_entry">
-                <div class="comment_user">
-                    <a href="/services/MyProfile.php?id=12345"><img class="user_profile_img" src="/images/avatar_tmp.jpg" width="35" height="35" border="0" title="View public profile of member Dark Matters" align="left" /></a>
-                    <div class="comment_username"><a href="/services/MyProfile.php?id=12345" title="View public profile of member Dark Matters">Dark Matters</a></div>
-                    <div class="comment_date">Jan 30, 2013 4:55 pm</div>
-                </div>
-                <div class="comment_text">This is the text of what the user had to say. Lorem ipsom alpha lanbda vidi verdad. Lorem ipsom alpha lanbda vidi verdad. Lorem ipsom alpha lanbda vidi verdad.</div>
-            </div>
-            <div class="comment_input">
-                <form method="POST" action="">
-                <div class="comment_user">
-                    <img class="user_profile_img" src="/images/avatar_tmp.jpg" width="35" height="35" border="0" title="View profile" align="left" />
-                    <div class="comment_username">Dark Matters</div>
-                    <div class="comment_date"><?php echo($today);?></div>
-                </div>
-                <textarea class="comment_text" cols="100" height="4"></textarea><br />
-                    <input type="button" value="Comment" style="margin-left: 46px; margin-bottom: 6px;" />
-                </form>
             </div>
         </div>
-    </div><!-- page_content_area -->
+    </div>
+</div><!-- /top-promo-area -->
+<div id="playgame-BottomPanel" class="container marketing">
+    <div class="row">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title">Other games you may like:</h3>
+            </div>
+        </div>
+    </div><!-- row -->
+    <div id="PlayPageGamesArea" class="row">
+    </div>
+    <div id="bottomAd" class="row">
+        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+        <!-- varyn Responsive -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-9118730651662049"
+             data-ad-slot="5571172619"
+             data-ad-format="auto"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+</div><!-- /.container -->
 <?php
     include_once('common/footer.php');
- ?>
-</div><!-- page_container -->
+?>
+<script type="text/javascript">
+    ga('send', 'event', 'game', 'play', '<?php echo($gameId);?>', 1);
+</script>
 </body>
 </html>

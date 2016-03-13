@@ -2,20 +2,18 @@
 /**
  * The Header for our theme.
  *
- * Displays all of the <head> section and everything up till <div id="main">
+ * Displays all of the <head> section and everything up to <div id="main">
  *
  * @package WordPress
- * @subpackage Twenty_Twelve
- * @since Twenty Twelve 1.0
+ * @subpackage Varyn
+ * @since ?
  */
-if ( ! defined('ROOTPATH') ) {
-    define('ROOTPATH', $_SERVER['DOCUMENT_ROOT']);
-}
-
-require_once(ROOTPATH . '/../services/common.php');
-$page = 'blog';
-
-?><!DOCTYPE html>
+    global $siteId;
+    global $page;
+    global $server;
+    global $stage;
+?>
+<!DOCTYPE html>
 <!--[if IE 7]>
 <html class="ie ie7" <?php language_attributes(); ?>>
 <![endif]-->
@@ -26,97 +24,87 @@ $page = 'blog';
 <html <?php language_attributes(); ?>>
 <!--<![endif]-->
 <head>
-<meta charset="<?php bloginfo( 'charset' ); ?>" />
-<meta name="viewport" content="width=device-width" />
-<title><?php wp_title( '|', true, 'right' ); ?></title>
-<link rel="profile" href="http://gmpg.org/xfn/11" />
-<link rel="pingback" href="<?php bloginfo( 'pingback_url' ); ?>" />
-<?php // Loads HTML5 JavaScript file to add support for HTML5 elements in older IE versions. ?>
+    <meta charset="<?php bloginfo( 'charset' ); ?>" />
+    <meta name="viewport" content="width=device-width" />
+    <title><?php wp_title( '|', true, 'right' ); ?></title>
+    <link rel="profile" href="http://gmpg.org/xfn/11" />
+    <link rel="pingback" href="<?php bloginfo( 'pingback_url' ); ?>" />
+<?php // Loads HTML5 JavaScript file to add support for HTML5 elements in older IE versions.?>
 <!--[if lt IE 9]>
-<script src="<?php echo get_template_directory_uri(); ?>/js/html5.js" type="text/javascript"></script>
+    <script src="<?php echo get_template_directory_uri(); ?>/js/html5.js" type="text/javascript"></script>
 <![endif]-->
-<link href="/common/main.css" rel="stylesheet" type="text/css">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="cache-control" content="max-age=0" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="description" content="Varyn makes games using technology that performs on the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between desktop, tablet, and smart-phone.">
+    <meta name="author" content="Varyn">
+    <link href="/common/bootstrap.min.css" rel="stylesheet">
+    <link href="/common/carousel.css" rel="stylesheet">
+    <link href="/common/varyn.css" rel="stylesheet">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" href="/favicon-48x48.png" sizes="48x48"/>
+    <link rel="icon" type="image/png" href="/favicon-196x196.png" sizes="196x196">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/apple-touch-icon-60x60.png" sizes="60x60"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-72x72.png" sizes="72x72"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-76x76.png"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-76x76.png" sizes="76x76"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-114x114.png" sizes="114x114"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-120x120.png" sizes="120x120"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-152x152.png" sizes="152x152"/>
+    <link rel="shortcut icon" href="/favicon-196x196.png">
+    <meta property="fb:app_id" content="" />
+    <meta property="fb:admins" content="726468316" />
+    <meta property="og:title" content="Varyn: Great games you can play anytime, anywhere">
+    <meta property="og:url" content="http://www.varyn.com">
+    <meta property="og:site_name" content="Varyn">
+    <meta property="og:description" content="Varyn makes games using technology that performs on the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between desktop, tablet, and smart-phone.">
+    <meta property="og:image" content="http://www.varyn.com/images/1200x900.png"/>
+    <meta property="og:image" content="http://www.varyn.com/images/1024.png"/>
+    <meta property="og:image" content="http://www.varyn.com/images/1200x600.png"/>
+    <meta property="og:image" content="http://www.varyn.com/images/600x600.png"/>
+    <meta property="og:image" content="http://www.varyn.com/images/2048x1536.png"/>
+    <meta property="og:type" content="game"/>
+    <meta name="twitter:card" content="photo"/>
+    <meta name="twitter:site" content="@varyndev"/>
+    <meta name="twitter:creator" content="@varyndev"/>
+    <meta name="twitter:title" content="Varyn: Great games you can play anytime, anywhere"/>
+    <meta name="twitter:image:src" content="http://www.varyn.com/images/600x600.png"/>
+    <meta name="twitter:domain" content="varyn.com"/>
+    <script src="/common/head.min.js"></script>
+    <script type="text/javascript">
+
+        var enginesisSiteId = <?php echo($siteId);?>,
+            serverStage = "<?php echo($stage);?>";
+
+        function initApp() {
+            var serverHostDomain = 'varyn' + serverStage + '.com',
+                showSubscribe = '<?php echo($showSubscribe);?>';
+
+            document.domain = serverHostDomain;
+            if (showSubscribe == '1') {
+                showSubscribePopup();
+            }
+        }
+    </script>
 <?php wp_head(); ?>
-<script type="text/javascript" src="/common/main.js"></script>
 </head>
 
 <body <?php body_class(); ?>>
-<div id="page" class="hfeed site">
-    <header data-role="header">
-        <div id="page_header">
-            <div id="page_header_left">
-                <h1>Varyn</h1>
-            </div>
-            <div id="page_header_right">
-                <?php
-                if ($isLoggedIn) {
-                    ?>
-                    <div id="header_profile">
-                        <img class="user_profile_img" src="/images/avatar_tmp.jpg" width="30" height="30" border="0" title="Dark Matters" />&nbsp;<span class="header-username">Dark Matters</span>&nbsp;<span class="header-rank-prompt">Site rank:</span>&nbsp;<span class="header-rank">30</span>
-                    </div>
-                <?php
-                } else {
-                    ?>
-                    <div id="header_login">
-                        <div id="header_login_subitems">
-                            <a id="facebook-connect-button" title="Login with Facebook" href="javascript: loginFacebook();"></a>
-                            <a id="register_now">Sign Up With Email</a>
-                            <a id="forgot_password" href="#">Forgot password?</a>
-                        </div>
-                        <div>
-                            <form id="login-form" action="/services/MyProfile.php" method="POST" onSubmit="return validateLoginParameters(this);">
-                                <span class="header-login-prompt" data-role="none">Login:</span><input type="text" name="username" maxlength="20" class="header-login-input" data-role="none" />&nbsp;<span class="header-login-prompt"data-role="none">Password:</span><input type="password" name="password" maxlength="20" class="header-login-input" data-role="none" /><a id="submit-button-small" href="javascript: loginSubmit();" title="Login" data-role="none" data-inline="true"></a><input type="hidden" name="action" value="login" />
-                            </form>
-                        </div>
-                    </div>
-                <?php
-                }
-                ?>
-            </div>
-        </div>
-        <div id="page_top_navigation">
-            <div id="header_menu">
-                <div id="top_header"></div>
-                <div id="main_menu">
-                    <ul id="mainmenuitems">
-                        <li><a data-role="none" href="/services/AllGames.php"<?php echo(isset($page) && $page == 'AllGames' ? ' id="menuitem_active"' : ''); ?>>All Games</a></li>
-                        <li><a data-role="none" href="/services/Featured.php"<?php echo(isset($page) && $page == 'Featured' ? ' id="menuitem_active"' : ''); ?>>Featured</a></li>
-                        <li><a data-role="none" href="/blog/index.php"<?php echo(isset($page) && $page == 'blog' ? ' id="menuitem_active"' : ''); ?>>Blog</a></li>
-                        <li><a data-role="none" href="/services/Community.php"<?php echo(isset($page) && $page == 'Community' ? ' id="menuitem_active"' : ''); ?>>Community</a></li>
-                        <li><a data-role="none" href="/services/MyProfile.php"<?php echo(isset($page) && $page == 'MyProfile' ? ' id="menuitem_active"' : ''); ?>>My Profile</a></li>
-                    </ul>
-                </div>
-                <div id="main_menu_search">
-                    <input type="text" maxlength="80" size="30" autocomplete="true" placeholder="Enter search" data-role="none" /><a id="search-button-small" href="javascript: submitSearch();" title="Search Varyn Games"></a>
-                </div>
-            </div>
-        </div>
-    </header>
-    <?php
-    if ( ! $isLoggedIn) {
-    ?>
-    <div id="popupCover"></div>
-    <div id="popupErrorMessage" style="display:none;"></div>
-    <div id="popupRegistration" style="display:none;">
-        <a href="#" id="closePopup" title="Close"></a>
-        <div>
-            <h1>Register With Varyn</h1>
-        </div>
-        <form id="registration-form" method="POST" action="/services/MyProfile.php">
-            <table>
-                <tr><td colspan="2"><p>Some text goes here like we don't steal your info, you are protected, ToS, PP, etc.</p></td></tr>
-                <tr><td>User Name:</td><td><input type="text" name="username" maxlength="20" /></td></tr>
-                <tr><td>Password: </td><td><input type="password" name="password" maxlength="20" /></td></tr>
-                <tr><td>Your Email: </td><td><input type="email" name="email" maxlength="80" /></td></tr>
-                <tr><td>Your Name: </td><td><input type="text" name="fullname" maxlength="50" /></td></tr>
-                <tr><td>Your Location: </td><td><input type="text" name="location" maxlength="80" /></td></tr>
-                <tr><td>Your Date of Birth: </td><td><input type="date" name="dob" /></td></tr>
-                <tr><td>Your tag line: </td><td><input type="text" name="tagline" maxlength="255" /></td></tr>
-                <tr><td colspan="2" class="table-bottom-nav"><a href="javascript: registrationFormSubmit();" id="submitPopup">Submit</a><input type="hidden" name="action" value="register" /><input type="hidden" name="captcha" value="deadmen6" />&nbsp;&nbsp;<a href="#" id="cancelPopup">Cancel</a></td></tr>
-            </table>
-        </form>
-    </div>
 <?php
-    }
+    include_once(ROOTPATH . '/common/header.php'); // our Bootstrap navigation header that appears on every page
 ?>
-	<div id="main" class="wrapper">
+<div id="page" class="container">
+    <div id="main" class="row">

@@ -15,8 +15,11 @@
  *
  * If none of the sidebars have widgets, then let's bail early.
  */
-if ( ! is_active_sidebar( 'sidebar-2' ) && ! is_active_sidebar( 'sidebar-3' ) )
-	return;
+if ( ! is_active_sidebar( 'sidebar-2' ) && ! is_active_sidebar( 'sidebar-3' ) ) {
+    return;
+} else {
+    return; // Turing off this side-bar shit -- jf 20150822
+}
 
 // If we get this far, we have widgets. Let do this.
 ?>

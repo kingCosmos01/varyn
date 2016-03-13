@@ -12,44 +12,51 @@
  *   $isLoggedIn = true if the user is logged in
  *
  */
+    require_once('serverConfig.php');
+    require_once('Enginesis.php');
     date_default_timezone_set('America/New_York');
-    ini_set('error_reporting', E_ALL);
-    ini_set('display_errors', 1);
-    error_reporting(E_ALL);
+    setErrorReporting(true);
+    define('LOGFILE_PREFIX', 'varyn_php_');
+    define('SERVER_DATA_PATH', '..' . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR);
 
-    function getServiceProtocol () {
-        // return http or https. you should use the result of this and never hard-code http:// into any URLs.
-        if (isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1) || isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
-            $protocol = 'https';
+    /**
+     * @description
+     *   Turn on or off all error reporting. Typically we want this on for development, off for production.
+     * @param {bool} true to turn on error reporting, false to turn it off.
+     * @return {bool} just echos back the flag.
+     */
+    function setErrorReporting ($reportingFlag) {
+        if ($reportingFlag) {
+            ini_set('error_reporting', E_ALL);
+            ini_set('display_errors', 1);
+            ini_set('html_errors', 'On');
+            error_reporting(E_ALL);
         } else {
-            $protocol = 'http';
+            ini_set('error_reporting', E_NONE);
+            ini_set('display_errors', 0);
+            ini_set('html_errors', 'Off');
+            error_reporting(E_NONE);
         }
-        return $protocol;
+        return $reportingFlag;
     }
 
-    function encodeURLParams ($data) {
-        $encodedURLParams = '';
-        foreach ($data as $key => $value) {
-            if ($encodedURLParams != '') {
-                $encodedURLParams .= '&';
+    /**
+     * Write a debug log message to the server log.
+     * @param $msg string The message to log.
+     */
+    function debugLog ($msg) {
+        $filename = SERVER_DATA_PATH . LOGFILE_PREFIX . date('ymd') . '.log';
+        try {
+            $logfile = fopen($filename, 'a');
+            if ($logfile) {
+                fwrite($logfile, "$msg\r\n");
+                fclose($logfile);
+            } else {
+                error_log("Varyn debugLog file system error on $filename: $msg\n");
             }
-            $encodedURLParams .= urlencode($key) . '=' . urlencode($value);
+        } catch (Exception $e) {
+            error_log("Varyn debugLog: $msg\n");
         }
-        return $encodedURLParams;
-    }
-
-    function decodeURLParams ($encodedURLParams) {
-        $data = array();
-        $arrayOfParameters = explode('&', $encodedURLParams);
-        $i = 0;
-        while ($i < count($arrayOfParameters))  {
-            $parameter = explode('=', $arrayOfParameters[$i]);
-            if (count($parameter) > 0) {
-                $data[urldecode($parameter[0])] = urldecode($parameter[1]);
-            }
-            $i ++;
-        }
-        return $data;
     }
 
     function getPostOrRequestVar ($varName, $defaultValue = NULL) {
@@ -62,99 +69,37 @@
         }
     }
 
-    function serverName () {
-        if ( strpos( $_SERVER['HTTP_HOST'], ':' ) !== false ) {
-            $host_name = isset($_SERVER['HTTP_X_FORWARDED_HOST'] ) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['HTTP_HOST'];
-            $server = substr($host_name, 0, strpos( $host_name, ':' ) );
-        } else {
-            $server = isset($_SERVER['HTTP_X_FORWARDED_HOST'] ) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['HTTP_HOST'];
-        }
-        return $server;
-    }
-
-    function serverStage ($hostName = null) {
-        // return just the -l, -d, -q, -x part, or '' for live.
-        $targetPlatform = ''; // assume live until we prove otherwise
-        if (strlen($hostName) == 0) {
-            $hostName = serverName();
-        }
-        if (strpos($hostName, '-l.') >= 2) {
-            $targetPlatform = '-l';
-        } elseif (strpos($hostName, '-d.') >= 2) {
-            $targetPlatform = '-d';
-        } elseif (strpos($hostName, '-q.') >= 2) {
-            $targetPlatform = '-q';
-        } elseif (strpos($hostName, '-x.') >= 2) {
-            $targetPlatform = '-x';
-        }
-        return $targetPlatform;
-    }
-
-    function setDatabaseConnectionInfo () {
+    function setDatabaseConnectionInfo ($serverStage) {
+        global $_DB_CONNECTIONS;
         global $sqlDatabaseConnectionInfo;
-        $serverStage = serverStage(null);
-        switch($serverStage) {
-            case '-d':	// dev
-                $sqlDatabaseConnectionInfo = array(
-                        'host' => 'localhost',
-                        'port' => '3306',
-                        'user' => 'varynwp',
-                        'password' => 'm3@tEr45',
-                        'db' => 'wordpressvaryn');
-                break;
-            case '-q':	// qa
-                $sqlDatabaseConnectionInfo = array(
-                        'host' => 'localhost',
-                        'port' => '3306',
-                        'user' => 'varynwp',
-                        'password' => 'm3@tEr45',
-                        'db' => 'wordpressvaryn');
-                break;
-            case '-l':	// localhost
-                $sqlDatabaseConnectionInfo = array(
-                        'host' => '127.0.0.1',
-                        'port' => '3306',
-                        'user' => 'varynwp',
-                        'password' => 'm3@tEr45',
-                        'db' => 'wordpressvaryn');
-                break;
-            case '-x':	// external dev
-                $sqlDatabaseConnectionInfo = array(
-                        'host' => 'localhost',
-                        'port' => '3306',
-                        'user' => 'varynwp',
-                        'password' => 'm3@tEr45',
-                        'db' => 'wordpressvaryn');
-                break;
-            default:	// live
-                $sqlDatabaseConnectionInfo = array(
-                        'host' => 'localhost',
-                        'port' => '3306',
-                        'user' => 'varynwp',
-                        'password' => 'm3@tEr45',
-                        'db' => 'wordpressvaryn');
-                break;
+
+        $dbConnectInfo = $_DB_CONNECTIONS[$serverStage];
+        if ($dbConnectInfo != null) {
+            $sqlDatabaseConnectionInfo = array(
+                'host' => $dbConnectInfo['host'],
+                'port' => $dbConnectInfo['port'],
+                'user' => $dbConnectInfo['user'],
+                'password' => $dbConnectInfo['password'],
+                'db' => $dbConnectInfo['db']);
         }
     }
 
     function setMailHostsTable ($serverStage) {
         global $_MAIL_HOSTS;
-        // Mail/sendmail/Postfix/Mailgun config
-        $_MAIL_HOSTS = array(
-            '-l' => array('host' => 'smtp.verizon.net', 'port' => 465, 'ssl' => true, 'tls' => false, 'user' => 'jlf990@verizon.net', 'password' => 'proPhet5++'),
-            '-d' => array('host' => 'smtp.mailgun.org', 'port' => 587, 'ssl' => false, 'tls' => true, 'user' => 'postmaster@mailer.enginesis-q.com', 'password' => '1h4disai51w5'),
-            '-q' => array('host' => 'smtp.mailgun.org', 'port' => 587, 'ssl' => false, 'tls' => true, 'user' => 'postmaster@mailer.enginesis-q.com', 'password' => '1h4disai51w5'),
-            '-x' => array('host' => 'smtpout.secureserver.net', 'port' => 25, 'ssl' => false, 'tls' => false, 'user' => '', 'password' => ''),
-            ''   => array('host' => 'smtp.mailgun.org', 'port' => 587, 'ssl' => false, 'tls' => true, 'user' => 'postmaster@mailer.enginesis.com', 'password' => '6w88jmvawr63')
-        );
-        ini_set('SMTP', $_MAIL_HOSTS[$serverStage]['host']);
+        if (isset($_MAIL_HOSTS) && isset($_MAIL_HOSTS[$serverStage])) {
+            ini_set('SMTP', $_MAIL_HOSTS[$serverStage]['host']);
+        }
     }
 
+    /** @function hashPassword
+     * @description
+     *   Call this function to generate a password hash to save in the database instead of the password.
+     *   Generate random salt, can only be used with the exact password match.
+     *   This calls PHP's crypt function with the specific setup for blowfish. mcrypt is a required PHP module.
+     * @param string the user's password
+     * @return string the hashed password.
+     */
     function hashPassword ($password) {
-        // Call this function to generate a password hash to save in the database instead of the password.
-        // Generate random salt, can only be used with the exact password match.
-        // This calls PHP's crypt function with the specific setup for blowfish.
-
         $chars = './ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
         $salt = '$2a$10$';
         for ($i = 0; $i < 22; $i ++) {
@@ -163,20 +108,14 @@
         return crypt($password, $salt);
     }
 
+    /** @function verifyHashPassword
+     * @param $pass string the user's password
+     * @param $hashStoredInDatabase string the password we looked up in the database
+     * @return bool true if the password is a match. false if password does not match.
+     */
     function verifyHashPassword ($pass, $hashStoredInDatabase) {
         // Test a password and the user's stored hash of that password
         return $hashStoredInDatabase == crypt($pass, $hashStoredInDatabase);
-    }
-
-    function isLoggedInUser () {
-        // check we have the Enginesis authtoken in engsession cookie
-        if (isset($_COOKIE['engsession'])) {
-            $authtoken = $_COOKIE['engsession'];
-            $isLoggedIn = ($authtoken != NULL && strlen($authtoken) > 0);
-        } else {
-            $isLoggedIn = false;
-        }
-        return $isLoggedIn;
     }
 
     function dbConnect () {
@@ -243,50 +182,10 @@
         }
     }
 
-
-    function callEnginesisAPI ($fn, $serverURL, $paramArray) {
-        /**
-         * callEnginesisAPI: Make an Enginesis API request over the WWW
-         * @param $fn is the API to call
-         * @param $serverURL is the URL to contact without any query string (use $paramArray)
-         * @param $paramArray key => value array of parameters e.g. array('site_id' => 100);
-         */
-        if ( ! isset($paramArray['response'])) {
-            $paramArray['response'] = 'json';
-        }
-        $response = $paramArray['response'];
-        if ( ! isset($paramArray['state_seq'])) {
-            $paramArray['state_seq'] = 1;
-        }
-        if ( ! isset($paramArray['fn'])) {
-            $paramArray['fn'] = $fn;
-        }
-        $ch = curl_init();
-        if ($ch) {
-            curl_setopt($ch, CURLOPT_URL, $serverURL);
-            curl_setopt($ch, CURLOPT_HEADER, 0);
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-            curl_setopt($ch, CURLOPT_COOKIEJAR, 'cookie.txt');
-            curl_setopt($ch, CURLOPT_COOKIEFILE, 'cookie.txt');
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, encodeURLParams($paramArray));
-            $contents = curl_exec($ch);
-            curl_close($ch);
-            $succeeded = strlen($contents) > 0;
-            // TODO: We should verify the response is a valid EnginesisReponse object
-            if ( ! $succeeded) {
-                $contents = '{"results":{"status":{"success":"0","message":"SYSTEM_ERR","extended_info":"System error: ' . $serverURL . ' replied with no data."},"passthru":{"fn":"' . $fn . '","state_seq":0}}}';
-            }
-        } else {
-            $contents = '{"results":{"status":{"success":"0","message":"SYSTEM_ERR","extended_info":"System error: unable to contact ' . $serverURL . ' or the server did not respond."},"passthru":{"fn":"' . $fn . '","state_seq":0}}}';
-        }
-        return $contents;
-    }
-
     /**
      * @function: checkEmailAddress: process a possible track back request when a page loads.
      * @param {string} email address to validate
-     * @returns bool true if possibly valid
+     * @return bool true if possibly valid
      */
     function checkEmailAddress ($email) {
         //
@@ -296,8 +195,29 @@
     }
 
     /**
+     * @function: ageFromDate: Determine age (number of years) since date.
+     * @param {date} Date to calculate age from.
+     * @param {date} Date to calculate age to, default is today.
+     * @return int number of years from date to today.
+     */
+    function ageFromDate ($checkDate, $referenceDate = null) {
+        $timestamp = strtotime($checkDate);
+        if ($referenceDate == null) {
+            $referenceDateTime = time();
+        } else {
+            $referenceDateTime = strtotime($referenceDate);
+        }
+        $years = date("Y", $referenceDateTime) - date("Y", $timestamp);
+        if (date("md", $timestamp) > date("md", $referenceDateTime)) {
+            $years --;
+        }
+        return $years;
+    }
+
+    /**
      * processTrackBack: process a possible track back request when a page loads.
-     * @param e: the event we are tracking, such as "Clicked Logo". While these are arbitrary, we should try to use the same value for the same event across all pages.
+     * @param e: the event we are tracking, such as "Clicked Logo". While these are arbitrary, we should try to use
+     *     the same value for the same event across all pages. Where are these id's documented?
      * @param u: the anonymous userId who generated the event.
      * @param: i: which newsletter this event came from.
      *
@@ -305,7 +225,7 @@
      *
      */
     function processTrackBack () {
-        global $enginesisServer;
+        global $enginesis;
         $event = getPostOrRequestVar('e', '');
         $userId = getPostOrRequestVar('u', '');
         $newsletterId = getPostOrRequestVar('i', '');
@@ -316,8 +236,7 @@
             } else {
                 $referrer = 'varyn.com';
             }
-            $params = array('u_id' => $userId, 'newsletter_id' => $newsletterId, 'event_id' => $event, 'event_details' => '', 'referrer' => $referrer);
-            callEnginesisAPI('NewsletterTrackingRecord', $enginesisServer, $params);
+            $enginesis->newsletterTrackingRecord($userId, $newsletterId, $event, '', $referrer);
         }
     }
 
@@ -328,16 +247,19 @@
 
     $page = '';
     $siteId = 106;
-    $isLoggedIn = isLoggedInUser();
-    $server = '';
-    $stage = '';
+    $userId = 0;
     $webServer = '';
+    $developerKey = 'DEADDEADDEADDEAD';
+    $enginesis = new Enginesis($siteId, null, $developerKey);
+    $stage = $enginesis->getServerStage();
+    $isLoggedIn = $enginesis->isLoggedInUser();
     $sqlDatabaseConnectionInfo = null;
     $_MAIL_HOSTS = null;
-    $server = serverName();
-    $stage = serverStage($server);
-    $serviceProtocol = getServiceProtocol();
-    $enginesisServer = $serviceProtocol . '://enginesis.varyn' . $stage . '.com';
-    $webServer = $serviceProtocol . '://www.varyn' . $stage . '.com';
-    setDatabaseConnectionInfo();
+//    $server = serverName();
+//    $stage = serverStage($server);
+//    $serviceProtocol = getServiceProtocol();
+//    $enginesisServer = $serviceProtocol . '://enginesis.varyn' . $stage . '.com';
+//    $webServer = $serviceProtocol . '://www.varyn' . $stage . '.com';
+    setDatabaseConnectionInfo($stage);
     setMailHostsTable($stage);
+    processTrackBack();

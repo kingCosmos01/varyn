@@ -1,63 +1,150 @@
 <?php
     require_once('../services/common.php');
- ?>
+    $page = 'home';
+    $search = getPostOrRequestVar('q', null);
+    if ($search != null) {
+        header('location:/allgames.php?q=' . $search);
+        exit;
+    }
+    $showSubscribe = getPostOrRequestVar('s', '0');
+?>
 <!DOCTYPE html>
-<html lang="en-us">
+<html lang="en">
 <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <title>Varyn: Great games you can play anytime, anywhere</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="cache-control" content="max-age=0" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta name="format-detection" content="telephone=no" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Varyn Games | Best Place to Play Games Online and On the Go!</title>
-	<META NAME="Description" CONTENT="Varyn"/>
-	<META NAME="Keywords" CONTENT="Varyn"/>
-	<META NAME="Author" content="Varyn"/>
-	<META NAME="Copyright" content="Copyright © 2014 Varyn. All rights reserved."/>
-	<meta name="google-site-verification" content="" />
-	<meta property="og:title" content="Varyn" />
-	<meta property="og:description" content="Varyn" />
-	<meta property="og:type" content="website" />
-	<meta property="og:url" content="http://www.varyn.com" />
-	<meta property="og:image" content="http://www.varyn.com/images/share_img_0.jpg" />
-	<meta property="og:image" content="http://www.varyn.com/images/share_img_1.jpg" />
-	<meta property="og:image" content="http://www.varyn.com/images/share_img_2.jpg" />
-	<meta property="og:site_name" content="Varyn" />
-	<meta property="og:type" content="website" />
-	<meta property="fb:admins" content="726468316" />
-	<meta property="fb:app_id" content="" />
-    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
-    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
-    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
-    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
-    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
-    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
-    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
-    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="description" content="Varyn makes games using technology that performs on the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between desktop, tablet, and smart-phone.">
+    <meta name="author" content="Varyn">
+    <link href="/common/bootstrap.min.css" rel="stylesheet">
+    <link href="/common/carousel.css" rel="stylesheet">
+    <link href="/common/varyn.css" rel="stylesheet">
+    <link rel="icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" href="/favicon-48x48.png" sizes="48x48"/>
     <link rel="icon" type="image/png" href="/favicon-196x196.png" sizes="196x196">
     <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
     <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
     <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
-    <meta name="msapplication-TileColor" content="#b91d47">
-    <meta name="msapplication-TileImage" content="/mstile-144x144.png">
-    <link rel="image_src" href="/images/VarynCardLogo.png" />
-    <link rel="stylesheet" href="/common/jquery.mobile.min.css" />
-    <link rel="stylesheet" href="/common/main.css" type="text/css" media="screen" />
-    <link rel="stylesheet" href="/common/nivo-slider.css" type="text/css" media="screen" />
-    <link rel="stylesheet" href="/common/themes/dark/default.css" type="text/css" media="screen" />
-    <script type="text/javascript" src="/common/head.min.js"></script>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-60x60.png" sizes="60x60"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-72x72.png" sizes="72x72"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-76x76.png"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-76x76.png" sizes="76x76"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-114x114.png" sizes="114x114"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-120x120.png" sizes="120x120"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-152x152.png" sizes="152x152"/>
+    <link rel="shortcut icon" href="/favicon-196x196.png">
+    <meta property="fb:app_id" content="" />
+    <meta property="fb:admins" content="726468316" />
+    <meta property="og:title" content="Varyn: Great games you can play anytime, anywhere">
+    <meta property="og:url" content="http://www.varyn.com">
+    <meta property="og:site_name" content="Varyn">
+    <meta property="og:description" content="Varyn makes games using technology that performs on the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between desktop, tablet, and smart-phone.">
+    <meta property="og:image" content="http://www.varyn.com/images/1200x900.png"/>
+    <meta property="og:image" content="http://www.varyn.com/images/1024.png"/>
+    <meta property="og:image" content="http://www.varyn.com/images/1200x600.png"/>
+    <meta property="og:image" content="http://www.varyn.com/images/600x600.png"/>
+    <meta property="og:image" content="http://www.varyn.com/images/2048x1536.png"/>
+    <meta property="og:type" content="game"/>
+    <meta name="twitter:card" content="photo"/>
+    <meta name="twitter:site" content="@varyndev"/>
+    <meta name="twitter:creator" content="@varyndev"/>
+    <meta name="twitter:title" content="Varyn: Great games you can play anytime, anywhere"/>
+    <meta name="twitter:image:src" content="http://www.varyn.com/images/600x600.png"/>
+    <meta name="twitter:domain" content="varyn.com"/>
+    <script src="/common/head.min.js"></script>
+    <script type="text/javascript">
+
+        var enginesisSiteId = <?php echo($siteId);?>,
+            serverStage = "<?php echo($stage);?>",
+            enginesisGameListId = 6,
+            enginesisHomePagePromoId = 2;
+
+        function initApp() {
+            var serverHostDomain = 'varyn' + serverStage + '.com',
+                showSubscribe = '<?php echo($showSubscribe);?>';
+
+            document.domain = serverHostDomain;
+            window.EnginesisSession = enginesis(enginesisSiteId, 0, 0, 'enginesis.' + serverHostDomain, '', '', 'en', enginesisCallBack);
+            EnginesisSession.gameListListGames(enginesisGameListId, null);
+            EnginesisSession.promotionItemList(enginesisHomePagePromoId, EnginesisSession.getDateNow(), null);
+            if (showSubscribe == '1') {
+                showSubscribePopup();
+            }
+        }
+
+        function enginesisCallBack (enginesisResponse) {
+            var succeeded,
+                errorMessage;
+
+            if (enginesisResponse != null && enginesisResponse.fn != null) {
+                succeeded = enginesisResponse.results.status.success;
+                errorMessage = enginesisResponse.results.status.message;
+                switch (enginesisResponse.fn) {
+                    case "NewsletterAddressAssign":
+                        handleNewsletterServerResponse(succeeded);
+                        break;
+                    case "PromotionItemList":
+                        if (succeeded == 1) {
+                            promotionItemListResponse(enginesisResponse.results.result);
+                        }
+                        break;
+                    case "GameListListGames":
+                        if (succeeded == 1) {
+                            gameListGamesResponse(enginesisResponse.results.result, "HomePageGamesArea", null, false);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        head.ready(function() {
+            initApp();
+        });
+        head.js("/common/modernizr.custom.74056.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "/common/common.js", "/common/enginesis.js", "/common/ShareHelper.js");
+
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-41765479-1', 'auto');
+        ga('send', 'pageview');
+    </script>
 </head>
 <body>
-<div id="page_container" data-role="page">
 <?php
-    $page = 'play';
     include_once('common/header.php');
 ?>
-    <div id="page_content_area" data-role="content">
-        <h1>Content Area</h1>
-        <p>This is the content area where this page content should be displayed.</p>
+<div class="container marketing">
+    <div class="panel panel-primary panel-padded">
+        <h3>Varyn Template Page</h3>
+        <p>This is a template page to be used as a starting point for a new page.</p>
     </div>
+    <div id="bottomAd" class="row">
+        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+        <!-- Varyn Responsive -->
+        <ins class="adsbygoogle"
+             style="display:block"
+             data-ad-client="ca-pub-9118730651662049"
+             data-ad-slot="5571172619"
+             data-ad-format="auto"></ins>
+        <script>
+            (adsbygoogle = window.adsbygoogle || []).push({});
+        </script>
+    </div>
+</div><!-- /.container -->
 <?php
     include_once('common/footer.php');
 ?>
-</div><!-- page_container -->
 </body>
 </html>

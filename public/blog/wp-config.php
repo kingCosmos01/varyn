@@ -1,6 +1,15 @@
 <?php
-    require_once('../../services/common.php');
+require_once(dirname(__FILE__) . '/../../services/common.php');
+    error_reporting(E_ALL);
+    ini_set('error_reporting', E_ALL);
+    ini_set("display_errors", 'On');
+    ini_set('html_errors', 'On');
 
+    /**
+     * Drop all tables, reset WordPress
+     * use wordpress_varyn;
+     * drop table wp_commentmeta, wp_comments, wp_links, wp_options, wp_postmeta, wp_posts, wp_term_relationships, wp_term_taxonomy, wp_terms, wp_usermeta, wp_users;
+     */
 /**
  * The base configurations of the WordPress.
  *
@@ -16,7 +25,7 @@
  * @package WordPress
  */
 
-// ** MySQL settings - You can get this info from your web host ** //
+// ** MySQL settings are taken from services/common and are based on teh server $stage setting ** //
 /** The name of the database for WordPress */
 define('DB_NAME', $sqlDatabaseConnectionInfo['db']);
 
@@ -34,6 +43,7 @@ define('DB_CHARSET', 'utf8');
 
 /** The Database Collate type. Don't change this if in doubt. */
 define('DB_COLLATE', '');
+
 
 /**#@+
  * Authentication Unique Keys and Salts.
@@ -85,8 +95,9 @@ define('WP_DEBUG', false);
 /* That's all, stop editing! Happy blogging. */
 
 /** Absolute path to the WordPress directory. */
-if ( !defined('ABSPATH') )
-	define('ABSPATH', dirname(__FILE__) . '/');
+if ( !defined('ABSPATH') ) {
+    define('ABSPATH', dirname(__FILE__) . '/blog/');
+}
 
 /** Sets up WordPress vars and included files. */
 require_once(ABSPATH . 'wp-settings.php');

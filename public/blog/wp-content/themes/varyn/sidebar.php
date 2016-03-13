@@ -8,6 +8,7 @@
  * @subpackage Twenty_Twelve
  * @since Twenty Twelve 1.0
  */
+    return; // turn off this side-bar shit -- jf 20150822
 ?>
 
 	<?php if ( is_active_sidebar( 'sidebar-1' ) ) : ?>

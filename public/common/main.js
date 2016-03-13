@@ -6,28 +6,6 @@
  * @summary: The main JavaScript functionality supporting all the sites pages.
  */
 
-/* ============== Globals Site Configuration Parameters ====================== */
-var SiteConfiguration = {
-    debug: true,
-    serverStage: '-l',
-    originWhiteList: ["www.enginesis.com", "games.enginesis.com", "metrics.enginesis.com", "www.enginesis-l.com", "games.enginesis-l.com", "metrics.enginesis-l.com", "www.enginesis-q.com", "games.enginesis-q.com", "metrics.enginesis-q.com"],
-    enginesisSiteId: 106,
-    enginesisGameId: 1077,
-    enginesisGameKey: 'a9e9278e7c661fd48c1251d473e0adaf',
-    enginesisDeveloperKey: 'deaddead',
-    languageCode: 'en',
-    enginesisSessionCookieName: 'engsession',
-    varynLoginCookieName: 'varynsession',
-    varynUserInfoCookieName: 'varynuserinfo',
-    varynFacebookAppId: '489296364486097'
-}
-
-if ( ! document.getElementById) {
-    document.getElementById = function() {
-        return null;
-    };
-}
-
 // Facebook initialization once FB.js loads
 window.fbAsyncInit = function() {
     facebookInit();
@@ -395,11 +373,11 @@ function registrationFormSubmit ()
                 1, "", "", "", "", 106, 1, "");
             rememberCredentialsForAutologin(userName, password);
         } else {
-            showErrorMessage('Registration', 'Registration incomplete, something is wrong with ' + fieldWithError + '. Name, password, and email are required.');
+            showErrorPopup('Registration', 'Registration incomplete, something is wrong with ' + fieldWithError + '. Name, password, and email are required.');
             // TODO: Focus form on fieldWithError
         }
     } else {
-        showErrorMessage('Registration', 'Please provide the required fields to register your account. Name, password, and email are required.');
+        showErrorPopup('Registration', 'Please provide the required fields to register your account. Name, password, and email are required.');
     }
 }
 
@@ -411,7 +389,7 @@ function loginSubmit ()
     } else {
         var username = document.forms["login-form"]["username"].value;
         var password = document.forms["login-form"]["password"].value;
-        showErrorMessage('Login', 'You must provide your user name and password to login. ' + username + ' with ' + password + ' just wont do.');
+        showErrorPopup('Login', 'You must provide your user name and password to login. ' + username + ' with ' + password + ' just wont do.');
     }
 }
 
@@ -545,7 +523,7 @@ function submitSearch ()
     if (searchId != null) {
         var query = searchId.value;
         if (query != null && query.length > 0) {
-            showErrorMessage("Search", "We are going to look for " + query);
+            showErrorPopup("Search", "We are going to look for " + query);
             window.location = '/services/AllGames.php?q=' + query;
         }
     }
@@ -774,10 +752,10 @@ function popupErrorMessage (title, message)
     setCoverSize('popupCover');
     toggleDiv('popupErrorMessage');
     setWindowPosition('popupErrorMessage', 300, 240);
-    setErrorMessage(title, message);
+    showErrorPopup(title, message);
 }
 
-function showErrorMessage (title, message)
+function showErrorPopup (title, message)
 {
     var id = document.getElementById('popupCover');
     if (id != null) {
