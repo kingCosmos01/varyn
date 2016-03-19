@@ -19,7 +19,7 @@ var varyn = function (parameters) {
             serverHostDomain: 'varyn' + parameters.serverStage + '.com',
             languageCode: parameters.languageCode,
             gameListIdTop: parameters.gameListIdTop || 4,
-            gameListIdNew: parameters.gameListIdNew || 8,
+            gameListIdNew: parameters.gameListIdNew || 5,
             homePagePromoId: parameters.homePagePromoId || 3,
             gameListState: 1,
 
@@ -683,7 +683,7 @@ var varyn = function (parameters) {
         },
 
         /**
-         * 
+         *
          * @param results
          */
         promotionItemListResponse: function (results) {
