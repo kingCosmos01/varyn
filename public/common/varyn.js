@@ -1,9 +1,8 @@
 /**
- * Common JavaScript and utility functions used across Varyn.com
+ * Common JavaScript and utility functions used across Varyn.com. Should be loaded on every page.
  *
  *
  */
-
 var varyn = function (parameters) {
     "use strict";
 
@@ -15,14 +14,14 @@ var varyn = function (parameters) {
             varynUserInfoCookieName: 'varynuserinfo',
             varynFacebookAppId: '489296364486097',
             developerKey: 'deaddeaddeaddead',
-            enginesisSiteId: parameters.siteId,
+            siteId: parameters.siteId,
             serverStage: parameters.serverStage,
             serverHostDomain: 'varyn' + parameters.serverStage + '.com',
             languageCode: parameters.languageCode,
-            enginesisGameListIdTop: 7,
-            enginesisGameListIdNew: 8,
+            gameListIdTop: parameters.gameListIdTop || 4,
+            gameListIdNew: parameters.gameListIdNew || 8,
+            homePagePromoId: parameters.homePagePromoId || 3,
             gameListState: 1,
-            enginesisHomePagePromoId: 3,
 
             minPasswordLength: 4,
             minUserNameLength: 3,
@@ -35,32 +34,43 @@ var varyn = function (parameters) {
     return {
 
         /**
-         * Call this to initialize a webpage app, get the Enginesis instance, and begin the page operations.
+         * Call this to initialize the varyn app, get the Enginesis instance, and begin the page operations.
          */
-        initApp: function() {
+        initApp: function(pageView) {
 
             var enginesisParameters = {
-                siteId: siteConfiguration.enginesisSiteId,
-                gameId: 0,
-                gameGroupId: 0,
+                siteId: siteConfiguration.siteId,
+                gameId: siteConfiguration.gameId || 0,
+                gameGroupId: siteConfiguration.gameGroupId || 0,
                 serverStage: 'enginesis.' + siteConfiguration.serverHostDomain,
-                authToken: '',
+                authToken: siteConfiguration.authToken || '',
                 developerKey: siteConfiguration.developerKey,
-                languageCode: siteConfiguration.languageCode,
-                callback: this.enginesisCallBack
+                languageCode: this.parseLanguageCode(siteConfiguration.languageCode),
+                callBackFunction: this.enginesisCallBack
             };
             currentPage = this.getCurrentPage();
             document.domain = siteConfiguration.serverHostDomain;
             enginesisSession = enginesis(enginesisParameters);
-
-            // page specific
-            enginesisSession.gameListListGames(siteConfiguration.enginesisGameListIdTop, null);
-            enginesisSession.promotionItemList(siteConfiguration.enginesisHomePagePromoId, enginesisSession.getDateNow(), null);
-
             var showSubscribe = '<?php echo($showSubscribe);?>';
             if (showSubscribe == '1') {
                 showSubscribePopup();
             }
+            if (pageView !== undefined) {
+                var pageViewTemplate = pageView(varynApp, siteConfiguration);
+                pageViewTemplate.pageLoaded();
+            }
+        },
+
+        getEnginesisSession: function () {
+            return enginesisSession;
+        },
+
+        getSiteConfiguration: function () {
+            return siteConfiguration;
+        },
+
+        parseLanguageCode: function (languageCode) {
+            return languageCode.substr(0, 2);
         },
 
         /**
@@ -136,6 +146,27 @@ var varyn = function (parameters) {
         },
 
         /**
+         * We expect a standard errorContent div to appear on any page that will display an error message
+         * resulting from a user interaction.
+         * @param errorMessage
+         * @param fieldWithError
+         */
+        showErrorMessage: function (errorMessage, fieldWithError) {
+            var errorContent = document.getElementById('errorContent'),
+                errorFieldElement = document.getElementById(fieldWithError);
+
+            if (errorMessage == "") {
+                errorContent.innerHTML = '<p>&nbsp;</p>';
+            } else if (errorContent != null) {
+                errorContent.innerHTML = '<p class="error-text">' + errorMessage + '</p>';
+            }
+            if (errorFieldElement != null) {
+                $(errorFieldElement).removeClass("popup-form-input").addClass("popup-form-input-error");
+                errorFieldElement.focus();
+            }
+        },
+
+        /**
          * setElementSizeAndColor of DOM element
          * @param DOM element
          * @param requiredWidth
@@ -207,6 +238,31 @@ var varyn = function (parameters) {
                     eval(scripts[i].innerHTML);
                 }
             }
+        },
+
+        /**
+         * Check if this browser supports CORS.
+         * @returns {boolean}
+         */
+        checkBrowserCORSCompatibility: function () {
+            var supported = (typeof window.postMessage !== "undefined");
+            return supported;
+        },
+
+        /**
+         * Verify the originating request is coming from a trusted source.
+         * @param origin
+         * @returns {boolean}
+         */
+        verifyCORSWhiteList: function (origin) {
+            var ok = false;
+            for (var i=0; i < SiteConfiguration.originWhiteList.length; i++) {
+                if (origin === SiteConfiguration.originWhiteList[i]) {
+                    ok = true;
+                    break;
+                }
+            }
+            return ok;
         },
 
         /**
@@ -293,7 +349,7 @@ var varyn = function (parameters) {
 
             if (isValidEmail(email)) {
                 setPopupMessage("subscribePopup", "Subscribing " + email + " with the service...", "popupMessageResponseOK");
-                EnginesisSession.newsletterAddressAssign(email, '', '', '2', null); // the newsletter category id for Varyn/General is 2
+                enginesisSession.newsletterAddressAssign(email, '', '', '2', null); // the newsletter category id for Varyn/General is 2
             } else {
                 errorField = "emailInput";
                 setPopupMessage("subscribePopup", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
@@ -419,7 +475,7 @@ var varyn = function (parameters) {
                 var userName = element.value.toString();
                 if (userName && isValidUserName(userName)) {
                     waitingForUserNameReply = true;
-                    EnginesisSession.userGetByName(userName, function (enginesisResponse) {
+                    enginesisSession.userGetByName(userName, function (enginesisResponse) {
                         var userNameAlreadyExists = false;
                         waitingForUserNameReply = false;
                         if (enginesisResponse != null && enginesisResponse.fn != null) {
@@ -578,8 +634,8 @@ var varyn = function (parameters) {
                 newDiv,
                 itemHtml,
                 countOfGamesShown,
-                baseURL = document.location.protocol + "//" + EnginesisSession.serverBaseUrlGet() + "/games/",
-                isTouchDevice = EnginesisSession.isTouchDevice(),
+                baseURL = document.location.protocol + "//" + enginesisSession.serverBaseUrlGet() + "/games/",
+                isTouchDevice = enginesisSession.isTouchDevice(),
                 adsDisplayPositions = new Array(3, 21, 41, 60, 80, 100),
                 numberOfAdSpots;
 
@@ -602,7 +658,7 @@ var varyn = function (parameters) {
                         continue; // only show HTML5 or embed games on touch devices
                     }
                     countOfGamesShown ++;
-                    itemHtml = makeGameModule(gameItem.game_id, gameItem.title, gameItem.short_desc, baseURL + gameItem.game_name + "/images/300x225.png", "/play.php?gameid=" + gameItem.game_id);
+                    itemHtml = this.makeGameModule(gameItem.game_id, gameItem.title, gameItem.short_desc, baseURL + gameItem.game_name + "/images/300x225.png", "/play.php?gameid=" + gameItem.game_id);
                     newDiv = document.createElement('div');
                     newDiv.className = "col-sm-6 col-md-4";
                     newDiv.innerHTML = itemHtml;
@@ -613,9 +669,9 @@ var varyn = function (parameters) {
                         newDiv = document.createElement('div');
                         newDiv.className = "col-sm-6 col-md-4";
                         if (adsShownCounter == 1) {
-                            newDiv.innerHTML = makeCouponModule();
+                            newDiv.innerHTML = this.makeCouponModule();
                         } else {
-                            newDiv.innerHTML = makeAdModule();
+                            newDiv.innerHTML = this.makeAdModule();
                         }
                         newDiv.id = 'AdSpot' + adsShownCounter;
                         gamesContainer.appendChild(newDiv);
@@ -666,11 +722,11 @@ var varyn = function (parameters) {
                         if (succeeded == 1) {
                             if (gameListState == 1) {
                                 gameListGamesResponse(enginesisResponse.results.result, "HomePageTopGames", null, false);
-                                gameListState = 2;
-                                EnginesisSession.gameListListGames(enginesisGameListIdNew, null);
+                                this.gameListState = 2;
+                                enginesisSession.gameListListGames(enginesisGameListIdNew, null);
                             } else if (gameListState == 2) {
                                 gameListGamesResponse(enginesisResponse.results.result, "HomePageHotGames", null, false);
-                                gameListState = 0;
+                                this.gameListState = 0;
                             }
                         }
                         break;
@@ -682,25 +738,27 @@ var varyn = function (parameters) {
     }
 };
 
-
 /**
- * determine full extent of the window available to the application
- * Extra Warning: this function must be global (on window object)
- * @returns {object}
+ * Determine full extent of the window available to the application
+ * Extra Warning: this function must be global (on window object) because we will refer to it globally later.
+ * @param container {object} DOM element that extends the full width and height of the page (use body unless you have a
+ * full size div container.)
+ * @returns {object} {fullWidth, fullHeight}
  */
 // container = "gameContainer";
 function getDocumentSize (container) {
     var gameContainerDiv = document.getElementById(container),
-        result = {fullWidth: document.documentElement.clientWidth, fullHeight: document.documentElement.clientHeight};
+        result = {fullWidth: document.documentElement.clientWidth, fullHeight: document.documentElement.clientHeight},
+        enginesisSession = varyn.getEnginesisSession();
 
     if (gameContainerDiv != null) {
         result.containerWidth = gameContainerDiv.clientWidth;
         result.containerHeight = gameContainerDiv.clientHeight;
     }
-    if (EnginesisSession != null) {
-        result.gameWidth = EnginesisSession.gameWidth;
-        result.gameHeight = EnginesisSession.gameHeight;
-        result.gameAspectRatio = EnginesisSession.gameAspectRatio;
+    if (enginesisSession != null) {
+        result.gameWidth = enginesisSession.gameWidth;
+        result.gameHeight = enginesisSession.gameHeight;
+        result.gameAspectRatio = enginesisSession.gameAspectRatio;
     }
     return result;
 }

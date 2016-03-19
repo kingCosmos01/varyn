@@ -70,27 +70,6 @@ function enginesisResponseHandler (enginesisResult)
     }
 }
 
-function checkBrowserCORSCompatibility ()
-{
-    var passed = true;
-    if (typeof window.postMessage === "undefined") {
-        passed = false; // postMessage not supported in this browser
-    }
-    return passed;
-}
-
-function verifyCORSWhiteList (origin)
-{
-    // To support CORS, verify the originating request is someone we trust
-    var ok = false;
-    for (var i=0; i < SiteConfiguration.originWhiteList.length; i++) {
-        if (origin === SiteConfiguration.originWhiteList[i]) {
-            ok = true;
-            break;
-        }
-    }
-    return ok;
-}
 
 function queryStringAsArray (queryString)
 {
