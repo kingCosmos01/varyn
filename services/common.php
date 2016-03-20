@@ -16,6 +16,7 @@
     require_once('Enginesis.php');
     date_default_timezone_set('America/New_York');
     setErrorReporting(true);
+    define('VARYN_VERSION', '2.1.3');
     define('LOGFILE_PREFIX', 'varyn_php_');
     define('SERVER_DATA_PATH', '..' . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR);
 
