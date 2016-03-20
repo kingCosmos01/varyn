@@ -1,40 +1,50 @@
 /**
- * Page specific functionality on the Profile page.
+ * Page specific functionality on the Varyn Profile page.
  */
-define(function () {
+var varynProfilePage = function (varynApp, siteConfiguration) {
+    "use strict";
+
+    var enginesisSession = varynApp.getEnginesisSession(),
+        errorFieldId = "",
+        inputFocusId = "";
+
+
     return {
-        init: function () {
-            $('#register_form_username').on('change', onChangeRegisterUserName);
-            $('#register_form_username').on('input', onChangeRegisterUserName);
-            $('#register_form_username').on('propertychange', onChangeRegisterUserName);
-            setupRegisterUserNameOnChangeHandler();
+        pageLoaded: function (pageViewParameters) {
+            if (pageViewParameters.errorFieldId !== undefined) {
+                this.errorFieldId = pageViewParameters.errorFieldId;
+            }
+            if (pageViewParameters.inputFocusId !== undefined) {
+                this.inputFocusId = pageViewParameters.inputFocusId;
+            }
+            $('#register_form_username').on('change', varynApp.onChangeRegisterUserName);
+            $('#register_form_username').on('input', varynApp.onChangeRegisterUserName);
+            $('#register_form_username').on('propertychange', varynApp.onChangeRegisterUserName);
+            varynApp.setupRegisterUserNameOnChangeHandler();
             gapi.signin2.render('g-signin2', {
                 'scope': 'https://www.googleapis.com/auth/plus.login',
                 'width': 200,
                 'height': 50,
                 'longtitle': true,
                 'theme': 'dark',
-                'onsuccess': onGapiSuccess,
-                'onfailure': onGapiFailure
+                'onsuccess': this.onGapiSuccess,
+                'onfailure': this.onGapiFailure
             });
-            $('#profile_forgot_password').click(forgotPassword);
-            $('#facebook-connect-button').click(loginFacebook);
-            onPageLoadSetFocus();
-            onChangeRegisterUserName($('#register_form_username').get(0), 'register_user_name_unique'); // in case field is pre-populated
+            $('#profile_forgot_password').click(this.forgotPassword);
+            $('#facebook-connect-button').click(this.loginFacebook);
+            varynApp.onChangeRegisterUserName($('#register_form_username').get(0), 'register_user_name_unique'); // in case field is pre-populated
+            this.onPageLoadSetFocus();
 //        showSubscribePopup();
 //        showLoginPopup(true);
 //        showRegistrationPopup(true);
         },
 
         onPageLoadSetFocus: function () {
-            var errorFieldId = "<?php echo($errorFieldId);?>",
-                inputFocusId = "<?php echo($inputFocusId);?>";
-
-            if (inputFocusId != "") {
-                document.getElementById(inputFocusId).focus();
+            if (this.inputFocusId != "") {
+                document.getElementById(this.inputFocusId).focus();
             }
-            if (errorFieldId != "") {
-                $('#' + errorFieldId).removeClass("popup-form-input").addClass("popup-form-input-error");
+            if (this.errorFieldId != "") {
+                $('#' + this.errorFieldId).removeClass("popup-form-input").addClass("popup-form-input-error");
             }
         },
 
@@ -46,12 +56,12 @@ define(function () {
 
             $("#login_form_username").removeClass("popup-form-input-error").addClass("popup-form-input");
             $("#login_form_password").removeClass("popup-form-input-error").addClass("popup-form-input");
-            showErrorMessage("", "");
-            if (errorMessage == "" && ! isValidUserName(userName)) {
+            varynApp.showErrorMessage("", "");
+            if (errorMessage == "" && ! varynApp.isValidUserName(userName)) {
                 errorMessage = "User name is not acceptable. Please enter your user name.";
                 errorField = "login_form_username";
             }
-            if (errorMessage == "" && ! isValidPassword(password)) {
+            if (errorMessage == "" && ! varynApp.isValidPassword(password)) {
                 errorMessage = "Password is not acceptable, at least 4 characters. Please retry your password.";
                 errorField = "login_form_password";
             }
@@ -59,7 +69,7 @@ define(function () {
                 // good enough to send to the server for more validation
                 document.getElementById('login').submit();
             } else {
-                showErrorMessage(errorMessage, errorField);
+                varynApp.showErrorMessage(errorMessage, errorField);
             }
         },
 
@@ -76,7 +86,7 @@ define(function () {
             $("#register_form_username").removeClass("popup-form-input-error").addClass("popup-form-input");
             $("#register_form_password").removeClass("popup-form-input-error").addClass("popup-form-input");
             $("#register_form_email").removeClass("popup-form-input-error").addClass("popup-form-input");
-            showErrorMessage("", "");
+            varynApp.showErrorMessage("", "");
             if (errorMessage == "" && ! isValidUserName(userName)) {
                 errorMessage = "User name is not acceptable. Please enter your user name.";
                 errorField = "register_form_username";
@@ -102,7 +112,7 @@ define(function () {
                 errorField = "register_form_captcha";
             }
             if (errorMessage != "") {
-                showErrorMessage(errorMessage, errorField);
+                varynApp.showErrorMessage(errorMessage, errorField);
             }
             return errorMessage == "";
         },
@@ -140,4 +150,4 @@ define(function () {
 
         }
     }
-});
+};

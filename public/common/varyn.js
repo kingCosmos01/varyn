@@ -29,14 +29,15 @@ var varyn = function (parameters) {
         },
         currentPage = '',
         waitingForUserNameReply = false,
-        enginesisSession = null;
+        enginesisSession = null,
+        pageViewParameters = null;
 
     return {
 
         /**
          * Call this to initialize the varyn app, get the Enginesis instance, and begin the page operations.
          */
-        initApp: function(pageView) {
+        initApp: function(pageView, pageViewParameters) {
 
             var enginesisParameters = {
                 siteId: siteConfiguration.siteId,
@@ -47,18 +48,22 @@ var varyn = function (parameters) {
                 developerKey: siteConfiguration.developerKey,
                 languageCode: this.parseLanguageCode(siteConfiguration.languageCode),
                 callBackFunction: this.enginesisCallBack
-            };
+            },
+            pageViewTemplate = null;
+
             currentPage = this.getCurrentPage();
+            this.pageViewParameters = pageViewParameters;
             document.domain = siteConfiguration.serverHostDomain;
             enginesisSession = enginesis(enginesisParameters);
             var showSubscribe = '<?php echo($showSubscribe);?>';
-            if (showSubscribe == '1') {
-                showSubscribePopup();
+            if (pageViewParameters.showSubscribe !== undefined && pageViewParameters.showSubscribe == '1') {
+                varynApp.showSubscribePopup();
             }
             if (pageView !== undefined) {
-                var pageViewTemplate = pageView(varynApp, siteConfiguration);
-                pageViewTemplate.pageLoaded();
+                pageViewTemplate = pageView(varynApp, siteConfiguration);
+                pageViewTemplate.pageLoaded(pageViewParameters);
             }
+            return pageViewTemplate;
         },
 
         getEnginesisSession: function () {
@@ -453,9 +458,9 @@ var varyn = function (parameters) {
         },
 
         setupRegisterUserNameOnChangeHandler: function () {
-            $('#register-username').on('change', onChangeRegisterUserName);
-            $('#register-username').on('input', onChangeRegisterUserName);
-            $('#register-username').on('propertychange', onChangeRegisterUserName);
+            $('#register-username').on('change', this.onChangeRegisterUserName);
+            $('#register-username').on('input', this.onChangeRegisterUserName);
+            $('#register-username').on('propertychange', this.onChangeRegisterUserName);
         },
 
         /**

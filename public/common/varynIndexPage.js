@@ -9,7 +9,7 @@ var varynIndexPage = function (varynApp, siteConfiguration) {
     var enginesisSession = varynApp.getEnginesisSession();
 
     return {
-        pageLoaded: function () {
+        pageLoaded: function (pageViewParameters) {
             // Load Hot Games, New Games, and Promotions
             enginesisSession.gameListListGames(siteConfiguration.gameListIdTop, this.enginesisCallBack);
             enginesisSession.gameListListGames(siteConfiguration.gameListIdNew, this.enginesisCallBack);

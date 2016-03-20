@@ -312,9 +312,9 @@
                     <div class="form-group">
                         <label for="login_form_username">User name:</label><input type="text" id="login_form_username" name="login_form_username" tabindex="1" maxlength="20" class="popup-form-input" value="<?php echo($userName);?>"/><br/>
                         <label for="login_form_password">Password:</label><input type="password" id="login_form_password" name="login_form_password" tabindex="2" maxlength="20" class="popup-form-input" value="<?php echo($password);?>" /><br/>
-                        <input type="button" class="btn btn-success" id="login-button" title="Login" value="Login >" tabindex="3" onclick="loginValidation();" />
+                        <input type="button" class="btn btn-success" id="login-button" title="Login" value="Login >" tabindex="3" onclick="profilePage.loginValidation();" />
                         <span id="rememberme-container"><input type="checkbox" tabindex="4" checked="checked" name="rememberme" id="rememberme"><label for="rememberme">Remember Me</label></span>
-                        <a id="profile_forgot_password" href="#" tabindex="5" onclick="forgotPassword();">Forgot password?</a><input type="hidden" name="action" value="login" />
+                        <a id="profile_forgot_password" href="#" tabindex="5" onclick="profilePage.forgotPassword();">Forgot password?</a><input type="hidden" name="action" value="login" />
                     </div>
                 </form>
             </div>
@@ -322,7 +322,7 @@
             </div>
             <div class="panel col-md-3 profile-sign-up">
                 <h4>Not a member?</h4>
-                <input type="button" class="btn btn-primary btn-varyn" id="profile_register_now" value="Sign up with Email" onclick="showRegistrationPopup(true);" title="Sign up with your email address" /><br/>
+                <input type="button" class="btn btn-primary btn-varyn" id="profile_register_now" value="Sign up with Email" onclick="profilePage.showRegistrationPopup(true);" title="Sign up with your email address" /><br/>
                 <h4>Or</h4>
                 <input type="button" class="btn btn-primary btn-facebook" id="facebook-connect-button" value="Login with facebook" title="Login with your Facebook account" />
                 <input type="button" class="btn btn-primary btn-gapi-signin" id="gapi-signin-button" value="Sign in with Google" title="Sign in with your Google+ account" />
@@ -367,6 +367,35 @@
 <?php
     include_once('common/footer.php');
  ?>
+<script type="text/javascript">
+
+    var varynApp,
+        profilePage,
+        profilePageParameters = {
+            errorFieldId: "<?php echo($errorFieldId);?>",
+            inputFocusId: "<?php echo($inputFocusId);?>",
+            showSubscribe: "<?php echo($showSubscribe);?>"
+        };
+
+    head.ready(function() {
+        var siteConfiguration = {
+            siteId: <?php echo($siteId);?>,
+            serverStage: "<?php echo($stage);?>",
+            languageCode: navigator.language || navigator.userLanguage
+        };
+        varynApp = varyn(siteConfiguration);
+        profilePage = varynApp.initApp(varynProfilePage, profilePageParameters);
+    });
+
+    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//connect.facebook.net/en_US/all.js", "//platform.linkedin.com/in.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "common/varyn.js", "common/varynProfilePage.js");
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-41765479-1', 'varyn.com');
+    ga('send', 'pageview');
+    <?php if (strlen($search) > 0) { ?>
+    ga('send', 'event', 'game', 'search', '<?php echo($search);?>', 1);
+    <?php } ?>
+</script>
 </div><!-- page_container -->
 </body>
 </html>

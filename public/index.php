@@ -156,7 +156,10 @@
     ?>
   <script type="text/javascript">
 
-      var varynApp;
+      var varynApp,
+          pageParameters = {
+              showSubscribe: "<?php echo($showSubscribe);?>"
+          };
 
       head.ready(function() {
           var siteConfiguration = {
@@ -165,7 +168,7 @@
               languageCode: navigator.language || navigator.userLanguage
           };
           varynApp = varyn(siteConfiguration);
-          varynApp.initApp(varynIndexPage);
+          varynApp.initApp(varynIndexPage, pageParameters);
       });
 
       head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//connect.facebook.net/en_US/all.js", "//platform.linkedin.com/in.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "common/varyn.js", "common/varynIndexPage.js");
