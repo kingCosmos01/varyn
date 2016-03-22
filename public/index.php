@@ -157,17 +157,18 @@
     ?>
   <script type="text/javascript">
 
-      var varynApp,
-          pageParameters = {
-              showSubscribe: "<?php echo($showSubscribe);?>"
-          };
+      var varynApp;
 
       head.ready(function() {
           var siteConfiguration = {
-              siteId: <?php echo($siteId);?>,
-              serverStage: "<?php echo($stage);?>",
-              languageCode: navigator.language || navigator.userLanguage
-          };
+                  siteId: <?php echo($siteId);?>,
+                  serverStage: "<?php echo($stage);?>",
+                  languageCode: navigator.language || navigator.userLanguage
+              },
+              pageParameters = {
+                  showSubscribe: "<?php echo($showSubscribe);?>"
+              };
+
           varynApp = varyn(siteConfiguration);
           varynApp.initApp(varynIndexPage, pageParameters);
       });

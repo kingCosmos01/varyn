@@ -55,7 +55,6 @@ var varyn = function (parameters) {
             this.pageViewParameters = pageViewParameters;
             document.domain = siteConfiguration.serverHostDomain;
             enginesisSession = enginesis(enginesisParameters);
-            var showSubscribe = '<?php echo($showSubscribe);?>';
             if (pageViewParameters.showSubscribe !== undefined && pageViewParameters.showSubscribe == '1') {
                 varynApp.showSubscribePopup();
             }

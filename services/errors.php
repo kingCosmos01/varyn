@@ -19,6 +19,7 @@
         'INVALID_USER_ID' => 'There is no user registered with the provided information.',
         'NAME_IN_USE' => 'The user name is already in use. Please choose another user name.',
         'REGISTRATION_NOT_CONFIRMED' => 'Registration has not been confirmed.',
+        'INVALID_LOGIN' => 'Your credentials do not match.',
         'SYSTEM_ERROR' => 'There was a system error processing your request. Information has been sent to support to remedy the problem.'
     );
 

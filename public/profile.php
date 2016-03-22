@@ -370,19 +370,19 @@
 <script type="text/javascript">
 
     var varynApp,
-        profilePage,
-        profilePageParameters = {
-            errorFieldId: "<?php echo($errorFieldId);?>",
-            inputFocusId: "<?php echo($inputFocusId);?>",
-            showSubscribe: "<?php echo($showSubscribe);?>"
-        };
+        profilePage;
 
     head.ready(function() {
         var siteConfiguration = {
-            siteId: <?php echo($siteId);?>,
-            serverStage: "<?php echo($stage);?>",
-            languageCode: navigator.language || navigator.userLanguage
-        };
+                siteId: <?php echo($siteId);?>,
+                serverStage: "<?php echo($stage);?>",
+                languageCode: navigator.language || navigator.userLanguage
+            },
+            profilePageParameters = {
+                errorFieldId: "<?php echo($errorFieldId);?>",
+                inputFocusId: "<?php echo($inputFocusId);?>",
+                showSubscribe: "<?php echo($showSubscribe);?>"
+            };
         varynApp = varyn(siteConfiguration);
         profilePage = varynApp.initApp(varynProfilePage, profilePageParameters);
     });
