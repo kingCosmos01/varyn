@@ -12,10 +12,10 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
     return {
         pageLoaded: function (pageViewParameters) {
             if (pageViewParameters.errorFieldId !== undefined) {
-                this.errorFieldId = pageViewParameters.errorFieldId;
+                errorFieldId = pageViewParameters.errorFieldId;
             }
             if (pageViewParameters.inputFocusId !== undefined) {
-                this.inputFocusId = pageViewParameters.inputFocusId;
+                inputFocusId = pageViewParameters.inputFocusId;
             }
             $('#register_form_username').on('change', varynApp.onChangeRegisterUserName);
             $('#register_form_username').on('input', varynApp.onChangeRegisterUserName);
@@ -33,18 +33,21 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             $('#profile_forgot_password').click(this.forgotPassword);
             $('#facebook-connect-button').click(this.loginFacebook);
             varynApp.onChangeRegisterUserName($('#register_form_username').get(0), 'register_user_name_unique'); // in case field is pre-populated
+            enginesisSession.gameListListGames(siteConfiguration.gameListIdTop, this.enginesisCallBack);
             this.onPageLoadSetFocus();
+
+            // TODO: these are just test functions so we can test without invoking the UI. once working, remove.
 //        showSubscribePopup();
 //        showLoginPopup(true);
 //        showRegistrationPopup(true);
         },
 
         onPageLoadSetFocus: function () {
-            if (this.inputFocusId != "") {
-                document.getElementById(this.inputFocusId).focus();
+            if (inputFocusId != "") {
+                document.getElementById(inputFocusId).focus();
             }
-            if (this.errorFieldId != "") {
-                $('#' + this.errorFieldId).removeClass("popup-form-input").addClass("popup-form-input-error");
+            if (errorFieldId != "") {
+                $('#' + errorFieldId).removeClass("popup-form-input").addClass("popup-form-input-error");
             }
         },
 
@@ -117,28 +120,28 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             return errorMessage == "";
         },
 
+        logout: function () {
+            alert("You are logged OUT");
+        },
+
+        forgotPassword: function () {
+            varynApp.showForgotPasswordPopup(true);
+        },
+
+        showRegistrationPopup: function () {
+            varynApp.showRegistrationPopup(true);
+        },
+
+        popupRegistrationClicked: function () {
+            varynApp.showRegistrationPopup(false);
+        },
+
         onGapiSuccess: function (googleUser) {
 
         },
 
         onGapiFailure: function (error) {
 
-        },
-
-        logout: function () {
-            alert("You are logged OUT");
-        },
-
-        forgotPassword: function () {
-            showForgotPasswordPopup(true);
-        },
-
-        showRegistrationForm: function () {
-            showRegistrationPopup(true);
-        },
-
-        popupRegistrationClicked: function () {
-            showRegistrationPopup(false);
         },
 
         loginFacebook: function () {
@@ -148,6 +151,31 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
 
         register: function () {
 
+        },
+
+        /**
+         * Callback to handle responses from Enginesis.
+         * @param enginesisResponse
+         */
+        enginesisCallBack: function (enginesisResponse) {
+            var succeeded,
+                errorMessage,
+                results;
+
+            if (enginesisResponse != null && enginesisResponse.fn != null) {
+                results = enginesisResponse.results;
+                succeeded = results.status.success;
+                errorMessage = results.status.message;
+                switch (enginesisResponse.fn) {
+                    case "GameListListGames":
+                        if (succeeded == 1) {
+                            varynApp.gameListGamesResponse(results.result, "ProfilePageTopGames", null, false);
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
         }
     }
 };

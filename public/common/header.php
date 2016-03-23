@@ -23,8 +23,8 @@
     if ( ! $isLoggedIn) {
 ?>
         <div id="registrationPopup" class="popupFrame">
-            <form id="registration-form" method="POST" action="profile.php" onsubmit="return popupRegistrationClicked();">
-                <div class="popupCloseButton" onclick="popupCloseClicked();"><img src="/images/close-button.png" width="24" height="24" border="0"/></div>
+            <form id="registration-form" method="POST" action="profile.php" onsubmit="return varynApp.popupRegistrationClicked();">
+                <div class="popupCloseButton" onclick="varynApp.popupCloseClicked();"><img src="/images/close-button.png" width="24" height="24" border="0"/></div>
                 <h3><span class="varyn-shield-icon"></span>Registration</h3>
                 <p>Sign up now to track your progress, earn rewards, and compete with friends!</p>
                 <div class="popupFieldGroup">
@@ -43,8 +43,8 @@
             </form>
         </div>
         <div id="loginPopup" class="popupFrame">
-            <form id="login-form" method="POST" action="profile.php" onsubmit="return popupLoginClicked();">
-                <div class="popupCloseButton" onclick="popupCloseClicked();"><img src="/images/close-button.png" width="24" height="24" border="0"/></div>
+            <form id="login-form" method="POST" action="profile.php" onsubmit="return varynApp.popupLoginClicked();">
+                <div class="popupCloseButton" onclick="varynApp.popupCloseClicked();"><img src="/images/close-button.png" width="24" height="24" border="0"/></div>
                 <h3><span class="varyn-shield-icon"></span>Member login:</h3>
                 <div class="popupFieldGroup">
                     <label for="login_username">User name:</label><input type="text" id="login_username" name="login_username" tabindex="17" maxlength="20" class="popup-form-input required" /><br/>
@@ -60,8 +60,8 @@
             </form>
         </div>
         <div id="forgotPasswordPopup" class="popupFrame">
-            <form id="forgot-password-form" method="POST" action="profile.php" onsubmit="return popupForgotPasswordClicked();">
-                <div class="popupCloseButton" onclick="popupCloseClicked();"><img src="/images/close-button.png" width="24" height="24" border="0"/></div>
+            <form id="forgot-password-form" method="POST" action="profile.php" onsubmit="return varynApp.popupForgotPasswordClicked();">
+                <div class="popupCloseButton" onclick="varynApp.popupCloseClicked();"><img src="/images/close-button.png" width="24" height="24" border="0"/></div>
                 <h3><span class="varyn-shield-icon"></span>Forgot password</h3>
                 <p>Please identify your account. We will send email to the address set on the account to allow you to reset your password.</p>
                 <div class="popupFieldGroup">

@@ -49,7 +49,7 @@ var varynIndexPage = function (varynApp, siteConfiguration) {
                             } else {
                                 fillDiv = "HomePageTopGames";
                             }
-                            varynApp.gameListGamesResponse(enginesisResponse.results.result, fillDiv, null, false);
+                            varynApp.gameListGamesResponse(results.result, fillDiv, null, false);
                         }
                         break;
                     default:

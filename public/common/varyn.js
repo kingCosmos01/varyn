@@ -29,6 +29,7 @@ var varyn = function (parameters) {
         },
         currentPage = '',
         waitingForUserNameReply = false,
+        domImage,
         enginesisSession = null,
         pageViewParameters = null;
 
@@ -47,7 +48,7 @@ var varyn = function (parameters) {
                 authToken: siteConfiguration.authToken || '',
                 developerKey: siteConfiguration.developerKey,
                 languageCode: this.parseLanguageCode(siteConfiguration.languageCode),
-                callBackFunction: this.enginesisCallBack
+                callBackFunction: this.enginesisCallBack.bind(this)
             },
             pageViewTemplate = null;
 
@@ -260,8 +261,8 @@ var varyn = function (parameters) {
          */
         verifyCORSWhiteList: function (origin) {
             var ok = false;
-            for (var i=0; i < SiteConfiguration.originWhiteList.length; i++) {
-                if (origin === SiteConfiguration.originWhiteList[i]) {
+            for (var i=0; i < siteConfiguration.originWhiteList.length; i++) {
+                if (origin === siteConfiguration.originWhiteList[i]) {
                     ok = true;
                     break;
                 }
@@ -273,7 +274,7 @@ var varyn = function (parameters) {
          * showSubscribePopup show the popup form to capture an email address to subscribe to the newsletter.
          */
         showSubscribePopup: function (showFlag) {
-            showCommonFormPopup(document.getElementById("popupCover"), document.getElementById("subscribePopup"), showFlag);
+            this.showCommonFormPopup(document.getElementById("popupCover"), document.getElementById("subscribePopup"), showFlag);
         },
 
         /**
@@ -281,8 +282,8 @@ var varyn = function (parameters) {
          * for the long form go to the profile.php page.
          */
         showRegistrationPopup: function (showFlag) {
-            showCommonFormPopup(document.getElementById("popupCover"), document.getElementById("registrationPopup"), showFlag);
-            onChangeRegisterUserName(document.getElementById('register-username'), 'popup_user_name_unique');
+            this.showCommonFormPopup(document.getElementById("popupCover"), document.getElementById("registrationPopup"), showFlag);
+            this.onChangeRegisterUserName(document.getElementById('register-username'), 'popup_user_name_unique');
         },
 
         /**
@@ -290,14 +291,14 @@ var varyn = function (parameters) {
          * for the long form go to the profile.php page.
          */
         showLoginPopup: function (showFlag) {
-            showCommonFormPopup(document.getElementById("popupCover"), document.getElementById("loginPopup"), showFlag);
+            this.showCommonFormPopup(document.getElementById("popupCover"), document.getElementById("loginPopup"), showFlag);
         },
 
         /**
          * showForgotPasswordPopup show the popup form initiate forgot password flow.
          */
         showForgotPasswordPopup: function (showFlag) {
-            showCommonFormPopup(document.getElementById("popupCover"), document.getElementById("forgotPasswordPopup"), showFlag);
+            this.showCommonFormPopup(document.getElementById("popupCover"), document.getElementById("forgotPasswordPopup"), showFlag);
         },
 
         /**
@@ -336,9 +337,9 @@ var varyn = function (parameters) {
          * Close all popups. Being not so smart, we set all popups we know of to display:none.
          */
         popupCloseClicked: function () {
-            showSubscribePopup(false);
-            showLoginPopup(false);
-            showRegistrationPopup(false);
+            this.showSubscribePopup(false);
+            this.showLoginPopup(false);
+            this.showRegistrationPopup(false);
         },
 
         /**
@@ -352,11 +353,11 @@ var varyn = function (parameters) {
                 errorField = "";
 
             if (isValidEmail(email)) {
-                setPopupMessage("subscribePopup", "Subscribing " + email + " with the service...", "popupMessageResponseOK");
-                enginesisSession.newsletterAddressAssign(email, '', '', '2', null); // the newsletter category id for Varyn/General is 2
+                this.setPopupMessage("subscribePopup", "Subscribing " + email + " with the service...", "popupMessageResponseOK");
+                this.enginesisSession.newsletterAddressAssign(email, '', '', '2', null); // the newsletter category id for Varyn/General is 2
             } else {
                 errorField = "emailInput";
-                setPopupMessage("subscribePopup", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
+                this.setPopupMessage("subscribePopup", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
                 document.getElementById(errorField).focus();
             }
             return errorField == "";
@@ -366,7 +367,7 @@ var varyn = function (parameters) {
          * The submit button was clicked on the registration popup. Validate user inputs on the quick registration form before we
          * attempt to submit the request with the server. Will set focus to a field in error.
          *
-         * @returns {bool} true if ok to submit the form
+         * @returns {boolean} true if ok to submit the form
          */
         popupRegistrationClicked: function () {
             var email = document.getElementById("register-email").value,
@@ -377,23 +378,23 @@ var varyn = function (parameters) {
                 errorField = "";
 
             if (errorField == "" && ! isValidEmail(email)) {
-                setPopupMessage("registrationPopup", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
+                this.setPopupMessage("registrationPopup", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "register-email";
             }
             if (errorField == "" && ! isValidUserName(userName)) {
-                setPopupMessage("registrationPopup", "Your user name " + userName + " looks bad. Can you try again?", "popupMessageResponseError");
+                this.setPopupMessage("registrationPopup", "Your user name " + userName + " looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "register-username";
             }
             if (errorField == "" && ! isValidPassword(password)) {
-                setPopupMessage("registrationPopup", "Your password looks bad. Can you try again?", "popupMessageResponseError");
+                this.setPopupMessage("registrationPopup", "Your password looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "register-password";
             }
             if (errorField == "" && ! agreement) {
-                setPopupMessage("registrationPopup", "You must agree with the terms of use or you cannot register.", "popupMessageResponseError");
+                this.setPopupMessage("registrationPopup", "You must agree with the terms of use or you cannot register.", "popupMessageResponseError");
                 errorField = "register-agreement";
             }
             if (errorField == "" && captcha.trim().length < 3) {
-                setPopupMessage("registrationPopup", "Please answer the human test. Can you try again?", "popupMessageResponseError");
+                this.setPopupMessage("registrationPopup", "Please answer the human test. Can you try again?", "popupMessageResponseError");
                 errorField = "register-captcha";
             }
             if (errorField != "") {
@@ -407,7 +408,7 @@ var varyn = function (parameters) {
          * The submit button on the login popup was clicked. Validate user inputs on the login form before we
          * attempt to submit the request with the server. Will set focus to a field in error.
          *
-         * @returns {bool} true if ok to submit the form
+         * @returns {boolean} true if ok to submit the form
          */
         popupLoginClicked: function () {
             var password = document.getElementById("login_password").value.toString(),
@@ -415,11 +416,11 @@ var varyn = function (parameters) {
                 errorField = "";
 
             if (errorField == "" && ! isValidUserName(userName)) {
-                setPopupMessage("loginPopup", "Your user name " + userName + " looks bad. Can you try again?", "popupMessageResponseError");
+                this.setPopupMessage("loginPopup", "Your user name " + userName + " looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "login_username";
             }
             if (errorField == "" && ! isValidPassword(password)) {
-                setPopupMessage("loginPopup", "Your password looks bad. Can you try again?", "popupMessageResponseError");
+                this.setPopupMessage("loginPopup", "Your password looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "login_password";
             }
             if (errorField != "") {
@@ -434,7 +435,7 @@ var varyn = function (parameters) {
          * forgot password form before we attempt to submit the request with the server. Will
          * set focus to a field in error.
          *
-         * @returns {bool} true if ok to submit the form
+         * @returns {boolean} true if ok to submit the form
          */
         popupForgotPasswordClicked: function () {
             var email = document.getElementById("forgotpassword_email").value.toString(),
@@ -442,11 +443,11 @@ var varyn = function (parameters) {
                 errorField = "";
 
             if (errorField == "" && ! isValidUserName(userName)) {
-                setPopupMessage("forgotPasswordPopup", "Your user name '" + userName + "' looks bad. Can you try again?", "popupMessageResponseError");
+                this.setPopupMessage("forgotPasswordPopup", "Your user name '" + userName + "' looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "forgotpassword_username";
             }
             if (errorField == "" && ! isValidEmail(email)) {
-                setPopupMessage("forgotPasswordPopup", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
+                this.setPopupMessage("forgotPasswordPopup", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "forgotpassword_email";
             }
             if (errorField != "") {
@@ -477,20 +478,24 @@ var varyn = function (parameters) {
                     domIdImage = $(this).data("target");
                 }
                 var userName = element.value.toString();
-                if (userName && isValidUserName(userName)) {
+                if (userName && this.isValidUserName(userName)) {
                     waitingForUserNameReply = true;
-                    enginesisSession.userGetByName(userName, function (enginesisResponse) {
-                        var userNameAlreadyExists = false;
-                        waitingForUserNameReply = false;
-                        if (enginesisResponse != null && enginesisResponse.fn != null) {
-                            userNameAlreadyExists = enginesisResponse.results.status.success == "1";
-                        }
-                        setUserNameIsUnique(domIdImage, ! userNameAlreadyExists);
-                    });
+                    domImage = domIdImage;
+                    enginesisSession.userGetByName(userName, this.onChangeRegisteredUserNameResponse.bind(this));
                 } else {
-                    setUserNameIsUnique(domIdImage, false);
+                    this.setUserNameIsUnique(domIdImage, false);
                 }
             }
+        },
+
+        onChangeRegisteredUserNameResponse: function (enginesisResponse) {
+            var userNameAlreadyExists = false;
+            waitingForUserNameReply = false;
+            if (enginesisResponse != null && enginesisResponse.fn != null) {
+                userNameAlreadyExists = enginesisResponse.results.status.success == "1";
+            }
+            this.setUserNameIsUnique(domImage, ! userNameAlreadyExists);
+            domImage = null;
         },
 
         /**
@@ -514,12 +519,12 @@ var varyn = function (parameters) {
          * If the result is a success we close the popup after a delay to confirm with the user the
          * successful status. If the result is an error we display the error message.
          */
-        handleNewsletterServerResponse: function (succeeded) {
+        handleNewsletterServerResponse: function (succeeded, errorMessage) {
             if (succeeded == 1) {
-                setPopupMessage("subscribePopup", "You are subscribed - Thank you!", "popupMessageResponseOK");
-                window.setTimeout(hideSubscribePopup, 2000);
+                this.setPopupMessage("subscribePopup", "You are subscribed - Thank you!", "popupMessageResponseOK");
+                window.setTimeout(this.hideSubscribePopup, 2000);
             } else {
-                setPopupMessage("subscribePopup", "Service reports an error: " + errorMessage, "popupMessageResponseError");
+                this.setPopupMessage("subscribePopup", "Service reports an error: " + errorMessage, "popupMessageResponseError");
             }
         },
 
@@ -708,30 +713,37 @@ var varyn = function (parameters) {
          */
         enginesisCallBack: function (enginesisResponse) {
             var succeeded,
-                errorMessage;
+                errorMessage,
+                results,
+                fillDiv,
+                listId;
 
             if (enginesisResponse != null && enginesisResponse.fn != null) {
-                succeeded = enginesisResponse.results.status.success;
-                errorMessage = enginesisResponse.results.status.message;
+                results = enginesisResponse.results;
+                succeeded = results.status.success;
+                errorMessage = results.status.message;
                 switch (enginesisResponse.fn) {
                     case "NewsletterAddressAssign":
-                        handleNewsletterServerResponse(succeeded);
+                        this.handleNewsletterServerResponse(succeeded, errorMessage);
                         break;
                     case "PromotionItemList":
                         if (succeeded == 1) {
-                            promotionItemListResponse(enginesisResponse.results.result);
+                            this.promotionItemListResponse(results.result);
                         }
                         break;
                     case "GameListListGames":
                         if (succeeded == 1) {
-                            if (gameListState == 1) {
-                                gameListGamesResponse(enginesisResponse.results.result, "HomePageTopGames", null, false);
-                                this.gameListState = 2;
-                                enginesisSession.gameListListGames(enginesisGameListIdNew, null);
-                            } else if (gameListState == 2) {
-                                gameListGamesResponse(enginesisResponse.results.result, "HomePageHotGames", null, false);
-                                this.gameListState = 0;
+                            if (results.passthru !== undefined && results.passthru.game_list_id !== undefined) {
+                                listId = results.passthru.game_list_id;
+                                if (listId == siteConfiguration.gameListIdTop) {
+                                    fillDiv = "HomePageTopGames";
+                                } else {
+                                    fillDiv = "HomePageNewGames";
+                                }
+                            } else {
+                                fillDiv = "HomePageTopGames";
                             }
+                            this.gameListGamesResponse(results.result, fillDiv, null, false);
                         }
                         break;
                     default:
