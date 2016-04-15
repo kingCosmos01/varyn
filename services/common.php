@@ -241,6 +241,27 @@
         }
     }
 
+    /**
+     * Create a token that is good on this server for 30 minutes. We use this token in sensitive input forms
+     * to not accept input after this expiration time.
+     * @return string the token the form should return.
+     */
+    function makeInputFormHackerToken () {
+        global $enginesis;
+        $expirationTime = 30;
+        $hackerToken = md5($enginesis->getServerName()) . '' . floor(time() / ($expirationTime * 60));
+        return $hackerToken;
+    }
+
+    /**
+     * Given a token from an input form check to verify it has not yet expired.
+     * @param $token generated with makeInputFormHackerToken.
+     * @return boolean true when the token is good.
+     */
+    function validateInputFormHackerToken ($token) {
+        return makeInputFormHackerToken() == $token;
+    }
+
     // "Global" PHP variables available to all scripts
     if ( ! defined('ROOTPATH') ) {
         define('ROOTPATH', $_SERVER['DOCUMENT_ROOT']);

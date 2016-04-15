@@ -214,7 +214,7 @@ input [type="radio"] {
     clear: left;
     width: 480px;
     border-radius: 8px;
-    margin: 200px auto;
+    margin: 120px auto;
     box-shadow: 0px 0px 5px 5px rgba(0,0,0,0.7);
     padding: 1px 8px 8px 8px;
     font-size: larger;
@@ -604,6 +604,10 @@ footer {
     transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
 }
 
+.popup-form-address-input {
+    display: none;
+}
+
 .profile-sign-up {
     padding: 8px;
     margin: 8px;
@@ -851,4 +855,99 @@ blockquote {
     padding: 12px;
     height: 128px;
     width: 50%
+}
+
+.validation-slider-area {
+    display: inline-block;
+    width: 100%;
+    margin: 0 auto;
+    padding-bottom: 1rem;
+    text-align: center;
+}
+input[type=range].validation-slider {
+    display: inline-block;
+    -webkit-appearance: none;
+    width: 50%;
+    margin: 7.3px 0;
+    background-color: rgba(0, 0, 0, 0);
+}
+input[type=range].validation-slider:focus {
+    outline: none;
+}
+input[type=range].validation-slider::-webkit-slider-runnable-track {
+    width: 50%;
+    height: 11.4px;
+    cursor: pointer;
+    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+    background: rgba(48, 113, 169, 0.78);
+    border-radius: 7.1px;
+    border: 0.2px solid #a0a0a0;
+}
+input[type=range].validation-slider::-webkit-slider-thumb {
+    box-shadow: 0.9px 0.9px 1px #000031, 0px 0px 0.9px #00004b;
+    border: 1.8px solid #a0a0a0;
+    height: 26px;
+    width: 26px;
+    border-radius: 15px;
+    background: #5cb85c;
+    cursor: pointer;
+    -webkit-appearance: none;
+    margin-top: -7.5px;
+}
+input[type=range].validation-slider:focus::-webkit-slider-runnable-track {
+    background: rgba(54, 126, 189, 0.78);
+}
+input[type=range].validation-slider::-moz-range-track {
+    width: 50%;
+    height: 11.4px;
+    cursor: pointer;
+    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+    background: rgba(48, 113, 169, 0.78);
+    border-radius: 7.1px;
+    border: 0.2px solid #a0a0a0;
+}
+input[type=range].validation-slider::-moz-range-thumb {
+    box-shadow: 0.9px 0.9px 1px #000031, 0px 0px 0.9px #00004b;
+    border: 1.8px solid #a0a0a0;
+    height: 26px;
+    width: 26px;
+    border-radius: 15px;
+    background: #5cb85c;
+    cursor: pointer;
+}
+input[type=range].validation-slider::-ms-track {
+    width: 50%;
+    height: 11.4px;
+    cursor: pointer;
+    background: transparent;
+    border-color: transparent;
+    color: transparent;
+}
+input[type=range].validation-slider::-ms-fill-lower {
+    background: rgba(42, 100, 149, 0.78);
+    border: 0.2px solid #a0a0a0;
+    border-radius: 14.2px;
+    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+}
+input[type=range].validation-slider::-ms-fill-upper {
+    background: rgba(48, 113, 169, 0.78);
+    border: 0.2px solid #a0a0a0;
+    border-radius: 14.2px;
+    box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d;
+}
+input[type=range].validation-slider::-ms-thumb {
+    box-shadow: 0.9px 0.9px 1px #000031, 0px 0px 0.9px #00004b;
+    border: 1.8px solid #a0a0a0;
+    height: 26px;
+    width: 26px;
+    border-radius: 15px;
+    background: #5cb85c;
+    cursor: pointer;
+    height: 11.4px;
+}
+input[type=range].validation-slider:focus::-ms-fill-lower {
+    background: rgba(48, 113, 169, 0.78);
+}
+input[type=range].validation-slider:focus::-ms-fill-upper {
+    background: rgba(54, 126, 189, 0.78);
 }

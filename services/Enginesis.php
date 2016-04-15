@@ -307,7 +307,7 @@
          */
         private function authTokenDecrypt ($authenticationToken) {
             $dataArray = null;
-            $tokenData = blowfishUnpad(mcrypt_decrypt(MCRYPT_BLOWFISH, pack('H*', $this->developer_key), base64_decode(str_replace(' ', '+', $authenticationToken)), MCRYPT_MODE_ECB, pack('H*', '000000000000000')));
+            $tokenData = $this->blowfishUnpad(mcrypt_decrypt(MCRYPT_BLOWFISH, pack('H*', $this->m_developerKey), base64_decode(str_replace(' ', '+', $authenticationToken)), MCRYPT_MODE_ECB, pack('H*', '000000000000000')));
             if ($tokenData != null && $tokenData != '') {
                 $dataArray = $this->decodeURLParams($tokenData);
             }
@@ -338,7 +338,7 @@
          * @return string
          */
         private function sessionMakeId () {
-            return md5($this->developer_key . '' . $this->sessionDayStamp() . '' . $this->m_userId);
+            return md5($this->m_developerKey . '' . $this->sessionDayStamp() . '' . $this->m_userId);
         }
 
         /**
@@ -490,9 +490,10 @@
             $data = array();
             $arrayOfParameters = explode('&', $encodedURLParams);
             $i = 0;
-            while ($i < count($arrayOfParameters))  {
+            $numParameters = count($arrayOfParameters);
+            while ($i < $numParameters)  {
                 $parameter = explode('=', $arrayOfParameters[$i]);
-                if (count($parameter) > 0) {
+                if (count($parameter) > 1) {
                     $data[urldecode($parameter[0])] = urldecode($parameter[1]);
                 }
                 $i ++;

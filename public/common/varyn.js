@@ -108,7 +108,7 @@ var varyn = function (parameters) {
         },
 
         /**
-         * Compute Age given date of birth.
+         * Compute Age given date of birth. Actually, computer number of years since date provided.
          * @param {string} Date of birth is a string date format from an input type=date control.
          * @returns {number}
          */
@@ -373,29 +373,28 @@ var varyn = function (parameters) {
             var email = document.getElementById("register-email").value,
                 password = document.getElementById("register-password").value,
                 userName = document.getElementById("register-username").value,
-                captcha = document.getElementById("register-captcha").value,
-                agreement = document.getElementById("register-agreement").checked,
+                agreement = document.getElementById("register-agreement").value,
                 errorField = "";
 
-            if (errorField == "" && ! isValidEmail(email)) {
+            if (errorField == "" && ! this.isValidEmail(email)) {
                 this.setPopupMessage("registrationPopup", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "register-email";
             }
-            if (errorField == "" && ! isValidUserName(userName)) {
+            if (errorField == "" && ! this.isValidUserName(userName)) {
                 this.setPopupMessage("registrationPopup", "Your user name " + userName + " looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "register-username";
             }
-            if (errorField == "" && ! isValidPassword(password)) {
+            if (errorField == "" && ! this.testUserNameIsUnique('popup_user_name_unique')) {
+                this.setPopupMessage("registrationPopup", "Your user name " + userName + " is in use by another user. Please pick a unique user name.", "popupMessageResponseError");
+                errorField = "register-username";
+            }
+            if (errorField == "" && ! this.isValidPassword(password)) {
                 this.setPopupMessage("registrationPopup", "Your password looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "register-password";
             }
-            if (errorField == "" && ! agreement) {
+            if (errorField == "" && agreement < 2) {
                 this.setPopupMessage("registrationPopup", "You must agree with the terms of use or you cannot register.", "popupMessageResponseError");
                 errorField = "register-agreement";
-            }
-            if (errorField == "" && captcha.trim().length < 3) {
-                this.setPopupMessage("registrationPopup", "Please answer the human test. Can you try again?", "popupMessageResponseError");
-                errorField = "register-captcha";
             }
             if (errorField != "") {
                 $(errorField).removeClass("popup-form-input").addClass("popup-form-input-error");
@@ -457,6 +456,10 @@ var varyn = function (parameters) {
             return errorField == ""; // return true to submit form
         },
 
+        /**
+         * This function sets up the events to monitor a change to the user name in a registration input form so we
+         * can ask the server to test if the user name is already in use.
+         */
         setupRegisterUserNameOnChangeHandler: function () {
             $('#register-username').on('change', this.onChangeRegisterUserName);
             $('#register-username').on('input', this.onChangeRegisterUserName);
@@ -478,10 +481,10 @@ var varyn = function (parameters) {
                     domIdImage = $(this).data("target");
                 }
                 var userName = element.value.toString();
-                if (userName && this.isValidUserName(userName)) {
+                if (userName && varynApp.isValidUserName(userName)) {
                     waitingForUserNameReply = true;
                     domImage = domIdImage;
-                    enginesisSession.userGetByName(userName, this.onChangeRegisteredUserNameResponse.bind(this));
+                    enginesisSession.userGetByName(userName, varynApp.onChangeRegisteredUserNameResponse.bind(varynApp));
                 } else {
                     this.setUserNameIsUnique(domIdImage, false);
                 }
@@ -512,6 +515,18 @@ var varyn = function (parameters) {
                     $('#' + id).removeClass('username-is-unique').addClass('username-is-not-unique').css('display', 'inline-block');
                 }
             }
+        },
+
+        /**
+         * Test to check the last status of the user is unique attribute on the registration form. Take care because
+         * this depends on that element being properly set and I really don't like this particular solution but
+         * going with it for now. TODO: better solution?
+         * @param id {string} the element to check (because it is a different id on different forms.)
+         * @returns {boolean} true if the name is unique, false if it is taken.
+         */
+        testUserNameIsUnique: function (id) {
+            var isUnique = $('#' + id).hasClass('username-is-unique');
+            return isUnique;
         },
 
         /**

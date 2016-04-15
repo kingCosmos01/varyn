@@ -21,6 +21,7 @@
     </div>
 <?php
     if ( ! $isLoggedIn) {
+        $hackerVerification = makeInputFormHackerToken();
 ?>
         <div id="registrationPopup" class="popupFrame">
             <form id="registration-form" method="POST" action="profile.php" onsubmit="return varynApp.popupRegistrationClicked();">
@@ -28,11 +29,14 @@
                 <h3><span class="varyn-shield-icon"></span>Registration</h3>
                 <p>Sign up now to track your progress, earn rewards, and compete with friends!</p>
                 <div class="popupFieldGroup">
-                    <label for="register-email">Email:</label><input type="email" name="register-email" class="popup-form-input required email" id="register-email" placeholder="Your email address" tabindex="10"/><br/>
-                    <label for="register-username">User name:</label><input type="text" name="register-username" class="popup-form-input required username" id="register-username" placeholder="A unique user name" data-target="popup_user_name_unique" tabindex="11"/><img id="popup_user_name_unique" class="username-is-not-unique" src="/images/red_x.png" width="32" height="32"/><br/>
-                    <label for="register-password">Password:</label><input type="password" name="register-password" class="popup-form-input required password" id="register-password" placeholder="A secure password" tabindex="12"/><br/>
-                    <label for="register-captcha">R U 4 Real?</label><input type="text" name="register-captcha" class="popup-form-input required" id="register-captcha" placeholder="favorite color?" tabindex="13"/><br/>
-                    <label for="register-agreement">&nbsp;</label><input type="checkbox" name="register-agreement" id="register-agreement" tabindex="14">&nbsp;&nbsp;I agree to the <a href="/tos.php" target="_popup">Terms of Use</a></input><br />
+                    <label for="register-email">Email:</label><input type="email" name="register-email" class="popup-form-input required email" id="register-email" placeholder="Your email address" tabindex="10" autocapitalize="off" autocorrect="off" autocomplete="email"/><br/>
+                    <label for="register-username">User name:</label><input type="text" name="register-username" class="popup-form-input required username" id="register-username" placeholder="A unique user name" data-target="popup_user_name_unique" tabindex="11" autocorrect="off" autocomplete="name"/><img id="popup_user_name_unique" class="username-is-not-unique" src="/images/red_x.png" width="32" height="32"/><br/>
+                    <label for="register-password">Password:</label><input type="password" name="register-password" class="popup-form-input required password" id="register-password" placeholder="A secure password" tabindex="12"/>
+                    <div class="validation-slider-area">
+                        <label for="register-agreement">I agree to the <a href="/tos.php" target="_popup">Terms of Use</a></label><br/>
+                        <span><small>No</small>&nbsp;&nbsp;<input type="range" name="register-agreement" class="validation-slider" id="register-agreement" placeholder="Slide this all the way left to agree" tabindex="13" min="0" max="2" />&nbsp;&nbsp;<small>Yes</small></span>
+                    </div>
+                    <input type="text" name="emailaddress" class="popup-form-address-input" /><input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" /><br />
                     <input type="submit" value="Register" name="popupregister" id="registerButton" class="btn btn-success" tabindex="15"/>
                     <span id="rememberme-container"><input type="checkbox" checked="checked" name="rememberme" id="rememberme" tabindex="16"><label for="rememberme">Remember Me</label></span>
                     <input type="hidden" name="action" value="popupregister" />
@@ -47,7 +51,7 @@
                 <div class="popupCloseButton" onclick="varynApp.popupCloseClicked();"><img src="/images/close-button.png" width="24" height="24" border="0"/></div>
                 <h3><span class="varyn-shield-icon"></span>Member login:</h3>
                 <div class="popupFieldGroup">
-                    <label for="login_username">User name:</label><input type="text" id="login_username" name="login_username" tabindex="17" maxlength="20" class="popup-form-input required" /><br/>
+                    <label for="login_username">User name:</label><input type="text" id="login_username" name="login_username" tabindex="17" maxlength="20" class="popup-form-input required" autocorrect="off" autocomplete="name"/><br/>
                     <label for="login_password">Password:</label><input type="password" id="login_password" name="login_password" tabindex="18" maxlength="20" class="popup-form-input required" /><br/>
                     <input type="submit" value="Login >" name="loginButton" id="loginButton" class="btn btn-success" tabindex="19"/>
                     <span id="rememberme-container"><input type="checkbox" tabindex="20" checked="checked" name="rememberme" id="rememberme"><label for="rememberme">Remember Me</label></span>
@@ -65,10 +69,10 @@
                 <h3><span class="varyn-shield-icon"></span>Forgot password</h3>
                 <p>Please identify your account. We will send email to the address set on the account to allow you to reset your password.</p>
                 <div class="popupFieldGroup">
-                    <label for="forgotpassword_username">User name:</label><input type="text" id="forgotpassword_username" name="forgotpassword_username" tabindex="23" maxlength="20" class="popup-form-input required"  placeholder="Your user name"/><br/>
-                    <label for="forgotpassword_email">Email:</label><input type="email" id="forgotpassword_email" name="forgotpassword_email" tabindex="24" maxlength="80" class="popup-form-input required email" placeholder="Your email address"/><br/>
+                    <label for="forgotpassword_username">User name:</label><input type="text" id="forgotpassword_username" name="forgotpassword_username" tabindex="23" maxlength="20" class="popup-form-input required"  placeholder="Your user name" autocorrect="off" autocomplete="name"/><br/>
+                    <label for="forgotpassword_email">Email:</label><input type="email" id="forgotpassword_email" name="forgotpassword_email" tabindex="24" maxlength="80" class="popup-form-input required email" placeholder="Your email address" autocapitalize="off" autocorrect="off" autocomplete="email"/><br/>
                     <input type="submit" class="btn btn-success" id="forgot-password-button" value="Reset" tabindex="25"/>
-                    <input type="hidden" name="action" value="forgotpassword" />
+                    <input type="hidden" name="action" value="forgotpassword" /><input type="text" name="emailaddress" class="popup-form-address-input" /><input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
                 </div>
                 <div class="popupMessageArea">
                     <div class="popupMessageResponseError">This is the response from the server</div>
@@ -76,6 +80,9 @@
             </form>
         </div>
 <?php
+        $userLoggedInMenuItem = '<span class="glyphicon glyphicon-user"></span> Login';
+    } else {
+        $userLoggedInMenuItem = '<span class="glyphicon glyphicon-user"></span> Profile'; // TODO: show Avatar, User-name, Reputation swatch
     }
 ?>
     <div id="popupErrorMessage" style="display:none;"></div>
@@ -98,7 +105,7 @@
                         <li role="presentation"<?php if ($page == 'home') { echo(' class="active"'); } ?>><a href="/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
                         <li role="presentation"<?php if ($page == 'allgames') { echo(' class="active"'); } ?>><a href="/allgames.php"><span class="glyphicon glyphicon-king"></span> All Games</a></li>
                         <li role="presentation"<?php if ($page == 'blog') { echo(' class="active"'); } ?>><a href="/blog"><span class="glyphicon glyphicon-list"></span> Blog</a></li>
-                        <li role="presentation"<?php if ($page == 'profile') { echo(' class="active"'); } ?>><a href="/profile.php"><span class="glyphicon glyphicon-user"></span> Login</a></li>
+                        <li role="presentation"<?php if ($page == 'profile') { echo(' class="active"'); } ?>><a href="/profile.php"><?php echo($userLoggedInMenuItem);?></a></li>
                     </ul>
                     <form class="navbar-form navbar-right" role="search" method="GET" action="/allgames.php">
                         <div class="form-group">
