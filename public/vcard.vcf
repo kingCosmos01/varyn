@@ -1,11 +1,11 @@
 BEGIN:VCARD
 VERSION:2.1
-N:Enginesis;;;;
-FN:Enginesis
-EMAIL;INTERNET;HOME:info@enginesis.com
+N:Varyn;;;;
+FN:Varyn
+EMAIL;INTERNET;HOME:support@varyn.com
 TEL;HOME;CELL:+1 212 555 5555
 ADR;HOME:;;1515 Broadway;New York;NY;10036;United States
-URL;HOME:http://enginesis.com
-X-SKYPE-USERNAME:enginesis
-X-TWITTER:http://twitter.com/enginesis
+URL;HOME:http://varyn.com
+X-SKYPE-USERNAME:varyndev
+X-TWITTER:http://twitter.com/varyndev
 END:VCARD
