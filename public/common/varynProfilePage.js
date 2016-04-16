@@ -121,7 +121,7 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
         },
 
         logout: function () {
-            alert("You are logged OUT");
+            window.location.href = "/profile.php?action=logout";
         },
 
         forgotPassword: function () {

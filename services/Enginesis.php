@@ -293,9 +293,10 @@
             if ($userName == null || $userName == '') {
                 $userName = $this->m_userName;
             }
-            $decryptedData = 'siteid=' . $siteId . '&userid=' . $userId . '&siteuserid=' . $siteUserId . '&username=' . $userName . '&accesslevel=' . $accessLevel . '&daystamp=' . $this->dayStampMake();
+            $decryptedData = 'siteid=' . $siteId . '&userid=' . $userId . '&siteuserid=' . $siteUserId . '&username=' . $userName . '&accesslevel=' . $accessLevel . '&daystamp=' . $this->sessionDayStamp();
             $tokenDataBase64 = base64_encode(mcrypt_encrypt(MCRYPT_BLOWFISH, pack('H*', $this->m_developerKey), $this->blowfishPad($decryptedData), MCRYPT_MODE_ECB, pack('H*', '000000000000000')));
-            return str_replace('+', ' ', $tokenDataBase64);
+            $tokenDataBase64Clean = str_replace('+', ' ', $tokenDataBase64);
+            return $tokenDataBase64Clean;
         }
 
         /**

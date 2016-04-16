@@ -19,6 +19,7 @@
     define('VARYN_VERSION', '2.1.3');
     define('LOGFILE_PREFIX', 'varyn_php_');
     define('SERVER_DATA_PATH', '..' . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR);
+    define('VARYN_SESSION_COOKIE', 'varynuser');
 
     /**
      * @description
@@ -271,7 +272,6 @@
     $siteId = 106;
     $userId = 0;
     $webServer = '';
-    $developerKey = 'DEADDEADDEADDEAD';
     $enginesis = new Enginesis($siteId, null, $developerKey);
     $stage = $enginesis->getServerStage();
     $isLoggedIn = $enginesis->isLoggedInUser();
