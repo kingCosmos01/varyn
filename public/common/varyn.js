@@ -335,11 +335,14 @@ var varyn = function (parameters) {
 
         /**
          * Close all popups. Being not so smart, we set all popups we know of to display:none.
+         * TODO: Smarter approach would be to take all .popupFrame elements and set them to display:none.
          */
         popupCloseClicked: function () {
             this.showSubscribePopup(false);
             this.showLoginPopup(false);
             this.showRegistrationPopup(false);
+            this.showForgotPasswordPopup(false);
+            // $('.popupFrame').attr('display', 'none');
         },
 
         /**

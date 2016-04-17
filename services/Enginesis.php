@@ -522,7 +522,8 @@
         }
 
         /**
-         * Make sure we call the API with all the necessary parameters.
+         * Make sure we call the API with all the necessary parameters. We can assume some defaults from the
+         * current session but they only are used when the caller does not provide a required parameter.
          * @param $fn string: The API function to call
          * @param $parameters array: The API parameters as a key-value array
          * @return array The cleansed parameter array ready to call the requested API.
@@ -536,15 +537,18 @@
             if ( ! isset($parameters['user_id'])) {
                 $serverParams['user_id'] = $this->m_userId;
             }
-            $serverParams['state_seq'] = ++ $this->m_syncId;
             if ( ! isset($parameters['response'])) {
                 $serverParams['response'] = $this->m_responseFormat;
             }
             foreach ($parameters as $key => $value) {
-                $serverParams[$key] = $value; // urlencode($value); // I'm not sure we should urlencode the data as it is going into the database encoded.
+                $serverParams[$key] = $value; // urlencode($value); // TODO: I'm not sure we should urlencode the data as it is going into the database encoded.
             }
+            $serverParams['state_seq'] = ++ $this->m_syncId;
             if ( ! isset($parameters['language_code'])) {
                 $serverParams['language_code'] = $this->m_languageCode;
+            }
+            if ($this->m_authTokenWasValidated && ! isset($parameters['authtok'])) {
+                $serverParams['authtok'] = $this->m_authToken;
             }
             return $serverParams;
         }
@@ -601,6 +605,14 @@
          */
         public function getLastError () {
             return $this->m_lastError;
+        }
+
+        /**
+         * Return the last error information as a string.
+         * @return string
+         */
+        public function getLastErrorDescription () {
+            return ($this->m_lastError != null) ? $this->m_lastError['message'] . ': ' . $this->m_lastError['extended_info'] : '';
         }
 
         /**
@@ -670,14 +682,12 @@
 
         /* @function userLogout
          * @description
-         *   Logout the user clearing all internal cookies and data structures.
+         * Logout the user clearing all internal cookies and data structures.
          * @return bool: true if successful. If false there was an internal error (logout should never really fail.)
          */
         public function userLogout () {
             $enginesisResponse = $this->callServerAPI('UserLogout', array());
             $results = $this->setLastErrorFromResponse($enginesisResponse);
-            echo("<h3>User logged out!</h3>");
-            print_r($results);
             $this->sessionClear();
             return $results != null;
         }
@@ -803,6 +813,7 @@
         }
 
         /**
+         * The general public user get - returns a minimum set of public attributes about a user.
          * @param $userId
          * @return boolean
          */
@@ -817,6 +828,76 @@
                 $user = $results[0];
             }
             return $user;
+        }
+
+        /**
+         * Get information about a given user. If no user is provided and there is a logged in user, then
+         * returns the info about the logged in user. Note if getting info on the current logged in user
+         * then there could be more attributes that are intended to be visible only by that user (not public info).
+         * @param int $userId optional user id to get info on.
+         * @param string $siteUserId optional site user id to get info on.
+         * @return object the attributes of the requested user, null if no such user or error.
+         */
+        public function registeredUserGet ($userId = 0, $siteUserId = '') {
+            $user = null;
+            $parameters = array();
+            if ($userId != 0) {
+                if ($userId < 9999) {
+                    $userId = $this->m_userId;
+                }
+                $parameters['get_user_id'] = $userId;
+            }
+            if ($siteUserId != '') {
+                $parameters['site_user_id'] = $siteUserId;
+            }
+            $enginesisResponse = $this->callServerAPI('RegisteredUserGet', $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null && isset($results[0])) {
+                $results = $results[0];
+            }
+            return $results;
+        }
+
+        /**
+         * Get extended information about a given user. If no user is provided and there is a logged in user, then
+         * returns the info about the logged in user. Note if getting info on the current logged in user
+         * then there could be more attributes that are intended to be visible only by that user (not public info).
+         * @param int $userId optional user id to get info on.
+         * @param string $siteUserId optional site user id to get info on.
+         * @return object the attributes of the requested user, null if no such user or error.
+         */
+        public function registeredUserGetEx ($userId = 0, $siteUserId = '')
+        {
+            $user = null;
+            $parameters = array();
+            if ($userId != 0) {
+                if ($userId < 9999) {
+                    $userId = $this->m_userId;
+                }
+                $parameters['get_user_id'] = $userId;
+            }
+            if ($siteUserId != '') {
+                $parameters['site_user_id'] = $siteUserId;
+            }
+            $enginesisResponse = $this->callServerAPI('RegisteredUserGetEx', $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null && isset($results[0])) {
+                $results = $results[0];
+            }
+            return $results;
+        }
+
+        /**
+         * Find users that match a given search criteria. The search is performed against certain publis attributes,
+         * such as user-name, tag-line, additional-info, about-me.
+         * @param $searchString
+         * @return array a list of matching users an a subset of user attributes - {user_id, user_name, date_created, site_currency_value, site_experience_points}
+         */
+        public function registeredUserFind ($searchString) {
+            $user = null;
+            $enginesisResponse = $this->callServerAPI('RegisteredUserGetEx', array('search_str' => $searchString));
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            return $results;
         }
 
         /**
@@ -836,6 +917,7 @@
 
         /**
          * Return the proper URL to use to show an avatar for a given user. The default is the default size and the current user.
+         * This URL should always return an image.
          * @param int $size
          * @param int $userId
          * @return string

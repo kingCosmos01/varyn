@@ -137,18 +137,18 @@
         $hackerToken = getPostOrRequestVar("all-clear", '');
         if ($thisFieldMustBeEmpty == null && $hackerToken == '') {
             // TODO: call Enginesis and get a fresh view of the user's data
-            $userInfo = $enginesis->userGet($userId);
+            $userInfo = $enginesis->registeredUserGetEx($userId);
             if ($userInfo == null) {
                 // TODO: Need to handle any errors
-                echo("<h3>Error getting user info</h3>");
-                echo("<p>error info: " . $enginesis->getLastError() . "</p>");
-                $errorMessage = "<p class=\"error-text\">There was a system error retrieving your information. " . $enginesis->getLastError() . "</p>";
+                $errorMessage = "<p class=\"error-text\">There was a system error retrieving your information. " . $enginesis->getLastErrorDescription() . "</p>";
             } else {
+                // [user_id] => 10241 [site_id] => 106 [user_name] => varyn2 [real_name] => varyn2 [site_user_id] => [dob] => 2004-04-10 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-04-10 20:07:55 [date_updated] => [source_site_id] => 106 [last_login] => 2016-04-16 14:09:27 [login_count] => 24 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 2 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [friend_count] => 0 [comment_count] => 0 [notification_count] => 0 ) ) [outparams] => Array ( ) [status] => stdClass Object ( [success] => 1 [message] => ) [passthru] => stdClass Object ( [fn] => RegisteredUserGetEx [site_id] => 106 [logged_in_user_id] => 10241 [get_user_id] => NULL [site_user_id] => NULL [language_code] => en [state_seq] => 1 ) ) ) stdClass Object ( [user_id] => 10241 [site_id] => 106 [user_name] => varyn2 [real_name] => varyn2 [site_user_id] => [dob] => 2004-04-10 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-04-10 20:07:55 [date_updated] => [source_site_id] => 106 [last_login] => 2016-04-16 14:09:27 [login_count] => 24 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 2 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [friend_count] => 0 [comment_count] => 0 [notification_count] => 0
                 $showRegistrationForm = true;
                 $inputFocusId = 'register_form_email';
                 $userName = $userInfo->user_name;
+                $originalUserName = $userName; // if changed we need to check foe name clash
                 $email = $userInfo->email_address;
-                $fullname = $userInfo->full_name;
+                $fullname = $userInfo->real_name;
                 $location = $userInfo->city;
                 $tagline = $userInfo->tagline;
                 $dateOfBirth = $userInfo->dob;
@@ -185,6 +185,8 @@
                 print_r($invalidFields);
             }
         }
+    } elseif ($action == 'securityupdate') {
+        // security update form: password, security question
     } elseif ($action == 'forgotpassword') {
         $userName = getPostOrRequestVar("forgotpassword_username", '');
         $email = getPostOrRequestVar("forgotpassword_email", '');
@@ -293,6 +295,7 @@
         }
 ?>
         <h2>Welcome <?php echo($userInfo->user_name);?>!</h2>
+        <?php if (strlen($errorMessage) > 0) { echo('<div id="errorContent" class="errorContent">' . $errorMessage . '</div>'); } ?>
         <div class="row">
             <div class="col-sm-3">
                 <img src="<?php echo($enginesis->avatarURL(0, $userInfo->user_id));?>"/><br/>
@@ -320,6 +323,11 @@
 ?>
         <h2>Profile Update</h2>
         <p>Update the attributes of your user registration.</p>
+            <ul class="nav nav-tabs">
+                <li role="presentation" class="active"><a href="#">Basic Info</a></li>
+                <li role="presentation"><a href="#">Extended Info</a></li>
+                <li role="presentation"><a href="#">Security</a></li>
+            </ul>
 <?php
         } else {
 ?>
@@ -330,7 +338,7 @@
 ?>
         <div class="row">
             <div class="panel col-md-10 profile-login">
-                <div id="errorContent" class="errorContent"><p>&nbsp;</p></div>
+                <div id="errorContent" class="errorContent"><?php echo($errorMessage);?></div>
                 <form id="register_form" method="POST" action="profile.php" onsubmit="return registerFormValidation();">
 <?php
     if ( ! $isLoggedIn) {
@@ -339,7 +347,6 @@
 <?php
     }
 ?>
-                    <div id="errorContent" class="errorContent"><?php echo($errorMessage);?></div>
                     <div class="form-group"><label for="register_form_email">Email: <span class="required-field">*</span></label><input type="email" name="register_form_email" class="popup-form-input required email" id="register_form_email" placeholder="Your email address" autocomplete="email" autocorrect="off" required value="<?php echo($email);?>"/></div>
                     <div class="form-group"><label for="register_form_username">User name: <span class="required-field">*</span></label><input type="text" name="register_form_username" class="popup-form-input required username" id="register_form_username" placeholder="A unique user name" autocomplete="username" required value="<?php echo($userName);?>" data-target="register_user_name_unique"/><img id="register_user_name_unique" class="username-is-not-unique" src="/images/red_x.png" width="32" height="32"/></div>
 <?php
@@ -350,7 +357,7 @@
     }
 ?>
                     <div class="form-group"><label for="register_form_fullname">Full name:</label><input type="text" name="register-fullname" class="popup-form-input fullname" id="register_form_fullname" placeholder="Your full name" autocomplete="name" value="<?php echo($fullname);?>" autocorrect="off" autocomplete="name"/></div>
-                    <div class="form-group"><label for="register_form_gender">You are:</label><label><input type="radio" name="register_form_gender" value="M"/>&nbsp;&nbsp;Male</label>&nbsp;<label><input type="radio" name="register_form_gender" value="F"/>&nbsp;&nbsp;Female</label></input></div>
+                    <div class="form-group"><label for="register_form_gender">You are:</label><label><input type="radio" name="register_form_gender" value="M" <?php echo($gender == 'M' ? 'checked' : '');?>/>&nbsp;&nbsp;Male</label>&nbsp;<label><input type="radio" name="register_form_gender" value="F" <?php echo($gender == 'F' ? 'checked' : '');?>/>&nbsp;&nbsp;Female</label></input></div>
                     <div class="form-group"><label for="register_form_dob">Date of Birth:</label><input type="date" name="register_form_dob" class="popup-form-input required dob" id="register_form_dob" placeholder="Birthdate" autocomplete="bday" value="<?php echo($dateOfBirth);?>"/></div>
                     <div class="form-group"><label for="register_form_location">Location:</label><input type="text" name="register_form_location" class="popup-form-input required location" id="register_form_location" placeholder="Where are you?" value="<?php echo($location);?>"/></div>
                     <div class="form-group"><label for="register_form_tagline">Tag line:</label><input type="text" name="register_form_tagline" class="popup-form-input required tagline" id="register_form_tagline" placeholder="Your tag line" value="<?php echo($tagline);?>"/></div>

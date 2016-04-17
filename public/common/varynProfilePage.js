@@ -38,10 +38,6 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
                 'onfailure': this.onGapiFailure
             });
             */
-            // TODO: these are just test functions so we can test without invoking the UI. once working, remove.
-//        showSubscribePopup();
-//        showLoginPopup(true);
-//        showRegistrationPopup(true);
         },
 
         onPageLoadSetFocus: function () {

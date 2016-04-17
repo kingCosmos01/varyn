@@ -408,6 +408,13 @@ footer {
     display: inline-block;
 }
 
+.instagram {
+    background: url(/images/icn-instagram.png) no-repeat 0 0;
+    width: 51px;
+    height: 51px;
+    display: inline-block;
+}
+
 .youtube {
     background: url(/images/icn-youtube.png) no-repeat 0 0;
     width: 51px;
@@ -459,6 +466,13 @@ footer {
 
 .email-small {
     background: url(/images/icn-send-small.png) no-repeat 0 0;
+    width: 32px;
+    height: 32px;
+    display: inline-block;
+}
+
+.instagram-small {
+    background: url(/images/icn-instagram-small.png) no-repeat 0 0;
     width: 32px;
     height: 32px;
     display: inline-block;
