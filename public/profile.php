@@ -42,13 +42,10 @@
             $inputFocusId = 'login_form_username';
         } else {
             $isLoggedIn = true;
-            // TODO: save cookie?
-            // TODO: Is there anything else we should save locally to avoid unnecessary server round-trips?
             $userInfoJSON = json_encode($userInfo);
+            // $userInfo Object ( [user_id] => 10239 [site_id] => 106 [user_name] => Varyn [real_name] => Varyn [site_user_id] => [dob] => 2004-02-16 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-02-16 20:47:45 [date_updated] => [source_site_id] => 106 [last_login] => 2016-02-20 22:27:38 [login_count] => 34 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 1 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [access_level] => 10 [role_name] => [user_rank] => 10001 [session_id] => cecfe3b4b5dac00d464eff98ba5c75c3 [cr] => d2a1bae6ef968501b648ccf253451a1a [authtok] => Dk39dEasNBgO79Mp0gjXnvGYBEPP06d5Pd KmpdvCnVEehliQpl5eezAdVfc9t9xsE7RDp5i9rPDjj73TXxaW1XOrVjWHwZsnQ0q/GsHtWl4tDGgS/lTMA== )
             $_COOKIE[VARYN_SESSION_COOKIE] = $userInfoJSON;
             setcookie(VARYN_SESSION_COOKIE, $userInfoJSON, time() + (SESSION_DAYSTAMP_HOURS * 60 * 60), '/', $enginesis->getServerName());
-
-            // $userInfo Object ( [user_id] => 10239 [site_id] => 106 [user_name] => Varyn [real_name] => Varyn [site_user_id] => [dob] => 2004-02-16 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-02-16 20:47:45 [date_updated] => [source_site_id] => 106 [last_login] => 2016-02-20 22:27:38 [login_count] => 34 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 1 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [access_level] => 10 [role_name] => [user_rank] => 10001 [session_id] => cecfe3b4b5dac00d464eff98ba5c75c3 [cr] => d2a1bae6ef968501b648ccf253451a1a [authtok] => Dk39dEasNBgO79Mp0gjXnvGYBEPP06d5Pd KmpdvCnVEehliQpl5eezAdVfc9t9xsE7RDp5i9rPDjj73TXxaW1XOrVjWHwZsnQ0q/GsHtWl4tDGgS/lTMA== )
         }
     } elseif ($action == 'signup') {
         $showRegistrationForm = true;
@@ -136,33 +133,57 @@
         }
     } elseif ($action == 'update') {
         $action = 'update';
-        $userName = getPostOrRequestVar("register_form_username", '');
-        $password = getPostOrRequestVar("register_form_password", '');
-        $email = getPostOrRequestVar("register_form_email", '');
-        $fullname = getPostOrRequestVar("register_form_fullname", '');
-        $location = getPostOrRequestVar("register_form_location", '');
-        $tagline = getPostOrRequestVar("register_form_tagline", '');
-        $dateOfBirth = getPostOrRequestVar("register_form_dob", '');
-        $gender = getPostOrRequestVar("register_form_gender", 'F');
-        $parameters = array(
-            'user_name' => $userName,
-            'password' => $password,
-            'email_address' => $email,
-            'real_name' => $fullname,
-            'location' => $location,
-            'tagline' => $tagline,
-            'dob' => $dateOfBirth,
-            'gender' => $gender,
-            'agreement' => $agreement
-        );
-        $invalidFields = $enginesis->userRegistrationValidation($userId, $parameters);
-        if ($invalidFields == null) {
-            $userInfo = $enginesis->userRegistrationUpdate($userId, $parameters);
-            print_r($userInfo);
+        $thisFieldMustBeEmpty = getPostOrRequestVar("emailaddress", null);
+        $hackerToken = getPostOrRequestVar("all-clear", '');
+        if ($thisFieldMustBeEmpty == null && $hackerToken == '') {
+            // TODO: call Enginesis and get a fresh view of the user's data
+            $userInfo = $enginesis->userGet($userId);
+            if ($userInfo == null) {
+                // TODO: Need to handle any errors
+                echo("<h3>Error getting user info</h3>");
+                echo("<p>error info: " . $enginesis->getLastError() . "</p>");
+                $errorMessage = "<p class=\"error-text\">There was a system error retrieving your information. " . $enginesis->getLastError() . "</p>";
+            } else {
+                $showRegistrationForm = true;
+                $inputFocusId = 'register_form_email';
+                $userName = $userInfo->user_name;
+                $email = $userInfo->email_address;
+                $fullname = $userInfo->full_name;
+                $location = $userInfo->city;
+                $tagline = $userInfo->tagline;
+                $dateOfBirth = $userInfo->dob;
+                $gender = $userInfo->gender;
+            }
         } else {
-            // TODO: handle invalid fields by showing UI
-            $inputFocusId = 'register_form_email';
-            print_r($invalidFields);
+            $userName = getPostOrRequestVar("register_form_username", '');
+            $password = getPostOrRequestVar("register_form_password", '');
+            $email = getPostOrRequestVar("register_form_email", '');
+            $fullname = getPostOrRequestVar("register_form_fullname", '');
+            $location = getPostOrRequestVar("register_form_location", '');
+            $tagline = getPostOrRequestVar("register_form_tagline", '');
+            $dateOfBirth = getPostOrRequestVar("register_form_dob", '');
+            $gender = getPostOrRequestVar("register_form_gender", 'F');
+            $parameters = array(
+                'user_name' => $userName,
+                'password' => $password,
+                'email_address' => $email,
+                'real_name' => $fullname,
+                'location' => $location,
+                'tagline' => $tagline,
+                'dob' => $dateOfBirth,
+                'gender' => $gender,
+                'agreement' => $agreement
+            );
+            $invalidFields = $enginesis->userRegistrationValidation($userId, $parameters);
+            if ($invalidFields == null) {
+                $userInfo = $enginesis->userRegistrationUpdate($userId, $parameters);
+                print_r($userInfo);
+            } else {
+                // TODO: handle invalid fields by showing UI
+                $showRegistrationForm = true;
+                $inputFocusId = 'register_form_email';
+                print_r($invalidFields);
+            }
         }
     } elseif ($action == 'forgotpassword') {
         $userName = getPostOrRequestVar("forgotpassword_username", '');
@@ -265,52 +286,89 @@
             print_r($invalidFields);
         }
     }
-    if ($isLoggedIn) {
+    if ($isLoggedIn && ! $showRegistrationForm) {
         if ( ! isset($userInfo)) {
-            echo("<h3>Getting cookie</h3>");
-            print_r($_COOKIE);
             $userInfoJSON = $_COOKIE[VARYN_SESSION_COOKIE];
-            echo("<p>got $userInfoJSON</p>");
             $userInfo = json_decode($userInfoJSON);
         }
 ?>
-        <h3>Welcome <?php echo($userInfo->user_name);?>!</h3>
-        <p>Here is your profile summary:</p>
-        <div id="profile_login">
-            <input type="button" id="profile_logout" onclick="profilePage.logout();" value="Logout" />
-            <table class="profile-login-table">
-                <tr><td><label>Site Rank</label></td><td><?php echo($userInfo->user_rank);?></td></tr>
-                <tr><td><label>EXP</label></td><td><?php echo($userInfo->site_experience_points);?></td></tr>
-                <tr><td><label>Coins</label></td><td><?php echo($userInfo->site_currency_value);?></td></tr>
-                <tr><td><label>Profile views</label></td><td><?php echo($userInfo->view_count);?></td></tr>
-                <tr><td><label>Last login</label></td><td><?php echo($userInfo->last_login);?></td></tr>
-            </table>
+        <h2>Welcome <?php echo($userInfo->user_name);?>!</h2>
+        <div class="row">
+            <div class="col-sm-3">
+                <img src="<?php echo($enginesis->avatarURL(0, $userInfo->user_id));?>"/><br/>
+                <input type="button" id="profile_edit" onclick="profilePage.startUpdate();" value="Edit" /><input type="button" id="profile_logout" onclick="profilePage.logout();" value="Logout" />
+            </div>
+            <div id="profile_login" class="col-sm-4">
+                <h4>Your profile summary:</h4>
+                <table class="profile-login-table">
+                    <tr><td><label>Site Rank</label></td><td><?php echo($userInfo->user_rank);?></td></tr>
+                    <tr><td><label>EXP</label></td><td><?php echo($userInfo->site_experience_points);?></td></tr>
+                    <tr><td><label>Coins</label></td><td><?php echo($userInfo->site_currency_value);?></td></tr>
+                    <tr><td><label>Profile views</label></td><td><?php echo($userInfo->view_count);?></td></tr>
+                    <tr><td><label>Last login</label></td><td><?php echo($userInfo->last_login);?></td></tr>
+                </table>
+            </div>
+            <div class="col-sm-3">
+                <h4>Awards &amp; Badges</h4>
+                <p>You have not earned any yet - so get out and play!</p>
+            </div>
         </div>
 <?php
     } elseif ($showRegistrationForm) {
         $hackerVerification = makeInputFormHackerToken();
+        if ($isLoggedIn) {
+?>
+        <h2>Profile Update</h2>
+        <p>Update the attributes of your user registration.</p>
+<?php
+        } else {
 ?>
         <h2>Register</h2>
         <p>Let's get you registered so you can login to see your profile, earn coins, appear on leader boards, and participate in contests and our community.</p>
+<?php
+        }
+?>
         <div class="row">
             <div class="panel col-md-10 profile-login">
                 <div id="errorContent" class="errorContent"><p>&nbsp;</p></div>
                 <form id="register_form" method="POST" action="profile.php" onsubmit="return registerFormValidation();">
+<?php
+    if ( ! $isLoggedIn) {
+?>
                     <h3><span class="varyn-shield-icon"></span> Registration</h3><div class="register-login-option">Already a member? <a href="profile.php" title="Already a member? Log in with your account" alt="Already a member? Log in with your account.">Log in</a>.</div>
+<?php
+    }
+?>
                     <div id="errorContent" class="errorContent"><?php echo($errorMessage);?></div>
                     <div class="form-group"><label for="register_form_email">Email: <span class="required-field">*</span></label><input type="email" name="register_form_email" class="popup-form-input required email" id="register_form_email" placeholder="Your email address" autocomplete="email" autocorrect="off" required value="<?php echo($email);?>"/></div>
                     <div class="form-group"><label for="register_form_username">User name: <span class="required-field">*</span></label><input type="text" name="register_form_username" class="popup-form-input required username" id="register_form_username" placeholder="A unique user name" autocomplete="username" required value="<?php echo($userName);?>" data-target="register_user_name_unique"/><img id="register_user_name_unique" class="username-is-not-unique" src="/images/red_x.png" width="32" height="32"/></div>
+<?php
+    if ( ! $isLoggedIn) {
+?>
                     <div class="form-group"><label for="register_form_password">Password: <span class="required-field">*</span></label><input type="password" name="register_form_password" class="popup-form-input required password" id="register_form_password" placeholder="A secure password" autocomplete="current-password" required value="<?php echo($password);?>"/></div>
+<?php
+    }
+?>
                     <div class="form-group"><label for="register_form_fullname">Full name:</label><input type="text" name="register-fullname" class="popup-form-input fullname" id="register_form_fullname" placeholder="Your full name" autocomplete="name" value="<?php echo($fullname);?>" autocorrect="off" autocomplete="name"/></div>
                     <div class="form-group"><label for="register_form_gender">You are:</label><label><input type="radio" name="register_form_gender" value="M"/>&nbsp;&nbsp;Male</label>&nbsp;<label><input type="radio" name="register_form_gender" value="F"/>&nbsp;&nbsp;Female</label></input></div>
                     <div class="form-group"><label for="register_form_dob">Date of Birth:</label><input type="date" name="register_form_dob" class="popup-form-input required dob" id="register_form_dob" placeholder="Birthdate" autocomplete="bday" value="<?php echo($dateOfBirth);?>"/></div>
                     <div class="form-group"><label for="register_form_location">Location:</label><input type="text" name="register_form_location" class="popup-form-input required location" id="register_form_location" placeholder="Where are you?" value="<?php echo($location);?>"/></div>
                     <div class="form-group"><label for="register_form_tagline">Tag line:</label><input type="text" name="register_form_tagline" class="popup-form-input required tagline" id="register_form_tagline" placeholder="Your tag line" value="<?php echo($tagline);?>"/></div>
+<?php
+    if ( ! $isLoggedIn) {
+?>
                     <div class="validation-slider-area" style="max-width: 380px;">
                         <label for="register_form_agreement">I agree to the <a href="/tos.php" target="_popup">Terms of Use</a><span class="required-field">*</span></label><br/>
                         <span><small>No</small>&nbsp;&nbsp;<input type="range" name="register_form_agreement" class="validation-slider" id="register_form_agreement" placeholder="Slide this all the way left to agree" tabindex="13" min="0" max="2" />&nbsp;&nbsp;<small>Yes</small></span>
                     </div>
                     <div class="form-group"><input type="submit" value="Register" name="popupregister" id="registerButton" class="btn btn-success"/><span id="rememberme-container"><input type="checkbox" tabindex="4" checked="checked" name="rememberme" id="rememberme"><label for="rememberme">Remember Me</label></span></div>
+<?php
+    } else {
+?>
+                    <div class="form-group"><input type="submit" value="Update" name="popupregister" id="registerButton" class="btn btn-success"/></div>
+<?php
+    }
+?>
                     <input type="hidden" name="action" value="register" /><input type="text" name="emailaddress" class="popup-form-address-input" /><input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
                 </form>
             </div>
@@ -406,7 +464,8 @@
         profilePage = varynApp.initApp(varynProfilePage, profilePageParameters);
     });
 
-    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//connect.facebook.net/en_US/all.js", "//platform.linkedin.com/in.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "common/varyn.js", "common/varynProfilePage.js");
+    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/varyn.js", "/common/varynProfilePage.js");
+    // head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//connect.facebook.net/en_US/all.js", "//platform.linkedin.com/in.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "common/varyn.js", "common/varynProfilePage.js");
 
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
     ga('create', 'UA-41765479-1', 'varyn.com');

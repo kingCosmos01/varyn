@@ -21,7 +21,14 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             $('#register_form_username').on('input', varynApp.onChangeRegisterUserName);
             $('#register_form_username').on('propertychange', varynApp.onChangeRegisterUserName);
             varynApp.setupRegisterUserNameOnChangeHandler();
-            gapi.signin2.render('g-signin2', {
+            $('#profile_forgot_password').click(this.forgotPassword);
+            $('#facebook-connect-button').click(this.loginFacebook);
+            varynApp.onChangeRegisterUserName($('#register_form_username').get(0), 'register_user_name_unique'); // in case field is pre-populated
+            enginesisSession.gameListListGames(siteConfiguration.gameListIdTop, this.enginesisCallBack);
+            this.onPageLoadSetFocus();
+
+            // Google+ login button support
+/*            gapi.signin2.render('g-signin2', {
                 'scope': 'https://www.googleapis.com/auth/plus.login',
                 'width': 200,
                 'height': 50,
@@ -30,12 +37,7 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
                 'onsuccess': this.onGapiSuccess,
                 'onfailure': this.onGapiFailure
             });
-            $('#profile_forgot_password').click(this.forgotPassword);
-            $('#facebook-connect-button').click(this.loginFacebook);
-            varynApp.onChangeRegisterUserName($('#register_form_username').get(0), 'register_user_name_unique'); // in case field is pre-populated
-            enginesisSession.gameListListGames(siteConfiguration.gameListIdTop, this.enginesisCallBack);
-            this.onPageLoadSetFocus();
-
+            */
             // TODO: these are just test functions so we can test without invoking the UI. once working, remove.
 //        showSubscribePopup();
 //        showLoginPopup(true);
@@ -122,6 +124,10 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
 
         logout: function () {
             window.location.href = "/profile.php?action=logout";
+        },
+
+        startUpdate: function () {
+            window.location.href = "/profile.php?action=update";
         },
 
         forgotPassword: function () {

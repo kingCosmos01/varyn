@@ -35,6 +35,7 @@ var enginesis = function (parameters) {
         serverStage = null,
         serverHost = null,
         submitToURL = null,
+        avatarImageURL = null,
         siteId = 0,
         gameId = 0,
         gameWidth = 0,
@@ -174,6 +175,7 @@ var enginesis = function (parameters) {
                 break;
         }
         submitToURL = (useHTTPS ? 'https://' : 'http://') + serverHost + '/index.php';
+        avatarImageURL = (useHTTPS ? 'https://' : 'http://') + serverHost + '/avatar.php';
         return serverStage;
     };
 
@@ -244,8 +246,8 @@ var enginesis = function (parameters) {
          * @method: useHTTPS
          * @purpose: get and/or set the use HTTPS flag, allowing the caller to force the protocol. By default we set
          *           useHTTPS from the current document location. This allows the caller to query it and override its value.
-         * @param: {bool} useHTTPSFlag should be either true to force https or false to force http, or undefined to leave it as is
-         * @returns: {bool} the current state of the useHTTPS flag.
+         * @param: {boolean} useHTTPSFlag should be either true to force https or false to force http, or undefined to leave it as is
+         * @returns: {boolean} the current state of the useHTTPS flag.
          */
         useHTTPS: function (useHTTPSFlag) {
             if (useHTTPSFlag !== undefined) {
@@ -540,6 +542,20 @@ var enginesis = function (parameters) {
                     user_name: userName,
                     network_id: networkId
                 }, overRideCallBackFunction);
+        },
+
+        /**
+         * Return the proper URL to use to show an avatar for a given user. The default is the default size and the current user.
+         * @param int $size
+         * @param int $userId
+         * @return string
+         */
+        avatarURL: function avatarURL (size, userId) {
+            if (userId == 0) {
+                userId = loggedInUserId;
+            }
+            size = 0;
+            return avatarImageURL + '?site_id=' + siteId + '&user_id=' + userId + '&size=' + size;
         }
     };
 };

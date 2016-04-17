@@ -14,6 +14,7 @@
     {
         private $m_server;
         private $m_serviceEndPoint;
+        private $m_avatarEndPoint;
         private $m_lastError;
         private $m_siteId;
         private $m_isLoggedIn;
@@ -57,14 +58,16 @@
             $this->m_authTokenWasValidated = false;
             if (empty($enginesisServer)) {
                 // Caller doesn't know which stage, converse with the one that matches the stage we are on
-                $this->m_serviceEndPoint = $this->m_serviceProtocol . '://enginesis' . $this->m_stage . '.com/index.php';
+                $enginesisServiceRoot = $this->m_serviceProtocol . '://enginesis' . $this->m_stage . '.com/';
             } elseif (strlen($enginesisServer) == 2) {
                 // Caller may provide a stage we should converse with
-                $this->m_serviceEndPoint = $this->m_serviceProtocol . '://enginesis' . $enginesisServer . '.com/index.php';
+                $enginesisServiceRoot = $this->m_serviceProtocol . '://enginesis' . $enginesisServer . '.com/';
             } else {
                 // Caller can provide a specific server we should converse with
-                $this->m_serviceEndPoint = $this->m_serviceProtocol . '://' . $enginesisServer . '/index.php';
+                $enginesisServiceRoot = $this->m_serviceProtocol . '://' . $enginesisServer . '/';
             }
+            $this->m_serviceEndPoint = $enginesisServiceRoot . '/index.php';
+            $this->m_avatarEndPoint = $enginesisServiceRoot . '/avatar.php';
             $this->restoreUserFromAuthToken(null);
         }
 
@@ -799,9 +802,48 @@
             return $results != null;
         }
 
+        /**
+         * @param $userId
+         * @return boolean
+         */
+        public function userGet ($userId) {
+            $user = null;
+            if ($userId < 9999) {
+                $userId = $this->m_userId;
+            }
+            $enginesisResponse = $this->callServerAPI('UserGet', array('get_user_id' => $userId));
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null && isset($results[0])) {
+                $user = $results[0];
+            }
+            return $user;
+        }
+
+        /**
+         * Track a hit on the newsletter.
+         * @param $userId
+         * @param $newsletterId
+         * @param $event
+         * @param $eventDetails
+         * @param $referrer
+         * @return bool
+         */
         public function newsletterTrackingRecord ($userId, $newsletterId, $event, $eventDetails, $referrer) {
             $enginesisResponse = $this->callServerAPI('NewsletterTrackingRecord', array('u_id' => $userId, 'newsletter_id' => $newsletterId, 'event_id' => $event, 'event_details' => $eventDetails, 'referrer' => $referrer));
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             return $results != null;
+        }
+
+        /**
+         * Return the proper URL to use to show an avatar for a given user. The default is the default size and the current user.
+         * @param int $size
+         * @param int $userId
+         * @return string
+         */
+        public function avatarURL ($size = 0, $userId = 0) {
+            if ($userId == 0) {
+                $userId = $this->m_userId;
+            }
+            return $this->m_avatarEndPoint . '?site_id=' . $this->m_siteId . '&user_id=' . $userId . '&size=' . $size;
         }
     }
