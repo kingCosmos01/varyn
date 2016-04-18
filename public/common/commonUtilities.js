@@ -1,5 +1,7 @@
-/**  CommonUtilities.js
+/**  commonUtilities.js
  * 
+ * @module commonUtilities
+ * @classdesc
  *   A static object of static utility functions for handling common problems
  *   found in JavaScript and web development. I find on every JS project I work
  *   on I need most of these functions, so I pulled them all together in one place.
@@ -7,28 +9,31 @@
  *   This module includes many function utilities for data transformations such as
  *   base64, url and query string processing, data validation, and cookie handling.
  *
+ * @since 1.0
  */
-(function CommonUtilities () {
-
+(function commonUtilities (global) {
     'use strict';
+
     var commonUtilities = {
-        version: '1.1.3'
+        version: '1.2.5'
     },
     _base64KeyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
     _testNumber = 0;
 
   
-    /** 
+    /**
      * Return the provided object as a string in key: value; format.
      *
-     * @param {object} The object to convert to a string representation.
-     * @return {string} The object converted to a string representation.
+     * @method objectToString
+     * @param {object} obj The object to convert to a string representation.
+     * @return {string} string The object converted to a string representation.
      */
     commonUtilities.objectToString = function (obj) {
-        var result ;
+        var result,
+            prop;
         if (obj) {
             result = '';
-            for (var prop in obj) {
+            for (prop in obj) {
                 if (obj.hasOwnProperty(prop)) {
                     result += (result.length > 0 ? ' ' : '') + prop + ': ' + obj[prop] + ';';
                 }
@@ -40,59 +45,93 @@
     };
     
     /**
-     * Return the provided object as a string in key: value; format. This version handles
-     * functions.
+     * Return the provided array as a string in key: value; format.
      *
-     * @param {object} The object to convert to a string representation.
-     * @return {string} The object converted to a string representation.
+     * @method arrayToString
+     * @param {array} array The array to convert to a string representation.
+     * @return {string} string The array converted to a string representation.
+     */
+    commonUtilities.arrayToString = function (array) {
+        var result,
+            key,
+            value;
+        if (array && array instanceof Array) {
+            result = '[';
+            for (key in array) {
+                value = array[key];
+                if (typeof(value) == "undefined") {
+                    value = "undefined";
+                } else if (typeof(value) == "object") {
+                    value = this.objectStringify(value);
+                } else if (typeof(value) == "array") {
+                    value = this.arrayToString(value);
+                }
+                result += (result.length > 1 ? ', ' : '') + key + ': ' + value;
+            }
+            result += ']';
+        } else {
+            result = 'null';
+        }
+        return result;
+    };
+    
+    /**
+     * Return the provided object as a string in key: value; format. This version handles
+     * functions but is slower than objectToString.
+     *
+     * @method objectStringify
+     * @param {object} object The object to convert to a string representation.
+     * @return {string} string The object converted to a string representation.
      */
     commonUtilities.objectStringify = function (object) {
         var subObjects = [], // An array of sub-objects that will later be joined into a string.
             property;
             
-        if (object == undefined) {
+        if (object === undefined) {
             return String(object);
-            
         } else if (typeof(object) == "function") {
             subObjects.push(object.toString());
-
         } else if (typeof(object) == "object") {
             // is object (or array):
             //    Both arrays and objects seem to return "object" when typeof(obj)
             //    is applied to them. So instead we check if they have the property
             //    join, a function of the array prototype. Unless the object actually
             //    defines its own join property!
-            if (object.join == undefined) {
+            if (object.join === undefined) {
                 for (property in object) {
                     if (object.hasOwnProperty(property)) {
                         subObjects.push(property + ": " + this.objectStringify(object[property]));
                     }
-                };
+                }
                 return "{" + subObjects.join(", ") + "}";
             } else {
                 for (property in object) {
                     subObjects.push(this.objectStringify(object[property]));
                 }
                 return "[" + subObjects.join(", ") + "]";
-            s}
+            }
         } else {
             // all other value types can be represented with JSON.stringify
             subObjects.push(JSON.stringify(object))
         }
         return subObjects.join(", ");
-    }
+    };
     
     /** 
-     * Return the current document query string as an object.
+     * Return the current document query string as an object with 
+     * key/value pairs converted to properties.
      *
-     * @param {string} An optional query string to parse as the query string. If not
-     * provided window.location.search will be used.
-     * @return {object} The query string converted to an object of key/value pairs.
+     * @method queryStringToObject
+     * @param {string} urlParamterString An optional query string to parse as the query string. If not
+     *   provided then use window.location.search.
+     * @return {object} result The query string converted to an object of key/value pairs.
      */
     commonUtilities.queryStringToObject = function (urlParamterString) {
         var match,
             search = /([^&=]+)=?([^&]*)/g,
-            decode = function (s) { return decodeURIComponent(s.replace(/\+/g, " ")); },
+            decode = function (s) {
+                return decodeURIComponent(s.replace(/\+/g, " "));
+                },
             result = {};
         if ( ! urlParamterString) {
             urlParamterString = window.location.search.substring(1);
@@ -101,36 +140,60 @@
             result[decode(match[1])] = decode(match[2]);
         }
         return result;
-    }
-    
-    /** 
+    };
+
+    /**
+     * Determine if at least one string in the array matches the pattern. Since we are using regex pattern
+     * to match we cannot use Array.indexOf(). If the pattern were a simple string, use Array.indexOf().
+     * @param pattern a regex pattern to match.
+     * @param arrayOfStrings strings to test each against the pattern.
+     * @returns {number} index of first string in the array that matches the pattern, -1 when no match.
+     */
+    commonUtilities.matchInArray = function (pattern, arrayOfStrings) {
+        var i = 0,
+            numberOfTokens;
+
+        if (pattern && arrayOfStrings && arrayOfStrings.constructor === Array) {
+            numberOfTokens = arrayOfStrings.length;
+            for (i; i < numberOfTokens; i ++) {
+                if (pattern.match(arrayOfStrings[i])) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    };
+
+    /**
      * Given a path make sure it represents a full path with a leading and trailing /.
      *
-     * @param {string} URI path to check.
-     * @return {string} Full URI path.
+     * @method makeFullPath
+     * @param {string} path URI path to check.
+     * @return {string} path Full URI path.
      */
-    commonUtilities.makeFullPath(path) {
+    commonUtilities.makeFullPath = function (path) {
         if (path) {
             if (path[path.length - 1] !== '/') {
-                path += '/'
+                path += '/';
             }
             if (path[0] !== '/') {
-                path = '/' + path
+                path = '/' + path;
             }
         } else {
             path = '/';
         }
-        return path
-    }
+        return path;
+    };
     
     /** 
      * Append a folder or file name to the end of an existing path string.
      *
-     * @param {string} URI path to append to.
-     * @param {string} folder or file to append.
-     * @return {string} Full URI path.
+     * @method 
+     * @param {string} path URI path to append to.
+     * @param {string} file folder or file to append.
+     * @return {string} path Full URI path.
      */
-    commonUtilities.appendFileToPath(path, file) {
+    commonUtilities.appendFileToPath = function (path, file) {
         if (path && file) {
             if (path[path.length - 1] !== '/' && file[0] !== '/') {
                 path += '/' + file;
@@ -142,13 +205,54 @@
         } else if (file) {
             path = file;
         }
-        return path
-    }
+        return path;
+    };
     
+    /** 
+     * Replace occurrences of {token} with matching keyed values from parameters array.
+     *
+     * @method tokenReplace
+     * @param {string} text text containing tokens to be replaced.
+     * @param {Array} parameters array/object of key/value pairs to match keys as tokens in text and replace with value.
+     * @return {string} text replaced string.
+     */
+    commonUtilities.tokenReplace = function (text, parameters) {
+        var token,
+            regexMatch;
+        
+        for (token in parameters) {
+            if (parameters.hasOwnProperty(token)) {
+                regexMatch = new RegExp("\{" + token + "\}", 'g');
+                text = text.replace(regexMatch, parameters[token]);
+            }
+        }
+        return text;
+    };
+    
+    /**
+     * Determine if a variable is "empty", which could depend on what type it is:
+     *   any variant when null or undefined
+     *   if a boolean, then when false
+     *   if a number, then when 0
+     *   if a string, then 0 length
+     *   if an array, then 0 length
+     * Given boolean logic expression order of precedence, we should arrange the return
+     *   statement with the most likely case first, the least likely case last.
+     * @param field var any variable
+     * @returns {boolean} returns true if empty, false if not empty.
+     */
+    commonUtilities.isEmpty = function (field) {
+        return (typeof field === 'undefined') || field === null || field === "" || (field instanceof Array && field.length == 0) || field === false || field === 0;
+    };
+    
+    /* ----------------------------------------------------------------------------------
+     * Platform and feature detection
+     * ----------------------------------------------------------------------------------*/
     /**
      * Determine if the current invokation environment is a mobile device.
      * TODO: Really would rather use modernizr.js as you really do not want isMobile(), you want isTouchDevice()
      *
+     * @method isMobile
      * @return {bool} true if we think this is a mobile device, false if we think otherwise.
      *
      */
@@ -174,48 +278,16 @@
         return navigator.userAgent.match(/IEMobile/i) ? true : false;
     };
 
-    /* 
-     * A very basic function performance tester. Will track the time it takes to run the
-     *        function for the specified number of iterations.
-     * @param {function} a function to test. This function take no parameters. If you 
-     *        require parameters wrap into a function that takes no parameters.
-     * @param {string} any id you want to assign to the test. Not used, but returned.
-     * @param {int} number of times to call this function.
-     * @return {object} test results object including test number, test function id, duration,
-     *         duration units, and total iterations.
-     */
-    commonUtilities.performanceTest = function (testFunction, testId, totalIterations) {
-        var start,
-            duration,
-            i,
-            results;
-        
-        _testNumber ++;
-        start = performance.now();
-        for (i = 0; i < totalIterations; i ++) {
-            testFunction();
-        }
-        duration = performance.now() - start;
-        results = {
-            testNumber: _testNumber,
-            testFunction: testId,
-            duration: duration,
-            durationUnits: 'ms',
-            totalIterations: i
-        };
-        return results;
-    };
-
     /* ----------------------------------------------------------------------------------
      * Various conversion utilities - UTF-8, Base 64
-     *
-     */
+     * ----------------------------------------------------------------------------------*/
 
-    /*
+    /**
      * Encode a Unicode string in UTF-8 character encoding.
      *
-     * @param {string} string in Unicode to convert to UTF-8.
-     * @return {string} UTF-8 encoded input string.
+     * @method utf8Encode
+     * @param {string} input string in Unicode to convert to UTF-8.
+     * @return {string} result UTF-8 encoded input string.
      */
     commonUtilities.utf8Encode = function (input) {
         var result = "",
@@ -240,11 +312,12 @@
         return result;
     };
 
-    /*
+    /**
      * Decode a UTF-8 encoded string into a Unicode character coding format.
      *
-     * @param {string} string in UTF-8 to convert to Unicode.
-     * @return {string} Unicode representation of input string.
+     * @method utf8Decode
+     * @param {string} utfText string in UTF-8 to convert to Unicode.
+     * @return {string} result Unicode representation of input string.
      */
     commonUtilities.utf8Decode = function (utfText) {
         var result = "",
@@ -273,13 +346,14 @@
         return result;
     };
     
-    /*
+    /**
      * Convert an image located at the URL specified into its Base 64 representation.
      * Because the image is loaded asynchronously over the network a callback function
      * will be called once the image is loaded and encoded.
      *
-     * @param {string} URL to an image.
-     * @param {function} Called when image is loaded. This function takes one parameter,
+     * @method base64FromImageUrl
+     * @param {string} url URL to an image.
+     * @param {function} callback Called when image is loaded. This function takes one parameter,
      *         a string that represents the Base 64 encoded image.
      * @return void
      */
@@ -299,11 +373,12 @@
         }
     };
 
-    /*
+    /**
      * Encode a string into its base 64 representation.
      *
-     * @param {string} string to encode in base 64.
-     * @return {string} encoded string.
+     * @method base64Encode
+     * @param {string} input string to encode in base 64.
+     * @return {string} output encoded string.
      */
     commonUtilities.base64Encode = function (input) {
         var output = "",
@@ -311,69 +386,81 @@
             chr1, chr2, chr3, enc1, enc2, enc3, enc4,
             i = 0;
 
-      input = commonUtilities.utf8Encode(input);
-      while (i < inputLength) {
-        chr1 = input.charCodeAt(i ++);
-        chr2 = input.charCodeAt(i ++);
-        chr3 = input.charCodeAt(i ++);
-        enc1 = chr1 >> 2;
-        enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
-        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
-        enc4 = chr3 & 63;
-        if (isNaN(chr2)) {
-            enc3 = enc4 = 64;
-        } else if (isNaN(chr3)) {
-            enc4 = 64;
+        input = commonUtilities.utf8Encode(input);
+        while (i < inputLength) {
+            chr1 = input.charCodeAt(i ++);
+            chr2 = input.charCodeAt(i ++);
+            chr3 = input.charCodeAt(i ++);
+            enc1 = chr1 >> 2;
+            enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+            enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+            enc4 = chr3 & 63;
+            if (isNaN(chr2)) {
+                enc3 = enc4 = 64;
+            } else if (isNaN(chr3)) {
+                enc4 = 64;
+            }
+            output = output +
+                _base64KeyStr.charAt(enc1) + _base64KeyStr.charAt(enc2) +
+                _base64KeyStr.charAt(enc3) + _base64KeyStr.charAt(enc4);
         }
-        output = output +
-          _base64KeyStr.charAt(enc1) + _base64KeyStr.charAt(enc2) +
-          _base64KeyStr.charAt(enc3) + _base64KeyStr.charAt(enc4);
-      }
-      return output;
+        return output;
     };
 
-    /*
+    /**
      * Convert a base 64 encoded string to its UTF-8 character coding.
      * 
-     * @param {string} string in base 64 to convert to UTF-8.
-     * @return {string} UTF-8 string.
+     * @method base64Decode
+     * @param {string} input string in base 64 to convert to UTF-8.
+     * @return {string} result UTF-8 string.
      */
     commonUtilities.base64Decode = function (input) {
-      var output = "",
-          inputLength = input.length,
-          chr1, chr2, chr3, enc1, enc2, enc3, enc4,
-          i = 0;
+        var output = "",
+            inputLength = input.length,
+            chr1, chr2, chr3, enc1, enc2, enc3, enc4,
+            i = 0;
 
-      input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
-      while (i < inputLength) {
-          enc1 = _base64KeyStr.indexOf(input.charAt(i ++));
-          enc2 = _base64KeyStr.indexOf(input.charAt(i ++));
-          enc3 = _base64KeyStr.indexOf(input.charAt(i ++));
-          enc4 = _base64KeyStr.indexOf(input.charAt(i ++));
-          chr1 = (enc1 << 2) | (enc2 >> 4);
-          chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
-          chr3 = ((enc3 & 3) << 6) | enc4;
-          output = output + String.fromCharCode(chr1);
-          if (enc3 != 64) {
-              output = output + String.fromCharCode(chr2);
-          }
-          if (enc4 != 64) {
-              output = output + String.fromCharCode(chr3);
-          }
-      }
-      return commonUtilities.utf8Decode(output);
+        input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+        while (i < inputLength) {
+            enc1 = _base64KeyStr.indexOf(input.charAt(i ++));
+            enc2 = _base64KeyStr.indexOf(input.charAt(i ++));
+            enc3 = _base64KeyStr.indexOf(input.charAt(i ++));
+            enc4 = _base64KeyStr.indexOf(input.charAt(i ++));
+            chr1 = (enc1 << 2) | (enc2 >> 4);
+            chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+            chr3 = ((enc3 & 3) << 6) | enc4;
+            output = output + String.fromCharCode(chr1);
+            if (enc3 != 64) {
+                output = output + String.fromCharCode(chr2);
+            }
+            if (enc4 != 64) {
+                output = output + String.fromCharCode(chr3);
+            }
+        }
+        return commonUtilities.utf8Decode(output);
+    };
+
+    /**
+     * Round a number to the requested number of decimal places.
+     * @param value {number} the number to round.
+     * @param decimalPlaces {number} the number of decimal places.
+     * @returns {number} Rounded value.
+     */
+    commonUtilities.roundTo = function (value, decimalPlaces) {
+        var orderOfMagnitude = Math.pow(10, decimalPlaces);
+        return Math.round(value * orderOfMagnitude) / orderOfMagnitude;
     };
 
     /* ----------------------------------------------------------------------------------
      * Cookie handling functions
-     *
-     */
+     * ----------------------------------------------------------------------------------*/
      
-    /*
+    /**
      * Return the contents fo the cookie indexed by the specified key.
      *
-     * @param {string} Indicate which cookie to get.
-     * @return {string} Contents of cookie stored with key.
+     * @method cookieGet
+     * @param {string} key Indicate which cookie to get.
+     * @return {string} value Contents of cookie stored with key.
      */
     commonUtilities.cookieGet = function (key) {
         if (key) {
@@ -383,16 +470,17 @@
         } 
     };
   
-    /*
+    /**
      * Set a cookie indexed by the specified key.
      *
+     * @method cookieSet
      * @param key {string} Indicate which cookie to set.
      * @param value {string} Value to store under key.
-     * @param expiration {var} When the cookie should expire.
+     * @param expiration {object} When the cookie should expire.
      * @param path {string} Cookie URL path.
      * @param domain {string} Cookie domain.
      * @param isSecure {bool} Set cookie secure flag.
-     * @return {bool} true if set, false if error.
+     * @return {boolean} true if set, false if error.
      */
     commonUtilities.cookieSet = function (key, value, expiration, path, domain, isSecure) {
         if ( ! key || /^(?:expires|max\-age|path|domain|secure)$/i.test(key)) {
@@ -417,13 +505,14 @@
         }
     };
   
-    /*
+    /**
      * Remove a cookie indexed by the specified key.
      *
+     * @method cookieRemove
      * @param key {string} Indicate which cookie to remove.
      * @param path {string} Cookie URL path.
      * @param domain {string} Cookie domain.
-     * @return {bool} true if removed, false if doesn't exist.
+     * @return {boolean} true if removed, false if doesn't exist.
      */
     commonUtilities.cookieRemove = function (key, path, domain) {
         if (commonUtilities.cookieExists(key)) {
@@ -434,11 +523,12 @@
         }
     };
   
-    /*
+    /**
      * Determine if the cookie exists.
      *
+     * @method cookieExists
      * @param key {string} Key to test if exists.
-     * @return {bool} true if exists, false if doesn't exist.
+     * @return {boolean} true if exists, false if doesn't exist.
      */
     commonUtilities.cookieExists = function (key) {
         if (key) {
@@ -448,10 +538,11 @@
         }
     };
   
-    /*
+    /**
      * Return an array of all cookie keys.
      *
-     * @return {array} Array of all stored cookie keys.
+     * @method cookieGetKeys
+     * @return {Array} Array of all stored cookie keys.
      */
     commonUtilities.cookieGetKeys = function () {
         var allKeys = document.cookie.replace(/((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, "").split(/\s*(?:\=[^;]*)?;\s*/),
@@ -466,8 +557,7 @@
     
     /* ----------------------------------------------------------------------------------
      * Very basic social network sharing utilities
-     *
-     */
+     * ----------------------------------------------------------------------------------*/
     // 	<i tabindex="-1" class="shareIcon share_facebook socialIcon-facebook-squared-1"></i>
     //	<i tabindex="-1" class="socialIcon-twitter-1 shareIcon share_twitter"></i>
     // 	$(".share_facebook").click(shareFacebook);
@@ -507,21 +597,213 @@
             'toolbar=no,status=0,width=626,height=436'
         );
     };
+
+    commonUtilities.shareByEmail = function (title, message, url) {
+        if (url) {
+            message = message + '\n\n' + url;
+        }
+        window.open(
+            'mailto:?subject=' + encodeURIComponent(title) + '&body=' + encodeURIComponent(message),
+            'Share by Email',
+            'toolbar=no,status=0,width=626,height=436'
+        );
+    };
+
+    /** 
+     * A very basic function performance tester. Will track the time it takes to run the
+     *        function for the specified number of iterations.
+     *
+     * @method performanceTest
+     * @param testFunction {function} a function to test. This function takes no parameters. If you 
+     *        require parameters then wrap into a function that takes no parameters.
+     * @param testId {string} any id you want to assign to the test. Not used, but returned.
+     * @param totalIterations {int} number of times to call this function.
+     * @return {object} test results object including test number, test function id, duration,
+     *         duration units, and total iterations.
+     */
+    commonUtilities.performanceTest = function (testFunction, testId, totalIterations) {
+        var start,
+            duration,
+            i,
+            results;
+        
+        _testNumber ++;
+        start = performance.now();
+        for (i = 0; i < totalIterations; i ++) {
+            testFunction();
+        }
+        duration = performance.now() - start;
+        results = {
+            testNumber: _testNumber,
+            testFunction: testId,
+            duration: duration,
+            durationUnits: 'ms',
+            totalIterations: i
+        };
+        return results;
+    };
+    
+    /**
+     * Validate an array of fields, such as user form inputs, by using a matching array of
+     * field definitions. The result is an array of fields that failed the validation and 
+     * the reason for failure. It is important to note the logic is driven from the
+     * keyValueArrayOfDefinitions for-each key in that array the key/value is looked up
+     * in keyValueArrayOfFields. This way missing fields are handled. Conversely, any
+     * keys in keyValueArrayOfFields that do not appear in keyValueArrayOfDefinitions are
+     * ignored.
+     *
+     * When using the date range check, all dates (min, max, and the value) must be JavaScript
+     * date objects.
+     *
+     * @param keyValueArrayOfFields array A key-value array of fields to validate. The key
+     *   is the name of the field. The value is the value assigned to that field that will be
+     *   validated using the rules defined in keyValueArrayOfDefinitions.
+     *
+     * @param keyValueArrayOfDefinitions array A key-value array of field rules where the
+     *   key must match the field key in keyValueArrayOfFields. The value of that key is the
+     *   set of rules. The rule set itself is defined as a key/value array of mandatory and 
+     *   optional keys, as follows:
+     *   type: string defining the data type expected. Optional, the default is "string".
+     *         Valid types are string, number, bool, array, date.
+     *   optional: boolean indicates if the field value is optional. When true, the key
+     *         does not have to exist in keyValueArrayOfFields. If it does exist we accept
+     *         no value for the field (null, "", or any valid empty value.) If it does
+     *         exist and it is not empty it must then pass the validation test. When false
+     *         the key must exist and pass the validation test. Default is false.
+     *   min: The minimum value for the field. For strings this is the minimum length. For
+     *         dates the earliest date. For sets the minimum number of items. Does not
+     *         apply to bool. Default is - infinity.
+     *   max: The maximum value for the field. For strings this is the maximum length. For
+     *         dates the latest date. For sets the maximum number of items. Does not
+     *         apply to bool. Default is infinity.
+     *   options: an array of allowed values. Optional, default is empty.
+     *   validator: A function you can pass to perform the validation. This function takes
+     *         two arguments, the field name and the field value. It must return true if
+     *         the value is valid and false if the value is invalid.
+     * @return Array A key/value array of fields that failed their test. when empty, all
+     *   tests passed. When not empty, each key in this array is the field name key.
+     *   The value is an object constructed as follows:
+     *   code: integer An error code, can be used to look up an error in a string table.
+     *   message: string the error message.
+     */
+    commonUtilities.validateFields = function (keyValueArrayOfFields, keyValueArrayOfDefinitions) {
+        var result = [],
+            field,
+            fieldDefinition,
+            fieldValue,
+            fieldTime,
+            options,
+            i;
+
+        if (keyValueArrayOfFields != null && keyValueArrayOfDefinitions != null) {
+            for (field in keyValueArrayOfDefinitions) {
+                if (keyValueArrayOfDefinitions.hasOwnProperty(field)) {
+                    fieldDefinition = keyValueArrayOfDefinitions[field];
+                    fieldValue = keyValueArrayOfFields[field];
+                    if ( ! fieldDefinition.hasOwnProperty('optional')) {
+                        fieldDefinition.optional = false;
+                    }
+                    if ( ! fieldDefinition.optional && this.isEmpty(fieldValue)) {
+                        result[field] = {code: "required", message: "This field is required."}; 
+                    } else if (fieldDefinition.hasOwnProperty('validator')) {
+                        if ( ! fieldDefinition.validator(field, fieldValue)) {
+                            result[field] = {code: "validator", message: "This field failed validation."}; 
+                        }
+                    } else if ( ! (fieldDefinition.optional && this.isEmpty(fieldValue))) {
+                        if ( ! fieldDefinition.hasOwnProperty('type')) {
+                            fieldDefinition.type = 'string';
+                        }
+                        if ( ! fieldDefinition.hasOwnProperty('min')) {
+                            fieldDefinition.min = fieldDefinition.type == 'number' ? Number.MIN_SAFE_INTEGER : 0;
+                        }
+                        if ( ! fieldDefinition.hasOwnProperty('max')) {
+                            fieldDefinition.max = Number.MAX_SAFE_INTEGER;
+                        }
+                        if (fieldDefinition.hasOwnProperty('options')) {
+                            options = fieldDefinition.options;
+                        } else {
+                            options = [];
+                        }
+                        switch (fieldDefinition.type) {
+                            case "string":
+                                if (fieldValue.length < fieldDefinition.min) {
+                                    result[field] = {code: "min", message: "The field length is less than the minimum number of characters."}; 
+                                } else if (fieldValue.length > fieldDefinition.max) {
+                                    result[field] = {code: "max", message: "The field length is more than the maximum number of characters."}; 
+                                } else if (options.length > 0) {
+                                    if (options.indexOf(fieldValue) < 0) {
+                                        result[field] = {code: "options", message: "The field value is not an option."}; 
+                                    }
+                                }
+                                break;
+                            case "number":
+                                if (fieldValue < fieldDefinition.min) {
+                                    result[field] = {code: "min", message: "The field is less than the minimum value allowed."}; 
+                                } else if (fieldValue > fieldDefinition.max) {
+                                    result[field] = {code: "max", message: "The field is more than the maximum value allowed."}; 
+                                } else if (options.length > 0) {
+                                    if (options.indexOf(fieldValue) < 0) {
+                                        result[field] = {code: "options", message: "The field value is not an option."}; 
+                                    }
+                                }
+                                break;
+                            case "bool":
+                                if (options.length > 0) {
+                                    if (options.indexOf(fieldValue) < 0) {
+                                        result[field] = {code: "options", message: "The field value is not an option."}; 
+                                    }
+                                }
+                                break;
+                            case "date":
+                                if (fieldValue instanceof Date) {
+                                    fieldTime = fieldValue.getTime();
+                                    if (fieldTime < fieldDefinition.min) {
+                                        result[field] = {code: "min", message: "The date field is before the minimum date allowed."}; 
+                                    } else if (fieldTime > fieldDefinition.max) {
+                                        result[field] = {code: "max", message: "The date field is after the maximum date allowed."}; 
+                                    } else if (options.length > 0) {
+                                        if (options.indexOf(fieldTime) < 0) {
+                                            result[field] = {code: "options", message: "The field value is not an option."}; 
+                                        }
+                                    }
+                                }
+                                break;
+                            case "array":
+                                if (fieldValue.length < fieldDefinition.min) {
+                                    result[field] = {code: "min", message: "The field contains less than the minimum number of items."}; 
+                                } else if (fieldValue.length > fieldDefinition.max) {
+                                    result[field] = {code: "max", message: "The field contains more than the maximum number of items."}; 
+                                } else if (options.length > 0) {
+                                    for (i = 0; i < fieldValue.length; i ++) {
+                                        if (options.indexOf(fieldValue[i]) < 0) {
+                                            result[field] = {code: "options", message: "A field value is not an option."};
+                                            break;
+                                        }
+                                    }
+                                }
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+        return result;
+    };
     
     /* ----------------------------------------------------------------------------------
-     * Setup for AMD or standalone reference the commonUtilities object.
-     */
+     * Setup for AMD, node, or standalone reference the commonUtilities object.
+     * ----------------------------------------------------------------------------------*/
 
     if (typeof define === 'function' && define.amd) {
         define(function () { return commonUtilities; });
     } else if (typeof exports === 'object') {
         module.exports = commonUtilities;
     } else {
-        var existingUtilityFunctions = window.commonUtilities;
+        var existingUtilityFunctions = global.commonUtilities;
         commonUtilities.existingUtilityFunctions = function () {
-            window.commonUtilities = existingUtilityFunctions;
+            global.commonUtilities = existingUtilityFunctions;
             return this;
         };
-        window.commonUtilities = commonUtilities;
+        global.commonUtilities = commonUtilities;
     }
-})();
+})(window);
