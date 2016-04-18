@@ -14,7 +14,7 @@
                     <li><a href="http://www.pinterest.com/varyndev/varyndev/" title="Follow Varyn on Pinterest"><div class="pinterest sprite"></div></a></li>
                 </ul>
             </div> <!-- end social -->
-            <div id="footer-nav" class="text-center"><a href="/privacy.php"><span class="glyphicon glyphicon-eye-open"></span> Privacy</a> <a href="/tos.php"><span class="glyphicon glyphicon-info-sign"></span> Terms</a> <a href="/about.php"><span class="glyphicon glyphicon-question-sign"></span> About Varyn</a> <a href="/contact.php"><span class="glyphicon glyphicon-comment"></span> Contact</a></div>
+            <div id="footer-nav" class="text-center"><a href="/Privacy.php"><span class="glyphicon glyphicon-eye-open"></span> Privacy</a> <a href="/tos.php"><span class="glyphicon glyphicon-info-sign"></span> Terms</a> <a href="/about.php"><span class="glyphicon glyphicon-question-sign"></span> About Varyn</a> <a href="/contact.php"><span class="glyphicon glyphicon-comment"></span> Contact</a></div>
             <div><p style="font-size: smaller;"><br/>
                     Varyn makes games using technology that performs on the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between desktop, tablet, and smart-phone.
                     Varyn creates games that play anytime and anywhere.

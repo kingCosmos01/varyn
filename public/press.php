@@ -259,7 +259,7 @@
                         <li><a href="http://www.pinterest.com/jumpydot/jumpydot-games/" title="Follow JumpyDot on Pinterest"><div class="pinterest sprite"></div></a></li>
                     </ul>
                 </div> <!-- end social -->
-                <div id="footer-nav" class="text-center"><span class="glyphicon glyphicon-eye-open"></span> <a href="/privacy.php">Privacy</a> <span class="glyphicon glyphicon-info-sign"></span> <a href="/tos.php">Terms</a>  <span class="glyphicon glyphicon-question-sign"></span> <a href="/blog/#our-team">About JumpyDot</a> <span class="glyphicon glyphicon-comment"></span> <a href="/blog/#contact">Contact</a></div>
+                <div id="footer-nav" class="text-center"><span class="glyphicon glyphicon-eye-open"></span> <a href="/Privacy.php">Privacy</a> <span class="glyphicon glyphicon-info-sign"></span> <a href="/tos.php">Terms</a>  <span class="glyphicon glyphicon-question-sign"></span> <a href="/blog/#our-team">About JumpyDot</a> <span class="glyphicon glyphicon-comment"></span> <a href="/blog/#contact">Contact</a></div>
                 <div><p style="font-size: smaller;"><br/>
                         At Jumpy Dot, we are building games for the masses – we aim for content that is fun for all ages and technology that performs on all the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between computers, tablets, and smart-phones. Jumpy Dot aims to take advantage of that flow, creating games that play anywhere.
                         If you have a game you would like to see featured on our site please contact us using the <a href="/blog/#contact">contact form</a>.
@@ -273,7 +273,7 @@
                         <li><a href="/blog/#our-team">About</a></li>
                     </ul>
                 </div>
-                <p class="copyright small text-center">Copyright &copy; 2015 Jumpy Dot, LLC</p>
+                <p class="copyright small text-center">Copyright &copy; 2016 Varyn, Inc.</p>
             </div>
         </div>
     </footer>
