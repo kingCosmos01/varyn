@@ -89,7 +89,7 @@
     include_once('common/header.php');
 ?>
 <div class="container marketing">
-    <div class="panel panel-primary panel-padded">
+    <div class="panel panel-primary panel-padded panel-gutter-2">
         <h1>Terms of Use</h1>
         <h5>Acceptance of Terms</h5>
         <p>Welcome to the web site (the "Site") of Varyn, Inc. ("Varyn"). On this web site, Varyn makes available to you a wide range of information, software, products, downloads, documents, communications, files, text, graphics, publications, content, and services. The Terms of Use are subject to change. This document was last updated on 15-Nov-2014.
