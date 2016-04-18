@@ -523,8 +523,12 @@ footer {
 }
 
 .panel-padded {
-    padding-left: 14px;
-    padding-rightt: 14px;
+    padding-left: 4em;
+    padding-right: 4em;
+}
+
+.panel-gutter-2 {
+    margin: 2em 4em;
 }
 
 .btn-md,

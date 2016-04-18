@@ -64,43 +64,24 @@
     <meta name="twitter:image:src" content="http://www.varyn.com/images/600x600.png"/>
     <meta name="twitter:domain" content="varyn.com"/>
     <script src="/common/head.min.js"></script>
-    <script type="text/javascript">
-
-        function initApp() {
-            var showSubscribe = '<?php echo($showSubscribe);?>';
-
-            if (showSubscribe == '1') {
-                showSubscribePopup();
-            }
-        }
-
-        head.ready(function() {
-            initApp();
-        });
-        head.js("/common/modernizr.custom.74056.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "/common/common.js", "/common/enginesis.js", "/common/ShareHelper.js");
-
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-        ga('create', 'UA-41765479-1', 'auto');
-        ga('send', 'pageview');
-    </script>
 </head>
 <body>
 <?php
     include_once('common/header.php');
 ?>
 <div class="container marketing">
-    <div class="panel panel-primary panel-padded">
+    <div class="panel panel-primary panel-padded panel-gutter-2">
         <h1>Privacy Policy</h1>
             <p>This document sets forth the Varyn Online Privacy Policy (the Privacy Policy) for this web site, www.varyn.com (the Site).
                 If you have objections to the Privacy Policy, you should not access or use this Site.
                 The Privacy Policy is subject to change and was last updated on 26-Apr-2013.</p>
-            <h5>Collection of Personal Information</h5>
+            <h4>Collection of Personal Information</h4>
             <p>As a visitor to this Site, you can engage in many activities without providing any personal information. In connection with other activities, Varyn may ask you to provide certain information about yourself by filling out and submitting an online form. It is completely optional for you to engage in these activities. If you elect to engage in these activities, however, we may ask that you provide us personal information, such as your first and last name, e-mail address, and other personal information. When ordering products or services on the Site, you may be asked to provide a credit card number. Depending upon the activity, some of the information that we ask you to provide is identified as mandatory and some as voluntary. If you do not provide the mandatory data with respect to a particular activity, you will not be able to engage in that activity. </p>
             <p>When you use the Site, Varyn Inc. or third parties authorized by Varyn may also collect certain technical and routing information about your computer to facilitate your use of the Site and its services. For example, we may log environmental variables, such as browser type, operating system, CPU speed, and the Internet Protocol ("IP") address of your computer. We use these environmental variables to facilitate and track your use of the Site and its services. Varyn also uses such environmental variables to measure traffic patterns on the Site. Without expressly informing you in each particular circumstance, we do not match such information with any of your personal information. </p>
             <p>When you submit personal information to Varyn through this Site, you understand and agree that this information may be transferred across national boundaries and may be stored and processed in any of the countries in which Varyn and its affiliates and subsidiaries maintain offices, including without limitation, the United States. You also acknowledge that in certain countries or with respect to certain activities, the collection, transferring, storage and processing of your information may be undertaken by trusted vendors of Varyn. Such vendors are bound by contract to not use your personal information for their own purposes or provide it to any third parties.</p>
-            <h5>How your Personal Information is Used</h5>
+            <h4>How your Personal Information is Used</h4>
             <p>Varyn  may collect information about the use of the Site; such as the types of services used and how many users we receive daily. This information is collected in aggregate form, without identifying any user individually. Varyn may use this aggregate, non-identifying statistical data for statistical analysis, marketing or similar promotional purposes. </p>
-            <h5>Your Choices with Respect to Personal Information</h5>
+            <h4>Your Choices with Respect to Personal Information</h4>
             <p>Varyn recognizes and appreciates the importance of responsible use of information collected on this Site.
                 We only use your personal information for the sole purpose of providing you the services of this Site for your personal benefit.
                 Without your consent, Varyn will not communicate any information to you regarding products, services, and special offers available from Varyn, although we may find it necessary to communicate with you regarding your use of the services on this Site.
@@ -113,5 +94,24 @@
 <?php
     include_once('common/footer.php');
 ?>
+<script type="text/javascript">
+
+    function initApp() {
+        var showSubscribe = '<?php echo($showSubscribe);?>';
+
+        if (showSubscribe == '1') {
+            showSubscribePopup();
+        }
+    }
+
+    head.ready(function() {
+        initApp();
+    });
+    head.js("/common/modernizr.custom.74056.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "/common/common.js", "/common/enginesis.js", "/common/ShareHelper.js");
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-41765479-1', 'auto');
+    ga('send', 'pageview');
+</script>
 </body>
 </html>
