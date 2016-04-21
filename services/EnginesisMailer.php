@@ -10,6 +10,7 @@
 
 require 'phpmailer/PHPMailerAutoload.php';
 require 'lib/vendor/autoload.php';
+require_once 'common.php';
 use Mailgun\Mailgun;
 
 
@@ -65,7 +66,6 @@ class EnginesisMailer
         $this->m_extendedErrorInfo = '';
         $this->m_emailId = '';
         $this->m_debug = false;
-        $this->m_serverStage = serverStage();
         $this->m_mailConfig = $_MAIL_HOSTS[$this->m_serverStage];
     }
 
@@ -75,6 +75,15 @@ class EnginesisMailer
      */
     public function __destruct () {
         $this->clear();
+    }
+
+    /**
+     * THe mailer must know which server stage we are running on, and doesn't want to have any inner dependencies,
+     * so why don't you tell it.
+     * @param $serverStage
+     */
+    public function setServerStage ($serverStage) {
+        $this->m_serverStage = $serverStage;
     }
 
     /**
