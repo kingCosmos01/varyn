@@ -6,11 +6,11 @@
 // Setup the message using the set functions then call send().
 // Also provides a stub test function sendText() to validate the object for unit testing.
 // You can set the message text either plain text, HTML, or an external file containing the email body.
-// @dependencies:
-// You must define $_MAIL_HOSTS.
 //
-require_once('common.php');
-require $_SERVER['DOCUMENT_ROOT'] . '/../services/phpmailer/PHPMailerAutoload.php';
+
+require 'phpmailer/PHPMailerAutoload.php';
+require 'lib/vendor/autoload.php';
+use Mailgun\Mailgun;
 
 
 class EnginesisMailer
@@ -24,12 +24,15 @@ class EnginesisMailer
     private $m_messageBodyHtml;
     private $m_emailFile;
     private $m_emailFileIsText;
+    private $m_emailId;
     private $m_db;
     private $m_dbPrivateConnection;
     private $m_status;
     private $m_debug;
     private $m_extendedErrorInfo;
     private $m_serverStage;
+    private $m_mailConfig;
+    private $m_mailLogger;
 
     /**
      * @method contructor
@@ -45,6 +48,7 @@ class EnginesisMailer
                                   $emailSubject = '',
                                   $textBody = '',
                                   $htmlBody = '') {
+        global $_MAIL_HOSTS;
         $this->clear();
         $this->setFromEmail($fromEmailAddress);
         if ($recipientList != null) {
@@ -59,8 +63,10 @@ class EnginesisMailer
         }
         $this->m_status = '';
         $this->m_extendedErrorInfo = '';
+        $this->m_emailId = '';
         $this->m_debug = false;
-        $this->m_serverStage = '';
+        $this->m_serverStage = serverStage();
+        $this->m_mailConfig = $_MAIL_HOSTS[$this->m_serverStage];
     }
 
     /**
@@ -69,14 +75,6 @@ class EnginesisMailer
      */
     public function __destruct () {
         $this->clear();
-    }
-
-    /**
-     * @method: setServerStage
-     * @purpose: We need someone to tell us which server stage we are running on.
-     */
-    public function setServerStage ($stage) {
-        $this->m_serverStage = $stage;
     }
 
     /**
@@ -96,8 +94,6 @@ class EnginesisMailer
      * @return string send status, '' if OK, otherwise error id.
      */
     public function send () {
-        global $_MAIL_HOSTS;
-
         // if HTML body is set we use that, otherwise text body must be set!
         $emailMessage = '';
         if (strlen($this->m_emailFile) > 0) {
@@ -113,7 +109,7 @@ class EnginesisMailer
                 }
                 fclose ($fileHandle);
             }
-            $useHTML = ! $this->m_emailFileIsText; // TODO: assume the file was HTML maybe we should parse it to find a <body> tag or something
+            $useHTML = ! $this->m_emailFileIsText;
         } elseif (strlen($this->m_messageBodyHtml) > 0) {
             $emailMessage = $this->m_messageBodyHtml;
             $useHTML = true;
@@ -121,40 +117,17 @@ class EnginesisMailer
             $emailMessage = $this->m_messageBodyText;
             $useHTML = false;
         }
-        $mailConfig = $_MAIL_HOSTS[$this->m_serverStage];
         if ($this->m_status == '') {
             if (count($this->m_toList) > 0 && strlen($this->m_fromEmail) > 0 && (strlen($this->m_subject) > 0 || strlen($emailMessage) > 0)) {
-                $mailer = new PHPMailer();
-                $mailer->SMTPDebug  = $this->m_debug ? 1 : 0;  // enables SMTP debug information (for testing)
-                $mailer->SMTPAuth   = true;                    // enable SMTP authentication
-                $mailer->Host       = $mailConfig['host'];
-                $mailer->Port       = $mailConfig['port'];     // set the SMTP port for the SMTP server
-                $mailer->Username   = $mailConfig['user'];     // SMTP account username
-                $mailer->Password   = $mailConfig['password']; // SMTP account password
-                if ($mailConfig['ssl']) {
-                    $mailer->SMTPSecure = 'ssl';
-                } elseif ($mailConfig['tls']) {
-                    $mailer->SMTPSecure = 'tls';
+                if ($this->m_mailConfig['apikey'] == '') {
+                    $this->SendEmailViaPhpMail($useHTML, $emailMessage);
+                    $logMessage = 'Send Email Via PhpMailer';
+                } else {
+                    $this->SendEmailViaMailGun($useHTML, $emailMessage);
+                    $logMessage = 'Send Email Via MailGun id: ' . $this->m_emailId;
                 }
-                $mailer->IsSMTP();
-                $mailer->IsHTML($useHTML);
-                $mailer->From = $this->m_fromEmail;
-                $mailer->FromName = $this->getFromName();
-                $mailer->Subject = $this->m_subject;
-                $mailer->Body = $emailMessage;
-                foreach ($this->m_toList as $toAddress) {
-                    $mailer->AddAddress($toAddress);
-                }
-                try {
-                    if ( ! $mailer->Send()) {
-                        $this->m_status = 'SEND_ERROR';
-                        $this->m_extendedErrorInfo = $mailer->ErrorInfo;
-                    } else {
-                        $this->m_status = '';
-                    }
-                } catch (Exception $e) {
-                    $this->m_status = 'SEND_ERROR';
-                    $this->m_extendedErrorInfo = $e->getMessage();
+                if ($this->m_mailLogger != null) {
+                    call_user_func($this->m_mailLogger, $logMessage . ' from: ' . $this->getFromName() . ' to: ' . $this->getToEmailAsString() . ' "' . $this->getSubject() . '"');
                 }
             } else {
                 $this->m_status = 'INVALID_MESSAGE';
@@ -162,6 +135,105 @@ class EnginesisMailer
             }
         }
         return $this->m_status;
+    }
+
+    function SendEmailViaPhpMail ($useHTML, $emailMessage) {
+        $mailConfig = $this->m_mailConfig;
+        $mailer = new PHPMailer();
+        $mailer->SMTPDebug  = $this->m_debug ? 1 : 0;  // enables SMTP debug information (for testing)
+        $mailer->SMTPAuth   = true;                    // enable SMTP authentication
+        $mailer->Host       = $mailConfig['host'];
+        $mailer->Port       = $mailConfig['port'];     // set the SMTP port for the SMTP server
+        $mailer->Username   = $mailConfig['user'];     // SMTP account username
+        $mailer->Password   = $mailConfig['password']; // SMTP account password
+        if ($mailConfig['ssl']) {
+            $mailer->SMTPSecure = 'ssl';
+        } elseif ($mailConfig['tls']) {
+            $mailer->SMTPSecure = 'tls';
+        }
+        $mailer->IsSMTP();
+        $mailer->IsHTML($useHTML);
+        $mailer->From = $this->m_fromEmail;
+        $mailer->FromName = $this->getFromName();
+        $mailer->Subject = $this->m_subject;
+        $mailer->Body = $emailMessage;
+        foreach ($this->m_toList as $toAddress) {
+            $mailer->AddAddress($toAddress);
+        }
+        try {
+            if ( ! $mailer->Send()) {
+                $this->m_status = 'SEND_ERROR';
+                $this->m_extendedErrorInfo = $mailer->ErrorInfo;
+            } else {
+                $this->m_status = '';
+                $this->m_emailId = '';
+            }
+        } catch (Exception $e) {
+            $this->m_status = 'SEND_ERROR';
+            $this->m_extendedErrorInfo = $e->getMessage();
+        }
+    }
+
+    function SendEmailViaMailGun ($useHTML, $message) {
+        $mailConfig = $this->m_mailConfig;
+        $thisServer = '';
+        $mailDomain = $mailConfig['domain'];
+        $from = $this->getFromName() . '<' . $this->m_fromEmail . '>';
+        $mailGun = new Mailgun($mailConfig['apikey']);
+        if ($mailGun != null) {
+            try {
+//            $messageBuilder = $mailGun->MessageBuilder();
+//            $messageBuilder->setFromAddress($from, array("first"=>"North Jersey", "last" => "Masters"));
+//            $messageBuilder->addToRecipient($to, array());
+//            $messageBuilder->setSubject($subject);
+//            $messageBuilder->setHtmlBody($message);
+//            $messageBuilder->setClickTracking(true);
+//            $mailGun->post("{$mailDomain}/messages", $messageBuilder->getMessage());
+                foreach ($this->m_toList as $toAddress) {
+                    if ($useHTML) {
+                        $params = array('from' => $from,
+                            'to'      => $toAddress,
+                            'subject' => $this->m_subject,
+                            'html'    => $message);
+                    } else {
+                        $params = array('from' => $from,
+                            'to'      => $toAddress,
+                            'subject' => $this->m_subject,
+                            'text'    => $message);
+                    }
+                    $result = $mailGun->sendMessage($mailDomain, $params);
+                    if ($result && isset($result->http_response_code)) {
+                        if ($result->http_response_code != 200) {
+                            $resultStr = json_encode($result);
+                            $this->m_status = 'SEND_ERROR';
+                            $this->m_extendedErrorInfo = $resultStr;
+                            debugLog("SendTextEmailViaMailGun error " . $resultStr . " sending to $toAddress through $mailDomain");
+                        } else {
+                            if (isset($result->http_response_body) && isset($result->http_response_body)) {
+                                $this->m_emailId = $result->http_response_body->id;
+                            }
+                            $this->m_status = '';
+                            $this->m_extendedErrorInfo = '';
+                        }
+                    } else {
+                        $errorMessage = "SendTextEmailViaMailGun error NO RESPONSE sending to $mailDomain on stage $thisServer";
+                        $this->m_status = 'SEND_ERROR';
+                        $this->m_extendedErrorInfo = $errorMessage;
+                        debugLog($errorMessage);
+                    }
+                }
+            } catch (Exception $e) {
+                $errorMessage = "SendTextEmailViaMailGun error $e on $thisServer sending to $mailDomain";
+                $this->m_status = 'SEND_ERROR';
+                $this->m_extendedErrorInfo = $errorMessage;
+                debugLog($errorMessage);
+            }
+        } else {
+            $errorMessage = "SendTextEmailViaMailGun Cannot open connection to MailGun Service on $thisServer";
+            $this->m_status = 'SEND_ERROR';
+            $this->m_extendedErrorInfo = $errorMessage;
+            debugLog($errorMessage);
+        }
     }
 
     /**
@@ -203,7 +275,7 @@ class EnginesisMailer
 
     /**
      * @method: getDebug
-     * @return bool debug flag
+     * @return: bool return the debug flag
      */
     public function getDebug () {
         return $this->m_debug;
@@ -223,6 +295,23 @@ class EnginesisMailer
      */
     public function getExtendedStatusInfo () {
         return $this->m_extendedErrorInfo;
+    }
+
+    /**
+     * Set a function to use to log every mail sent. The function takes a single parameter a info string.
+     * @param $logFunction
+     * @return function
+     */
+    public function setLogger ($logFunction) {
+        return $this->m_mailLogger = $logFunction;
+    }
+
+    /**
+     * Get the mail logging function.
+     * @return function
+     */
+    public function getLogger () {
+        return $this->m_mailLogger;
     }
 
     /**
@@ -444,6 +533,7 @@ class EnginesisMailer
         $this->m_db = null;
         $this->m_dbPrivateConnection = true;
         $this->m_status = '';
+        $this->m_mailLogger = null;
         return true;
     }
 
@@ -470,14 +560,12 @@ class EnginesisMailer
      * @purpose: send a canned test message. Designed to be used from the Unit test framework so do not call this from any application.
      * @return string send status code.
      */
-    public function sendTest ($to) {
+    public function sendTest () {
         global $admin_notification_list;
         $from = 'info@enginesis.com';
-        if (strlen($to) < 1) {
-            $to = $admin_notification_list;
-        }
-        $subject = 'This is a test email from Enginesis';
-        $body = 'This is the test email message that was send from the Unit Test EnginesisMailer.sendTest. We are using this to verify sending mail from this server is working.';
+        $to = $admin_notification_list;
+        $subject = 'This is a test email from testEnginesisMailer';
+        $body = 'This is the test email message that was send from the Unit Test testEnginesisMailer. We are using this to verify sending mail from this server is working.';
         $this->setFromEmail($from);
         $this->setToEmail($to);
         $this->setSubject($subject);
