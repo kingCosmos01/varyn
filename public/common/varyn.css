@@ -804,6 +804,10 @@ blockquote {
     z-index: 2;
 }
 
+.panel-primary {
+    border-color: rgba(58, 0, 0, 0.4);
+}
+
 @media all and (transform-3d), (-webkit-transform-3d) {
     .carousel-fade .carousel-inner > .item.next,
     .carousel-fade .carousel-inner > .item.active.right {
