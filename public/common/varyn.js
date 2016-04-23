@@ -650,7 +650,7 @@ var varyn = function (parameters) {
          * @param results {object}: the sever response object
          * @param elementId {string}: element to insert game modules HTML
          * @param maxItems {int}: no more than this number of games
-         * @param sortList {bool}: true to sort the list of games alphabetically by title
+         * @param sortList {boolean}: true to sort the list of games alphabetically by title
          */
         gameListGamesResponse: function (results, elementId, maxItems, sortList) {
             // results is an array of games

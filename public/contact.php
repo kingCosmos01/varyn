@@ -7,10 +7,20 @@
         exit;
     }
     $showSubscribe = getPostOrRequestVar('s', '0');
-    $send = strtolower(getPostOrRequestVar('send', ''));
-    $name = getPostOrRequestVar('name', '');
-    $email = getPostOrRequestVar('email', '');
-    $message = getPostOrRequestVar('message', '');
+
+    // These variables should only be accepted via POST:
+    $send = strtolower(getPostVar('send', ''));
+    $name = getPostVar('name', '');
+    $email = getPostVar('email', '');
+    $message = getPostVar('message', '');
+
+    // TODO: the form should provide hidden fields hackcheck and timestamp. Timestamp is set
+    // by the server and provides a number we expect in return to check if someone is hacking or
+    // botting. hackcheck is a honeypot we expect to be empty so if the we get a value there we
+    // know it was not a real user.
+    $hackCheck = getPostVar('captcha', '');
+    $timestamp = getPostVar('t', 0);
+
     $errorMessage = '';
     $errCode = '';
     $messageSent = false;
@@ -77,55 +87,33 @@
     <script src="/common/head.min.js"></script>
     <script type="text/javascript">
 
-        var enginesisSiteId = <?php echo($siteId);?>,
-            serverStage = "<?php echo($stage);?>",
-            enginesisGameListId = 6,
-            enginesisHomePagePromoId = 2;
+        var varynApp;
+        var varynContactPage = function (varynApp, siteConfiguration) {
+            "use strict";
 
-        function initApp() {
-            var serverHostDomain = 'varyn' + serverStage + '.com',
-                showSubscribe = '<?php echo($showSubscribe);?>';
+            var enginesisSession = varynApp.getEnginesisSession();
 
-            document.domain = serverHostDomain;
-            window.EnginesisSession = enginesis(enginesisSiteId, 0, 0, 'enginesis.' + serverHostDomain, '', '', 'en', enginesisCallBack);
-            EnginesisSession.gameListListGames(enginesisGameListId, null);
-            EnginesisSession.promotionItemList(enginesisHomePagePromoId, EnginesisSession.getDateNow(), null);
-            if (showSubscribe == '1') {
-                showSubscribePopup();
-            }
-        }
-
-        function enginesisCallBack (enginesisResponse) {
-            var succeeded,
-                errorMessage;
-
-            if (enginesisResponse != null && enginesisResponse.fn != null) {
-                succeeded = enginesisResponse.results.status.success;
-                errorMessage = enginesisResponse.results.status.message;
-                switch (enginesisResponse.fn) {
-                    case "NewsletterAddressAssign":
-                        handleNewsletterServerResponse(succeeded);
-                        break;
-                    case "PromotionItemList":
-                        if (succeeded == 1) {
-                            promotionItemListResponse(enginesisResponse.results.result);
-                        }
-                        break;
-                    case "GameListListGames":
-                        if (succeeded == 1) {
-                            gameListGamesResponse(enginesisResponse.results.result, "HomePageGamesArea", null, false);
-                        }
-                        break;
-                    default:
-                        break;
+            return {
+                pageLoaded: function (pageViewParameters) {
+                    // nothing to do on this page but we need this function definition.
                 }
-            }
-        }
+            };
+        };
 
         head.ready(function() {
-            initApp();
+            var siteConfiguration = {
+                    siteId: <?php echo($siteId);?>,
+                    serverStage: "<?php echo($stage);?>",
+                    languageCode: navigator.language || navigator.userLanguage
+                },
+                pageParameters = {
+                    showSubscribe: "<?php echo($showSubscribe);?>"
+                };
+
+            varynApp = varyn(siteConfiguration);
+            varynApp.initApp(varynContactPage, pageParameters);
         });
-        head.js("/common/modernizr.custom.74056.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "/common/common.js", "/common/enginesis.js", "/common/ShareHelper.js");
+        head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//connect.facebook.net/en_US/all.js", "//platform.linkedin.com/in.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "common/varyn.js");
 
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
         ga('create', 'UA-41765479-1', 'auto');
