@@ -12,6 +12,7 @@
                     <li><a href="https://www.linkedin.com/company/varyn-inc-" title="Follow Varyn on LinkedIn"><div class="linkedin sprite"></div></a></li>
                     <li><a href="http://www.youtube.com/channel/UC-TLi2sZGxNptz4p6tdbIqw" title="Follow Varyn on YouTube"><div class="youtube sprite"></div></a></li>
                     <li><a href="http://www.pinterest.com/varyndev/varyndev/" title="Follow Varyn on Pinterest"><div class="pinterest sprite"></div></a></li>
+                    <li><a href="http://www.instagram.com/varyndev" title="Follow Varyn on Instagram"><div class="instagram sprite"></div></a></li>
                 </ul>
             </div> <!-- end social -->
             <div id="footer-nav" class="text-center"><a href="/Privacy.php"><span class="glyphicon glyphicon-eye-open"></span> Privacy</a> <a href="/tos.php"><span class="glyphicon glyphicon-info-sign"></span> Terms</a> <a href="/About.php"><span class="glyphicon glyphicon-question-sign"></span> About Varyn</a> <a href="/contact.php"><span class="glyphicon glyphicon-comment"></span> Contact</a></div>
