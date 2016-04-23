@@ -64,46 +64,6 @@
     <meta name="twitter:image:src" content="http://www.varyn.com/images/600x600.png"/>
     <meta name="twitter:domain" content="varyn.com"/>
     <script src="/common/head.min.js"></script>
-    <script type="text/javascript">
-
-        var enginesisSiteId = <?php echo($siteId);?>,
-            serverStage = "<?php echo($stage);?>",
-            enginesisGameListId = 7;
-
-        function initApp() {
-            var serverHostDomain = 'varyn' + serverStage + '.com',
-                showSubscribe = '<?php echo($showSubscribe);?>';
-
-            document.domain = serverHostDomain;
-            window.EnginesisSession = enginesis(enginesisSiteId, 0, 0, 'enginesis.' + serverHostDomain, '', '', 'en', enginesisCallBack);
-            EnginesisSession.gameListListGames(enginesisGameListId, null);
-            if (showSubscribe == '1') {
-                showSubscribePopup();
-            }
-        }
-
-        function enginesisCallBack (enginesisResponse) {
-            var succeeded,
-                errorMessage;
-
-            if (enginesisResponse != null && enginesisResponse.fn != null) {
-                succeeded = enginesisResponse.results.status.success;
-                errorMessage = enginesisResponse.results.status.message;
-                switch (enginesisResponse.fn) {
-                    case "NewsletterAddressAssign":
-                        handleNewsletterServerResponse(succeeded);
-                        break;
-                    case "GameListListGames":
-                        if (succeeded == 1) {
-                            gameListGamesResponse(enginesisResponse.results.result, "AboutPageHotGames", null, false);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-    </script>
 </head>
 <body>
 <div id="page_container">
@@ -114,8 +74,8 @@
         <div class="row">
             <div id="Missing" class="col-sm-8">
                 <h2>Not Found</h2>
-                <p>The content you are looking for is not at this location. The link may be incorrectly entered or it was moved to a new location.</p>
-                <p>Please check it, or use our search field or one of our other links to find the content you are looking for.</p>
+                <p>The content you are looking for is not at this location. The link may be incorrectly entered or the content you are looking for was moved to a new location.</p>
+                <p>Please check it, or use our search field, or use one of our other links to find the content you are looking for.</p>
                 <p><strong>But wait!</strong> While you are here, why not try one of these awesome games:</p>
             </div><!-- /.Missing -->
             <div id="ad300" class="col-sm-4 col-md-2">
@@ -151,5 +111,72 @@
         include_once('common/footer.php');
     ?>
 </div><!-- page_container -->
+<script type="text/javascript">
+
+    var varynApp;
+    var varynAboutPage = function (varynApp, siteConfiguration) {
+        "use strict";
+
+        var enginesisSession = varynApp.getEnginesisSession();
+
+        return {
+            pageLoaded: function (pageViewParameters) {
+                // Load Hot Games
+                enginesisSession.gameListListGames(siteConfiguration.gameListIdTop, this.enginesisCallBack);
+            },
+
+            /**
+             * Callback to handle responses from Enginesis.
+             * @param enginesisResponse
+             */
+            enginesisCallBack: function (enginesisResponse) {
+                var succeeded,
+                    errorMessage,
+                    results;
+
+                if (enginesisResponse != null && enginesisResponse.fn != null) {
+                    results = enginesisResponse.results;
+                    succeeded = results.status.success;
+                    errorMessage = results.status.message;
+                    switch (enginesisResponse.fn) {
+                        case "NewsletterAddressAssign":
+                            varynApp.handleNewsletterServerResponse(succeeded);
+                            break;
+                        case "GameListListGames":
+                            if (succeeded == 1) {
+                                varynApp.gameListGamesResponse(enginesisResponse.results.result, "AboutPageHotGames", 15, false);
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        };
+    };
+
+    head.ready(function() {
+        var siteConfiguration = {
+                siteId: <?php echo($siteId);?>,
+                serverStage: "<?php echo($stage);?>",
+                languageCode: navigator.language || navigator.userLanguage
+            },
+            pageParameters = {
+                showSubscribe: "<?php echo($showSubscribe);?>"
+            };
+
+        varynApp = varyn(siteConfiguration);
+        varynApp.initApp(varynAboutPage, pageParameters);
+    });
+
+    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//connect.facebook.net/en_US/all.js", "//platform.linkedin.com/in.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "common/varyn.js");
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-41765479-1', 'varyn.com');
+    ga('send', 'pageview');
+    <?php if (strlen($search) > 0) { ?>
+    ga('send', 'event', 'game', 'search', '<?php echo($search);?>', 1);
+    <?php } ?>
+</script>
 </body>
 </html>
