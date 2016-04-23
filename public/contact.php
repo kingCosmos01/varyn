@@ -142,6 +142,7 @@
             $enginesisMailer = new EnginesisMailer($email, 'support@varyn.com', 'Contact form from varyn.com', $message);
             $enginesisMailer->setServerStage($enginesis->getServerStage());
             $enginesisMailer->setFromName($name);
+            $enginesisMailer->setLogger('debugLog');
             $errCode = $enginesisMailer->send();
             if ($errCode != '') {
                 $errorMessage = "There was an issue trying to send your message ($errCode). The issue has been logged with technical support. Please try again later.<br/>" . $enginesisMailer->getExtendedStatusInfo();
@@ -169,7 +170,7 @@
                             echo("<p>$errorMessage</p>");
                         } ?>
                 <?php } else { ?>
-                <form class="form-inline">
+                <form class="form-inline" method="POST">
                     <div class="form-group">
                         <label for="name">Name:</label><input type="text" name="name" required class="form-control" placeholder="Your name"/><br/>
                     </div>

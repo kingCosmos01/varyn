@@ -276,12 +276,6 @@
     $stage = $enginesis->getServerStage();
     $isLoggedIn = $enginesis->isLoggedInUser();
     $sqlDatabaseConnectionInfo = null;
-    $_MAIL_HOSTS = null;
-//    $server = serverName();
-//    $stage = serverStage($server);
-//    $serviceProtocol = getServiceProtocol();
-//    $enginesisServer = $serviceProtocol . '://enginesis.varyn' . $stage . '.com';
-//    $webServer = $serviceProtocol . '://www.varyn' . $stage . '.com';
     setDatabaseConnectionInfo($stage);
     setMailHostsTable($stage);
     processTrackBack();

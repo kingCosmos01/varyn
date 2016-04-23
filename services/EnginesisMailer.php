@@ -49,7 +49,6 @@ class EnginesisMailer
                                   $emailSubject = '',
                                   $textBody = '',
                                   $htmlBody = '') {
-        global $_MAIL_HOSTS;
         $this->clear();
         $this->setFromEmail($fromEmailAddress);
         if ($recipientList != null) {
@@ -66,7 +65,6 @@ class EnginesisMailer
         $this->m_extendedErrorInfo = '';
         $this->m_emailId = '';
         $this->m_debug = false;
-        $this->m_mailConfig = $_MAIL_HOSTS[$this->m_serverStage];
     }
 
     /**
@@ -83,7 +81,9 @@ class EnginesisMailer
      * @param $serverStage
      */
     public function setServerStage ($serverStage) {
+        global $_MAIL_HOSTS;
         $this->m_serverStage = $serverStage;
+        $this->m_mailConfig = $_MAIL_HOSTS[$serverStage];
     }
 
     /**
