@@ -41,35 +41,26 @@
     // TODO: GameGet only works for numeric game_id, if game name we need to call GameGetByName
 
     if (is_numeric($gameId)) {
-        $response = callEnginesisAPI('GameGet', $enginesisServer . '/index.php', array('site_id' => $siteId, 'game_id' => $gameId, 'response' => 'json'));
+        $gameInfo = $enginesis->gameGet($gameId);
+    } elseif ( ! empty($gameId)) {
+        $gameInfo = $enginesis->gameGetByName($gameId);
     } else {
-        $response = callEnginesisAPI('GameGetByName', $enginesisServer . '/index.php', array('site_id' => $siteId, 'game_name' => $gameId, 'response' => 'json'));
+        header("Location: /allgames.php");
+        exit(0);
     }
-    if ($response != null) {
-        $responseObject = json_decode($response);
-        if ($responseObject != null) {
-            if ($responseObject->results->status->success == '0') {
-                header("Location: /missing.php");
-                exit(0);
-            } else {
-                $gameInfo = $responseObject->results->result[0];
-                if ($gameInfo != null) {
-                    $receivedGameInfo = true;
-                    $gameId = $gameInfo->game_id;
-                    $gameName = $gameInfo->game_name;
-                    $title = $gameInfo->title;
-                    $gameImg = 'http://enginesis.varyn.com/games/' . $gameName . '/images/600x450.png';
-                    $gameImg2 = 'http://enginesis.varyn.com/games/' . $gameName . '/images/586x308.png';
-                    $gameThumb = 'http://enginesis.varyn.com/games/' . $gameName . '/images/50x50.png';
-                    $gameLink = 'http://www.varyn.com/play.php?gameid=' . $gameId;
-                    $gameOGLink = 'http://www.varyn.com/play/' . $gameId;
-                    $gameDesc = $gameInfo->short_desc;
-                    $gameContainerHTML = setGameContainer($gameInfo, $enginesisServer, $siteId, $gameId);
-                }
-            }
-        }
-    }
-    if ( ! $receivedGameInfo) {
+    if ($gameInfo != null) {
+        $receivedGameInfo = true;
+        $gameId = $gameInfo->game_id;
+        $gameName = $gameInfo->game_name;
+        $title = $gameInfo->title;
+        $gameImg = 'http://enginesis.varyn.com/games/' . $gameName . '/images/600x450.png';
+        $gameImg2 = 'http://enginesis.varyn.com/games/' . $gameName . '/images/586x308.png';
+        $gameThumb = 'http://enginesis.varyn.com/games/' . $gameName . '/images/50x50.png';
+        $gameLink = 'http://www.varyn.com/play.php?gameid=' . $gameId;
+        $gameOGLink = 'http://www.varyn.com/play/' . $gameId;
+        $gameDesc = $gameInfo->short_desc;
+        $gameContainerHTML = setGameContainer($gameInfo, $enginesis->getServiceRoot(), $siteId, $gameId);
+    } else {
         header("Location: /missing.php");
         exit(0);
     }
@@ -153,206 +144,6 @@
     <meta name="twitter:image:src" content="<?php echo($gameImg);?>"/>
     <meta name="twitter:domain" content="varyn.com"/>
     <script src="/common/head.min.js"></script>
-    <script type="text/javascript">
-
-        var enginesisServer = '';
-
-        function initApp() {
-            var gameId = "<?php echo($gameId);?>",
-                serverStage = "<?php echo($stage);?>",
-                serverHostDomain = 'varyn' + serverStage + '.com';
-
-            enginesisServer = 'enginesis.' + serverHostDomain;
-            document.domain = serverHostDomain;
-            window.EnginesisSession = enginesis(<?php echo($siteId);?>, 0, 0, enginesisServer, '', '', 'en', enginesisCallBack);
-            EnginesisSession.siteListGamesRandom(24, null);
-            EnginesisSession.developerGet(<?php echo($gameInfo->developer_id);?>);
-            setGameContainer();
-            if (EnginesisSession.isTouchDevice()) {
-                window.addEventListener('orientationchange', resetGameFrameSize, false);
-            }
-            // window.addEventListener('resize', resetGameFrameSize, false); // we are hoping the responsive page will handle this for us
-        }
-
-        function enginesisCallBack (enginesisResponse) {
-            var succeeded,
-                errorMessage;
-
-            if (enginesisResponse != null && enginesisResponse.fn != null) {
-                succeeded = enginesisResponse.results.status.success;
-                errorMessage = enginesisResponse.results.status.message;
-                switch (enginesisResponse.fn) {
-                    case "NewsletterAddressAssign":
-                        handleNewsletterServerResponse(succeeded);
-                        break;
-                    case "DeveloperGet":
-                        setGameDeveloper(enginesisResponse.results.result[0]);
-                        break;
-                    case "SiteListGamesRandom":
-                        if (succeeded == 1) {
-                            gameListGamesResponse(enginesisResponse.results.result, "PlayPageGamesArea", 9, false);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-        function setGameDeveloper (developerInfo) {
-            var developerInfoDiv = document.getElementById("gameDeveloper");
-            if (developerInfoDiv != null) {
-                if (developerInfo.logo_img_url != null && developerInfo.logo_img_url != '') {
-                    developerInfoDiv.innerHTML = "<h4>Developed By:</h4><p><a href=\"" + developerInfo.web_site_url + "\" target=\"_new\"><img src=\"http://www.enginesis.com" + developerInfo.logo_img_url + "\" width=100 height=50 style=\"margin-right: 20px;\"/></a></p>";
-                } else {
-                    developerInfoDiv.innerHTML = "<h4>Developed By:</h4><p><a href=\"" + developerInfo.web_site_url + "\" target=\"_new\">" + developerInfo.organization_name + "</a></p>";
-                }
-            }
-        }
-
-        function resetGameFrameSize () {
-            fitGameToFullScreen();
-            window.location.reload();
-        }
-
-        function showOnlyTheGame (showFlag) {
-            // show/hide all divs except the gameContainer
-            var hideTheseElements = ['playgame-navbar', 'playgame-InfoPanel', 'playgame-BottomPanel'],
-                unwantedElement,
-                elementDiv,
-                showStyle;
-
-            if (showFlag) {
-                showStyle = 'none';
-            } else {
-                showStyle = 'block';
-            }
-            for (unwantedElement in hideTheseElements) {
-                elementDiv = document.getElementById(hideTheseElements[unwantedElement]);
-                if (elementDiv != null) {
-                    elementDiv.style.display = showStyle;
-                }
-            }
-            fitGameToFullScreen();
-        }
-
-        function fitGameToFullScreen () {
-            // Resize the game containers to the full extent of the available window, then let the game deal with that stage size.
-            var elementDiv,
-                width,
-                height;
-
-            width = window.innerWidth;
-            height = window.innerHeight;
-            elementDiv = document.getElementById("gameContainer-iframe");
-            if (elementDiv != null) {
-                elementDiv.style.width = width + "px";
-                elementDiv.style.maxWidth = width + "px";
-                elementDiv.style.height = height + "px";
-                elementDiv.style.maxHeight = height + "px";
-            }
-            elementDiv = document.getElementById("gameContainer");
-            if (elementDiv != null) {
-                elementDiv.style.width = width + "px";
-                elementDiv.style.maxWidth = width + "px";
-                elementDiv.style.height = height + "px";
-                elementDiv.style.maxHeight = height + "px";
-            }
-            elementDiv = document.getElementById("topContainer");
-            if (elementDiv != null) {
-                elementDiv.style.margin = "0";
-                elementDiv.style.padding = "0";
-                elementDiv.style.top = "0";
-                elementDiv.style.left = "0";
-                elementDiv.style.width = width + "px";
-                elementDiv.style.maxWidth = width + "px";
-                elementDiv.style.height = height + "px";
-                elementDiv.style.maxHeight = height + "px";
-            }
-            elementDiv = document.body;
-            if (elementDiv != null) {
-                elementDiv.style.margin = "0";
-                elementDiv.style.padding = "0";
-                elementDiv.style.top = "0";
-                elementDiv.style.left = "0";
-                elementDiv.style.width = width + "px";
-                elementDiv.style.maxWidth = width + "px";
-                elementDiv.style.height = height + "px";
-                elementDiv.style.maxHeight = height + "px";
-            }
-        }
-
-        function setGameContainer () {
-            var gameContainerDiv = document.getElementById("gameContainer"),
-                gameContainerIframe,
-                requiredAspectRatio,
-                width = <?php echo($gameInfo->width);?>,
-                height = <?php echo($gameInfo->height);?>,
-                pluginId = <?php echo($gameInfo->game_plugin_id);?>,
-                isTouchDevice = EnginesisSession.isTouchDevice(),
-                embedOnTouchDevice = false;
-
-            // we want to size the container to the size of the game and center it in the panel div.
-
-            EnginesisSession.gameWidth = width;
-            EnginesisSession.gameHeight = height;
-            if (height < width) {
-                requiredAspectRatio = height / width;
-            } else {
-                requiredAspectRatio = width / height;
-            }
-            EnginesisSession.gameAspectRatio = requiredAspectRatio; // cache the ideal aspect ratio to use when the frame is resized
-            EnginesisSession.gamePluginId = pluginId;
-            if (gameContainerDiv != null) {
-                embedOnTouchDevice = isTouchDevice && EnginesisSession.gamePluginId == 9;
-                if (EnginesisSession.gamePluginId == 9) {
-                    gameContainerDiv.style['overflow-y'] = "scroll";
-                    gameContainerDiv.style['overflow-x'] = "hidden";
-                    gameContainerDiv.style['-webkit-overflow-scrolling'] = "touch";
-                    if (isTouchDevice) {
-                        // if we are on mobile and this is an Embed type game, just embed the game link directly into the div.
-                        showOnlyTheGame(true);
-                    }
-//                    gameContainerDiv.style.width = width + "px";
-//                    gameContainerDiv.style.maxWidth = width + "px";
-//                    gameContainerDiv.style.height = height + "px";
-//                    gameContainerDiv.style.maxHeight = height + "px";
-                    gameContainerDiv.style.paddingTop = "0";
-                    // insertAndExecute("gameContainer", gameData.game_link);
-                } else {
-//                    if (EnginesisSession.gamePluginId == 10) {
-//                        if (gameData.game_link.indexOf('://') > 0) {
-//                            gameLink = gameData.game_link;
-//                        } else {
-//                            gameLink = enginesisHost + "/games/" + gameData.game_name + "/" + gameData.game_link;
-//                        }
-//                    } else {
-//                        gameLink = enginesisHost + "/games/play.php?site_id=<?php //echo($siteId);?>//&game_id=<?php //echo($gameId);?>//";
-//                    }
-//                    gameContainerDiv.innerHTML = "<iframe id=\"gameContainer-iframe\" src=\"" + gameLink + "\" allowfullscreen scrolling=\"" + allowScroll + "\" width=\"" + width + "\" height=\"" + height + "\"/>";
-                }
-                if (isTouchDevice && EnginesisSession.gamePluginId == 10) {
-                    showOnlyTheGame(true);
-                } else if ( ! embedOnTouchDevice) {
-                    if (gameContainerDiv.clientWidth >= width) { // the game will fit the available space
-                        gameContainerIframe = document.getElementById("gameContainer-iframe");
-                        if (gameContainerIframe != null) {
-                            gameContainerIframe.style.width = width + "px";
-                            gameContainerIframe.style.maxWidth = width + "px";
-                            gameContainerIframe.style.height = height + "px";
-                            gameContainerIframe.style.maxHeight = height + "px";
-                        }
-                        gameContainerDiv.style.width = width + "px";
-                        gameContainerDiv.style.maxWidth = width + "px";
-                        gameContainerDiv.style.height = height + "px";
-                        gameContainerDiv.style.maxHeight = height + "px";
-                    } else if ( ! (EnginesisSession.gamePluginId == 9)) { // iframe game does not fit
-                        gameContainerDiv.style.paddingTop = (requiredAspectRatio * 100) + "%";
-                    }
-                }
-            }
-        }
-    </script>
 </head>
 <body>
 <?php
@@ -409,7 +200,34 @@
     include_once('common/footer.php');
 ?>
 <script type="text/javascript">
-    ga('send', 'event', 'game', 'play', '<?php echo($gameId);?>', 1);
+
+    var varynApp;
+
+    head.ready(function() {
+        var siteConfiguration = {
+                siteId: '<?php echo($siteId);?>',
+                gameId: '<?php echo($gameId);?>',
+                serverStage: '<?php echo($stage);?>',
+                languageCode: navigator.language || navigator.userLanguage
+            },
+            pageParameters = {
+                showSubscribe: '<?php echo($showSubscribe);?>',
+                width: '<?php echo($gameInfo->width);?>',
+                height: '<?php echo($gameInfo->height);?>',
+                pluginId: '<?php echo($gameInfo->game_plugin_id);?>',
+                developerId: '<?php echo($gameInfo->developer_id);?>'
+            };
+
+        varynApp = varyn(siteConfiguration);
+        varynApp.initApp(varynPlayPage, pageParameters);
+    });
+
+    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//connect.facebook.net/en_US/all.js", "//platform.linkedin.com/in.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "common/varyn.js", "common/varynPlayPage.js");
+
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-41765479-1', 'varyn.com');
+    ga('send', 'pageview');
+
 </script>
 </body>
 </html>
