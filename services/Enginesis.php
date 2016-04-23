@@ -13,6 +13,7 @@
     class Enginesis
     {
         private $m_server;
+        private $m_serviceRoot;
         private $m_serviceEndPoint;
         private $m_avatarEndPoint;
         private $m_lastError;
@@ -66,6 +67,7 @@
                 // Caller can provide a specific server we should converse with
                 $enginesisServiceRoot = $this->m_serviceProtocol . '://' . $enginesisServer . '/';
             }
+            $this->m_serviceRoot = $enginesisServiceRoot;
             $this->m_serviceEndPoint = $enginesisServiceRoot . '/index.php';
             $this->m_avatarEndPoint = $enginesisServiceRoot . '/avatar.php';
             $this->restoreUserFromAuthToken(null);
@@ -106,6 +108,10 @@
 
         public function getServerName () {
             return $this->m_server;
+        }
+
+        public function getServiceRoot () {
+            return $this->m_serviceRoot;
         }
 
         /**
@@ -927,5 +933,27 @@
                 $userId = $this->m_userId;
             }
             return $this->m_avatarEndPoint . '?site_id=' . $this->m_siteId . '&user_id=' . $userId . '&size=' . $size;
+        }
+
+        public function gameGet ($gameId) {
+            $enginesisResponse = $this->callServerAPI('GameGet', array('game_id' => $gameId));
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null && isset($results[0])) {
+                $gameInfo = $results[0];
+            } else {
+                $gameInfo = null;
+            }
+            return $gameInfo;
+        }
+
+        public function gameGetByName ($gameName) {
+            $enginesisResponse = $this->callServerAPI('GameGetByName', array('game_name' => $gameName));
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null && isset($results[0])) {
+                $gameInfo = $results[0];
+            } else {
+                $gameInfo = null;
+            }
+            return $gameInfo;
         }
     }
