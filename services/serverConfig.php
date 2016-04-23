@@ -45,12 +45,11 @@
 
     // Mail/sendmail/Postfix/Mailgun config
     $_MAIL_HOSTS = array(
-        '-l' => array('host' => 'smtp.verizon.net', 'port' => 465, 'ssl' => true, 'tls' => false, 'user' => 'jlf990@verizon.net', 'password' => 'proPhet5++'),
-        '-d' => array('host' => 'smtp.mailgun.org', 'port' => 587, 'ssl' => false, 'tls' => true, 'user' => 'postmaster@mailer.enginesis-q.com', 'password' => '1h4disai51w5'),
-        '-q' => array('host' => 'smtp.mailgun.org', 'port' => 587, 'ssl' => false, 'tls' => true, 'user' => 'postmaster@mailer.enginesis-q.com', 'password' => '1h4disai51w5'),
-        '-x' => array('host' => 'smtpout.secureserver.net', 'port' => 25, 'ssl' => false, 'tls' => false, 'user' => '', 'password' => ''),
-        ''   => array('host' => 'smtp.mailgun.org', 'port' => 587, 'ssl' => false, 'tls' => true, 'user' => 'postmaster@mailer.enginesis.com', 'password' => '6w88jmvawr63')
+        '-l' => array('domain' => 'enginesis-l.com', 'host' => 'smtp.verizon.net', 'port' => 465, 'ssl' => true, 'tls' => false, 'user' => 'jlf990@verizon.net', 'password' => 'prophet5', 'apikey' => ''),
+        '-d' => array('domain' => 'mailer.enginesis-q.com', 'host' => 'smtp.mailgun.org', 'port' => 587, 'ssl' => false, 'tls' => true, 'user' => 'postmaster@mailer.enginesis-q.com', 'password' => 'deF3ndeR9791', 'apikey' => 'key-66zk85c6ejixznsqqgqhqxg4uu62u7-0'),
+        '-q' => array('domain' => 'mailer.enginesis-q.com', 'host' => 'smtp.mailgun.org', 'port' => 587, 'ssl' => false, 'tls' => true, 'user' => 'postmaster@mailer.enginesis-q.com', 'password' => 'deF3ndeR9791', 'apikey' => 'key-66zk85c6ejixznsqqgqhqxg4uu62u7-0'),
+        '-x' => array('domain' => 'enginesis-x.com', 'host' => 'smtpout.secureserver.net', 'port' => 25, 'ssl' => false, 'tls' => false, 'user' => '', 'password' => '', 'apikey' => ''),
+        ''   => array('domain' => 'mailer.enginesis.com', 'host' => 'smtp.mailgun.org', 'port' => 587, 'ssl' => false, 'tls' => true, 'user' => 'postmaster@mailer.enginesis.com', 'password' => '6w88jmvawr63', 'apikey' => 'key-66zk85c6ejixznsqqgqhqxg4uu62u7-0')
     );
 
     $developerKey = 'B3E06F9352AEA898E';
-
