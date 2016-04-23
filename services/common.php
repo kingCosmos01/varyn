@@ -61,11 +61,32 @@
         }
     }
 
+    /**
+     * Return a variable that was posted from a form, or in the REQUEST object (GET or COOKIES), or a default if not found.
+     * This way POST is the primary concern but if not found will fallback to the other methods.
+     * @param $varName
+     * @param null $defaultValue
+     * @return null
+     */
     function getPostOrRequestVar ($varName, $defaultValue = NULL) {
         if (isset($_POST[$varName])) {
             return($_POST[$varName]);
         } elseif (isset($_REQUEST[$varName])) {
             return($_REQUEST[$varName]);
+        } else {
+            return $defaultValue;
+        }
+    }
+
+    /**
+     * Return a variable that was posted from a form, or a default if not found.
+     * @param $varName
+     * @param null $defaultValue
+     * @return null
+     */
+    function getPostVar ($varName, $defaultValue = NULL) {
+        if (isset($_POST[$varName])) {
+            return($_POST[$varName]);
         } else {
             return $defaultValue;
         }
