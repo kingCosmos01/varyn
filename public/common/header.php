@@ -53,7 +53,7 @@
             <div class="popupFieldGroup">
                 <label for="login_username">User name:</label><input type="text" id="login_username" name="login_username" tabindex="17" maxlength="20" class="popup-form-input required" autocorrect="off" autocomplete="name"/><br/>
                 <label for="login_password">Password:</label><input type="password" id="login_password" name="login_password" tabindex="18" maxlength="20" class="popup-form-input required" /><br/>
-                <input type="submit" value="Login >" name="loginButton" id="loginButton" class="btn btn-success" tabindex="19"/>
+                <input type="submit" value="Login >" name="loginButton" id="loginButton" class="btn btn-success" tabindex="19"/><input type="text" name="login_email" class="popup-form-address-input" /><input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
                 <span id="rememberme-container"><input type="checkbox" tabindex="20" checked="checked" name="rememberme" id="rememberme"><label for="rememberme">Remember Me</label></span>
                 <div class="loginPopup_auxLinks"><a id="loginPopup_forgot_password" href="#" tabindex="21">Forgot password?</a><br/>Not a member? <a id="loginPopup_signup" href="#" tabindex="22">Sign up!</a></div>
                 <input type="hidden" name="action" value="popuplogin" />

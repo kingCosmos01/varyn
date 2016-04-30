@@ -25,11 +25,13 @@
     $debug = (int) strtolower(getPostOrRequestVar("debug", 0));
     $action = strtolower(getPostOrRequestVar("action", ''));
     if ($action == 'login') {
-        $userName = getPostOrRequestVar("login_form_username");
-        $password = getPostOrRequestVar("login_form_password");
+        $userName = getPostVar('login_form_username');
+        $password = getPostVar('login_form_password');
+        $thisFieldMustBeEmpty = getPostVar('login_form_email', null);
+        $hackerToken = getPostVar('all-clear', ''); // this field must contain the token
         if ($userName == '' && $password == '') {
-            $userName = getPostOrRequestVar("login_username");
-            $password = getPostOrRequestVar("login_password");
+            $userName = getPostVar('login_username');
+            $password = getPostVar('login_password');
         }
         $userInfo = $enginesis->userLogin($userName, $password);
         if ($userInfo == null) {
@@ -51,18 +53,18 @@
         $showRegistrationForm = true;
         $inputFocusId = 'register_form_email';
     } elseif ($action == 'popupregister') {
-        $userName = getPostOrRequestVar("register-username", '');
-        $password = getPostOrRequestVar("register-password", '');
-        $email = getPostOrRequestVar("register-email", '');
-        $thisFieldMustBeEmpty = getPostOrRequestVar("emailaddress", null);
-        $hackerToken = getPostOrRequestVar("all-clear", '');
+        $userName = getPostVar("register-username", '');
+        $password = getPostVar("register-password", '');
+        $email = getPostVar("register-email", '');
+        $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
+        $hackerToken = getPostVar("all-clear", '');
         $realName = $userName;
         $location = '';
         $tagline = '';
         $date12YearsAgo = strtotime('-12 year');
         $dateOfBirth = date('Y-m-d', $date12YearsAgo);
         $gender = 'F';
-        $agreement = getPostOrRequestVar("register-agreement", 0);
+        $agreement = getPostVar("register-agreement", 0);
         $parameters = array(
             'user_name' => $userName,
             'password' => $password,
@@ -92,17 +94,17 @@
         }
         $action = 'register';
     } elseif ($action == 'register') {
-        $userName = getPostOrRequestVar("register_form_username", '');
-        $password = getPostOrRequestVar("register_form_password", '');
-        $email = getPostOrRequestVar("register_form_email", '');
-        $fullname = getPostOrRequestVar("register_form_fullname", '');
-        $location = getPostOrRequestVar("register_form_location", '');
-        $tagline = getPostOrRequestVar("register_form_tagline", '');
-        $dateOfBirth = getPostOrRequestVar("register_form_dob", '');
-        $gender = getPostOrRequestVar("register_form_gender", 'F');
-        $agreement = getPostOrRequestVar("register_form_agreement", 0);
-        $thisFieldMustBeEmpty = getPostOrRequestVar("emailaddress", null);
-        $hackerToken = getPostOrRequestVar("all-clear", '');
+        $userName = getPostVar("register_form_username", '');
+        $password = getPostVar("register_form_password", '');
+        $email = getPostVar("register_form_email", '');
+        $fullname = getPostVar("register_form_fullname", '');
+        $location = getPostVar("register_form_location", '');
+        $tagline = getPostVar("register_form_tagline", '');
+        $dateOfBirth = getPostVar("register_form_dob", '');
+        $gender = getPostVar("register_form_gender", 'F');
+        $agreement = getPostVar("register_form_agreement", 0);
+        $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
+        $hackerToken = getPostVar("all-clear", '');
         $parameters = array(
             'user_name' => $userName,
             'password' => $password,
@@ -133,8 +135,8 @@
         }
     } elseif ($action == 'update') {
         $action = 'update';
-        $thisFieldMustBeEmpty = getPostOrRequestVar("emailaddress", null);
-        $hackerToken = getPostOrRequestVar("all-clear", '');
+        $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
+        $hackerToken = getPostVar("all-clear", '');
         if ($thisFieldMustBeEmpty == null && $hackerToken == '') {
             // TODO: call Enginesis and get a fresh view of the user's data
             $userInfo = $enginesis->registeredUserGetEx($userId);
@@ -155,14 +157,14 @@
                 $gender = $userInfo->gender;
             }
         } else {
-            $userName = getPostOrRequestVar("register_form_username", '');
-            $password = getPostOrRequestVar("register_form_password", '');
-            $email = getPostOrRequestVar("register_form_email", '');
-            $fullname = getPostOrRequestVar("register_form_fullname", '');
-            $location = getPostOrRequestVar("register_form_location", '');
-            $tagline = getPostOrRequestVar("register_form_tagline", '');
-            $dateOfBirth = getPostOrRequestVar("register_form_dob", '');
-            $gender = getPostOrRequestVar("register_form_gender", 'F');
+            $userName = getPostVar("register_form_username", '');
+            $password = getPostVar("register_form_password", '');
+            $email = getPostVar("register_form_email", '');
+            $fullname = getPostVar("register_form_fullname", '');
+            $location = getPostVar("register_form_location", '');
+            $tagline = getPostVar("register_form_tagline", '');
+            $dateOfBirth = getPostVar("register_form_dob", '');
+            $gender = getPostVar("register_form_gender", 'F');
             $parameters = array(
                 'user_name' => $userName,
                 'password' => $password,
@@ -188,10 +190,10 @@
     } elseif ($action == 'securityupdate') {
         // security update form: password, security question
     } elseif ($action == 'forgotpassword') {
-        $userName = getPostOrRequestVar("forgotpassword_username", '');
-        $email = getPostOrRequestVar("forgotpassword_email", '');
-        $thisFieldMustBeEmpty = getPostOrRequestVar("emailaddress", null);
-        $hackerToken = getPostOrRequestVar("all-clear", '');
+        $userName = getPostVar("forgotpassword_username", '');
+        $email = getPostVar("forgotpassword_email", '');
+        $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
+        $hackerToken = getPostVar("all-clear", '');
         $result = $enginesis->userForgotPassword($userName, $email);
         if ($result) {
             $errorMessage = '<p class="info-text">Email has been sent to the owner of this account. Please follow the instructions in that message to reset the account password.</p>';
@@ -385,6 +387,7 @@
         if ($inputFocusId == '') {
             $inputFocusId = 'login_form_username';
         }
+        $hackerVerification = makeInputFormHackerToken();
 ?>
         <h2>Profile</h2>
         <p>You are not logged in. You must login to see your profile, earn coins, appear on leader boards, and participate in our community.</p>
@@ -396,7 +399,7 @@
                     <div class="form-group">
                         <label for="login_form_username">User name:</label><input type="text" id="login_form_username" name="login_form_username" tabindex="1" maxlength="20" class="popup-form-input" value="<?php echo($userName);?>" autocorrect="off" autocomplete="username"/><br/>
                         <label for="login_form_password">Password:</label><input type="password" id="login_form_password" name="login_form_password" tabindex="2" maxlength="20" class="popup-form-input" value="<?php echo($password);?>" /><br/>
-                        <input type="button" class="btn btn-success" id="login-button" title="Login" value="Login >" tabindex="3" onclick="profilePage.loginValidation();" />
+                        <input type="button" class="btn btn-success" id="login-button" title="Login" value="Login >" tabindex="3" onclick="profilePage.loginValidation();" /><input type="text" name="login_form_email" class="popup-form-address-input" /><input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
                         <span id="rememberme-container"><input type="checkbox" tabindex="4" checked="checked" name="rememberme" id="rememberme"><label for="rememberme">Remember Me</label></span>
                         <a id="profile_forgot_password" href="#" tabindex="5" onclick="profilePage.forgotPassword();">Forgot password?</a><input type="hidden" name="action" value="login" />
                     </div>
