@@ -27,13 +27,14 @@
     if ($action == 'login') {
         $userName = getPostVar('login_form_username');
         $password = getPostVar('login_form_password');
+        $rememberMe = getPostVar('rememberme');
         $thisFieldMustBeEmpty = getPostVar('login_form_email', null);
         $hackerToken = getPostVar('all-clear', ''); // this field must contain the token
         if ($userName == '' && $password == '') {
             $userName = getPostVar('login_username');
             $password = getPostVar('login_password');
         }
-        $userInfo = $enginesis->userLogin($userName, $password);
+        $userInfo = $enginesis->userLogin($userName, $password, $rememberMe);
         if ($userInfo == null) {
             $error = $enginesis->getLastError();
             if ($error != null) {
@@ -44,10 +45,9 @@
             $inputFocusId = 'login_form_username';
         } else {
             $isLoggedIn = true;
-            $userInfoJSON = json_encode($userInfo);
-            // $userInfo Object ( [user_id] => 10239 [site_id] => 106 [user_name] => Varyn [real_name] => Varyn [site_user_id] => [dob] => 2004-02-16 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-02-16 20:47:45 [date_updated] => [source_site_id] => 106 [last_login] => 2016-02-20 22:27:38 [login_count] => 34 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 1 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [access_level] => 10 [role_name] => [user_rank] => 10001 [session_id] => cecfe3b4b5dac00d464eff98ba5c75c3 [cr] => d2a1bae6ef968501b648ccf253451a1a [authtok] => Dk39dEasNBgO79Mp0gjXnvGYBEPP06d5Pd KmpdvCnVEehliQpl5eezAdVfc9t9xsE7RDp5i9rPDjj73TXxaW1XOrVjWHwZsnQ0q/GsHtWl4tDGgS/lTMA== )
-            $_COOKIE[VARYN_SESSION_COOKIE] = $userInfoJSON;
-            setcookie(VARYN_SESSION_COOKIE, $userInfoJSON, time() + (SESSION_DAYSTAMP_HOURS * 60 * 60), '/', $enginesis->getServerName());
+            if ($rememberMe) {
+                setVarynUserCookie($userInfo, $enginesis->getServerName());
+            }
         }
     } elseif ($action == 'signup') {
         $showRegistrationForm = true;
@@ -134,61 +134,69 @@
             $showRegistrationForm = true;
         }
     } elseif ($action == 'update') {
-        $action = 'update';
-        $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
-        $hackerToken = getPostVar("all-clear", '');
-        if ($thisFieldMustBeEmpty == null && $hackerToken == '') {
-            // TODO: call Enginesis and get a fresh view of the user's data
-            $userInfo = $enginesis->registeredUserGetEx($userId);
-            if ($userInfo == null) {
-                // TODO: Need to handle any errors
-                $errorMessage = "<p class=\"error-text\">There was a system error retrieving your information. " . $enginesis->getLastErrorDescription() . "</p>";
-            } else {
-                // [user_id] => 10241 [site_id] => 106 [user_name] => varyn2 [real_name] => varyn2 [site_user_id] => [dob] => 2004-04-10 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-04-10 20:07:55 [date_updated] => [source_site_id] => 106 [last_login] => 2016-04-16 14:09:27 [login_count] => 24 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 2 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [friend_count] => 0 [comment_count] => 0 [notification_count] => 0 ) ) [outparams] => Array ( ) [status] => stdClass Object ( [success] => 1 [message] => ) [passthru] => stdClass Object ( [fn] => RegisteredUserGetEx [site_id] => 106 [logged_in_user_id] => 10241 [get_user_id] => NULL [site_user_id] => NULL [language_code] => en [state_seq] => 1 ) ) ) stdClass Object ( [user_id] => 10241 [site_id] => 106 [user_name] => varyn2 [real_name] => varyn2 [site_user_id] => [dob] => 2004-04-10 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-04-10 20:07:55 [date_updated] => [source_site_id] => 106 [last_login] => 2016-04-16 14:09:27 [login_count] => 24 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 2 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [friend_count] => 0 [comment_count] => 0 [notification_count] => 0
-                $showRegistrationForm = true;
-                $inputFocusId = 'register_form_email';
-                $userName = $userInfo->user_name;
-                $originalUserName = $userName; // if changed we need to check foe name clash
-                $email = $userInfo->email_address;
-                $fullname = $userInfo->real_name;
-                $location = $userInfo->city;
-                $tagline = $userInfo->tagline;
-                $dateOfBirth = $userInfo->dob;
-                $gender = $userInfo->gender;
-            }
+        if ( ! $isLoggedIn) {
+            $errorMessage = "<p class=\"error-text\">You must be logged in to use this feature.</p>";
         } else {
-            $userName = getPostVar("register_form_username", '');
-            $password = getPostVar("register_form_password", '');
-            $email = getPostVar("register_form_email", '');
-            $fullname = getPostVar("register_form_fullname", '');
-            $location = getPostVar("register_form_location", '');
-            $tagline = getPostVar("register_form_tagline", '');
-            $dateOfBirth = getPostVar("register_form_dob", '');
-            $gender = getPostVar("register_form_gender", 'F');
-            $parameters = array(
-                'user_name' => $userName,
-                'password' => $password,
-                'email_address' => $email,
-                'real_name' => $fullname,
-                'location' => $location,
-                'tagline' => $tagline,
-                'dob' => $dateOfBirth,
-                'gender' => $gender,
-                'agreement' => $agreement
-            );
-            $invalidFields = $enginesis->userRegistrationValidation($userId, $parameters);
-            if ($invalidFields == null) {
-                $userInfo = $enginesis->userRegistrationUpdate($userId, $parameters);
-                print_r($userInfo);
+            $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
+            $hackerToken = getPostVar("all-clear", '');
+            if ($thisFieldMustBeEmpty == null && $hackerToken == '') {
+                // TODO: call Enginesis and get a fresh view of the user's data
+                $userInfo = $enginesis->registeredUserGetEx($userId);
+                if ($userInfo == null) {
+                    // TODO: Need to handle any errors
+                    $errorMessage = "<p class=\"error-text\">There was a system error retrieving your information. " . $enginesis->getLastErrorDescription() . "</p>";
+                } else {
+                    // [user_id] => 10241 [site_id] => 106 [user_name] => varyn2 [real_name] => varyn2 [site_user_id] => [dob] => 2004-04-10 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-04-10 20:07:55 [date_updated] => [source_site_id] => 106 [last_login] => 2016-04-16 14:09:27 [login_count] => 24 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 2 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [friend_count] => 0 [comment_count] => 0 [notification_count] => 0 ) ) [outparams] => Array ( ) [status] => stdClass Object ( [success] => 1 [message] => ) [passthru] => stdClass Object ( [fn] => RegisteredUserGetEx [site_id] => 106 [logged_in_user_id] => 10241 [get_user_id] => NULL [site_user_id] => NULL [language_code] => en [state_seq] => 1 ) ) ) stdClass Object ( [user_id] => 10241 [site_id] => 106 [user_name] => varyn2 [real_name] => varyn2 [site_user_id] => [dob] => 2004-04-10 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-04-10 20:07:55 [date_updated] => [source_site_id] => 106 [last_login] => 2016-04-16 14:09:27 [login_count] => 24 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 2 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [friend_count] => 0 [comment_count] => 0 [notification_count] => 0
+                    $showRegistrationForm = true;
+                    $inputFocusId = 'register_form_email';
+                    $userName = $userInfo->user_name;
+                    $originalUserName = $userName; // if changed we need to check foe name clash
+                    $email = $userInfo->email_address;
+                    $fullname = $userInfo->real_name;
+                    $location = $userInfo->city;
+                    $tagline = $userInfo->tagline;
+                    $dateOfBirth = $userInfo->dob;
+                    $gender = $userInfo->gender;
+                }
             } else {
-                // TODO: handle invalid fields by showing UI
-                $showRegistrationForm = true;
-                $inputFocusId = 'register_form_email';
-                print_r($invalidFields);
+                $userName = getPostVar("register_form_username", '');
+                $password = getPostVar("register_form_password", '');
+                $email = getPostVar("register_form_email", '');
+                $fullname = getPostVar("register_form_fullname", '');
+                $location = getPostVar("register_form_location", '');
+                $tagline = getPostVar("register_form_tagline", '');
+                $dateOfBirth = getPostVar("register_form_dob", '');
+                $gender = getPostVar("register_form_gender", 'F');
+                $parameters = array(
+                    'user_name' => $userName,
+                    'password' => $password,
+                    'email_address' => $email,
+                    'real_name' => $fullname,
+                    'location' => $location,
+                    'tagline' => $tagline,
+                    'dob' => $dateOfBirth,
+                    'gender' => $gender,
+                    'agreement' => $agreement
+                );
+                $invalidFields = $enginesis->userRegistrationValidation($userId, $parameters);
+                if ($invalidFields == null) {
+                    $userInfo = $enginesis->userRegistrationUpdate($userId, $parameters);
+                    print_r($userInfo);
+                } else {
+                    // TODO: handle invalid fields by showing UI
+                    $showRegistrationForm = true;
+                    $inputFocusId = 'register_form_email';
+                    print_r($invalidFields);
+                }
             }
         }
     } elseif ($action == 'securityupdate') {
-        // security update form: password, security question
+        // TODO: security update form: password, security question. User must be logged in.
+        if ( ! $isLoggedIn) {
+            $errorMessage = "<p class=\"error-text\">You must be logged in to use this feature.</p>";
+        } else {
+
+        }
     } elseif ($action == 'forgotpassword') {
         $userName = getPostVar("forgotpassword_username", '');
         $email = getPostVar("forgotpassword_email", '');
@@ -217,6 +225,9 @@
         $action = '';
         $userName = '';
         $password = '';
+        if ($isLoggedIn) {
+            $userInfo = getVarynUserCookie();
+        }
     }
  ?>
 <!DOCTYPE html>

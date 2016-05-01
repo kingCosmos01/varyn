@@ -284,6 +284,22 @@
         return makeInputFormHackerToken() == $token;
     }
 
+    function setVarynUserCookie ($userInfo, $domain) {
+        // $userInfo Object ( [user_id] => 10239 [site_id] => 106 [user_name] => Varyn [real_name] => Varyn [site_user_id] => [dob] => 2004-02-16 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-02-16 20:47:45 [date_updated] => [source_site_id] => 106 [last_login] => 2016-02-20 22:27:38 [login_count] => 34 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 1 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [access_level] => 10 [role_name] => [user_rank] => 10001 [session_id] => cecfe3b4b5dac00d464eff98ba5c75c3 [cr] => d2a1bae6ef968501b648ccf253451a1a [authtok] => Dk39dEasNBgO79Mp0gjXnvGYBEPP06d5Pd KmpdvCnVEehliQpl5eezAdVfc9t9xsE7RDp5i9rPDjj73TXxaW1XOrVjWHwZsnQ0q/GsHtWl4tDGgS/lTMA== )
+        $userInfoJSON = json_encode($userInfo);
+        $_COOKIE[VARYN_SESSION_COOKIE] = $userInfoJSON;
+        setcookie(VARYN_SESSION_COOKIE, $userInfoJSON, time() + (SESSION_DAYSTAMP_HOURS * 60 * 60), '/', $domain);
+    }
+
+    function getVarynUserCookie () {
+        $userInfo = null;
+        $userInfoJSON = $_COOKIE[VARYN_SESSION_COOKIE];
+        if ( ! empty($userInfoJSON)) {
+            $userInfo = json_decode($userInfoJSON);
+        }
+        return $userInfo;
+    }
+
     // "Global" PHP variables available to all scripts
     if ( ! defined('ROOTPATH') ) {
         define('ROOTPATH', $_SERVER['DOCUMENT_ROOT']);
