@@ -115,7 +115,8 @@
         }
 
         /**
-         * Return the domain name and TLD only (remove server name, protocol, anything else) e.g. games.com or games-q.com
+         * Return the domain name and TLD only (remove server name, protocol, anything else) e.g. this function
+         * converts http://www.games.com into games.com or http://www.games-q.com into games-q.com
          * @param null $serverName
          * @return null|string
          */
@@ -124,17 +125,20 @@
                 $serverName = $this->getServerName();
             }
             if ($serverName != 'localhost') {
-                $pos1 = strpos($serverName, '.');
-                $pos2 = false;
-                if ($pos1 !== false) {
-                    $pos2 = strpos($serverName, '.', $pos1 + 1);
-                }
-                if ($pos2 !== false) {
-                    $serverName = substr($serverName, strpos($serverName, '.') + 1);
+                $urlParts = explode('.', $serverName);
+                $numParts = count($urlParts);
+                if ($numParts > 1) {
+                    $tld = '.' . $urlParts[$numParts - 1];
+                    $domain = $urlParts[$numParts - 2];
                 } else {
-                    $serverName = substr($serverName, strpos($serverName, '://') + 3);
+                    $domain = $urlParts[0];
+                    $tld = '';
+                }
+                if (strpos($domain, '://') > 0) {
+                    $domain = substr($domain, strpos($domain, '://') + 3);
                 }
             }
+            $serverName = $domain . $tld;
             return $serverName;
         }
 
@@ -225,10 +229,7 @@
         private function sessionCookieDomain ($serverName = null) {
             $newDomain = null;
             $domain = $this->serverTail($serverName);
-            if (strlen($domain) > 0) {
-                $newDomain = '.' . $domain;
-            }
-            return $newDomain;
+            return $domain;
         }
 
         /**
@@ -238,7 +239,7 @@
          */
         public function sessionGetAuthenticationToken () {
             $authenticationToken = getPostOrRequestVar('authtok', '');
-            if ($authenticationToken == '') {
+            if (empty($authenticationToken)) {
                 if (isset($_COOKIE[SESSION_COOKIE])) {
                     $authenticationToken = $_COOKIE[SESSION_COOKIE];
                 } else {
@@ -671,15 +672,16 @@
          *   logged in then save the session cookie that allows us to converse with the server without logging in each time.
          * @param $userName: string the user's name or email address
          * @param $password: string the user's password
+         * @param $saveSession boolean true to save this session in a cookie for the next page load to read back. Typically linked to a Remember Me checkbox.
          * @return object: null if login fails, otherwise returns the user info object.
          */
-        public function userLogin ($userName, $password) {
+        public function userLogin ($userName, $password, $saveSession) {
             $user = null;
             $enginesisResponse = $this->callServerAPI('UserLogin', array('user_name' => $userName, 'password' => $password));
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             if ($results != null && isset($results->row)) {
                 $user = $results->row;
-                if ($user) {
+                if ($user && $saveSession) {
                     $this->sessionSave($user->authtok, $user->user_id, $user->site_user_id, $user->user_name, $user->access_level);
                 }
             }
