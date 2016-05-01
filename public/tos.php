@@ -64,25 +64,6 @@
     <meta name="twitter:image:src" content="http://www.varyn.com/images/600x600.png"/>
     <meta name="twitter:domain" content="varyn.com"/>
     <script src="/common/head.min.js"></script>
-    <script type="text/javascript">
-
-        function initApp() {
-            var showSubscribe = '<?php echo($showSubscribe);?>';
-
-            if (showSubscribe == '1') {
-                showSubscribePopup();
-            }
-        }
-
-        head.ready(function() {
-            initApp();
-        });
-        head.js("/common/modernizr.custom.74056.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "/common/common.js", "/common/enginesis.js", "/common/ShareHelper.js");
-
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-        ga('create', 'UA-41765479-1', 'auto');
-        ga('send', 'pageview');
-    </script>
 </head>
 <body>
 <?php
@@ -102,12 +83,27 @@
         <h4>No Unlawful or Prohibited Use</h4>
         <p>As a condition of your use of the web site, you will not use the web site for any purpose that is unlawful or prohibited by these terms, conditions, and notices. You may not use the Services in any manner that could damage, disable, overburden, or impair any Varyn server, or the network(s) connected to any Varyn server, or interfere with any other party's use and enjoyment of the web site You may not attempt to gain unauthorized access to services, materials, other accounts, computer systems or networks connected to any Varyn server or to the web site, through hacking, password mining or any other means. You may not obtain or attempt to obtain any materials or information through any means not intentionally made available through the web site.</p>
         <h4>Copyright and Trademark Information</h4>
-        <p>COPYRIGHT NOTICE: Copyright &copy; 2015 Varyn, Inc., All Rights Reserved.</p>
+        <p>COPYRIGHT NOTICE: Copyright &copy; 2016 Varyn, Inc., All Rights Reserved.</p>
         <p>Third-party trademarks are used solely for distributing the games herein and no license or affiliation is implied. All copyrights are held by the respective owners.</p>
     </div>
 </div><!-- /.marketing -->
 <?php
     include_once('common/footer.php');
 ?>
+<script type="text/javascript">
+
+    function initApp() {
+        var showSubscribe = '<?php echo($showSubscribe);?>';
+
+        if (showSubscribe == '1') {
+            showSubscribePopup();
+        }
+    }
+
+    head.ready(function() {
+        initApp();
+    });
+    head.js("/common/modernizr.custom.74056.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "/common/common.js", "/common/enginesis.js", "/common/ShareHelper.js");
+</script>
 </body>
 </html>

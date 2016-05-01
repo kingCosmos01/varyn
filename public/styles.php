@@ -1,6 +1,6 @@
 <?php
     require_once('../services/common.php');
-    $page = 'template';
+    $page = 'styles';
     $search = getPostOrRequestVar('q', null);
     if ($search != null) {
         header('location:/allgames.php?q=' . $search);
@@ -70,137 +70,122 @@
     include_once('common/header.php');
 ?>
 <div class="container marketing">
-    <div class="panel panel-primary panel-padded">
-        <h3>Varyn Template Page</h3>
-        <p>This is a template page to be used as a starting point for a new page.</p>
+    <div class="jumbotron">
+        <h1>Style Guide</h1>
+        <p>This page serves as the site CSS style guide. Use it to demonstrate how styles are applied. If you add new styles or patterns, please update the HTML in this document to demonstrate the new styles.</p>
+        <p>
+            <a class="btn btn-lg btn-primary" href="http://getbootstrap.com/css/" role="button">View Bootstrap docs &raquo;</a>
+        </p>
     </div>
-
-
-
-    <div id="User-message-about-cookies">
-        <h2>TO DO:</h2>
-        <p>Fine print we need to show on any webpage. consider adding this to footer.php? then cookie the user if they have seen it.</p>
-        <div class="code">
-    /* + cookies-notify */
-    .jb-slideup-promotion.id_cookies {
-    position: fixed;
-    left: auto;
-    right: 0;
-    bottom: 0;
-    z-index: 1001;
-    width: auto;
-    height: auto;
-    opacity: 1;
-    }
-    .jb-slideup-promotion.id_cookies.is_hidden {
-    bottom: -450px;
-    opacity: 0;
-    }
-    .id_cookies .jb-slideup-promotion__body {
-    position: static;
-    -webkit-transform: none;
-    transform: none;
-    }
-    .id_cookies .jb-promotion__close-button {
-    z-index: 5;
-    background-color: #000;
-    }
-    .id_cookies .jb-promotion__close-button:before {
-    display: inline-block;
-    width: 1.4em;
-    height: 1.4em;
-    background: transparent url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%22-388.5%20313.5%2014%2014%22%3E%3Cpath%20fill%3D%22%23fff%22%20d%3D%22M-388.5%20327.281v-1.181l5.709-5.709-5.709-5.709v-1.182h1.181l5.709%205.709%205.708-5.709h1.182v1.182l-5.708%205.709%205.708%205.709v1.182h-1.182l-5.708-5.709-5.709%205.709h-1.181z%22%2F%3E%3C%2Fsvg%3E") no-repeat 50%/.6em;
-    content: '';
-    color: #fff;
-    font-size: 14px;
-    line-height: 1.2;
-    text-align: center;
-    -webkit-transition: background-color .4s;
-    transition: background-color .4s;
-    }
-    .id_cookies .jb-promotion__close-button:hover:before {
-    background-color: red;
-    }
-
-    /* move close button to the left for iDevices */
-    .id_cookies .jb-promotion__body._apple .jb-promotion__close-button {
-    right: auto;
-    left: 0;
-    }
-
-    .cookies-notify {
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: 23px 23px 0;
-    width: 380px;
-    height: 110px;
-    background: #000;
-    color: #ccc;
-    font: 12px/1.2 Menlo, Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
-    -webkit-transition: height .4s;
-    transition: height .4s;
-    }
-    .cookies-notify:before {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 15px;
-    box-shadow: inset #000 0 5px 10px;
-    content: '';
-    }
-    .cookies-notify__paragraph {
-    margin: 0 0 1em;
-    }
-    .cookies-notify__link {
-    color: inherit;
-    text-decoration: underline;
-    }
-        </div>
-        <div class="jb-promotion jb-slideup-promotion id_cookies">
-            <div class="jb-promotion__body jb-slideup-promotion__body" style="width: auto; height: 100%; background-image: none;">
-                <div class="cookies-notify" id="cookies-terminal">
-                    <p class="cookies-notify__paragraph">Cookies help us improve our web content and deliver personalised content. By using this web site, you agree to our use of cookies.</p>
-                    <p class="cookies-notify__paragraph">Type `man cookies' to <a href="/company/privacy.html#using-website" class="cookies-notify__link">learn more</a> or `exit' to close.</p>
-                    <div class="cookies-notify__content"></div>
-                    <div class="jquery-console-inner">
-                        <textarea autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" class="jquery-console-typer" style="position: absolute; top: 0px; left: -9999px;"></textarea>
-                        <div class="jquery-console-prompt-box">
-                            <span class="jquery-console-prompt-label" style="display: inline;">~&nbsp;root# </span>
-                            <span class="jquery-console-prompt">
-                                <span class="jquery-console-cursor">&nbsp;</span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="jb-promotion__close-button jb-slideup-promotion__close-button" title="Close"></div>
+    <div class="panel panel-default div-padded">
+        <p>Headers</p>
+        <h1>Style Guide H1</h1>
+        <h2>Style Guide H2</h2>
+        <h3>Style Guide H3</h3>
+        <h4>Style Guide H4</h4>
+        <h5>Style Guide H5</h5>
+        <h6>Style Guide H6</h6>
     </div>
-    <div>
-        <h4>When the user logs in use the fine print:</h4>
-        <p>You have Do Not Track enabled, or are browsing privately. Medium respects your request for privacy. To read in stealth mode, stay logged out. If you choose to sign in, we collect some information about your interactions with the site in order to personalize your experience, offer suggested reading, and connect you with your network. More details.
-        To use Medium you must have cookies enabled.
-        If you sign up with Twitter or Facebook, we’ll start you off with a network by automatically importing any followers/followees or friends already on Medium. Also, we’ll never post to Twitter or Facebook without your permission. For more info, please see Login FAQ.</p>
+    <div class="panel panel-default div-padded">
+        <h2>Paragraphs &amp; Lists</h2>
+        <p class="lead">&lt;P class="lead"&gt;: Make a paragraph stand out by adding <code>.lead</code> class to the paragraph tag.</p>
+        <p>&lt;P&gt;: Members of the OGC would agree that, to quote from <q>The Importance of Going <q>Open</q></q> (<a href="http://portal.opengeospatial.org/files/?artifact_id=6211&version=2&format=pdf">http://portal.opengeospatial.org/files/?artifact_id=6211&version=2&format=pdf</a>), <q>It is incumbent upon buyers of geoprocessing software, data and services to carefully review their requirements and then draft interoperability architecture documents that lead to purchase of solutions that implement the appropriate OGC Standards. This can be done piecemeal, one upgrade or add-on at a time, or, if it is time for the organization to put a whole new solution in place, it can be done comprehensively, all at once. OGC and OGC's members can help by examining use cases and explaining where <kbd>open</kbd> interfaces can be specified into the architecture on which procurements will be based.</q></p>
+        <p>&lt;SMALL&gt;: <small>Open standards and Open Source software are both important parts of today’s ICT ecosystem, but they are quite different things. The OGC facilitates an Open Standards process and promotes the use of Open Standards in both proprietary and Open Source software. The OGC also promotes the use of Open Standards in the production and publishing of geospatial data, regardless of the policies of the producers and publishers.</small></p>
+        <p>&lt;STRONG&gt;: <strong>Open standards vs. Open Source software</strong> You can use the mark tag to <mark>highlight</mark> text.</p>
+        <p>&lt;b&gt;: <b>Open standards vs. Open Source software</b> <del>This line of text is meant to be treated as deleted text.</del></p>
+        <p>&lt;i&gt;: <i>Open standards vs. Open Source software</i> <s>This line of text is meant to be treated as no longer accurate.</s></p>
+        <p>&lt;EM&gt;: <em>Open standards vs. Open Source software</em> <ins>This line of text is meant to be treated as an addition to the document.</ins></p>
+        <p><quote>&lt;QUOTE&gt;: Providers of both proprietary and Open Source software join the OGC to further the development and market uptake of Open Standards in the world geospatial market, because Open Standards help both types of providers. This is true also for data providers.</quote></p>
+        <p><blockquote>&lt;BLOCKQUOTE&gt;: Providers of both proprietary and Open Source software join the OGC to further the development and market uptake of Open Standards in the world geospatial market, because Open Standards help both types of providers. This is true also for data providers.</blockquote></p>
+        <blockquote class="blockquote-reverse">
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
+            <footer>Someone famous in <cite title="Source Title">Source Title</cite></footer>
+        </blockquote>
+        <p>&lt;A&gt;: <a href="http://portal.opengeospatial.org/files/?artifact_id=6211&version=2&format=pdf">http://portal.opengeospatial.org/files/?artifact_id=6211&version=2&format=pdf</a></p>
+        <p>&lt;UL&gt; and &lt;OL&gt;:</p>
+        <p><ul>
+            <li>Item 1</li>
+            <li>Item 2</li>
+            <li>Item 3</li>
+            <li>Item 4<ul>
+                <li>Item 4a</li>
+                <li>Item 4b</li>
+                <li>Item 4c</li>
+            </ul></li>
+        </ul></p>
+        <p><ol>
+            <li>Item 1</li>
+            <li>Item 2</li>
+            <li>Item 3</li>
+            <li>Item 4<ul>
+                <li>Item 4a</li>
+                <li>Item 4b</li>
+                <li>Item 4c</li>
+            </ul></li>
+        </ol></p>
+        <p>Definition lists:
+        <dl>
+            <dt>Description lists</dt>
+            <dd>A description list is perfect for defining terms.</dd>
+        </dl>
+        <dl class="dl-horizontal">
+            <dt>Description lists</dt>
+            <dd>A description list is perfect for defining terms.</dd>
+        </dl>
+        </p>
     </div>
-    <div class="panel panel-primary">
-        <div class="panel-heading">
-            <h3 class="panel-title">Hot Games</h3>
-        </div>
+    <div class="panel panel-default div-padded">
+        <h2>Tables</h2>
+        <table class="table table-hover table-striped">
+            <caption>Optional table caption.</caption>
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Username</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <th scope="row">1</th>
+                <td>Mark</td>
+                <td>Otto</td>
+                <td>@mdo</td>
+            </tr>
+            <tr>
+                <th scope="row">2</th>
+                <td>Jacob</td>
+                <td>Thornton</td>
+                <td>@fat</td>
+            </tr>
+            <tr>
+                <th scope="row">3</th>
+                <td>Larry</td>
+                <td>the Bird</td>
+                <td>@twitter</td>
+            </tr>
+            <tr>
+                <th scope="row">4</th>
+                <td>Pete</td>
+                <td>the Pistol</td>
+                <td>@tpistolpete</td>
+            </tr>
+            </tbody>
+        </table>
     </div>
-    <div id="TemplatePageHotGames" class="row">
-    </div>
-    <div id="bottomAd" class="row">
-        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-        <!-- Varyn Responsive -->
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-9118730651662049"
-             data-ad-slot="5571172619"
-             data-ad-format="auto"></ins>
-        <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
+    <div class="panel panel-default div-padded">
+        <h2>Code</h2>
+<pre><code>
+    completed = function( event ) {
+
+        // readyState === "complete" is good enough for us to call the dom ready in oldIE
+        if ( document.addEventListener || event.type === "load" || document.readyState === "complete" ) {
+            detach();
+            jQuery.ready();
+        }
+    };
+</code></pre>
     </div>
 </div><!-- /.container -->
 <?php
@@ -231,8 +216,8 @@
              */
             enginesisCallBack: function (enginesisResponse) {
                 var succeeded,
-                    errorMessage,
-                    results;
+                        errorMessage,
+                        results;
 
                 if (enginesisResponse != null && enginesisResponse.fn != null) {
                     results = enginesisResponse.results;
@@ -267,8 +252,7 @@
 
         varynApp = varyn(siteConfiguration);
         varynApp.initApp(varynTemplatePage, pageParameters);
-    });
-
+        });
     head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "common/varyn.js");
 
 </script>

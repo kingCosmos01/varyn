@@ -59,43 +59,6 @@
         <meta name="twitter:image:src" content="http://www.varyn.com/images/600x600.png"/>
         <meta name="twitter:domain" content="varyn.com"/>
         <script src="/common/head.min.js"></script>
-        <script type="text/javascript">
-
-        var enginesisSiteId = <?php echo($siteId);?>,
-            serverStage = "<?php echo($stage);?>";
-
-        function initApp() {
-            var searchString = "<?php echo($search);?>",
-                serverHostDomain = 'jumpydot' + serverStage + '.com';
-
-            document.domain = serverHostDomain;
-            window.EnginesisSession = enginesis(enginesisSiteId, 0, 0, 'enginesis.' + serverHostDomain, '', '', 'en', enginesisCallBack);
-        }
-
-        function enginesisCallBack (enginesisResponse) {
-            var succeeded,
-                errorMessage;
-
-            if (enginesisResponse != null && enginesisResponse.fn != null) {
-                succeeded = enginesisResponse.results.status.success;
-                errorMessage = enginesisResponse.results.status.message;
-                switch (enginesisResponse.fn) {
-                    case "NewsletterAddressAssign":
-                        handleNewsletterServerResponse(succeeded);
-                        break;
-                    case "SiteListGames":
-                    case "GameFind":
-                        if (succeeded == 1) {
-                            gameListGamesResponse(enginesisResponse.results.result, "AllGamesArea", null, true);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-
-    </script>
 </head>
 <body>
 <?php
@@ -127,6 +90,5 @@
 <?php
     include_once('common/footer.php');
 ?>
-</div><!-- /.container -->
 </body>
 </html>

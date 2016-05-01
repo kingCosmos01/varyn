@@ -155,7 +155,7 @@
     <?php
         include_once('common/footer.php');
     ?>
-  <script type="text/javascript">
+    <script type="text/javascript">
 
       var varynApp;
 
@@ -173,14 +173,8 @@
           varynApp.initApp(varynIndexPage, pageParameters);
       });
 
-      head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//connect.facebook.net/en_US/all.js", "//platform.linkedin.com/in.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "common/varyn.js", "common/varynIndexPage.js");
+      head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "common/varyn.js", "common/varynIndexPage.js");
 
-      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-      ga('create', 'UA-41765479-1', 'varyn.com');
-      ga('send', 'pageview');
-      <?php if (strlen($search) > 0) { ?>
-      ga('send', 'event', 'game', 'search', '<?php echo($search);?>', 1);
-      <?php } ?>
-  </script>
-  </body>
+    </script>
+    </body>
 </html>

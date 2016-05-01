@@ -64,53 +64,6 @@
     <meta name="twitter:image:src" content="http://www.varyn.com/images/600x600.png"/>
     <meta name="twitter:domain" content="varyn.com"/>
     <script src="/common/head.min.js"></script>
-    <script type="text/javascript">
-
-        var enginesisSiteId = <?php echo($siteId);?>,
-            serverStage = "<?php echo($stage);?>",
-            enginesisGameListId = 6,
-            enginesisHomePagePromoId = 2;
-
-        function initApp() {
-            var serverHostDomain = 'varyn' + serverStage + '.com',
-                showSubscribe = '<?php echo($showSubscribe);?>';
-
-            document.domain = serverHostDomain;
-            window.EnginesisSession = enginesis(enginesisSiteId, 0, 0, 'enginesis.' + serverHostDomain, '', '', 'en', enginesisCallBack);
-            EnginesisSession.gameListListGames(enginesisGameListId, null);
-            EnginesisSession.promotionItemList(enginesisHomePagePromoId, EnginesisSession.getDateNow(), null);
-            if (showSubscribe == '1') {
-                showSubscribePopup();
-            }
-        }
-
-        function enginesisCallBack (enginesisResponse) {
-            var succeeded,
-                errorMessage;
-
-            if (enginesisResponse != null && enginesisResponse.fn != null) {
-                succeeded = enginesisResponse.results.status.success;
-                errorMessage = enginesisResponse.results.status.message;
-                switch (enginesisResponse.fn) {
-                    case "NewsletterAddressAssign":
-                        handleNewsletterServerResponse(succeeded);
-                        break;
-                    case "PromotionItemList":
-                        if (succeeded == 1) {
-                            promotionItemListResponse(enginesisResponse.results.result);
-                        }
-                        break;
-                    case "GameListListGames":
-                        if (succeeded == 1) {
-                            gameListGamesResponse(enginesisResponse.results.result, "HomePageGamesArea", null, false);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        }
-    </script>
 </head>
 <body>
 <?php
@@ -145,5 +98,52 @@
 <?php
     include_once('common/footer.php');
 ?>
+<script type="text/javascript">
+
+    var enginesisSiteId = <?php echo($siteId);?>,
+        serverStage = "<?php echo($stage);?>",
+        enginesisGameListId = 6,
+        enginesisHomePagePromoId = 2;
+
+    function initApp() {
+        var serverHostDomain = 'varyn' + serverStage + '.com',
+            showSubscribe = '<?php echo($showSubscribe);?>';
+
+        document.domain = serverHostDomain;
+        window.EnginesisSession = enginesis(enginesisSiteId, 0, 0, 'enginesis.' + serverHostDomain, '', '', 'en', enginesisCallBack);
+        EnginesisSession.gameListListGames(enginesisGameListId, null);
+        EnginesisSession.promotionItemList(enginesisHomePagePromoId, EnginesisSession.getDateNow(), null);
+        if (showSubscribe == '1') {
+            showSubscribePopup();
+        }
+    }
+
+    function enginesisCallBack (enginesisResponse) {
+        var succeeded,
+            errorMessage;
+
+        if (enginesisResponse != null && enginesisResponse.fn != null) {
+            succeeded = enginesisResponse.results.status.success;
+            errorMessage = enginesisResponse.results.status.message;
+            switch (enginesisResponse.fn) {
+                case "NewsletterAddressAssign":
+                    handleNewsletterServerResponse(succeeded);
+                    break;
+                case "PromotionItemList":
+                    if (succeeded == 1) {
+                        promotionItemListResponse(enginesisResponse.results.result);
+                    }
+                    break;
+                case "GameListListGames":
+                    if (succeeded == 1) {
+                        gameListGamesResponse(enginesisResponse.results.result, "HomePageGamesArea", null, false);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+</script>
 </body>
 </html>
