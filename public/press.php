@@ -102,7 +102,7 @@ include_once('common/header.php');
                     <div id="factsheet" class="col-md-4">
                         <h2 id="company-name-factsheet">Factsheet</h2>
                         <p><strong>Developer:</strong><br>Varyn, Inc.</p>
-                        <p><strong>Founding date:</strong><br>June 15, 2013</p>
+                        <p><strong>Founding date:</strong><br>June 1, 2013</p>
                         <p><strong>Website:</strong><br><a href="http://varyn.com" title="Varyn website">Varyn.com</a></p>
                         <p><strong>Press / Business contact:</strong><br><a href="mailto:info@varyn.com">info@varyn.com</a></p>
                         <p><strong>Social:</strong><br><a href="https://twitter.com/varyndev">twitter.com/varyndev</a><br>
@@ -269,7 +269,7 @@ include_once('common/header.php');
 
     head.ready(function() {
     });
-    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "common/varyn.js");
+    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/varyn.js");
 </script>
 </body>
 </html>
