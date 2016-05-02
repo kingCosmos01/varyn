@@ -547,6 +547,11 @@ footer {
 .btn-varyn {
     background-color: #690006;
     color: #ffffff;
+    background-image: url(/images/varyn-button4.png);
+    background-repeat: no-repeat;
+    background-position: 10px, left;
+    background-size: 24px 24px;
+    padding-left: 40px;
 }
 
 .btn-gapi-signin {
@@ -566,6 +571,17 @@ footer {
     background-position: 10px, left;
     background-size: 22px 22px;
     color: #ffffff;
+    padding-left: 40px;
+}
+
+.btn-twitter-signin {
+    background-color: #e1e1e1;
+    background-image: url(/images/twitter-button4.png);
+    background-repeat: no-repeat;
+    background-position: 10px, left;
+    background-size: 22px 22px;
+    color: #141414;
+    border-color: #a7a7a7;
     padding-left: 40px;
 }
 
