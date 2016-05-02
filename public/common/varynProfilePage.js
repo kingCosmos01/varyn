@@ -23,6 +23,8 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             varynApp.setupRegisterUserNameOnChangeHandler();
             $('#profile_forgot_password').click(this.forgotPassword);
             $('#facebook-connect-button').click(this.loginFacebook);
+            $('#gapi-signin-button').click(this.loginGoogle);
+            $('#twitter-signin-button').click(this.loginTwitter);
             varynApp.onChangeRegisterUserName($('#register_form_username').get(0), 'register_user_name_unique'); // in case field is pre-populated
             enginesisSession.gameListListGames(siteConfiguration.gameListIdTop, this.enginesisCallBack);
             this.onPageLoadSetFocus();
@@ -147,7 +149,25 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
         },
 
         loginFacebook: function () {
-            fbLogin('/facebook/endpoints/connect_fb.php');
+            FB.login(function(response) {
+                if (response.authResponse) {
+                    FB.api('/me', function(response) {
+                        console.log('Good to see you Facebook user ' + response.name + '(' + response.id + ').');
+                    });
+                } else {
+                    console.log('User cancelled login or did not fully authorize.');
+                }
+            }, {scope: 'email', return_scopes: true});
+            return false;
+        },
+
+        loginGoogle: function () {
+            alert('We are working on Google + login');
+            return false;
+        },
+
+        loginTwitter: function () {
+            alert('We are working on Twitter login');
             return false;
         },
 
