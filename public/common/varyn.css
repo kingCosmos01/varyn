@@ -196,7 +196,7 @@ input [type="radio"] {
     padding: 0;
     margin: 0;
     background-color: rgba(0,0,0,0.65);
-    z-index: 1999;
+    z-index: 10000;
 }
 
 #popupFrame {
@@ -210,7 +210,7 @@ input [type="radio"] {
     font-size: larger;
     background-color: #690006;
     color: #ffffff;
-    z-index: 2001;
+    z-index: 10001;
 }
 
 .popupFrame {
@@ -224,7 +224,7 @@ input [type="radio"] {
     font-size: larger;
     background-color: #690006;
     color: #ffffff;
-    z-index: 2001;
+    z-index: 10001;
 }
 
 #popupFrame h3 {
@@ -264,7 +264,7 @@ input [type="radio"] {
     top: -12px;
     right: -12px;
     cursor: pointer;
-    z-index: 999;
+    z-index: 10000;
 }
 
 #emailInput {
@@ -581,7 +581,7 @@ footer {
     background-position: 10px, left;
     background-size: 22px 22px;
     color: #141414;
-    border-color: #a7a7a7;
+    border-color: #c0c0c0;
     padding-left: 40px;
 }
 
@@ -644,6 +644,10 @@ footer {
 
 .popup-form-address-input {
     display: none;
+}
+
+.loginPopup_auxLinks a {
+    color: #ff9bba;
 }
 
 .profile-sign-up {
@@ -992,4 +996,10 @@ input[type=range].validation-slider:focus::-ms-fill-lower {
 }
 input[type=range].validation-slider:focus::-ms-fill-upper {
     background: rgba(54, 126, 189, 0.78);
+}
+
+.avatarThumbnail {
+    padding: 2px;
+    width: 90px;
+    height: 90px;
 }

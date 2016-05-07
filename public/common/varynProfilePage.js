@@ -9,6 +9,32 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
         inputFocusId = "";
 
 
+    /**
+     * Callback to handle responses from Enginesis.
+     * @param enginesisResponse
+     */
+    function enginesisCallBack (enginesisResponse) {
+        var succeeded,
+            errorMessage,
+            results;
+
+        if (enginesisResponse != null && enginesisResponse.fn != null) {
+            results = enginesisResponse.results;
+            succeeded = results.status.success;
+            errorMessage = results.status.message;
+            switch (enginesisResponse.fn) {
+                case "GameListListGames":
+                    if (succeeded == 1) {
+                        varynApp.gameListGamesResponse(results.result, "ProfilePageTopGames", null, false);
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
+    }
+
     return {
         pageLoaded: function (pageViewParameters) {
             if (pageViewParameters.errorFieldId !== undefined) {
@@ -28,7 +54,6 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             varynApp.onChangeRegisterUserName($('#register_form_username').get(0), 'register_user_name_unique'); // in case field is pre-populated
             enginesisSession.gameListListGames(siteConfiguration.gameListIdTop, this.enginesisCallBack);
             this.onPageLoadSetFocus();
-
             // Google+ login button support
 /*            gapi.signin2.render('g-signin2', {
                 'scope': 'https://www.googleapis.com/auth/plus.login',
@@ -150,9 +175,18 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
 
         loginFacebook: function () {
             FB.login(function(response) {
+                var registrationParameters = {};
                 if (response.authResponse) {
-                    FB.api('/me', function(response) {
-                        console.log('Good to see you Facebook user ' + response.name + '(' + response.id + ').');
+                    FB.api('/me', 'get', {fields: 'id,name,email,gender'}, function(response) {
+                        registrationParameters.networkId = 2;
+                        registrationParameters.userName = '';
+                        registrationParameters.realName = response.name;
+                        registrationParameters.emailAddress = response.email;
+                        registrationParameters.siteUserId = response.id;
+                        registrationParameters.gender = response.gender.substring(0, 1) == 'm' ? 'M' : 'F';
+                        registrationParameters.dob = commonUtilities.MySQLDate();
+                        registrationParameters.scope = '';
+                        varynApp.registerSSO(registrationParameters, registrationParameters.networkId);
                     });
                 } else {
                     console.log('User cancelled login or did not fully authorize.');
@@ -161,43 +195,54 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             return false;
         },
 
+        /**
+         * Using this function to fake a login-response from the network service only so we can test our code.
+         * @returns {boolean}
+         */
+        loginFacebookFake: function () {
+            var response = {id: "726468316", name: "John Foster", email: "jfoster@acm.org", gender: "male"};
+            var registrationParameters = {};
+
+            registrationParameters.networkId = 2;
+            registrationParameters.userName = '';
+            registrationParameters.realName = response.name;
+            registrationParameters.emailAddress = response.email;
+            registrationParameters.siteUserId = response.id;
+            registrationParameters.gender = response.gender.substring(0, 1) == 'm' ? 'M' : 'F';
+            registrationParameters.dob = commonUtilities.MySQLDate();
+            registrationParameters.scope = 'email';
+            varynApp.registerSSO(registrationParameters, registrationParameters.networkId);
+            return false;
+        },
+
         loginGoogle: function () {
+            var registrationParameters = {};
+            registrationParameters.networkId = 7;
+            registrationParameters.userName = '';
+            registrationParameters.realName = 'Google User';
+            registrationParameters.emailAddress = 'Google email';
+            registrationParameters.siteUserId = 'Google user-id';
+            registrationParameters.gender = 'F';
+            registrationParameters.dob = commonUtilities.MySQLDate();
+            registrationParameters.scope = '';
             alert('We are working on Google + login');
+            varynApp.registerSSO(registrationParameters, registrationParameters.networkId);
             return false;
         },
 
         loginTwitter: function () {
+            var registrationParameters = {};
+            registrationParameters.networkId = 11;
+            registrationParameters.userName = '';
+            registrationParameters.realName = 'twitter User';
+            registrationParameters.emailAddress = 'twitter email';
+            registrationParameters.siteUserId = 'twitter user-id';
+            registrationParameters.gender = 'F';
+            registrationParameters.dob = commonUtilities.MySQLDate();
+            registrationParameters.scope = '';
             alert('We are working on Twitter login');
+            varynApp.registerSSO(registrationParameters, registrationParameters.networkId);
             return false;
-        },
-
-        register: function () {
-
-        },
-
-        /**
-         * Callback to handle responses from Enginesis.
-         * @param enginesisResponse
-         */
-        enginesisCallBack: function (enginesisResponse) {
-            var succeeded,
-                errorMessage,
-                results;
-
-            if (enginesisResponse != null && enginesisResponse.fn != null) {
-                results = enginesisResponse.results;
-                succeeded = results.status.success;
-                errorMessage = results.status.message;
-                switch (enginesisResponse.fn) {
-                    case "GameListListGames":
-                        if (succeeded == 1) {
-                            varynApp.gameListGamesResponse(results.result, "ProfilePageTopGames", null, false);
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
         }
     }
 };

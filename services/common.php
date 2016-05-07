@@ -291,6 +291,10 @@
         setcookie(VARYN_SESSION_COOKIE, $userInfoJSON, time() + (SESSION_DAYSTAMP_HOURS * 60 * 60), '/', $domain);
     }
 
+    function getVarynUserCookieJSON () {
+        return $_COOKIE[VARYN_SESSION_COOKIE];
+    }
+
     function getVarynUserCookie () {
         $userInfo = null;
         $userInfoJSON = $_COOKIE[VARYN_SESSION_COOKIE];

@@ -1,7 +1,7 @@
 /**
- * Common JavaScript and utility functions used across Varyn.com. Should be loaded on every page.
- *
- *
+ * Common JavaScript and utility functions used across Varyn.com. This script should be loaded on every page.
+ * The initApp function requires a page-view object that is responsible for implementing page-specific
+ * functionality.
  */
 var varyn = function (parameters) {
     "use strict";
@@ -22,6 +22,7 @@ var varyn = function (parameters) {
             gameListIdNew: parameters.gameListIdNew || 5,
             homePagePromoId: parameters.homePagePromoId || 3,
             gameListState: 1,
+            userInfo: null,
 
             minPasswordLength: 4,
             minUserNameLength: 3,
@@ -33,12 +34,28 @@ var varyn = function (parameters) {
         enginesisSession = null,
         pageViewParameters = null;
 
+    if (parameters.userInfo !== undefined && parameters.userInfo != '') {
+        siteConfiguration.userInfo = JSON.parse(parameters.userInfo);
+    }
+
+    /**
+     * Network id is set by the Enginesis server based on what type of user login was performed.
+     * @returns {number}
+     */
+    function getNetworkId () {
+        var networkId = 1;
+        if (siteConfiguration.userInfo !== undefined && siteConfiguration.userInfo != null && siteConfiguration.userInfo.networkId !== undefined) {
+            networkId = siteConfiguration.userInfo.networkId;
+        }
+        return networkId;
+    }
+
     return {
 
         /**
          * Call this to initialize the varyn app, get the Enginesis instance, and begin the page operations.
          */
-        initApp: function(pageView, pageViewParameters) {
+        initApp: function(pageView, pageViewParameterObject) {
 
             var enginesisParameters = {
                 siteId: siteConfiguration.siteId,
@@ -53,9 +70,10 @@ var varyn = function (parameters) {
             pageViewTemplate = null;
 
             currentPage = this.getCurrentPage();
-            this.pageViewParameters = pageViewParameters;
+            pageViewParameters = pageViewParameterObject;
             document.domain = siteConfiguration.serverHostDomain;
             enginesisSession = enginesis(enginesisParameters);
+            varynApp.checkLoggedInSSO(getNetworkId());
             if (pageViewParameters.showSubscribe !== undefined && pageViewParameters.showSubscribe == '1') {
                 varynApp.showSubscribePopup();
             }
@@ -64,6 +82,26 @@ var varyn = function (parameters) {
                 pageViewTemplate.pageLoaded(pageViewParameters);
             }
             return pageViewTemplate;
+        },
+
+        /**
+         * If we think we should be logged in on a certain network then verify that network also agrees
+         * @param networkId
+         */
+        checkLoggedInSSO: function (networkId) {
+            switch (networkId) {
+                case 2: // Facebook
+                    if (FB !== undefined) {
+                        FB.getLoginStatus(varynApp.facebookStatusChangeCallback);
+                    }
+                    break;
+                case 7: // Google
+                    break;
+                case 11: // Twitter
+                    break;
+                default:
+                    break;
+            }
         },
 
         getEnginesisSession: function () {
@@ -273,6 +311,13 @@ var varyn = function (parameters) {
         /**
          * showSubscribePopup show the popup form to capture an email address to subscribe to the newsletter.
          */
+        hideSubscribePopup: function () {
+            this.showSubscribePopup(false);
+        },
+
+        /**
+         * showSubscribePopup show the popup form to capture an email address to subscribe to the newsletter.
+         */
         showSubscribePopup: function (showFlag) {
             this.showCommonFormPopup(document.getElementById("popupCover"), document.getElementById("subscribePopup"), showFlag);
         },
@@ -320,15 +365,14 @@ var varyn = function (parameters) {
         },
 
         setPopupMessage: function (popupId, message, className) {
-            var messageElement = $('#' + popupId + ' .popupMessageArea'),
-                messageArea = $('#' + popupId + ' .popupMessageResponseError');
+            var messageClass = 'popupMessageArea',
+                messageElement = $('#' + popupId + ' .' + messageClass);
 
-            if (messageElement != null && messageArea != null) {
+            if (messageElement != null) {
                 messageElement.css('display', 'block');
-                messageArea.css('display', 'block');
-                messageArea.text(message);
+                messageElement.text(message);
                 if (className != null) {
-                    messageArea.attr("class", className);
+                    messageElement.attr("class", messageClass + ' ' + className);
                 }
             }
         },
@@ -355,9 +399,9 @@ var varyn = function (parameters) {
             var email = document.getElementById("emailInput").value,
                 errorField = "";
 
-            if (isValidEmail(email)) {
+            if (this.isValidEmail(email)) {
                 this.setPopupMessage("subscribePopup", "Subscribing " + email + " with the service...", "popupMessageResponseOK");
-                this.enginesisSession.newsletterAddressAssign(email, '', '', '2', null); // the newsletter category id for Varyn/General is 2
+                enginesisSession.newsletterAddressAssign(email, '', '', '2', null); // the newsletter category id for Varyn/General is 2
             } else {
                 errorField = "emailInput";
                 this.setPopupMessage("subscribePopup", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
@@ -460,6 +504,67 @@ var varyn = function (parameters) {
         },
 
         /**
+         * Single sign-on registration. In this case, the user id comes from a 3rd party network and we need to map that
+         * to an new Enginesis user_id.
+         * @param {object} registrationParameters is a KV object. THe keys must match the Enginesis UserLoginCoreg API
+         * @param {int} networkId is the network identifier, see Enginesis documentation
+         */
+        registerSSO: function (registrationParameters, networkId) {
+            if (registrationParameters != undefined) {
+                enginesisSession.userLoginCoreg(registrationParameters, networkId, null);
+            }
+        },
+
+        /**
+         * Single sign-on login. In this case, the user id comes from a 3rd party network and we need to map that
+         * to an existing Enginesis user_id.
+         * @param {object} registrationParameters is a KV object. THe keys must match the Enginesis UserLoginCoreg API
+         * @param {int} networkId is the network identifier, see Enginesis documentation
+         */
+        loginSSO: function (registrationParameters, networkId) {
+            if (registrationParameters != undefined) {
+                enginesisSession.userLoginCoreg(registrationParameters, networkId, null);
+            }
+        },
+
+        /**
+         * This callback supports Facebook's initialization and auto-login, when a page loads and Facebook SDK
+         * initializes we end up here to determine if we have a properly logged in user.
+         * @param response
+         */
+        facebookStatusChangeCallback: function (response) {
+            if (response.status === 'connected') {
+                // Logged into your app and Facebook.
+                FB.api('/me', function (response) {
+                    // if we get here, the user has approved our app AND they are logged in.
+                    // We need to check this state IF a user is not currently logged in, this would indicate they should be logged in
+                    // automatically with Facebook
+                    console.log('VARYNAPP Successful Facebook login for: ' + response.name + ' (' + response.id + ')');
+                    // this.loginSSO(); ???
+                });
+            }
+        },
+
+        /**
+         * Function provided to check the login state of the user on a given network.
+         * @param networkId
+         */
+        checkLoginStateSSO: function (networkId) {
+            switch (networkId) {
+                case 2: // Facebook
+                    FB.getLoginStatus(varynApp.facebookStatusChangeCallback);
+                    break;
+                case 7: // Google
+                    break;
+                case 11: // Twitter
+                    break;
+                default:
+                    console.log("varynApp.checkLoginStateSSO unsupported network " + networkId);
+                    break;
+            }
+        },
+
+        /**
          * This function sets up the events to monitor a change to the user name in a registration input form so we
          * can ask the server to test if the user name is already in use.
          */
@@ -540,7 +645,7 @@ var varyn = function (parameters) {
         handleNewsletterServerResponse: function (succeeded, errorMessage) {
             if (succeeded == 1) {
                 this.setPopupMessage("subscribePopup", "You are subscribed - Thank you!", "popupMessageResponseOK");
-                window.setTimeout(this.hideSubscribePopup, 2000);
+                window.setTimeout(this.hideSubscribePopup.bind(this), 2500);
             } else {
                 this.setPopupMessage("subscribePopup", "Service reports an error: " + errorMessage, "popupMessageResponseError");
             }
@@ -740,15 +845,20 @@ var varyn = function (parameters) {
                 results = enginesisResponse.results;
                 succeeded = results.status.success;
                 errorMessage = results.status.message;
+                if (succeeded == 0) {
+                    console.log("Enginesis service error " + errorMessage + " from fn " + enginesisResponse.fn);
+                }
                 switch (enginesisResponse.fn) {
                     case "NewsletterAddressAssign":
                         this.handleNewsletterServerResponse(succeeded, errorMessage);
                         break;
+
                     case "PromotionItemList":
                         if (succeeded == 1) {
                             this.promotionItemListResponse(results.result);
                         }
                         break;
+
                     case "GameListListGames":
                         if (succeeded == 1) {
                             if (results.passthru !== undefined && results.passthru.game_list_id !== undefined) {
@@ -764,7 +874,16 @@ var varyn = function (parameters) {
                             this.gameListGamesResponse(results.result, fillDiv, null, false);
                         }
                         break;
+
+                    case "UserLoginCoreg":
+                        var userInfo = results.result.row;
+                        if (userInfo) {
+                            console.log('UserLoginCoreg replied with ' + userInfo.site_user_id);
+                        }
+                        break;
+
                     default:
+                        console.log("Unhandled Enginesis reply for " + enginesisResponse.fn);
                         break;
                 }
             }

@@ -85,7 +85,7 @@
                     <div class="carousel-caption">
                       <h3>Welcome to Varyn!</h3>
                       <p class="sliderCaption">We have games for all ages and the most popular platforms. Follow us for updates.</p>
-                      <p><a class="btn btn-md btn-danger" href="JavaScript:showSubscribePopup();" role="button">Sign up now</a></p>
+                      <p><a class="btn btn-md btn-danger" href="#" onclick="varynApp.showSubscribePopup();" role="button">Sign up now</a></p>
                     </div>
                   </div>
                 </div>
@@ -155,7 +155,7 @@
     <?php
         include_once('common/footer.php');
     ?>
-    <script type="text/javascript">
+    <script>
 
       var varynApp;
 
@@ -173,7 +173,7 @@
           varynApp.initApp(varynIndexPage, pageParameters);
       });
 
-      head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/varyn.js", "/common/varynIndexPage.js");
+      head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js", "/common/varynIndexPage.js");
 
     </script>
     </body>

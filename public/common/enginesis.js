@@ -27,7 +27,7 @@
  */
 var enginesis = function (parameters) {
 
-    var VERSION = '2.3.18',
+    var VERSION = '2.3.25',
         debugging = true,
         disabled = false, // use this flag to turn off communicating with the server
         errorLevel = 15, // bitmask: 1=info, 2=warning, 4=error, 8=severe
@@ -54,6 +54,7 @@ var enginesis = function (parameters) {
         loggedInUserName = '',
         userAccessLevel = 0,
         siteUserId = '',
+        networkId = 1,
         platform = '',
         locale = 'US-en',
         isNativeBuild = false,
@@ -134,6 +135,11 @@ var enginesis = function (parameters) {
         return serverParams;
     };
 
+    var forceErrorResponse = function (fn, stateSeq, errorCode, ErrorMessage) {
+        // generate an internal error that looks the same as an error response from the server.
+        var errorJSONString = '{"results":{"status":{"success":"0","message":"' + errorCode + '","extended_info":"' + ErrorMessage + '"},"passthru":{"fn":"' + fn + '","state_seq":"' + stateSeq + '"}}}';
+    };
+
     var convertParamsToFormData = function (parameterObject)
     {
         var key,
@@ -188,6 +194,63 @@ var enginesis = function (parameters) {
         }
     };
 
+    /**
+     * Return the current document query string as an object with
+     * key/value pairs converted to properties.
+     *
+     * @method queryStringToObject
+     * @param {string} urlParamterString An optional query string to parse as the query string. If not
+     *   provided then use window.location.search.
+     * @return {object} result The query string converted to an object of key/value pairs.
+     */
+    var queryStringToObject = function (urlParameterString) {
+        var match,
+            search = /([^&=]+)=?([^&]*)/g,
+            decode = function (s) {
+                return decodeURIComponent(s.replace(/\+/g, " "));
+            },
+            result = {};
+        if ( ! urlParameterString) {
+            urlParameterString = window.location.search.substring(1);
+        }
+        while (match = search.exec(urlParameterString)) {
+            result[decode(match[1])] = decode(match[2]);
+        }
+        return result;
+    };
+
+    /**
+     * Return the contents fo the cookie indexed by the specified key.
+     *
+     * @method cookieGet
+     * @param {string} key Indicate which cookie to get.
+     * @returns {string} value Contents of cookie stored with key.
+     */
+    var cookieGet = function (key) {
+        if (key) {
+            return decodeURIComponent(document.cookie.replace(new RegExp("(?:(?:^|.*;)\\s*" + encodeURIComponent(key).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1")) || null;
+        } else {
+            return '';
+        }
+    };
+
+    /**
+     * Get info about the current logged in user, if there is one, from authtok parameter or cookie
+     */
+    var reviveLoggedInUser = function () {
+        var queryParameters = queryStringToObject(),
+            authtok = '';
+
+        if (queryParameters.authtok !== undefined) {
+            authtok = queryParameters.authtok;
+        } else {
+            authtok = cookieGet('engsession');
+        }
+        if (authtok != '') {
+
+        }
+    };
+
     var debugLog = function (message, level) {
         if (debugging) {
             if (level == null) {
@@ -227,11 +290,19 @@ var enginesis = function (parameters) {
         },
 
         getLoggedInUserInfo: function () {
-            return {isLoggedIn: loggedInUserId != 0, userId: loggedInUserId, userName: loggedInUserName, siteUserId: siteUserId, accessLevel: userAccessLevel};
+            return {isLoggedIn: loggedInUserId != 0, userId: loggedInUserId, userName: loggedInUserName, siteUserId: siteUserId, networkId: networkId, accessLevel: userAccessLevel};
         },
 
         isTouchDevice: function () {
             return isTouchDevice;
+        },
+
+        isValidUserName: function (userName) {
+            return userName.length > 2;
+        },
+
+        isValidPassword: function (password) {
+            return password.length > 3;
         },
 
         serverStageSet: function (newServerStage) {
@@ -535,19 +606,62 @@ var enginesis = function (parameters) {
             return sendRequest("UserLogin", {user_name: userName, password: password}, overRideCallBackFunction);
         },
 
-        userLoginCoreg: function (userName, siteUserId, gender, dob, city, state, countryCode, locale, networkId, overRideCallBackFunction) {
-            return sendRequest("UserLoginCoreg",
-                {
-                    site_user_id: siteUserId,
-                    user_name: userName,
-                    network_id: networkId
-                }, overRideCallBackFunction);
+        /**
+         * Enginesis co-registration accepts validated login from another network and creates a new user or logs in
+         * a matching user. site-user-id, user-name, and network-id are mandatory. Everything else is optional.
+         * @param registrationParameters {object} registration data values
+         * @param networkId {int} we must know which network this registration comes from.
+         * @param overRideCallBackFunction {function} called when server replies.
+         */
+        userLoginCoreg: function (registrationParameters, networkId, overRideCallBackFunction) {
+            if (registrationParameters.siteUserId === undefined || registrationParameters.siteUserId.length == 0) {
+                return false;
+            }
+            if ((registrationParameters.userName === undefined || registrationParameters.userName.length == 0) && (registrationParameters.realName === undefined || registrationParameters.realName.length == 0)) {
+                return false; // Must provide either userName, realName, or both
+            }
+            if (registrationParameters.userName === undefined) {
+                registrationParameters.userName = '';
+            }
+            if (registrationParameters.realName === undefined) {
+                registrationParameters.realName = '';
+            }
+            if (registrationParameters.gender === undefined || registrationParameters.gender.length == 0) {
+                registrationParameters.gender = 'F';
+            } else if (registrationParameters.gender != 'M' && registrationParameters.gender != 'F') {
+                registrationParameters.gender = 'F';
+            }
+            if (registrationParameters.emailAddress === undefined) {
+                registrationParameters.emailAddress = '';
+            }
+            if (registrationParameters.scope === undefined) {
+                registrationParameters.scope = '';
+            }
+            if (registrationParameters.dob === undefined || registrationParameters.dob.length == 0) {
+                registrationParameters.dob = new Date();
+                registrationParameters.dob = registrationParameters.dob.toISOString().slice(0, 9);
+            } else if (registrationParameters.dob instanceof Date) {
+                // if is date() then convert to string
+                registrationParameters.dob = registrationParameters.dob.toISOString().slice(0, 9);
+            }
+
+            return sendRequest("UserLoginCoreg", {
+                    site_user_id: registrationParameters.siteUserId,
+                    user_name: registrationParameters.userName,
+                    real_name: registrationParameters.realName,
+                    email_address: registrationParameters.emailAddress,
+                    gender: registrationParameters.gender,
+                    dob: registrationParameters.dob,
+                    network_id: networkId,
+                    scope: registrationParameters.scope
+                },
+                overRideCallBackFunction);
         },
 
         /**
          * Return the proper URL to use to show an avatar for a given user. The default is the default size and the current user.
-         * @param int $size
-         * @param int $userId
+         * @param size {int} 0 small, 1 medium, 2 large
+         * @param userId {int}
          * @return string
          */
         avatarURL: function avatarURL (size, userId) {

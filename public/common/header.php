@@ -8,15 +8,15 @@
 ?>
 <div id="popupCover" class="popupCover">
     <div id="subscribePopup" class="popupFrame">
-        <div class="popupCloseButton" onclick="popupCloseClicked();"><img src="/images/close-button.png" width="24" height="24" border="0"/></div>
+        <div class="popupCloseButton" onclick="varynApp.popupCloseClicked();"><img src="/images/close-button.png" width="24" height="24" border="0"/></div>
         <img src="/images/VarynIcon120x120.png" class="logoImg">
         <h3><span class="varyn-shield-icon"></span>Join Our Mailing List?</h3>
         <p>Sign up for our email updates and we will let you know when we have new games, prizes, interesting things to say. We will not abuse this privilege. <a href="/Privacy.php" class="text-muted small" title="Review our privacy policy" alt="Review our privacy policy">Review our privacy policy.</a></p>
         <div class="popupFieldGroup">
-            <input type="email" name="email" class="form-control required email" id="emailInput" placeholder="Your email address"/><input type="submit" value="Subscribe" name="subscribe" id="subscribeButton" class="btn btn-default"  onclick="popupSubscribeClicked();"/>
+            <input type="email" name="email" class="form-control required email" id="emailInput" placeholder="Your email address"/><input type="submit" value="Subscribe" name="subscribe" id="subscribeButton" class="btn btn-default"  onclick="varynApp.popupSubscribeClicked();"/>
         </div>
         <div class="popupMessageArea">
-            <div id="popupMessageResponse" class="popupMessageResponseError">This is the response from the server</div>
+            This is the response from the server
         </div>
     </div>
 <?php
@@ -42,7 +42,7 @@
                 <input type="hidden" name="action" value="popupregister" />
             </div>
             <div class="popupMessageArea">
-                <div class="popupMessageResponseError">This is the response from the server</div>
+                This is the response from the server
             </div>
         </form>
     </div>
@@ -55,11 +55,11 @@
                 <label for="login_password">Password:</label><input type="password" id="login_password" name="login_password" tabindex="18" maxlength="20" class="popup-form-input required" /><br/>
                 <input type="submit" value="Login >" name="loginButton" id="loginButton" class="btn btn-success" tabindex="19"/><input type="text" name="login_email" class="popup-form-address-input" /><input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
                 <span id="rememberme-container"><input type="checkbox" tabindex="20" checked="checked" name="rememberme" id="rememberme"><label for="rememberme">Remember Me</label></span>
-                <div class="loginPopup_auxLinks"><a id="loginPopup_forgot_password" href="#" tabindex="21">Forgot password?</a><br/>Not a member? <a id="loginPopup_signup" href="#" tabindex="22">Sign up!</a></div>
+                <div class="loginPopup_auxLinks"><a id="loginPopup_forgot_password" href="#" onclick="varynApp.popupCloseClicked(); varynApp.showForgotPasswordPopup(1);" tabindex="21">Forgot password?</a><br/>Not a member? <a id="loginPopup_signup" href="#" onclick="varynApp.popupCloseClicked(); varynApp.showRegistrationPopup(1);" tabindex="22">Sign up!</a></div>
                 <input type="hidden" name="action" value="popuplogin" />
             </div>
             <div class="popupMessageArea">
-                <div class="popupMessageResponseError">This is the response from the server</div>
+                This is the response from the server
             </div>
         </form>
     </div>
@@ -75,7 +75,7 @@
                 <input type="hidden" name="action" value="forgotpassword" /><input type="text" name="emailaddress" class="popup-form-address-input" /><input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
             </div>
             <div class="popupMessageArea">
-                <div class="popupMessageResponseError">This is the response from the server</div>
+                This is the response from the server
             </div>
         </form>
     </div>

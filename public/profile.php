@@ -22,6 +22,7 @@
     $errorMessage = '<p>&nbsp;</p>';
     $errorFieldId = '';
     $inputFocusId = '';
+    $userInfoJSON = '';
     $debug = (int) strtolower(getPostOrRequestVar("debug", 0));
     $action = strtolower(getPostOrRequestVar("action", ''));
     if ($action == 'login') {
@@ -47,6 +48,7 @@
             $isLoggedIn = true;
             if ($rememberMe) {
                 setVarynUserCookie($userInfo, $enginesis->getServerName());
+                $userInfoJSON = getVarynUserCookieJSON();
             }
         }
     } elseif ($action == 'signup') {
@@ -227,6 +229,7 @@
         $password = '';
         if ($isLoggedIn) {
             $userInfo = getVarynUserCookie();
+            $userInfoJSON = getVarynUserCookieJSON();
         }
     }
  ?>
@@ -303,15 +306,14 @@
     }
     if ($isLoggedIn && ! $showRegistrationForm) {
         if ( ! isset($userInfo)) {
-            $userInfoJSON = $_COOKIE[VARYN_SESSION_COOKIE];
-            $userInfo = json_decode($userInfoJSON);
+            $userInfo = getVarynUserCookie();
         }
 ?>
         <h2>Welcome <?php echo($userInfo->user_name);?>!</h2>
         <?php if (strlen($errorMessage) > 0) { echo('<div id="errorContent" class="errorContent">' . $errorMessage . '</div>'); } ?>
         <div class="row">
             <div class="col-sm-3">
-                <img src="<?php echo($enginesis->avatarURL(0, $userInfo->user_id));?>"/><br/>
+                <img class="avatarThumbnail" src="<?php echo($enginesis->avatarURL(0, $userInfo->user_id));?>"/><br/>
                 <input type="button" id="profile_edit" onclick="profilePage.startUpdate();" value="Edit" /><input type="button" id="profile_logout" onclick="profilePage.logout();" value="Logout" />
             </div>
             <div id="profile_login" class="col-sm-4">
@@ -447,7 +449,7 @@
 ?>
             </div>
         </div>
-        <div id="ProfilePageTopGames" class="row">
+        <div id="HomePageTopGames" class="row">
         </div>
     </div>
     <div id="bottomAd" class="row">
@@ -465,6 +467,11 @@
 </div>
 <?php
     include_once('common/footer.php');
+    if ($userInfoJSON != '') {
+        $userInfoParameters = 'userInfo: "' . $userInfoJSON . '",';
+    } else {
+        $userInfoParameters = '';
+    }
  ?>
 <script type="text/javascript">
 
@@ -475,7 +482,8 @@
         var siteConfiguration = {
                 siteId: <?php echo($siteId);?>,
                 serverStage: "<?php echo($stage);?>",
-                languageCode: navigator.language || navigator.userLanguage
+                languageCode: navigator.language || navigator.userLanguage,
+                userInfo: "<?php echo($userInfoParameters);?>"
             },
             profilePageParameters = {
                 errorFieldId: "<?php echo($errorFieldId);?>",
@@ -486,7 +494,7 @@
         profilePage = varynApp.initApp(varynProfilePage, profilePageParameters);
     });
 
-    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/varyn.js", "/common/varynProfilePage.js");
+    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js", "/common/varynProfilePage.js");
 
 </script>
 </div><!-- page_container -->

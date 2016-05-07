@@ -1,11 +1,11 @@
 /**  commonUtilities.js
- * 
+ *
  * @module commonUtilities
  * @classdesc
  *   A static object of static utility functions for handling common problems
  *   found in JavaScript and web development. I find on every JS project I work
  *   on I need most of these functions, so I pulled them all together in one place.
- * 
+ *
  *   This module includes many function utilities for data transformations such as
  *   base64, url and query string processing, data validation, and cookie handling.
  *
@@ -20,7 +20,7 @@
     _base64KeyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
     _testNumber = 0;
 
-  
+
     /**
      * Return the provided object as a string in key: value; format.
      *
@@ -43,7 +43,7 @@
         }
         return result;
     };
-    
+
     /**
      * Return the provided array as a string in key: value; format.
      *
@@ -74,7 +74,7 @@
         }
         return result;
     };
-    
+
     /**
      * Return the provided object as a string in key: value; format. This version handles
      * functions but is slower than objectToString.
@@ -86,7 +86,7 @@
     commonUtilities.objectStringify = function (object) {
         var subObjects = [], // An array of sub-objects that will later be joined into a string.
             property;
-            
+
         if (object === undefined) {
             return String(object);
         } else if (typeof(object) == "function") {
@@ -116,9 +116,9 @@
         }
         return subObjects.join(", ");
     };
-    
-    /** 
-     * Return the current document query string as an object with 
+
+    /**
+     * Return the current document query string as an object with
      * key/value pairs converted to properties.
      *
      * @method queryStringToObject
@@ -126,17 +126,17 @@
      *   provided then use window.location.search.
      * @return {object} result The query string converted to an object of key/value pairs.
      */
-    commonUtilities.queryStringToObject = function (urlParamterString) {
+    commonUtilities.queryStringToObject = function (urlParameterString) {
         var match,
             search = /([^&=]+)=?([^&]*)/g,
             decode = function (s) {
                 return decodeURIComponent(s.replace(/\+/g, " "));
                 },
             result = {};
-        if ( ! urlParamterString) {
-            urlParamterString = window.location.search.substring(1);
+        if ( ! urlParameterString) {
+            urlParameterString = window.location.search.substring(1);
         }
-        while (match = search.exec(urlParamterString)) {
+        while (match = search.exec(urlParameterString)) {
             result[decode(match[1])] = decode(match[2]);
         }
         return result;
@@ -184,11 +184,11 @@
         }
         return path;
     };
-    
-    /** 
+
+    /**
      * Append a folder or file name to the end of an existing path string.
      *
-     * @method 
+     * @method
      * @param {string} path URI path to append to.
      * @param {string} file folder or file to append.
      * @return {string} path Full URI path.
@@ -207,8 +207,8 @@
         }
         return path;
     };
-    
-    /** 
+
+    /**
      * Replace occurrences of {token} with matching keyed values from parameters array.
      *
      * @method tokenReplace
@@ -219,7 +219,7 @@
     commonUtilities.tokenReplace = function (text, parameters) {
         var token,
             regexMatch;
-        
+
         for (token in parameters) {
             if (parameters.hasOwnProperty(token)) {
                 regexMatch = new RegExp("\{" + token + "\}", 'g');
@@ -228,7 +228,7 @@
         }
         return text;
     };
-    
+
     /**
      * Determine if a variable is "empty", which could depend on what type it is:
      *   any variant when null or undefined
@@ -244,7 +244,7 @@
     commonUtilities.isEmpty = function (field) {
         return (typeof field === 'undefined') || field === null || field === "" || (field instanceof Array && field.length == 0) || field === false || field === 0;
     };
-    
+
     /* ----------------------------------------------------------------------------------
      * Platform and feature detection
      * ----------------------------------------------------------------------------------*/
@@ -345,7 +345,7 @@
         }
         return result;
     };
-    
+
     /**
      * Convert an image located at the URL specified into its Base 64 representation.
      * Because the image is loaded asynchronously over the network a callback function
@@ -364,7 +364,7 @@
             var canvas = document.createElement("canvas"),
                 ctx = canvas.getContext("2d"),
                 dataURL;
-                
+
             canvas.width = this.width;
             canvas.height = this.height;
             ctx.drawImage(this, 0, 0);
@@ -409,7 +409,7 @@
 
     /**
      * Convert a base 64 encoded string to its UTF-8 character coding.
-     * 
+     *
      * @method base64Decode
      * @param {string} input string in base 64 to convert to UTF-8.
      * @return {string} result UTF-8 string.
@@ -454,7 +454,7 @@
     /* ----------------------------------------------------------------------------------
      * Cookie handling functions
      * ----------------------------------------------------------------------------------*/
-     
+
     /**
      * Return the contents fo the cookie indexed by the specified key.
      *
@@ -467,9 +467,9 @@
             return decodeURIComponent(document.cookie.replace(new RegExp("(?:(?:^|.*;)\\s*" + encodeURIComponent(key).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1")) || null;
         } else {
             return null;
-        } 
+        }
     };
-  
+
     /**
      * Set a cookie indexed by the specified key.
      *
@@ -504,7 +504,7 @@
             return true;
         }
     };
-  
+
     /**
      * Remove a cookie indexed by the specified key.
      *
@@ -522,7 +522,7 @@
             return false;
         }
     };
-  
+
     /**
      * Determine if the cookie exists.
      *
@@ -537,7 +537,7 @@
             return false;
         }
     };
-  
+
     /**
      * Return an array of all cookie keys.
      *
@@ -548,13 +548,13 @@
         var allKeys = document.cookie.replace(/((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, "").split(/\s*(?:\=[^;]*)?;\s*/),
             count = allKeys.length,
             index = 0;
-            
+
         for (; index < count; index ++) {
             allKeys[index] = decodeURIComponent(allKeys[index]);
         }
         return allKeys;
     };
-    
+
     /* ----------------------------------------------------------------------------------
      * Very basic social network sharing utilities
      * ----------------------------------------------------------------------------------*/
@@ -609,16 +609,16 @@
         );
     };
 
-    /** 
+    /**
      * A very basic function performance tester. Will track the time it takes to run the
      *        function for the specified number of iterations.
      *
      * @method performanceTest
-     * @param testFunction {function} a function to test. This function takes no parameters. If you 
+     * @param testFunction {function} a function to test. This function takes no parameters. If you
      *        require parameters then wrap into a function that takes no parameters.
      * @param testId {string} any id you want to assign to the test. Not used, but returned.
      * @param totalIterations {int} number of times to call this function.
-     * @return {object} test results object including test number, test function id, duration,
+     * @returns {object} test results object including test number, test function id, duration,
      *         duration units, and total iterations.
      */
     commonUtilities.performanceTest = function (testFunction, testId, totalIterations) {
@@ -626,13 +626,13 @@
             duration,
             i,
             results;
-        
+
         _testNumber ++;
-        start = performance.now();
+        start = global.performance.now();
         for (i = 0; i < totalIterations; i ++) {
             testFunction();
         }
-        duration = performance.now() - start;
+        duration = global.performance.now() - start;
         results = {
             testNumber: _testNumber,
             testFunction: testId,
@@ -642,10 +642,29 @@
         };
         return results;
     };
-    
+
+    /**
+     * Convert a date into a MySQL compatible date string.
+     * If the date provided is a string we will attempt to convert it to a date object using the available
+     * Date() constructor. If no date is provided we will use the current date. If none of these conditions
+     * then we expect the date provided to be a valid Date object.
+     * @param date one of null, a string, or a Date object
+     * @returns {string}
+     */
+    commonUtilities.MySQLDate = function (date) {
+        var mysqlDateString = '';
+        if (date == undefined) {
+            date = new Date();
+        } else if (! (date instanceof Date)) {
+            date = new Date(date);
+        }
+        mysqlDateString = date.toISOString().slice(0, 10);
+        return mysqlDateString;
+    };
+
     /**
      * Validate an array of fields, such as user form inputs, by using a matching array of
-     * field definitions. The result is an array of fields that failed the validation and 
+     * field definitions. The result is an array of fields that failed the validation and
      * the reason for failure. It is important to note the logic is driven from the
      * keyValueArrayOfDefinitions for-each key in that array the key/value is looked up
      * in keyValueArrayOfFields. This way missing fields are handled. Conversely, any
@@ -661,7 +680,7 @@
      *
      * @param keyValueArrayOfDefinitions array A key-value array of field rules where the
      *   key must match the field key in keyValueArrayOfFields. The value of that key is the
-     *   set of rules. The rule set itself is defined as a key/value array of mandatory and 
+     *   set of rules. The rule set itself is defined as a key/value array of mandatory and
      *   optional keys, as follows:
      *   type: string defining the data type expected. Optional, the default is "string".
      *         Valid types are string, number, bool, array, date.
@@ -704,10 +723,10 @@
                         fieldDefinition.optional = false;
                     }
                     if ( ! fieldDefinition.optional && this.isEmpty(fieldValue)) {
-                        result[field] = {code: "required", message: "This field is required."}; 
+                        result[field] = {code: "required", message: "This field is required."};
                     } else if (fieldDefinition.hasOwnProperty('validator')) {
                         if ( ! fieldDefinition.validator(field, fieldValue)) {
-                            result[field] = {code: "validator", message: "This field failed validation."}; 
+                            result[field] = {code: "validator", message: "This field failed validation."};
                         }
                     } else if ( ! (fieldDefinition.optional && this.isEmpty(fieldValue))) {
                         if ( ! fieldDefinition.hasOwnProperty('type')) {
@@ -727,30 +746,30 @@
                         switch (fieldDefinition.type) {
                             case "string":
                                 if (fieldValue.length < fieldDefinition.min) {
-                                    result[field] = {code: "min", message: "The field length is less than the minimum number of characters."}; 
+                                    result[field] = {code: "min", message: "The field length is less than the minimum number of characters."};
                                 } else if (fieldValue.length > fieldDefinition.max) {
-                                    result[field] = {code: "max", message: "The field length is more than the maximum number of characters."}; 
+                                    result[field] = {code: "max", message: "The field length is more than the maximum number of characters."};
                                 } else if (options.length > 0) {
                                     if (options.indexOf(fieldValue) < 0) {
-                                        result[field] = {code: "options", message: "The field value is not an option."}; 
+                                        result[field] = {code: "options", message: "The field value is not an option."};
                                     }
                                 }
                                 break;
                             case "number":
                                 if (fieldValue < fieldDefinition.min) {
-                                    result[field] = {code: "min", message: "The field is less than the minimum value allowed."}; 
+                                    result[field] = {code: "min", message: "The field is less than the minimum value allowed."};
                                 } else if (fieldValue > fieldDefinition.max) {
-                                    result[field] = {code: "max", message: "The field is more than the maximum value allowed."}; 
+                                    result[field] = {code: "max", message: "The field is more than the maximum value allowed."};
                                 } else if (options.length > 0) {
                                     if (options.indexOf(fieldValue) < 0) {
-                                        result[field] = {code: "options", message: "The field value is not an option."}; 
+                                        result[field] = {code: "options", message: "The field value is not an option."};
                                     }
                                 }
                                 break;
                             case "bool":
                                 if (options.length > 0) {
                                     if (options.indexOf(fieldValue) < 0) {
-                                        result[field] = {code: "options", message: "The field value is not an option."}; 
+                                        result[field] = {code: "options", message: "The field value is not an option."};
                                     }
                                 }
                                 break;
@@ -758,21 +777,21 @@
                                 if (fieldValue instanceof Date) {
                                     fieldTime = fieldValue.getTime();
                                     if (fieldTime < fieldDefinition.min) {
-                                        result[field] = {code: "min", message: "The date field is before the minimum date allowed."}; 
+                                        result[field] = {code: "min", message: "The date field is before the minimum date allowed."};
                                     } else if (fieldTime > fieldDefinition.max) {
-                                        result[field] = {code: "max", message: "The date field is after the maximum date allowed."}; 
+                                        result[field] = {code: "max", message: "The date field is after the maximum date allowed."};
                                     } else if (options.length > 0) {
                                         if (options.indexOf(fieldTime) < 0) {
-                                            result[field] = {code: "options", message: "The field value is not an option."}; 
+                                            result[field] = {code: "options", message: "The field value is not an option."};
                                         }
                                     }
                                 }
                                 break;
                             case "array":
                                 if (fieldValue.length < fieldDefinition.min) {
-                                    result[field] = {code: "min", message: "The field contains less than the minimum number of items."}; 
+                                    result[field] = {code: "min", message: "The field contains less than the minimum number of items."};
                                 } else if (fieldValue.length > fieldDefinition.max) {
-                                    result[field] = {code: "max", message: "The field contains more than the maximum number of items."}; 
+                                    result[field] = {code: "max", message: "The field contains more than the maximum number of items."};
                                 } else if (options.length > 0) {
                                     for (i = 0; i < fieldValue.length; i ++) {
                                         if (options.indexOf(fieldValue[i]) < 0) {
@@ -789,7 +808,7 @@
         }
         return result;
     };
-    
+
     /* ----------------------------------------------------------------------------------
      * Setup for AMD, node, or standalone reference the commonUtilities object.
      * ----------------------------------------------------------------------------------*/
