@@ -11,7 +11,7 @@ var varyn = function (parameters) {
             originWhiteList: ["www.enginesis.com", "games.enginesis.com", "metrics.enginesis.com", "www.enginesis-l.com", "games.enginesis-l.com", "metrics.enginesis-l.com", "www.enginesis-q.com", "games.enginesis-q.com", "metrics.enginesis-q.com"],
             enginesisSessionCookieName: 'engsession',
             varynLoginCookieName: 'varynsession',
-            varynUserInfoCookieName: 'varynuserinfo',
+            varynUserInfoCookieName: 'varynuser',
             varynFacebookAppId: '489296364486097',
             developerKey: 'deaddeaddeaddead',
             siteId: parameters.siteId,
@@ -48,6 +48,14 @@ var varyn = function (parameters) {
             networkId = siteConfiguration.userInfo.networkId;
         }
         return networkId;
+    }
+
+    function getVarynUserInfoFromCookie () {
+        var userInfoJSON = commonUtilities.cookieGet(siteConfiguration.varynUserInfoCookieName);
+        if (userInfoJSON != null && userInfoJSON != '') {
+            return JSON.parse(userInfoJSON);
+        }
+        return null;
     }
 
     return {
@@ -102,6 +110,11 @@ var varyn = function (parameters) {
                 default:
                     break;
             }
+        },
+
+        getVarynUserInfo: function () {
+            // user info could come from authtok or cookie.
+            return getVarynUserInfoFromCookie();
         },
 
         getEnginesisSession: function () {
@@ -878,7 +891,9 @@ var varyn = function (parameters) {
                     case "UserLoginCoreg":
                         var userInfo = results.result.row;
                         if (userInfo) {
-                            console.log('UserLoginCoreg replied with ' + userInfo.site_user_id);
+                            document.location.href = "/profile.php";
+                        } else {
+                            // TODO: User is not logged in, we should display an error message.
                         }
                         break;
 
