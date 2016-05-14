@@ -1003,3 +1003,7 @@ input[type=range].validation-slider:focus::-ms-fill-upper {
     width: 90px;
     height: 90px;
 }
+
+.hljs {
+    background: transparent;
+}
