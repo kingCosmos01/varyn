@@ -27,6 +27,7 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="description" content="Varyn makes games using technology that performs on the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between desktop, tablet, and smart-phone.">
     <meta name="author" content="Varyn">
+    <link href="/common/hljs.css" rel="stylesheet">
     <link href="/common/bootstrap.min.css" rel="stylesheet">
     <link href="/common/carousel.css" rel="stylesheet">
     <link href="/common/varyn.css" rel="stylesheet">
@@ -176,16 +177,27 @@
     </div>
     <div class="panel panel-default div-padded">
         <h2>Code</h2>
-<pre><code>
-    completed = function( event ) {
-
+<pre><code class="javascript">  completed = function( event ) {
         // readyState === "complete" is good enough for us to call the dom ready in oldIE
-        if ( document.addEventListener || event.type === "load" || document.readyState === "complete" ) {
+        if (document.addEventListener || event.type === "load" || document.readyState === "complete") {
             detach();
             jQuery.ready();
         }
     };
 </code></pre>
+    </div>
+    <div class="panel panel-default div-padded">
+        <h2>Forms</h2>
+    </div>
+    <div class="panel panel-default div-padded">
+        <h2>Posts &amp; Item Lists</h2>
+        <div class="item">
+            <img class="avatarThumbnail" src="images/avatar_tmp.jpg" />
+            <div><span>Dark Matters</span><span>&dot; 14-Jan-2016 4:48 PM</span></div>
+            <h2>This is the title of the article</h2>
+            <p>This area holds the abstract or summary of the article. We will allow for up to 4 lines of text here</p>
+            <div>This area for Actions - Full Article, Reply, Ratings, Likes, etc.</div>
+        </div>
     </div>
 </div><!-- /.container -->
 <?php
@@ -252,8 +264,9 @@
 
         varynApp = varyn(siteConfiguration);
         varynApp.initApp(varynTemplatePage, pageParameters);
+        hljs.initHighlightingOnLoad();
         });
-    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/varyn.js");
+    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/hljs.min.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/varyn.js");
 
 </script>
 </body>
