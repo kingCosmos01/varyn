@@ -134,6 +134,18 @@
             <dd>A description list is perfect for defining terms.</dd>
         </dl>
         </p>
+        <p>
+            Montserrat - ABC - xyz - 1234567890
+        </p>
+        <p class="entry-content-strong">
+            MontserratBold - ABC - xyz - 1234567890
+        </p>
+        <p class="entry-content">
+            AftaSansRegular - ABC - xyz - 1234567890
+        </p>
+        <p class="entry-content-info">
+            AftaSansItalic - ABC - xyz - 1234567890
+        </p>
     </div>
     <div class="panel panel-default div-padded">
         <h2>Tables</h2>
@@ -188,15 +200,41 @@
     </div>
     <div class="panel panel-default div-padded">
         <h2>Forms</h2>
+        <form>
+            <div class="form-group">
+                <label for="exampleInputEmail1">Email address</label>
+                <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputPassword1">Password</label>
+                <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Password">
+            </div>
+            <div class="form-group">
+                <label for="exampleInputFile">Profile image:</label>
+                <input type="file" id="exampleInputFile">
+                <p class="help-block">Use an image to represent yourself in leader boards and posts. Or use your Facebook, Google, Twitter, or Gravitar.</p>
+            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox"> I agree to the <a href="/tos.php">terms</a>
+                </label>
+            </div>
+            <button type="submit" class="btn btn-default">Submit</button>
+        </form>
     </div>
     <div class="panel panel-default div-padded">
         <h2>Posts &amp; Item Lists</h2>
-        <div class="item">
-            <img class="avatarThumbnail" src="images/avatar_tmp.jpg" />
-            <div><span>Dark Matters</span><span>&dot; 14-Jan-2016 4:48 PM</span></div>
-            <h2>This is the title of the article</h2>
-            <p>This area holds the abstract or summary of the article. We will allow for up to 4 lines of text here</p>
-            <div>This area for Actions - Full Article, Reply, Ratings, Likes, etc.</div>
+        <div class="container-fluid post-item bg-info">
+            <div class="col-md-1 post-left-column">
+                <img class="avatarThumbnail" src="images/avatar_tmp.jpg" />
+                <div class="post-actions"><span class="glyphicon glyphicon-empty-star"></span></div>
+            </div>
+            <div class="col-md-11 post-content">
+                <div class="help-block"><strong>Dark Matters</strong> &bull; <span class="post-date">14-Jan-2016 4:48 PM</span></div>
+                <h2>This is the title of the article</h2>
+                <p>This area holds the abstract or summary of the article. We will allow for up to 4 lines of text here. This area holds the abstract or summary of the article. We will allow for up to 4 lines of text here. This area holds the abstract or summary of the article. We will allow for up to 4 lines of text here. This area holds the abstract or summary of the article. We will allow for up to 4 lines of text here. <a href="#">Read more...</a></p>
+                <div class="help-block">This area for Actions - Full Article, Reply, Ratings, Likes, etc.</div>
+            </div>
         </div>
     </div>
 </div><!-- /.container -->
