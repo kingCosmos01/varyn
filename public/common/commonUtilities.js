@@ -556,6 +556,62 @@
     };
 
     /* ----------------------------------------------------------------------------------
+     * Local storage helper functions
+     * ----------------------------------------------------------------------------------*/
+
+    /**
+     * Determine if this device supports local storage
+     * @returns {boolean}
+     */
+    commonUtilities.hasHTML5LocalStorage = function () {
+        var hasSupport = false,
+            storage,
+            testKey;
+
+        try {
+            hasSupport = 'localStorage' in window && window['localStorage'] !== null;
+            if (hasSupport) { // even if "supported" make sure we can write and read from it
+                storage = window.localStorage;
+                testKey = 'commonUtilities';
+                storage.setItem(testKey, '1');
+                storage.removeItem(testKey);
+            }
+        } catch (e) {
+            hasSupport = false;
+        }
+        return hasSupport;
+    };
+
+    /**
+     * save object in local storage
+     * @param key
+     * @param object
+     */
+    commonUtilities.saveObjectWithKey = function (key, object) {
+        if (commonUtilities.hasHTML5LocalStorage() && key != null && object != null) {
+            window.localStorage[key] = JSON.stringify(object);
+        }
+    };
+
+    /**
+     * Return object from local storage
+     * @param key
+     * @returns {*}
+     */
+    commonUtilities.loadObjectWithKey = function (key) {
+        var jsonData,
+            object = null;
+
+        if (commonUtilities.hasHTML5LocalStorage() && key != null) {
+            jsonData = window.localStorage[key];
+            if (jsonData != null) {
+                object = JSON.parse(jsonData);
+            }
+        }
+        return object;
+    };
+
+    /* ----------------------------------------------------------------------------------
      * Very basic social network sharing utilities
      * ----------------------------------------------------------------------------------*/
     // 	<i tabindex="-1" class="shareIcon share_facebook socialIcon-facebook-squared-1"></i>

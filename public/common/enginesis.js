@@ -92,13 +92,10 @@ var enginesis = function (parameters) {
         var enginesisParameters = serverParamObjectMake(fn, parameters),
             crossOriginRequest = new XMLHttpRequest();
 
-        if (typeof crossOriginRequest.withCredentials === undefined) {
-            debugLog("CORS is not supported");
-        } else if ( ! disabled) {
+        if ( ! disabled) {
             crossOriginRequest.onload = function(e) {
                 requestComplete(this.responseText, overRideCallBackFunction);
             };
-
             crossOriginRequest.onerror = function(e) {
                 debugLog("CORS request error " + crossOriginRequest.status + " " + e.toString());
                 // TODO: Enginesis.requestError(errorMessage); generate a canned error response (see PHP code)
@@ -113,7 +110,7 @@ var enginesis = function (parameters) {
     };
 
     var serverParamObjectMake = function (whichCommand, additionalParameters) {
-        var serverParams = {
+        var serverParams = { // these are defaults that could be overridden with additionalParameters
             fn: whichCommand,
             language_code: languageCode,
             site_id: siteId,
@@ -124,6 +121,7 @@ var enginesis = function (parameters) {
         };
         if (loggedInUserId != 0) {
             serverParams.logged_in_user_id = loggedInUserId;
+            serverParams.authtok = authToken;
         }
         if (additionalParameters != null) {
             for (var key in additionalParameters) {
@@ -276,6 +274,7 @@ var enginesis = function (parameters) {
 
         ShareHelper: ShareHelper,
         gameId: gameId,
+        siteId: siteId,
         gameWidth: gameWidth,
         gameHeight: gameHeight,
         gamePluginId: gamePluginId,
@@ -283,6 +282,10 @@ var enginesis = function (parameters) {
 
         versionGet: function () {
             return VERSION;
+        },
+
+        isUserLoggedIn: function () {
+            return loggedInUserId != 0 && authToken != '';
         },
 
         getLastError: function () {
@@ -463,6 +466,18 @@ var enginesis = function (parameters) {
             return sendRequest("GamePlayEventListByMostPlayed", {start_date: startDate, end_date: endDate, num_items: numItems}, overRideCallBackFunction);
         },
 
+        gameRatingGet: function (gameId, overRideCallBackFunction) {
+            return sendRequest("GameRatingGet", {game_id: gameId}, overRideCallBackFunction);
+        },
+
+        gameRatingList: function (gameId, numberOfGames, overRideCallBackFunction) {
+            return sendRequest("GameRatingList", {game_id: gameId, num_items: numberOfGames}, overRideCallBackFunction);
+        },
+
+        gameRatingUpdate: function (gameId, rating, overRideCallBackFunction) {
+            return sendRequest("GameRatingUpdate", {game_id: gameId, rating: rating}, overRideCallBackFunction);
+        },
+
         newsletterCategoryList: function (overRideCallBackFunction) {
             return sendRequest("NewsletterCategoryList", {}, overRideCallBackFunction);
         },
@@ -500,7 +515,7 @@ var enginesis = function (parameters) {
             captchaResponse = 'DEADMAN';
             return sendRequest("RegisteredUserCreate",
                 {
-                    site_id: this.site_id,
+                    site_id: siteId,
                     captcha_id: captchaId,
                     captcha_response: captchaResponse,
                     user_name: userName,
@@ -533,7 +548,7 @@ var enginesis = function (parameters) {
             captchaResponse = 'DEADMAN';
             return sendRequest("RegisteredUserUpdate",
                 {
-                    site_id: this.site_id,
+                    site_id: siteId,
                     captcha_id: captchaId,
                     captcha_response: captchaResponse,
                     user_name: userName,
@@ -554,14 +569,14 @@ var enginesis = function (parameters) {
                 }, overRideCallBackFunction);
         },
 
-        registeredUserSecurityUpdate: function (captcha_id, captcha_response, password, security_question_id, overRideCallBackFunction) {
-            return sendRequest("RegisteredUserSecurityUpdate",
-                {
-                    site_id: this.site_id,
+        registeredUserSecurityUpdate: function (captcha_id, captcha_response, security_question_id, security_question, security_answer, overRideCallBackFunction) {
+            return sendRequest("RegisteredUserSecurityUpdate", {
+                    site_id: siteId,
                     captcha_id: captchaId,
                     captcha_response: captchaResponse,
-                    password: password,
-                    security_question_id: security_question_id
+                    security_question_id: security_question_id,
+                    security_question: security_question,
+                    security_answer: security_answer
                 }, overRideCallBackFunction);
         },
 
@@ -569,6 +584,29 @@ var enginesis = function (parameters) {
             // this function generates the email that is sent to the email address matching username or email address
             // that email leads to the change password web page
             return sendRequest("RegisteredUserForgotPassword", {user_name: userName, email: email}, overRideCallBackFunction);
+        },
+
+        registeredUserRequestPasswordChange: function (overRideCallBackFunction) {
+            return sendRequest("RegisteredUserRequestPasswordChange", {
+                    site_id: siteId
+                }, overRideCallBackFunction);
+        },
+
+        registeredUserPasswordChange: function (captcha_id, captcha_response, password, secondary_password, overRideCallBackFunction) {
+            return sendRequest("RegisteredUserPasswordChange", {
+                    site_id: siteId,
+                    captcha_id: captchaId,
+                    captcha_response: captchaResponse,
+                    password: password,
+                    secondary_password: secondary_password
+                }, overRideCallBackFunction);
+        },
+
+        registeredUserSecurityGet: function (overRideCallBackFunction) {
+            return sendRequest("RegisteredUserSecurityGet", {
+                    site_id: siteId,
+                    site_user_id: ''
+                }, overRideCallBackFunction);
         },
 
         registeredUserGet: function (userId, siteUserId, overRideCallBackFunction) {

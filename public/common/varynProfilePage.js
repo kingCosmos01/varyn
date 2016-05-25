@@ -23,9 +23,16 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             succeeded = results.status.success;
             errorMessage = results.status.message;
             switch (enginesisResponse.fn) {
-                case "GameListListGames":
+                case 'GameListListGames':
                     if (succeeded == 1) {
                         varynApp.gameListGamesResponse(results.result, "ProfilePageTopGames", null, false);
+                    }
+                    break;
+
+                case 'RegisteredUserSecurityGet':
+                    if (succeeded == 1) {
+                        commonUtilities.saveObjectWithKey('VarynSecurityInfo', results.result);
+                        varynProfilePage.securityFieldsPopulate();
                     }
                     break;
 
@@ -54,6 +61,7 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             varynApp.onChangeRegisterUserName($('#register_form_username').get(0), 'register_user_name_unique'); // in case field is pre-populated
             enginesisSession.gameListListGames(siteConfiguration.gameListIdTop, this.enginesisCallBack);
             this.onPageLoadSetFocus();
+            this.securityFieldsPopulate();
             // Google+ login button support
 /*            gapi.signin2.render('g-signin2', {
                 'scope': 'https://www.googleapis.com/auth/plus.login',
@@ -115,19 +123,19 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             $("#register_form_password").removeClass("popup-form-input-error").addClass("popup-form-input");
             $("#register_form_email").removeClass("popup-form-input-error").addClass("popup-form-input");
             varynApp.showErrorMessage("", "");
-            if (errorMessage == "" && ! isValidUserName(userName)) {
+            if (errorMessage == "" && ! varynApp.isValidUserName(userName)) {
                 errorMessage = "User name is not acceptable. Please enter your user name.";
                 errorField = "register_form_username";
             }
-            if (errorMessage == "" && ! isValidPassword(password)) {
+            if (errorMessage == "" && ! varynApp.isValidPassword(password)) {
                 errorMessage = "Password is not acceptable, at least 4 characters. Please retry your password.";
                 errorField = "register_form_password";
             }
-            if (errorMessage == "" && ! isValidEmail(email)) {
+            if (errorMessage == "" && ! varynApp.isValidEmail(email)) {
                 errorMessage = "Email " + email + " doesn't look right. Please enter a proper email address.";
                 errorField = "register_form_email";
             }
-            if (errorField == "" && ! isValidDateOfBirth(dob)) {
+            if (errorField == "" && ! varynApp.isValidDateOfBirth(dob)) {
                 errorMessage = "You must be at least 13 years of age to register an account on this site.";
                 errorField = "register_form_dob";
             }
@@ -145,8 +153,45 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             return errorMessage == "";
         },
 
+        updateFormValidation: function () {
+            var userName = $("input[name=register_form_username]").val(),
+                email = $("input[name=register_form_email]").val(),
+                dob = $("input[name=register_form_dob]").val(),
+                errorMessage = "",
+                errorField = "";
+
+            $("#register_form_username").removeClass("popup-form-input-error").addClass("popup-form-input");
+            $("#register_form_email").removeClass("popup-form-input-error").addClass("popup-form-input");
+            varynApp.showErrorMessage("", "");
+            if (errorMessage == "" && ! varynApp.isValidUserName(userName)) {
+                errorMessage = "User name is not acceptable. Please enter your user name.";
+                errorField = "register_form_username";
+            }
+            if (errorMessage == "" && ! varynApp.isValidEmail(email)) {
+                errorMessage = "Email " + email + " doesn't look right. Please enter a proper email address.";
+                errorField = "register_form_email";
+            }
+            if (errorField == "" && ! varynApp.isValidDateOfBirth(dob)) {
+                errorMessage = "You must be at least 13 years of age to register an account on this site.";
+                errorField = "register_form_dob";
+            }
+            // TODO:
+            // full-name is valid
+            // Location, tagline, about-me all are valid strings, no crazy html crap (b/i/strong emojis are ok)
+            if (errorMessage != "") {
+                varynApp.showErrorMessage(errorMessage, errorField);
+            }
+            return errorMessage == "";
+        },
+
         logout: function () {
             window.location.href = "/profile.php?action=logout";
+        },
+
+        cancelUpdate: function (event) {
+            window.location.href = "/profile.php?action=cancel";
+            event.preventDefault();
+            return false;
         },
 
         startUpdate: function () {
@@ -165,6 +210,17 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             varynApp.showRegistrationPopup(false);
         },
 
+        securityFieldsPopulate: function () {
+            var securityInfo = commonUtilities.loadObjectWithKey('VarynSecurityInfo');
+            if (securityInfo == null) {
+                enginesisSession.registeredUserSecurityGet(enginesisCallBack);
+            } else {
+                $("#register_form_new_password").val('');
+                $("#register_form_question").val(securityInfo['security_question']);
+                $("#register_form_answer").val(securityInfo['security_answer']);
+            }
+        },
+
         onGapiSuccess: function (googleUser) {
 
         },
@@ -173,6 +229,12 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
 
         },
 
+        /**
+         * When you request a Facebook login (e.g. click the Login to Facebook button) we use Facebook's SDK to
+         * determine if we have a logged in user. If the user is logged in we need to refresh the page so the
+         * Enginesis/PHP code can pick it up. If the user does not complete a login then do nothing.
+         * @returns {boolean}
+         */
         loginFacebook: function () {
             FB.login(function(response) {
                 var registrationParameters = {};
@@ -189,6 +251,7 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
                         varynApp.registerSSO(registrationParameters, registrationParameters.networkId);
                     });
                 } else {
+                    // TODO: I'm not sure what we do here, should we message the UI? "Login was not successful, do you want to try again?"
                     console.log('User cancelled login or did not fully authorize.');
                 }
             }, {scope: 'email', return_scopes: true});

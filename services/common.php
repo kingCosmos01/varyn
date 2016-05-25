@@ -12,6 +12,7 @@
  *   $isLoggedIn = true if the user is logged in
  *
  */
+    session_start();
     require_once('serverConfig.php');
     require_once('Enginesis.php');
     date_default_timezone_set('America/New_York');
@@ -291,14 +292,14 @@
         setcookie(VARYN_SESSION_COOKIE, $userInfoJSON, time() + (SESSION_DAYSTAMP_HOURS * 60 * 60), '/', $domain);
     }
 
-    function getVarynUserCookieJSON () {
-        return $_COOKIE[VARYN_SESSION_COOKIE];
+    function getVarynUserCookie () {
+        return isset($_COOKIE[VARYN_SESSION_COOKIE]) ? $_COOKIE[VARYN_SESSION_COOKIE] : null;
     }
 
-    function getVarynUserCookie () {
+    function getVarynUserCookieObject () {
         $userInfo = null;
-        $userInfoJSON = $_COOKIE[VARYN_SESSION_COOKIE];
-        if ( ! empty($userInfoJSON)) {
+        $userInfoJSON = getVarynUserCookie();
+        if ($userInfoJSON != null) {
             $userInfo = json_decode($userInfoJSON);
         }
         return $userInfo;
@@ -315,6 +316,7 @@
     $webServer = '';
     $enginesis = new Enginesis($siteId, null, $developerKey);
     $stage = $enginesis->getServerStage();
+    setErrorReporting($stage != ''); // turn on errors for all stages except LIVE TODO: Remove from above when we are going live.
     $isLoggedIn = $enginesis->isLoggedInUser();
     $sqlDatabaseConnectionInfo = null;
     setDatabaseConnectionInfo($stage);

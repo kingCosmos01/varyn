@@ -28,26 +28,26 @@ var varyn = function (parameters) {
             minUserNameLength: 3,
             minimumAge: 13
         },
+        userInfoKey = 'VarynAppUserInfo',
+        unconfirmedNetworkId = 1,
         currentPage = '',
         waitingForUserNameReply = false,
         domImage,
         enginesisSession = null,
         pageViewParameters = null;
 
-    if (parameters.userInfo !== undefined && parameters.userInfo != '') {
-        siteConfiguration.userInfo = JSON.parse(parameters.userInfo);
-    }
-
     /**
      * Network id is set by the Enginesis server based on what type of user login was performed.
      * @returns {number}
      */
     function getNetworkId () {
-        var networkId = 1;
+        var resultNetworkId;
         if (siteConfiguration.userInfo !== undefined && siteConfiguration.userInfo != null && siteConfiguration.userInfo.networkId !== undefined) {
-            networkId = siteConfiguration.userInfo.networkId;
+            resultNetworkId = siteConfiguration.userInfo.networkId;
+        } else {
+            resultNetworkId = unconfirmedNetworkId;
         }
-        return networkId;
+        return resultNetworkId;
     }
 
     function getVarynUserInfoFromCookie () {
@@ -66,22 +66,29 @@ var varyn = function (parameters) {
         initApp: function(pageView, pageViewParameterObject) {
 
             var enginesisParameters = {
-                siteId: siteConfiguration.siteId,
-                gameId: siteConfiguration.gameId || 0,
-                gameGroupId: siteConfiguration.gameGroupId || 0,
-                serverStage: 'enginesis.' + siteConfiguration.serverHostDomain,
-                authToken: siteConfiguration.authToken || '',
-                developerKey: siteConfiguration.developerKey,
-                languageCode: this.parseLanguageCode(siteConfiguration.languageCode),
-                callBackFunction: this.enginesisCallBack.bind(this)
-            },
-            pageViewTemplate = null;
+                    siteId: siteConfiguration.siteId,
+                    gameId: siteConfiguration.gameId || 0,
+                    gameGroupId: siteConfiguration.gameGroupId || 0,
+                    serverStage: 'enginesis.' + siteConfiguration.serverHostDomain,
+                    authToken: siteConfiguration.authToken || '',
+                    developerKey: siteConfiguration.developerKey,
+                    languageCode: this.parseLanguageCode(siteConfiguration.languageCode),
+                    callBackFunction: this.enginesisCallBack.bind(this)
+               },
+               pageViewTemplate = null;
 
             currentPage = this.getCurrentPage();
             pageViewParameters = pageViewParameterObject;
             document.domain = siteConfiguration.serverHostDomain;
             enginesisSession = enginesis(enginesisParameters);
             varynApp.checkLoggedInSSO(getNetworkId());
+            if (enginesisSession.isUserLoggedIn()) {
+                if (pageViewParameterObject['userInfo'] !== undefined && pageViewParameterObject.userInfo != '') {
+                    siteConfiguration.userInfo = JSON.parse(pageViewParameterObject.userInfo);
+                } else {
+                    siteConfiguration.userInfo = commonUtilities.loadObjectWithKey(userInfoKey);
+                }
+            }
             if (pageViewParameters.showSubscribe !== undefined && pageViewParameters.showSubscribe == '1') {
                 varynApp.showSubscribePopup();
             }
@@ -148,6 +155,16 @@ var varyn = function (parameters) {
             return /^[a-zA-Z0-9_@!~\$\.\-\|\s?]{3,20}$/.test(userName);
         },
 
+        isChangedUserName: function (newUserName) {
+            var userInfo = siteConfiguration.userInfo,
+                isChanged = true;
+
+            if (userInfo != null && userInfo.user_name == newUserName) {
+                isChanged = false;
+            }
+            return isChanged;
+        },
+
         /**
          * Determines if a password appears to be a valid format.
          * @param {string} password to check.
@@ -159,9 +176,9 @@ var varyn = function (parameters) {
         },
 
         /**
-         * Compute Age given date of birth. Actually, computer number of years since date provided.
-         * @param {string} Date of birth is a string date format from an input type=date control.
-         * @returns {number}
+         * Compute Age given date of birth. Actually, compute number of years since date provided.
+         * @param {string} Date of birth is a string date format from an input type=date control, we expect yyyy-mm-dd.
+         * @returns {number} Number of years.
          */
         ageInYearsFromNow: function (dob) {
             var today = new Date(),
@@ -518,12 +535,13 @@ var varyn = function (parameters) {
 
         /**
          * Single sign-on registration. In this case, the user id comes from a 3rd party network and we need to map that
-         * to an new Enginesis user_id.
-         * @param {object} registrationParameters is a KV object. THe keys must match the Enginesis UserLoginCoreg API
+         * to an new Enginesis user_id. Additional processing/error checking must be handled in the Enginesis callback.
+         * @param {object} registrationParameters is a KV object. The keys must match the Enginesis UserLoginCoreg API
          * @param {int} networkId is the network identifier, see Enginesis documentation
          */
         registerSSO: function (registrationParameters, networkId) {
-            if (registrationParameters != undefined) {
+            if (registrationParameters != undefined && registrationParameters != null) {
+                unconfirmedNetworkId = networkId;
                 enginesisSession.userLoginCoreg(registrationParameters, networkId, null);
             }
         },
@@ -535,7 +553,8 @@ var varyn = function (parameters) {
          * @param {int} networkId is the network identifier, see Enginesis documentation
          */
         loginSSO: function (registrationParameters, networkId) {
-            if (registrationParameters != undefined) {
+            if (registrationParameters != undefined && registrationParameters != null) {
+                unconfirmedNetworkId = networkId;
                 enginesisSession.userLoginCoreg(registrationParameters, networkId, null);
             }
         },
@@ -552,6 +571,7 @@ var varyn = function (parameters) {
                     // if we get here, the user has approved our app AND they are logged in.
                     // We need to check this state IF a user is not currently logged in, this would indicate they should be logged in
                     // automatically with Facebook
+                    unconfirmedNetworkId = 2;
                     console.log('VARYNAPP Successful Facebook login for: ' + response.name + ' (' + response.id + ')');
                     // this.loginSSO(); ???
                 });
@@ -594,6 +614,7 @@ var varyn = function (parameters) {
          * @param {string} DOM id that will receive update of name status either acceptable or unacceptable.
          */
         onChangeRegisterUserName: function (element, domIdImage) {
+            var userName;
             if ( ! waitingForUserNameReply && element != null) {
                 if (element.target != null) {
                     element = element.target;
@@ -601,13 +622,17 @@ var varyn = function (parameters) {
                 if (domIdImage == null) {
                     domIdImage = $(this).data("target");
                 }
-                var userName = element.value.toString();
-                if (userName && varynApp.isValidUserName(userName)) {
-                    waitingForUserNameReply = true;
-                    domImage = domIdImage;
-                    enginesisSession.userGetByName(userName, varynApp.onChangeRegisteredUserNameResponse.bind(varynApp));
+                userName = element.value.toString();
+                if (varynApp.isChangedUserName(userName)) {
+                    if (userName && varynApp.isValidUserName(userName)) {
+                        waitingForUserNameReply = true;
+                        domImage = domIdImage;
+                        enginesisSession.userGetByName(userName, varynApp.onChangeRegisteredUserNameResponse.bind(varynApp));
+                    } else {
+                        this.setUserNameIsUnique(domIdImage, false);
+                    }
                 } else {
-                    this.setUserNameIsUnique(domIdImage, false);
+                    this.setUserNameIsUnique(domIdImage, true);
                 }
             }
         },
@@ -891,7 +916,8 @@ var varyn = function (parameters) {
                     case "UserLoginCoreg":
                         var userInfo = results.result.row;
                         if (userInfo) {
-                            document.location.href = "/profile.php";
+                            // TODO: User is now logged in, refresh the page and the page refresh should be able to pick up the logged in state.
+                            document.location.href = "/profile.php?network_id=" + getNetworkId();
                         } else {
                             // TODO: User is not logged in, we should display an error message.
                         }

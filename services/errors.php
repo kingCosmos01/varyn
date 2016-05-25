@@ -10,17 +10,20 @@
 
     abstract class EnginesisErrors {
         const INVALID_PARAM = 'INVALID_PARAM';
+        const INVALID_LOGIN = 'INVALID_LOGIN';
         const SERVER_DID_NOT_REPLY = 'SERVER_DID_NOT_REPLY';
         const SERVER_RESPONSE_NOT_VALID = 'SERVER_RESPONSE_NOT_VALID';
         const SERVER_SYSTEM_ERROR = 'SERVER_SYSTEM_ERROR';
+        const SYSTEM_ERROR = 'SYSTEM_ERROR';
     }
 
     $errorCodeTable = array (
+        EnginesisErrors::INVALID_PARAM => 'A required parameter is missing or not valid.',
         'INVALID_USER_ID' => 'There is no user registered with the provided information.',
         'NAME_IN_USE' => 'The user name is already in use. Please choose another user name.',
         'REGISTRATION_NOT_CONFIRMED' => 'Registration has not been confirmed.',
-        'INVALID_LOGIN' => 'Your credentials do not match.',
-        'SYSTEM_ERROR' => 'There was a system error processing your request. Information has been sent to support to remedy the problem.'
+        EnginesisErrors::INVALID_LOGIN => 'Your credentials do not match.',
+        EnginesisErrors::SYSTEM_ERROR => 'There was a system error processing your request. Information has been sent to support to remedy the problem.'
     );
 
     function errorToLocalString ($status_msg) {

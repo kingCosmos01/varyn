@@ -10,6 +10,21 @@
     define('SESSION_DAYSTAMP_HOURS', 48);
     define('SESSION_USERID_CACHE', 'engsession_uid');
 
+    abstract class EnginesisNetworks {
+        const Enginesis = 1;
+        const Facebook = 2;
+        const OpenSocial = 3;
+        const Flux = 4;
+        const AddictingGames = 5;
+        const Google = 7;
+        const BeBo = 8;
+        const Friendster = 9;
+        const MySpace = 10;
+        const Twitter = 11;
+        const Hi5 = 11;
+        const AOL = 12;
+    }
+
     class Enginesis
     {
         private $m_server;
@@ -18,9 +33,12 @@
         private $m_avatarEndPoint;
         private $m_lastError;
         private $m_siteId;
+        private $m_gameId;
+        private $m_gameGroupId;
         private $m_isLoggedIn;
         private $m_userId;
         private $m_siteUserId;
+        private $m_networkId;
         private $m_userName;
         private $m_userAccessLevel;
         private $m_stage;
@@ -47,9 +65,12 @@
             $this->m_userId = 0;
             $this->m_userName = '';
             $this->m_siteUserId = null;
+            $this->m_networkId = 1;
             $this->m_userAccessLevel = 0;
             $this->m_isLoggedIn = false;
             $this->m_syncId = 0;
+            $this->m_gameId = 0;
+            $this->m_gameGroupId = 0;
             $this->m_serviceProtocol = $this->getServiceProtocol();
             $this->m_responseFormat = 'json';
             $this->m_debugFunction = null;
@@ -89,6 +110,87 @@
             $this->m_isLoggedIn = false;
             $this->m_syncId = 0;
             $this->m_serviceProtocol = $this->getServiceProtocol();
+        }
+
+        /**
+         * Determine if the $id is valid.
+         * @param $id
+         * @return bool
+         */
+        public function isValidId ($id) {
+            return $id != null && $id > 0;
+        }
+
+        /**
+         * Determine if the $id is not valid.
+         * @param $id
+         * @return bool
+         */
+        public function isInvalidId ($id) {
+            return ! $this->isValidId($id);
+        }
+
+        /**
+         * Determine the site-id.
+         * @return int
+         */
+        public function getSiteId () {
+            return $this->m_siteId;
+        }
+
+        /**
+         * Determine the user-id.
+         * @return int
+         */
+        public function getUserId () {
+            if ( ! $this->m_authTokenWasValidated) {
+                $this->restoreUserFromAuthToken();
+            }
+            return $this->m_userId;
+        }
+
+        /**
+         * Determine the user-name.
+         * @return string
+         */
+        public function getUserName () {
+            if ( ! $this->m_authTokenWasValidated) {
+                $this->restoreUserFromAuthToken();
+            }
+            return $this->m_userName;
+        }
+
+        /**
+         * Determine the user access level.
+         * @return int
+         */
+        public function getUserAccessLevel () {
+            if ( ! $this->m_authTokenWasValidated) {
+                $this->restoreUserFromAuthToken();
+            }
+            return $this->m_userAccessLevel;
+        }
+
+        /**
+         * Determine the network used to validate this user.
+         * @return int
+         */
+        public function getNetworkId () {
+            if ( ! $this->m_authTokenWasValidated) {
+                $this->restoreUserFromAuthToken();
+            }
+            return $this->m_networkId;
+        }
+
+        /**
+         * Determine the user-id on the SSO network.
+         * @return string
+         */
+        public function getSiteUserId () {
+            if ( ! $this->m_authTokenWasValidated) {
+                $this->restoreUserFromAuthToken();
+            }
+            return $this->m_siteUserId;
         }
 
         /**
@@ -229,7 +331,10 @@
         private function sessionCookieDomain ($serverName = null) {
             $newDomain = null;
             $domain = $this->serverTail($serverName);
-            return $domain;
+            if (strlen($domain) > 0) {
+                $newDomain = '.' . $domain;
+            }
+            return $newDomain;
         }
 
         /**
@@ -263,16 +368,21 @@
                 $sessionUserId = 0;
                 $sessionUserName = '';
                 $sessionSiteUserId = '';
+                $sessionNetworkId = 1;
                 $sessionAccessLevel = 0;
-                $this->sessionValidate($authToken, $sessionSiteId, $sessionUserId, $sessionSiteUserId, $sessionUserName, $sessionAccessLevel);
-                if ($sessionUserId != 0) {
+                $errorCode = $this->sessionValidate($authToken, $sessionSiteId, $sessionUserId, $sessionUserName, $sessionSiteUserId, $sessionAccessLevel, $sessionNetworkId);
+                if ($errorCode == '' && $sessionUserId != 0) {
                     $this->m_siteId = $sessionSiteId;
                     $this->m_userId = $sessionUserId;
                     $this->m_userName = $sessionUserName;
                     $this->m_siteUserId = $sessionSiteUserId;
+                    $this->m_networkId = $sessionNetworkId;
                     $this->m_userAccessLevel = $sessionAccessLevel;
-                    $this->m_authToken = $this->authTokenMake($sessionSiteId, $sessionUserId, $sessionSiteUserId, $sessionUserName, $sessionAccessLevel);
+                    $this->m_authToken = $this->authTokenMake($sessionSiteId, $sessionUserId, $sessionUserName, $sessionSiteUserId, $sessionAccessLevel, $sessionNetworkId);
                     $this->m_authTokenWasValidated = true;
+                // } else {
+                    // echo("<h3>restoreUserFromAuthToken FAILED</h3>");
+                    // exit(0);
                 }
             }
             if ( ! $this->m_authTokenWasValidated) {
@@ -288,9 +398,10 @@
          * @param $siteUserId
          * @param $userName
          * @param $accessLevel
-         * @return encrypted user authentication token
+         * @param $networkId
+         * @returns {string} encrypted user authentication token
          */
-        private function authTokenMake ($siteId, $userId, $siteUserId, $userName, $accessLevel) {
+        private function authTokenMake ($siteId, $userId, $userName, $siteUserId, $accessLevel, $networkId) {
             if ($this->m_authTokenWasValidated) {
                 return $this->m_authToken;
             }
@@ -303,7 +414,7 @@
             if ($userName == null || $userName == '') {
                 $userName = $this->m_userName;
             }
-            $decryptedData = 'siteid=' . $siteId . '&userid=' . $userId . '&siteuserid=' . $siteUserId . '&username=' . $userName . '&accesslevel=' . $accessLevel . '&daystamp=' . $this->sessionDayStamp();
+            $decryptedData = 'siteid=' . $siteId . '&userid=' . $userId . '&siteuserid=' . $siteUserId . '&networkid=' . $networkId . '&username=' . $userName . '&accesslevel=' . $accessLevel . '&daystamp=' . $this->sessionDayStamp();
             $tokenDataBase64 = base64_encode(mcrypt_encrypt(MCRYPT_BLOWFISH, pack('H*', $this->m_developerKey), $this->blowfishPad($decryptedData), MCRYPT_MODE_ECB, pack('H*', '000000000000000')));
             $tokenDataBase64Clean = str_replace('+', ' ', $tokenDataBase64);
             return $tokenDataBase64Clean;
@@ -360,23 +471,26 @@
          * @param $user_name
          * @param $site_user_id
          * @param $access_level
+         * @param $network_id
          * @return string
          */
-        private function sessionValidate ($authToken, & $site_id, & $user_id,  & $site_user_id, & $user_name,& $access_level) {
+        private function sessionValidate ($authToken, & $site_id, & $user_id, & $user_name, & $site_user_id, & $access_level, & $network_id) {
             $rc = '';
+            if (empty($authToken)) {
+                $authToken = $this->sessionGetAuthenticationToken();
+            }
             if (strlen($authToken) > 0) {
                 $dataArray = $this->authTokenDecrypt($authToken);
                 if (isset($dataArray['daystamp'])) {
-                    $dayStamp = $dataArray['daystamp'];
-                    $dayStampCurrent = $this->sessionDayStamp();
-                    if ($dayStamp < $dayStampCurrent - (SESSION_DAYSTAMP_HOURS / 24) || $dayStamp > $dayStampCurrent) {
-                        $rc = 'TOKEN_EXPIRED';
-                    } else {
+                    if ($this->sessionIsValidDayStamp($dataArray['daystamp'])) {
                         $site_id = $dataArray['siteid'];
                         $user_id = $dataArray['userid'];
                         $user_name = $dataArray['username'];
                         $site_user_id = $dataArray['siteuserid'];
                         $access_level = $dataArray['accesslevel'];
+                        $network_id = $dataArray['networkid'];
+                    } else {
+                        $rc = 'TOKEN_EXPIRED';
                     }
                 } else {
                     $rc = 'INVALID_TOKEN';
@@ -389,30 +503,36 @@
 
         /**
          * Save the authenticated session to cookie so we can retrieve it next time this user returns.
-         * @param $authToken string the encrypted authentication token generated by sessionMakeAuthenticationTokenEncrypted.
          * @param $user_id
-         * @param $site_user_id
-         * @param $user_name
-         * @param $access_level
+         * @param $authenticationToken string the encrypted authentication token generated by sessionMakeAuthenticationTokenEncrypted.
          * @return string An error code, '' if successful.
          */
-        private function sessionSave ($authToken, $user_id, $site_user_id, $user_name, $access_level) {
+        private function sessionSave ($authenticationToken, $user_id, $user_name, $site_user_id, $access_level, $network_id) {
             $rc = '';
-            if (strlen($authToken) > 0) {
-                $this->m_authToken = $authToken;
+            $errorLevel = error_reporting(); // turn off warnings so we don't generate crap in the output stream. If we don't do this fucking php writes an error and screws up the output stream. (I cant get the try/catch to work without it)
+            error_reporting($errorLevel & ~E_WARNING);
+            try {
+                if (setcookie(SESSION_COOKIE, $authenticationToken, time() + (SESSION_DAYSTAMP_HOURS * 60 * 60), '/', $this->sessionCookieDomain()) === false) {
+                    reportError('sessionSave setcookie failed');
+                    $rc = 'CANNOT_SET_SESSION';
+                }
+            } catch (Exception $e) {
+                reportError('sessionSave could not set cookie: ' . $e->getMessage());
+                $rc = 'CANNOT_SET_SESSION';
+            }
+            error_reporting($errorLevel); // put error level back to where it was
+            if ($rc == '') {
                 $this->m_authTokenWasValidated = true;
+                $this->m_authToken = $authenticationToken;
                 $this->m_userName = $user_name;
                 $this->m_userId = $user_id;
                 $this->m_siteUserId = $site_user_id;
+                $this->m_networkId = $network_id;
                 $this->m_userAccessLevel = $access_level;
                 $this->m_isLoggedIn = true;
-                $_COOKIE[SESSION_COOKIE] = $authToken;
+                $_COOKIE[SESSION_COOKIE] = $authenticationToken;
                 $GLOBALS[SESSION_USERID_CACHE] = $user_id;
-                if (setcookie(SESSION_COOKIE, $authToken, time() + (SESSION_DAYSTAMP_HOURS * 60 * 60), '/', $this->sessionCookieDomain()) === false) {
-                    $rc = 'CANNOT_SET_SESSION';
-                }
-            } else {
-                $rc = 'INVALID_TOKEN';
+                // $_POST['authtok'] = $authenticationToken; // not sure about this
             }
             return $rc;
         }
@@ -426,6 +546,7 @@
             $this->m_authTokenWasValidated = false;
             $this->m_userName = '';
             $this->m_userId = 0;
+            $this->m_siteUserId = '';
             $this->m_userAccessLevel = 0;
             $this->m_isLoggedIn = false;
             $rc = '';
@@ -468,6 +589,10 @@
             return strtr(base64_encode($input), '+/', '-_');
         }
 
+        /**
+         * User can set their own debug callback function we will call when we have a debug statement.
+         * @param $debugFunction
+         */
         public function setDebugFunction ($debugFunction) {
 
         }
@@ -482,6 +607,8 @@
             echo("<p>Protocol: $this->m_serviceProtocol</p>");
             echo("<p>Format: $this->m_responseFormat</p>");
             echo("<p>User-id: $this->m_userId</p>");
+            echo("<p>Site-user-id: $this->m_siteUserId</p>");
+            echo("<p>Network-id: $this->m_networkId</p>");
             echo("<p>User logged in: " . ($this->m_isLoggedIn ? 'YES' : 'NO') . "</p>");
             echo("<p>Last error: " . ($this->m_lastError ? implode(', ', $this->m_lastError) : 'null') . "</p>");
         }
@@ -682,7 +809,37 @@
             if ($results != null && isset($results->row)) {
                 $user = $results->row;
                 if ($user && $saveSession) {
-                    $this->sessionSave($user->authtok, $user->user_id, $user->site_user_id, $user->user_name, $user->access_level);
+                    $this->sessionSave($user->authtok, $user->user_id, $user->user_name, $user->site_user_id, $user->access_level, EnginesisNetworks::Enginesis);
+                }
+            }
+            return $user;
+        }
+
+        /**
+         * For Co-registration/SSO, we take information provided by the hosting network and either setup a new user or update
+         * an existing user. The unique key is $site_user_id and that plus one of $real_name or $user_name are required.
+         * @param $parameters {object} array of key values of user information. Keys site_user_id, network_id, and one
+         *   of real_name or user_name are required. dob, gender, scope, email_address are optional.
+         * @param $saveSession {boolean} true to save this session for next page refresh.
+         * @return {object} an $userInfo object. Same result as UserLogin.
+         */
+        public function userLoginCoreg ($parameters, $saveSession) {
+            $user = null;
+            // Convert parameters or use logical defaults
+            $site_user_id = $parameters['site_user_id'];
+            $network_id = $parameters['network_id'];
+            $real_name = isset($parameters['real_name']) ? $parameters['real_name'] : '';
+            $user_name = isset($parameters['user_name']) ? $parameters['user_name'] : '';
+            $email_address = isset($parameters['email_address']) ? $parameters['email_address'] : '';
+            $gender = isset($parameters['gender']) ? $parameters['gender'] : 'F';
+            $dob = isset($parameters['dob']) ? $parameters['dob'] : '';
+            $scope = isset($parameters['scope']) ? $parameters['scope'] : '';
+            $enginesisResponse = $this->callServerAPI('UserLoginCoreg', array('site_user_id' => $site_user_id, 'user_name' => $user_name, 'real_name' => $real_name, 'email_address' => $email_address, 'gender' => $gender, 'dob' => $dob, 'network_id' => $network_id, 'scope' => $scope));
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null && isset($results->row)) {
+                $user = $results->row;
+                if ($user && $saveSession) {
+                    $this->sessionSave($user->authtok, $user->user_id, $user->user_name, $user->site_user_id, $user->access_level, $network_id);
                 }
             }
             return $user;
@@ -740,19 +897,19 @@
                 'security_question_id' => $this->arrayValueOrDefault($parameters, 'security_question_id', '3'),
                 'security_answer' => $this->arrayValueOrDefault($parameters, 'security_answer', ''),
                 'email_address' => $parameters['email_address'],
-                'real_name' => $this->arrayValueOrDefault($parameters, 'real_name', $parameters['user_name']),
-                'city' => $parameters['location'],
-                'state' => '',
-                'zipcode' => '',
-                'country_code' => '',
-                'tagline' => $parameters['tagline'],
                 'dob' => $parameters['dob'],
-                'gender' => $parameters['gender'],
-                'mobile_number' => '',
-                'im_id' => '',
-                'img_url' => '',
-                'about_me' => '',
-                'additional_info' => '',
+                'real_name' => $this->arrayValueOrDefault($parameters, 'real_name', $parameters['user_name']),
+                'city' => $this->arrayValueOrDefault($parameters, 'city', ''),
+                'state' => $this->arrayValueOrDefault($parameters, 'state', ''),
+                'zipcode' => $this->arrayValueOrDefault($parameters, 'zipcode', ''),
+                'country_code' => $this->arrayValueOrDefault($parameters, 'country_code', 'US'),
+                'tagline' => $this->arrayValueOrDefault($parameters, 'tagline', ''),
+                'gender' => $this->arrayValueOrDefault($parameters, 'gender', 'F'),
+                'mobile_number' => $this->arrayValueOrDefault($parameters, 'mobile_number', ''),
+                'im_id' => $this->arrayValueOrDefault($parameters, 'im_id', ''),
+                'img_url' => $this->arrayValueOrDefault($parameters, 'img_url', ''),
+                'about_me' => $this->arrayValueOrDefault($parameters, 'about_me', ''),
+                'additional_info' => $this->arrayValueOrDefault($parameters, 'additional_info', ''),
                 'agreement' => '1',
                 'captcha_id' => '99999',
                 'captcha_response' => 'DEADMAN',
@@ -768,25 +925,138 @@
                     'user_name' => $parameters->user_name,
                     'email_address' => $parameters->email_address,
                     'full_name' => $parameters->fullname,
-                    'location' => $parameters->location,
+                    'city' => $parameters->city,
+                    'state' => $parameters->state,
+                    'zipcode' => $parameters->zipcode,
+                    'country_code' => $parameters->country_code,
                     'tagline' => $parameters->tagline,
+                    'about_me' => $parameters->about_me,
+                    'additional_info' => $parameters->additional_info,
                     'age' => $parameters->age,
-                    'gender' => $parameters->gender
+                    'gender' => $parameters->gender,
+                    'dob' => $parameters->dob,
+                    'mobile_number' => $parameters->mobile_number,
+                    'im_id' => $parameters->im_id
                 );
             }
             return $userInfo;
         }
 
-        /* @function userRegistrationUpdate
+        /* @function registeredUserUpdate
          * @description
          *   Update and existing user's registration information.
          * @param $userId: int the user's internal id
          * @param $parameters: key/value object of registration data. Only changed keys may be provided.
          * @return object: null if registration fails, otherwise returns the user info object.
          */
-        public function userRegistrationUpdate ($userId, $parameters) {
+        public function registeredUserUpdate ($userId, $parameters) {
             $service = 'RegisteredUserUpdate';
-            return null;
+            $userInfo = array(
+                'user_name' => $parameters['user_name'],
+                'email_address' => $parameters['email_address'],
+                'dob' => $parameters['dob'],
+                'real_name' => $this->arrayValueOrDefault($parameters, 'real_name', $parameters['user_name']),
+                'city' => $this->arrayValueOrDefault($parameters, 'city', ''),
+                'state' => $this->arrayValueOrDefault($parameters, 'state', ''),
+                'zipcode' => $this->arrayValueOrDefault($parameters, 'zipcode', ''),
+                'country_code' => $this->arrayValueOrDefault($parameters, 'country_code', 'US'),
+                'tagline' => $this->arrayValueOrDefault($parameters, 'tagline', ''),
+                'gender' => $this->arrayValueOrDefault($parameters, 'gender', 'F'),
+                'mobile_number' => $this->arrayValueOrDefault($parameters, 'mobile_number', ''),
+                'im_id' => $this->arrayValueOrDefault($parameters, 'im_id', ''),
+                'img_url' => $this->arrayValueOrDefault($parameters, 'img_url', ''),
+                'about_me' => $this->arrayValueOrDefault($parameters, 'about_me', ''),
+                'additional_info' => $this->arrayValueOrDefault($parameters, 'additional_info', ''),
+                'captcha_id' => '99999',
+                'captcha_response' => 'DEADMAN'
+            );
+            $enginesisResponse = $this->callServerAPI($service, $userInfo);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null) {
+                $results = $results[0];
+            }
+            return $results;
+        }
+
+        /**
+         * Get the security info for the current logged in user. Returns {mobile_number, security_question_id, security_question, security_answer}
+         * @return null|object
+         */
+        public function registeredUserSecurityGet () {
+            $service = 'RegisteredUserSecurityGet';
+
+            $userInfo = array(
+                'site_user_id' => '',
+            );
+            $enginesisResponse = $this->callServerAPI($service, $userInfo);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null) {
+                $results = $results[0];
+            }
+            return $results;
+        }
+
+        /**
+         * Set the security info for the current logged in user.
+         * @param $mobile_number - this is optional, pass either null or empty string to skip.
+         * @param $security_question_id
+         * @param $security_question
+         * @param $security_answer
+         * @return null|object - if null then check getLastError(), otherwise the current user-id.
+         */
+        public function registeredUserSecurityUpdate ($mobile_number, $security_question_id, $security_question, $security_answer) {
+            $service = 'RegisteredUserSecurityUpdate';
+
+            $userInfo = array(
+                'mobile_number' => $mobile_number,
+                'security_question_id' => $security_question_id,
+                'security_question' => $security_question,
+                'security_answer' => $security_answer
+            );
+            $enginesisResponse = $this->callServerAPI($service, $userInfo);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null) {
+                $results = $results[0];
+            }
+            return $results;
+        }
+
+        /**
+         * User requests to change the password. Requires a secondary password token that is returned from this service.
+         * You need to supply that token when calling registeredUserPasswordChange.
+         * @return null|object
+         */
+        public function registeredUserRequestPasswordChange () {
+            $service = 'RegisteredUserRequestPasswordChange';
+
+            $enginesisResponse = $this->callServerAPI($service, array());
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null) {
+                $results = $results[0];
+            }
+            return $results;
+        }
+
+        /**
+         * Complete the setting of a new password for the user. Requires a new password and the secondary password
+         * token that was given with RegisteredUserRequestPasswordChange. The token expires in 24 hours.
+         * @param $newPassword
+         * @param $secondaryPassword
+         * @return null|object
+         */
+        public function registeredUserPasswordChange ($newPassword, $secondaryPassword) {
+            $service = 'RegisteredUserPasswordChange';
+
+            $userInfo = array(
+                'password' => $newPassword,
+                'secondary_password' => $secondaryPassword
+            );
+            $enginesisResponse = $this->callServerAPI($service, $userInfo);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null) {
+                $results = $results[0];
+            }
+            return $results;
         }
 
         /* @function userForgotPassword
@@ -794,7 +1064,7 @@
          *   Trigger the forgot password procedure. The server will reset the user's password and
          *   send an email to the email address on record to follow a link to reset the password.
          * @param $userName: string the user's name
-         * @param $email: string the user's email address
+         * @param $email_address: string the user's email address
          * @return bool: true if the process was started, false if there was an error.
          */
         public function userForgotPassword ($userName, $email_address) {
@@ -902,7 +1172,6 @@
          * @return array a list of matching users an a subset of user attributes - {user_id, user_name, date_created, site_currency_value, site_experience_points}
          */
         public function registeredUserFind ($searchString) {
-            $user = null;
             $enginesisResponse = $this->callServerAPI('RegisteredUserGetEx', array('search_str' => $searchString));
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             return $results;
@@ -931,13 +1200,16 @@
          * @return string
          */
         public function avatarURL ($size = 0, $userId = 0) {
-            if ($userId == 0) {
+            if ($this->isInvalidId($userId)) {
                 $userId = $this->m_userId;
             }
             return $this->m_avatarEndPoint . '?site_id=' . $this->m_siteId . '&user_id=' . $userId . '&size=' . $size;
         }
 
         public function gameGet ($gameId) {
+            if ($this->isInvalidId($gameId)) {
+                $gameId = $this->gameId;
+            }
             $enginesisResponse = $this->callServerAPI('GameGet', array('game_id' => $gameId));
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             if ($results != null && isset($results[0])) {
@@ -957,5 +1229,50 @@
                 $gameInfo = null;
             }
             return $gameInfo;
+        }
+
+        public function gameRatingUpdate ($rating, $gameId) {
+            if ($rating < 0 || $rating > 100) {
+                $rating = 5;
+            }
+            if ($this->isInvalidId($gameId)) {
+                $gameId = $this->gameId;
+            }
+            $enginesisResponse = $this->callServerAPI('GameRatingUpdate', array('game_id' => $gameId, 'rating' => $rating));
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null && isset($results[0])) {
+                $gameInfo = $results[0];
+            } else {
+                $gameInfo = null;
+            }
+            return $gameInfo;
+        }
+
+        public function gameRatingGet ($gameId) {
+            if ($this->isInvalidId($gameId)) {
+                $gameId = $this->gameId;
+            }
+            $enginesisResponse = $this->callServerAPI('GameRatingGet', array('game_id' => $gameId));
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null && isset($results[0])) {
+                $gameInfo = $results[0];
+            } else {
+                $gameInfo = null;
+            }
+            return $gameInfo;
+        }
+
+        public function gameRatingList ($numberOfGames) {
+            if ($numberOfGames < 1 || $numberOfGames > 100) {
+                $numberOfGames = 5;
+            }
+            $enginesisResponse = $this->callServerAPI('GameRatingList', array('num_items' => $numberOfGames));
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null && isset($results[0])) {
+                $gameList = $results[0];
+            } else {
+                $gameList = null;
+            }
+            return $gameList;
         }
     }
