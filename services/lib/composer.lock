@@ -1,10 +1,67 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
     ],
-    "hash": "7c471c6a00e5907a914b3ea2f76436c2",
+    "hash": "cdaf2cee5b2b85efe47ae1895f3df5b3",
+    "content-hash": "e2bfe78dea9cfcb0a73130d4cd72314e",
     "packages": [
+        {
+            "name": "facebook/php-sdk-v4",
+            "version": "5.1.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/facebook/facebook-php-sdk-v4.git",
+                "reference": "2c42fb3002953355f12d3c6e8003a9fd5af563d9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/facebook/facebook-php-sdk-v4/zipball/2c42fb3002953355f12d3c6e8003a9fd5af563d9",
+                "reference": "2c42fb3002953355f12d3c6e8003a9fd5af563d9",
+                "shasum": ""
+            },
+            "require": {
+                "ext-mbstring": "*",
+                "php": ">=5.4.0"
+            },
+            "require-dev": {
+                "guzzlehttp/guzzle": "~5.0",
+                "mockery/mockery": "~0.8",
+                "phpunit/phpunit": "~4.0"
+            },
+            "suggest": {
+                "guzzlehttp/guzzle": "Allows for implementation of the Guzzle HTTP client"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "5.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Facebook\\": "src/Facebook/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Facebook Platform"
+            ],
+            "authors": [
+                {
+                    "name": "Facebook",
+                    "homepage": "https://github.com/facebook/facebook-php-sdk-v4/contributors"
+                }
+            ],
+            "description": "Facebook SDK for PHP",
+            "homepage": "https://github.com/facebook/facebook-php-sdk-v4",
+            "keywords": [
+                "facebook",
+                "sdk"
+            ],
+            "time": "2015-11-19 21:07:36"
+        },
         {
             "name": "guzzle/guzzle",
             "version": "v3.7.4",
@@ -510,12 +567,12 @@
             "target-dir": "Symfony/Component/EventDispatcher",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/EventDispatcher.git",
+                "url": "https://github.com/symfony/event-dispatcher.git",
                 "reference": "7fc72a7a346a1887d3968cc1ce5642a15cd182e9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/EventDispatcher/zipball/7fc72a7a346a1887d3968cc1ce5642a15cd182e9",
+                "url": "https://api.github.com/repos/symfony/event-dispatcher/zipball/7fc72a7a346a1887d3968cc1ce5642a15cd182e9",
                 "reference": "7fc72a7a346a1887d3968cc1ce5642a15cd182e9",
                 "shasum": ""
             },
@@ -564,12 +621,12 @@
             "target-dir": "Symfony/Component/Yaml",
             "source": {
                 "type": "git",
-                "url": "https://github.com/symfony/Yaml.git",
+                "url": "https://github.com/symfony/yaml.git",
                 "reference": "6bb881b948368482e1abf1a75c08bcf88a1c5fc3"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/6bb881b948368482e1abf1a75c08bcf88a1c5fc3",
+                "url": "https://api.github.com/repos/symfony/yaml/zipball/6bb881b948368482e1abf1a75c08bcf88a1c5fc3",
                 "reference": "6bb881b948368482e1abf1a75c08bcf88a1c5fc3",
                 "shasum": ""
             },
@@ -606,20 +663,12 @@
             "time": "2013-09-22 18:04:39"
         }
     ],
-    "packages-dev": [
-
-    ],
-    "aliases": [
-
-    ],
+    "packages-dev": [],
+    "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [
-
-    ],
-    "platform": [
-
-    ],
-    "platform-dev": [
-
-    ]
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
 }
