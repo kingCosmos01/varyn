@@ -1,4 +1,20 @@
 <?php
+/**
+ * Varyn's profile.php handles the user's profile page. If a user is logged in we show the details about that user
+ * and the profile functions such as edit, change password, etc. This page can also show the public details about
+ * another user. Finally, if no user is logged in, this page handles all the prompts and details for login, SSO,
+ * forgot password.
+ *
+ * Valid actions are:
+ *   login:
+ *   logout:
+ *   signup:
+ *   popupregister:
+ *   register:
+ *   update:
+ *   securityupdate:
+ *   view:
+ */
     require_once('../services/common.php');
     require_once('../services/SocialServices.php');
 
@@ -11,7 +27,17 @@
     }
     $showSubscribe = getPostOrRequestVar('s', '0');
 
-    $action = '';
+    $action = ''; // this value tells the page how to function.
+    $showRegistrationForm = false;
+    $errorMessage = '<p>&nbsp;</p>';
+    $errorFieldId = '';
+    $inputFocusId = '';
+    $userInfoJSON = ''; // a JSON representation of the $userInfo object
+    $invalidFields = null;
+    $socialServices = null;
+    $otherUserInfo = null;
+
+    // Related form variables
     $userName = '';
     $password = '';
     $newPassword = '';
@@ -26,13 +52,6 @@
     $securityAnswer = '';
     $aboutMe = '';
     $agreement = false;
-    $showRegistrationForm = false;
-    $errorMessage = '<p>&nbsp;</p>';
-    $errorFieldId = '';
-    $inputFocusId = '';
-    $userInfoJSON = ''; // a JSON representation of the $userInfo object
-    $invalidFields = null;
-    $socialServices = null;
     $networkId = getPostOrRequestVar('network_id', 0);
     if ($networkId > 1) {
         // if we are passed a networkId then another page performed SSO and redirected here to finish. we should
@@ -93,10 +112,8 @@
             $inputFocusId = 'login_form_username';
         } else {
             $isLoggedIn = true;
-            if ($rememberMe) {
-                setVarynUserCookie($userInfo, $enginesis->getServerName());
-                $userInfoJSON = getVarynUserCookie();
-            }
+            setVarynUserCookie($userInfo, $enginesis->getServerName());
+            $userInfoJSON = getVarynUserCookie();
         }
     } elseif ($action == 'signup') {
         $showRegistrationForm = true;
@@ -275,6 +292,14 @@
             }
             $inputFocusId = 'profile_forgot_password';
         }
+    } elseif ($action == 'view') {
+        $userId = getPostOrRequestVar('id', '');
+        if ($userId == '') {
+            $userId = getPostOrRequestVar('user', '');
+        }
+        if ($userId != '') {
+            $otherUserInfo = $enginesis->registeredUserGet($userId);
+        }
     } elseif ($action == 'logout') {
         $result = $enginesis->userLogout();
         $isLoggedIn = false;
@@ -361,31 +386,93 @@
             print_r($invalidFields);
         }
     }
-    if ($isLoggedIn && ! $showRegistrationForm) {
-        if ( ! isset($userInfo)) {
+    if ($otherUserInfo == null && $isLoggedIn && ! $showRegistrationForm) {
+        if (!isset($userInfo)) {
             $userInfo = getVarynUserCookieObject();
         }
-?>
-        <h2>Welcome <?php echo($userInfo->user_name);?>!</h2>
-        <?php if (strlen($errorMessage) > 0) { echo('<div id="errorContent" class="errorContent">' . $errorMessage . '</div>'); } ?>
+        ?>
+        <h2>Welcome <?php echo($userInfo->user_name); ?>!</h2>
+        <?php if (strlen($errorMessage) > 0) {
+            echo('<div id="errorContent" class="errorContent">' . $errorMessage . '</div>');
+        } ?>
         <div class="row">
-            <div class="col-sm-3">
-                <img class="avatarThumbnail" src="<?php echo($enginesis->avatarURL(0, $userInfo->user_id));?>"/><br/>
-                <input type="button" id="profile_edit" onclick="profilePage.startUpdate();" value="Edit" /><input type="button" id="profile_logout" onclick="profilePage.logout();" value="Logout" />
+            <div class="col-sm-3 text-center">
+                <img class="avatarThumbnail center-block" src="<?php echo($enginesis->avatarURL(0, $userInfo->user_id)); ?>"/>
+                <p><?php echo($userInfo->real_name); ?></p>
+                <p>
+                    <input type="button" id="profile_edit" onclick="profilePage.startUpdate();" value="Edit" class="btn btn-info"/> <input type="button" id="profile_logout" onclick="profilePage.logout();" value="Logout" class="btn btn-default"/>
+                </p>
             </div>
             <div id="profile_login" class="col-sm-4">
                 <h4>Your profile summary:</h4>
                 <table class="profile-login-table">
-                    <tr><td><label>Site Rank</label></td><td><?php echo($userInfo->user_rank);?></td></tr>
-                    <tr><td><label>EXP</label></td><td><?php echo($userInfo->site_experience_points);?></td></tr>
-                    <tr><td><label>Coins</label></td><td><?php echo($userInfo->site_currency_value);?></td></tr>
-                    <tr><td><label>Profile views</label></td><td><?php echo($userInfo->view_count);?></td></tr>
-                    <tr><td><label>Last login</label></td><td><?php echo($userInfo->last_login);?></td></tr>
+                    <tr>
+                        <td><label>Site Rank</label></td>
+                        <td><?php echo($userInfo->user_rank); ?></td>
+                    </tr>
+                    <tr>
+                        <td><label>EXP</label></td>
+                        <td><?php echo($userInfo->site_experience_points); ?></td>
+                    </tr>
+                    <tr>
+                        <td><label>Coins</label></td>
+                        <td><?php echo($userInfo->site_currency_value); ?></td>
+                    </tr>
+                    <tr>
+                        <td><label>Profile views</label></td>
+                        <td><?php echo($userInfo->view_count); ?></td>
+                    </tr>
+                    <tr>
+                        <td><label>Last login</label></td>
+                        <td><?php echo($userInfo->last_login); ?></td>
+                    </tr>
                 </table>
             </div>
             <div class="col-sm-3">
                 <h4>Awards &amp; Badges</h4>
                 <p>You have not earned any yet - so get out and play!</p>
+            </div>
+        </div>
+<?php
+    } elseif ($otherUserInfo != null) {
+?>
+        <h2>Member <?php echo($otherUserInfo->user_name); ?>:</h2>
+        <?php if (strlen($errorMessage) > 0) {
+            echo('<div id="errorContent" class="errorContent">' . $errorMessage . '</div>');
+        } ?>
+        <div class="row">
+            <div class="col-sm-3 text-center">
+                <img class="avatarThumbnail center-block" src="<?php echo($enginesis->avatarURL(0, $otherUserInfo->user_id)); ?>"/>
+                <p><?php echo($otherUserInfo->about_me); ?></p>
+            </div>
+            <div id="profile_login" class="col-sm-4">
+                <h4>Profile summary:</h4>
+                <table class="profile-login-table">
+                    <tr>
+                        <td><label>Site Rank</label></td>
+                        <td><?php echo($otherUserInfo->user_rank); ?></td>
+                    </tr>
+                    <tr>
+                        <td><label>EXP</label></td>
+                        <td><?php echo($otherUserInfo->site_experience_points); ?></td>
+                    </tr>
+                    <tr>
+                        <td><label>Profile views</label></td>
+                        <td><?php echo($otherUserInfo->view_count); ?></td>
+                    </tr>
+                    <tr>
+                        <td><label>Member since</label></td>
+                        <td><?php echo($otherUserInfo->date_created); ?></td>
+                    </tr>
+                    <tr>
+                        <td><label>Last seen</label></td>
+                        <td><?php echo($otherUserInfo->last_login); ?></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-sm-3">
+                <h4>Awards &amp; Badges</h4>
+                <p>None - yet!</p>
             </div>
         </div>
 <?php

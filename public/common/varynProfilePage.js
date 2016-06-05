@@ -50,6 +50,13 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             if (pageViewParameters.inputFocusId !== undefined) {
                 inputFocusId = pageViewParameters.inputFocusId;
             }
+            var pageParams = commonUtilities.queryStringToObject(null);
+            if (pageParams != null && pageParams.action != undefined) {
+                if (pageParams.action == 'update') {
+                    // TODO: Make a copy of the user data so we can identify which fields changed, save in localStorage.
+                    this.onPageLoadSetTabEvents();
+                }
+            }
             $('#register_form_username').on('change', varynApp.onChangeRegisterUserName);
             $('#register_form_username').on('input', varynApp.onChangeRegisterUserName);
             $('#register_form_username').on('propertychange', varynApp.onChangeRegisterUserName);
@@ -61,7 +68,6 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             varynApp.onChangeRegisterUserName($('#register_form_username').get(0), 'register_user_name_unique'); // in case field is pre-populated
             enginesisSession.gameListListGames(siteConfiguration.gameListIdTop, this.enginesisCallBack);
             this.onPageLoadSetFocus();
-            this.securityFieldsPopulate();
             // Google+ login button support
 /*            gapi.signin2.render('g-signin2', {
                 'scope': 'https://www.googleapis.com/auth/plus.login',
@@ -82,6 +88,17 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             if (errorFieldId != "") {
                 $('#' + errorFieldId).removeClass("popup-form-input").addClass("popup-form-input-error");
             }
+        },
+
+        onPageLoadSetTabEvents: function () {
+            var varynProfilePageReference = this;
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                var whichTab = e.target.id;
+                if (whichTab == 'secure-info') {
+                    // the first time we show this tab we need to get the secure info
+                    varynProfilePageReference.securityFieldsPopulate();
+                }
+            })
         },
 
         loginValidation: function () {
