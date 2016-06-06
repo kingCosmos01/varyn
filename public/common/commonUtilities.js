@@ -611,6 +611,16 @@
         return object;
     };
 
+    /**
+     * Remove the given key from local storage.
+     * @param key
+     */
+    commonUtilities.removeObjectWithKey = function (key) {
+        if (commonUtilities.hasHTML5LocalStorage() && key != null) {
+            window.localStorage.removeItem(key);
+        }
+    };
+
     /* ----------------------------------------------------------------------------------
      * Very basic social network sharing utilities
      * ----------------------------------------------------------------------------------*/
