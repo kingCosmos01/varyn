@@ -49,6 +49,7 @@ var enginesis = function (parameters) {
         lastErrorMessage = '',
         callBackFunction = null,
         authToken = null,
+        authTokenWasValidated = false,
         developerKey = null,
         loggedInUserId = 0,
         loggedInUserName = '',
@@ -58,7 +59,9 @@ var enginesis = function (parameters) {
         platform = '',
         locale = 'US-en',
         isNativeBuild = false,
-        isTouchDevice = false;
+        isTouchDevice = false,
+        SESSION_COOKIE = 'engsession',
+        SESSION_USERINFO = 'engsession_user';
 
     if (parameters) {
         siteId = parameters.siteId != undefined ? parameters.siteId : 0;
@@ -138,8 +141,7 @@ var enginesis = function (parameters) {
         var errorJSONString = '{"results":{"status":{"success":"0","message":"' + errorCode + '","extended_info":"' + ErrorMessage + '"},"passthru":{"fn":"' + fn + '","state_seq":"' + stateSeq + '"}}}';
     };
 
-    var convertParamsToFormData = function (parameterObject)
-    {
+    var convertParamsToFormData = function (parameterObject) {
         var key,
             formDataObject = new FormData();
 
@@ -218,7 +220,7 @@ var enginesis = function (parameters) {
     };
 
     /**
-     * Return the contents fo the cookie indexed by the specified key.
+     * Return the contents of the cookie indexed by the specified key.
      *
      * @method cookieGet
      * @param {string} key Indicate which cookie to get.
@@ -235,17 +237,34 @@ var enginesis = function (parameters) {
     /**
      * Get info about the current logged in user, if there is one, from authtok parameter or cookie
      */
-    var reviveLoggedInUser = function () {
-        var queryParameters = queryStringToObject(),
-            authtok = '';
+    var restoreUserFromAuthToken = function () {
+        var queryParameters,
+            userInfo;
 
-        if (queryParameters.authtok !== undefined) {
-            authtok = queryParameters.authtok;
-        } else {
-            authtok = cookieGet('engsession');
+        if (authToken == null || authToken == '') {
+            queryParameters = queryStringToObject();
+            if (queryParameters.authtok !== undefined) {
+                authToken = queryParameters.authtok;
+            }
         }
-        if (authtok != '') {
-
+        if (authToken == null || authToken == '') {
+            authToken = cookieGet(SESSION_COOKIE);
+        }
+        if (authToken != null && authToken != '') {
+            // TODO: Validate the token (for now we are accepting that it is valid but we should check!) If the authToken is valid then we can trust the userInfo
+            // TODO: we can use cr to validate the token was not changed
+            authTokenWasValidated = true;
+            userInfo = cookieGet(SESSION_USERINFO);
+            if (userInfo != null && userInfo != '') {
+                userInfo = JSON.parse(userInfo);
+                if (userInfo != null) {
+                    loggedInUserId = userInfo.user_id;
+                    loggedInUserName = userInfo.user_name;
+                    userAccessLevel = userInfo.access_level;
+                    siteUserId = userInfo.site_user_id;
+                    networkId = userInfo.network_id;
+                }
+            }
         }
     };
 
@@ -266,6 +285,7 @@ var enginesis = function (parameters) {
     setPlatform();
     setProtocolFromCurrentLocation();
     qualifyAndSetServerStage(serverStage);
+    restoreUserFromAuthToken();
 
     // =====================================================================
     // this is the public interface
