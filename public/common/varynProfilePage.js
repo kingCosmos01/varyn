@@ -6,8 +6,23 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
 
     var enginesisSession = varynApp.getEnginesisSession(),
         errorFieldId = "",
-        inputFocusId = "";
+        inputFocusId = "",
+        varynProfilePageReference = this;
 
+    /**
+     * Setup the security input fields only the first time the tab is visited
+     */
+    function securityFieldsPopulate () {
+        var securityInfo = commonUtilities.loadObjectWithKey('VarynSecurityInfo');
+        if (securityInfo == null) {
+            enginesisSession.registeredUserSecurityGet(enginesisCallBack);
+        } else {
+            $("#register_form_new_password").val('');
+            $("#register_form_question").val(securityInfo['security_question']);
+            $("#register_form_answer").val(securityInfo['security_answer']);
+            $('a[data-toggle="tab"]').off('shown.bs.tab');
+        }
+    }
 
     /**
      * Callback to handle responses from Enginesis.
@@ -31,8 +46,8 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
 
                 case 'RegisteredUserSecurityGet':
                     if (succeeded == 1) {
-                        commonUtilities.saveObjectWithKey('VarynSecurityInfo', results.result);
-                        varynProfilePage.securityFieldsPopulate();
+                        commonUtilities.saveObjectWithKey('VarynSecurityInfo', results.result[0]);
+                        securityFieldsPopulate();
                     }
                     break;
 
@@ -68,6 +83,8 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             varynApp.onChangeRegisterUserName($('#register_form_username').get(0), 'register_user_name_unique'); // in case field is pre-populated
             enginesisSession.gameListListGames(siteConfiguration.gameListIdTop, this.enginesisCallBack);
             this.onPageLoadSetFocus();
+            window.onunload = this.updateCleanup.bind(this);
+
             // Google+ login button support
 /*            gapi.signin2.render('g-signin2', {
                 'scope': 'https://www.googleapis.com/auth/plus.login',
@@ -91,12 +108,11 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
         },
 
         onPageLoadSetTabEvents: function () {
-            var varynProfilePageReference = this;
             $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                 var whichTab = e.target.id;
                 if (whichTab == 'secure-info') {
                     // the first time we show this tab we need to get the secure info
-                    varynProfilePageReference.securityFieldsPopulate();
+                    securityFieldsPopulate();
                 }
             })
         },
@@ -206,13 +222,19 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
         },
 
         cancelUpdate: function (event) {
+            this.updateCleanup();
             window.location.href = "/profile.php?action=cancel";
             event.preventDefault();
             return false;
         },
 
         startUpdate: function () {
+            this.updateCleanup();
             window.location.href = "/profile.php?action=update";
+        },
+
+        updateCleanup: function () {
+            commonUtilities.removeObjectWithKey('VarynSecurityInfo');
         },
 
         forgotPassword: function () {
@@ -225,17 +247,6 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
 
         popupRegistrationClicked: function () {
             varynApp.showRegistrationPopup(false);
-        },
-
-        securityFieldsPopulate: function () {
-            var securityInfo = commonUtilities.loadObjectWithKey('VarynSecurityInfo');
-            if (securityInfo == null) {
-                enginesisSession.registeredUserSecurityGet(enginesisCallBack);
-            } else {
-                $("#register_form_new_password").val('');
-                $("#register_form_question").val(securityInfo['security_question']);
-                $("#register_form_answer").val(securityInfo['security_answer']);
-            }
         },
 
         onGapiSuccess: function (googleUser) {

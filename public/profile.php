@@ -32,10 +32,11 @@
     $errorMessage = '<p>&nbsp;</p>';
     $errorFieldId = '';
     $inputFocusId = '';
-    $userInfoJSON = ''; // a JSON representation of the $userInfo object
     $invalidFields = null;
     $socialServices = null;
     $otherUserInfo = null;
+    $userInfoJSON = ''; // a JSON representation of the $userInfo object
+    $authToken = '';
 
     // Related form variables
     $userName = '';
@@ -70,10 +71,9 @@
                     }
                 } else {
                     $isLoggedIn = true;
-                    if ($rememberMe) {
-                        setVarynUserCookie($userInfo, $enginesis->getServerName());
-                        $userInfoJSON = getVarynUserCookie();
-                    }
+                    $authToken = $userInfo->authtok;
+                    setVarynUserCookie($userInfo, $enginesis->getServerName());
+                    $userInfoJSON = getVarynUserCookie();
                 }
             // } else {
                 // echo("<p>Facebook $networkId SSO returned no user</p>");
@@ -84,6 +84,7 @@
         //
         $userInfoJSON = getVarynUserCookie();
         $userInfo = getVarynUserCookieObject();
+        $authToken = $userInfo->authtok;
         $networkId = $enginesis->getNetworkId();
         $socialServices = SocialServices::create($networkId);
         $userInfoSSO = $socialServices->connectSSO();
@@ -112,6 +113,7 @@
             $inputFocusId = 'login_form_username';
         } else {
             $isLoggedIn = true;
+            $authToken = $userInfo->authtok;
             setVarynUserCookie($userInfo, $enginesis->getServerName());
             $userInfoJSON = getVarynUserCookie();
         }
@@ -311,6 +313,7 @@
         $password = '';
         if ($isLoggedIn) {
             $userInfo = getVarynUserCookieObject();
+            $authToken = $userInfo->authtok;
             $userInfoJSON = getVarynUserCookie();
         }
     }
@@ -549,7 +552,7 @@
                         <div role="tabpanel" class="tab-pane fade" id="secureInfo">
                             <p>Manage security settings for your account:</p>
                             <div class="form-group"><label for="register_form_new_password">New password:</label><input type="password" name="register_form_new_password" class="popup-form-input required password" id="register_form_new_password" placeholder="A new password" autocomplete="off" value="<?php echo($newPassword);?>"/></div>
-                            <div class="form-group"><label for="register_form_question">Your question:</label><input type="text" name="register_form_question" class="popup-form-input" id="register_form_answer" placeholder="Security question" autocomplete="on" value="<?php echo($securityQuestion);?>"/></div>
+                            <div class="form-group"><label for="register_form_question">Your question:</label><input type="text" name="register_form_question" class="popup-form-input" id="register_form_question" placeholder="Security question" autocomplete="on" value="<?php echo($securityQuestion);?>"/></div>
                             <div class="form-group"><label for="register_form_answer">Your answer:</label><input type="text" name="register_form_answer" class="popup-form-input" id="register_form_answer" placeholder="Security answer" autocomplete="on" value="<?php echo($securityAnswer);?>"/></div>
                             <div class="form-group"><label for="register_form_phone">Mobile number:</label><input type="tel" name="register_form_phone" class="popup-form-input cellphone" id="register_form_phone" placeholder="Mobile number" autocomplete="on" value="<?php echo($cellphone);?>"/></div>
                         </div>
@@ -638,8 +641,13 @@
     head.ready(function() {
         var siteConfiguration = {
                 siteId: <?php echo($siteId);?>,
+                gameId: 0,
+                gameGroupId: 0,
                 serverStage: "<?php echo($stage);?>",
                 languageCode: navigator.language || navigator.userLanguage,
+                developerKey: '<?php echo($developerKey);?>',
+                facebookAppId: '<?php echo($socialServiceKeys[2]['app_id']);?>',
+                authToken: '<?php echo($authToken);?>',
                 userInfo: '<?php echo(addslashes($userInfoJSON));?>'
             },
             profilePageParameters = {
