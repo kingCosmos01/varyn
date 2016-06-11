@@ -72,15 +72,11 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
                     this.onPageLoadSetTabEvents();
                 }
             }
-            $('#register_form_username').on('change', varynApp.onChangeRegisterUserName);
-            $('#register_form_username').on('input', varynApp.onChangeRegisterUserName);
-            $('#register_form_username').on('propertychange', varynApp.onChangeRegisterUserName);
-            varynApp.setupRegisterUserNameOnChangeHandler();
             $('#profile_forgot_password').click(this.forgotPassword);
             $('#facebook-connect-button').click(this.loginFacebook);
             $('#gapi-signin-button').click(this.loginGoogle);
             $('#twitter-signin-button').click(this.loginTwitter);
-            varynApp.onChangeRegisterUserName($('#register_form_username').get(0), 'register_user_name_unique'); // in case field is pre-populated
+            this.setupUserNameChangeHandler();
             enginesisSession.gameListListGames(siteConfiguration.gameListIdTop, this.enginesisCallBack);
             this.onPageLoadSetFocus();
             window.onunload = this.updateCleanup.bind(this);
@@ -96,6 +92,14 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
                 'onfailure': this.onGapiFailure
             });
             */
+        },
+
+        setupUserNameChangeHandler: function () {
+            $('#register_form_username').on('change', varynApp.onChangeRegisterUserName.bind(varynApp));
+            $('#register_form_username').on('input', varynApp.onChangeRegisterUserName.bind(varynApp));
+            $('#register_form_username').on('propertychange', varynApp.onChangeRegisterUserName.bind(varynApp));
+            varynApp.setupRegisterUserNameOnChangeHandler();
+            varynApp.onChangeRegisterUserName($('#register_form_username').get(0), 'register_user_name_unique'); // in case field is pre-populated
         },
 
         onPageLoadSetFocus: function () {

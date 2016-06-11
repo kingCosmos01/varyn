@@ -87,9 +87,13 @@ var varyn = function (parameters) {
             varynApp.checkLoggedInSSO(getNetworkId());
             if (enginesisSession.isUserLoggedIn()) {
                 if (pageViewParameterObject['userInfo'] !== undefined && pageViewParameterObject.userInfo != '') {
-                    siteConfiguration.userInfo = JSON.parse(pageViewParameterObject.userInfo);
+                    siteConfiguration.userInfo = JSON.parse(pageViewParameterObject.userInfo); // when user logs in first time this is passed from PHP
+                    commonUtilities.saveObjectWithKey(userInfoKey, siteConfiguration.userInfo);
                 } else {
-                    siteConfiguration.userInfo = commonUtilities.loadObjectWithKey(userInfoKey);
+                    siteConfiguration.userInfo = commonUtilities.loadObjectWithKey(userInfoKey); // when user already logged in this is saved locally
+                    if (siteConfiguration.userInfo == null) {
+                        // TODO: This is a critical error, we expect the userInfo object to be available if the user is logged in.
+                    }
                 }
             }
             if (pageViewParameters.showSubscribe !== undefined && pageViewParameters.showSubscribe == '1') {
@@ -605,9 +609,9 @@ var varyn = function (parameters) {
          * can ask the server to test if the user name is already in use.
          */
         setupRegisterUserNameOnChangeHandler: function () {
-            $('#register-username').on('change', this.onChangeRegisterUserName);
-            $('#register-username').on('input', this.onChangeRegisterUserName);
-            $('#register-username').on('propertychange', this.onChangeRegisterUserName);
+            $('#register-username').on('change', this.onChangeRegisterUserName.bind(this));
+            $('#register-username').on('input', this.onChangeRegisterUserName.bind(this));
+            $('#register-username').on('propertychange', this.onChangeRegisterUserName.bind(this));
         },
 
         /**
@@ -623,7 +627,7 @@ var varyn = function (parameters) {
                     element = element.target;
                 }
                 if (domIdImage == null) {
-                    domIdImage = $(this).data("target");
+                    domIdImage = $(element).data("target");
                 }
                 userName = element.value.toString();
                 if (varynApp.isChangedUserName(userName)) {

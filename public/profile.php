@@ -513,17 +513,17 @@
 <?php
         }
 ?>
-                            <div class="form-group"><label for="register_form_email">Email: <span class="required-field">*</span></label><input type="email" name="register_form_email" class="popup-form-input required email" id="register_form_email" placeholder="Your email address" autocomplete="email" autocorrect="off" required value="<?php echo($email);?>"/></div>
-                            <div class="form-group"><label for="register_form_username">User name: <span class="required-field">*</span></label><input type="text" name="register_form_username" class="popup-form-input required username" id="register_form_username" placeholder="A unique user name" autocomplete="username" required value="<?php echo($userName);?>" data-target="register_user_name_unique"/><img id="register_user_name_unique" class="username-is-not-unique" src="/images/red_x.png" width="32" height="32"/></div>
+                            <div class="form-group"><label for="register_form_email">Email: <span class="required-field">*</span></label><input type="email" name="register_form_email" class="popup-form-input required email" id="register_form_email" placeholder="Your email address" autocomplete="email" autocorrect="off" required maxlength="80" value="<?php echo($email);?>"/></div>
+                            <div class="form-group"><label for="register_form_username">User name: <span class="required-field">*</span></label><input type="text" name="register_form_username" class="popup-form-input required username" id="register_form_username" placeholder="A unique user name" autocomplete="username" required maxlength="50" value="<?php echo($userName);?>" data-target="register_user_name_unique"/><img id="register_user_name_unique" class="username-is-not-unique" src="/images/red_x.png" width="32" height="32"/></div>
 <?php
         if ( ! $isLoggedIn) {
 ?>
-                            <div class="form-group"><label for="register_form_password">Password: <span class="required-field">*</span></label><input type="password" name="register_form_password" class="popup-form-input required password" id="register_form_password" placeholder="A secure password" autocomplete="current-password" required value="<?php echo($password);?>"/></div>
+                            <div class="form-group"><label for="register_form_password">Password: <span class="required-field">*</span></label><input type="password" name="register_form_password" class="popup-form-input required password" id="register_form_password" placeholder="A secure password" autocomplete="current-password" required maxlength="20" value="<?php echo($password);?>"/></div>
 <?php
         }
 ?>
-                            <div class="form-group"><label for="register_form_fullname">Full name:</label><input type="text" name="register-fullname" class="popup-form-input fullname" id="register_form_fullname" placeholder="Your full name" autocomplete="name" value="<?php echo($fullname);?>" autocorrect="off"/></div>
-                            <div class="form-group"><label for="register_form_gender">You are:</label><label><input type="radio" name="register_form_gender" value="M" <?php echo($gender == 'M' ? 'checked' : '');?>/>&nbsp;&nbsp;Male</label>&nbsp;<label><input type="radio" name="register_form_gender" value="F" <?php echo($gender == 'F' ? 'checked' : '');?>/>&nbsp;&nbsp;Female</label></input></div>
+                            <div class="form-group"><label for="register_form_fullname">Full name:</label><input type="text" name="register-fullname" class="popup-form-input fullname" id="register_form_fullname" placeholder="Your full name" autocomplete="name" maxlength="50" value="<?php echo($fullname);?>" autocomplete="on" autocorrect="off"/></div>
+                            <div class="form-group"><label for="register_form_gender">You are:</label><label><input type="radio" name="register_form_gender" value="M" <?php echo($gender == 'M' ? 'checked' : '');?>/>&nbsp;&nbsp;Male</label><label><input type="radio" name="register_form_gender" value="F" <?php echo($gender == 'F' ? 'checked' : '');?>/>&nbsp;&nbsp;Female</label></input></div>
                             <div class="form-group"><label for="register_form_dob">Date of birth:</label><input type="date" name="register_form_dob" class="popup-form-input required dob" id="register_form_dob" placeholder="Birthdate" autocomplete="bday" value="<?php echo($dateOfBirth);?>"/></div>
 <?php
         if ( ! $isLoggedIn) {
@@ -545,16 +545,16 @@
                         <div role="tabpanel" class="tab-pane fade" id="extendedInfo">
                             <p>Manage info about you to share with others:</p>
                             <img class="avatarThumbnail" src="<?php echo($enginesis->avatarURL(0, $userInfo->user_id));?>"/>
-                            <div class="form-group"><label for="register_form_location">Location:</label><input type="text" name="register_form_location" class="popup-form-input required location" id="register_form_location" placeholder="Where are you?" autocomplete="on" value="<?php echo($location);?>"/></div>
-                            <div class="form-group"><label for="register_form_tagline">Tag line:</label><input type="text" name="register_form_tagline" class="popup-form-input required tagline" id="register_form_tagline" placeholder="Your tag line" autocomplete="on" value="<?php echo($tagline);?>"/></div>
-                            <div class="form-group"><label for="register_form_aboutme">About me:</label><input type="text" name="register_form_aboutme" class="popup-form-input" id="register_form_aboutme" placeholder="About me" autocomplete="on" value="<?php echo($aboutMe);?>"/></div>
+                            <div class="form-group"><label for="register_form_location">Location:</label><input type="text" name="register_form_location" class="popup-form-input required location" id="register_form_location" placeholder="Where are you?" autocomplete="on" maxlength="80" value="<?php echo($location);?>"/></div>
+                            <div class="form-group"><label for="register_form_tagline">Tag line:</label><input type="text" name="register_form_tagline" class="popup-form-input required tagline" id="register_form_tagline" placeholder="Your tag line" autocomplete="on" maxlength="50" value="<?php echo($tagline);?>"/></div>
+                            <div class="form-group"><label for="register_form_aboutme">About me:</label><textarea class="form-control" name="register_form_aboutme" id="register_form_aboutme" placeholder="About me" maxlength="500" rows="4"><?php echo($aboutMe);?></textarea></div>
                         </div>
                         <div role="tabpanel" class="tab-pane fade" id="secureInfo">
                             <p>Manage security settings for your account:</p>
                             <div class="form-group"><label for="register_form_new_password">New password:</label><input type="password" name="register_form_new_password" class="popup-form-input required password" id="register_form_new_password" placeholder="A new password" autocomplete="off" value="<?php echo($newPassword);?>"/></div>
-                            <div class="form-group"><label for="register_form_question">Your question:</label><input type="text" name="register_form_question" class="popup-form-input" id="register_form_question" placeholder="Security question" autocomplete="on" value="<?php echo($securityQuestion);?>"/></div>
-                            <div class="form-group"><label for="register_form_answer">Your answer:</label><input type="text" name="register_form_answer" class="popup-form-input" id="register_form_answer" placeholder="Security answer" autocomplete="on" value="<?php echo($securityAnswer);?>"/></div>
-                            <div class="form-group"><label for="register_form_phone">Mobile number:</label><input type="tel" name="register_form_phone" class="popup-form-input cellphone" id="register_form_phone" placeholder="Mobile number" autocomplete="on" value="<?php echo($cellphone);?>"/></div>
+                            <div class="form-group"><label for="register_form_question">Your question:</label><input type="text" name="register_form_question" class="popup-form-input" id="register_form_question" placeholder="Security question" autocomplete="on" maxlength="80" value="<?php echo($securityQuestion);?>"/></div>
+                            <div class="form-group"><label for="register_form_answer">Your answer:</label><input type="text" name="register_form_answer" class="popup-form-input" id="register_form_answer" placeholder="Security answer" autocomplete="on" maxlength="80" value="<?php echo($securityAnswer);?>"/></div>
+                            <div class="form-group"><label for="register_form_phone">Mobile number:</label><input type="tel" name="register_form_phone" class="popup-form-input cellphone" id="register_form_phone" placeholder="Mobile number" autocomplete="on" maxlength="20" value="<?php echo($cellphone);?>"/></div>
                         </div>
                     </div>
                 </form>
@@ -647,13 +647,13 @@
                 languageCode: navigator.language || navigator.userLanguage,
                 developerKey: '<?php echo($developerKey);?>',
                 facebookAppId: '<?php echo($socialServiceKeys[2]['app_id']);?>',
-                authToken: '<?php echo($authToken);?>',
-                userInfo: '<?php echo(addslashes($userInfoJSON));?>'
+                authToken: '<?php echo($authToken);?>'
             },
             profilePageParameters = {
                 errorFieldId: "<?php echo($errorFieldId);?>",
                 inputFocusId: "<?php echo($inputFocusId);?>",
-                showSubscribe: "<?php echo($showSubscribe);?>"
+                showSubscribe: "<?php echo($showSubscribe);?>",
+                userInfo: '<?php echo(addslashes($userInfoJSON));?>'
             };
         varynApp = varyn(siteConfiguration);
         profilePage = varynApp.initApp(varynProfilePage, profilePageParameters);
