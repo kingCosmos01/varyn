@@ -531,6 +531,19 @@ footer {
     padding-right: 4em;
 }
 
+@media (max-width: 480px) {
+    .panel-padded {
+        padding-left: 2px;
+        padding-right: 2px;
+    }
+    .panel {
+        border: none;
+    }
+    .panel-body {
+        padding: 5px;
+    }
+}
+
 .panel-gutter-2 {
     margin: 2em 4em;
 }
