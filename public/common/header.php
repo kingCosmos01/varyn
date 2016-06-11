@@ -13,7 +13,7 @@
         <h3><span class="varyn-shield-icon"></span>Join Our Mailing List?</h3>
         <p>Sign up for our email updates and we will let you know when we have new games, prizes, interesting things to say. We will not abuse this privilege. <a href="/Privacy.php" class="text-muted small" title="Review our privacy policy" alt="Review our privacy policy">Review our privacy policy.</a></p>
         <div class="popupFieldGroup">
-            <input type="email" name="email" class="form-control required email" id="emailInput" placeholder="Your email address"/><input type="submit" value="Subscribe" name="subscribe" id="subscribeButton" class="btn btn-default"  onclick="varynApp.popupSubscribeClicked();"/>
+            <input type="email" name="email" class="form-control required email" id="emailInput" placeholder="Your email address" autocapitalize="off" autocorrect="off" autocomplete="email"/><input type="submit" value="Subscribe" name="subscribe" id="subscribeButton" class="btn btn-default"  onclick="varynApp.popupSubscribeClicked();"/>
         </div>
         <div class="popupMessageArea">
             This is the response from the server
