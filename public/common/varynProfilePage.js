@@ -146,6 +146,11 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             }
         },
 
+        /**
+         * Use this method to validate a new registration. When there is an error this function
+         * will update the error form field and set the focus.
+         * @returns {boolean} Returns true when form is acceptable, false if there is an error.
+         */
         registerFormValidation: function () {
             var userName = $("input[name=register_form_username]").val(),
                 password = $("input[name=register_form_password]").val(),
@@ -190,6 +195,11 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             return errorMessage == "";
         },
 
+        /**
+         * Use this method to validate an existing registration. When there is an error this function
+         * will update the error form field and set the focus.
+         * @returns {boolean} Returns true when form is acceptable, false if there is an error.
+         */
         updateFormValidation: function () {
             var userName = $("input[name=register_form_username]").val(),
                 email = $("input[name=register_form_email]").val(),
@@ -204,6 +214,10 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
                 errorMessage = "User name is not acceptable. Please enter your user name.";
                 errorField = "register_form_username";
             }
+            if (errorMessage == "" && varynApp.isChangedUserName(userName) && ! varynApp.testUserNameIsUnique('register_user_name_unique')) {
+                errorMessage = "User name is in use by someone else. Please select a unique user name.";
+                errorField = "register_form_username";
+            }
             if (errorMessage == "" && ! varynApp.isValidEmail(email)) {
                 errorMessage = "Email " + email + " doesn't look right. Please enter a proper email address.";
                 errorField = "register_form_email";
@@ -213,7 +227,6 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
                 errorField = "register_form_dob";
             }
             // TODO:
-            // full-name is valid
             // Location, tagline, about-me all are valid strings, no crazy html crap (b/i/strong emojis are ok)
             if (errorMessage != "") {
                 varynApp.showErrorMessage(errorMessage, errorField);

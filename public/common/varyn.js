@@ -162,14 +162,40 @@ var varyn = function (parameters) {
             return /^[a-zA-Z0-9_@!~\$\.\-\|\s?]{3,20}$/.test(userName);
         },
 
+        /**
+         * Test if user name has changed from teh value we have in the userInfo object.
+         * @param newUserName
+         * @returns {boolean} Returns true if the provided user name is different from the cached value.
+         */
         isChangedUserName: function (newUserName) {
-            var userInfo = siteConfiguration.userInfo,
-                isChanged = true;
+            var userInfo = siteConfiguration.userInfo;
+            return ! (userInfo != null && userInfo.user_name == newUserName);
+        },
 
-            if (userInfo != null && userInfo.user_name == newUserName) {
-                isChanged = false;
+        /**
+         * Use this function to determine if a given form field contains a value that is different than the
+         * corresponding value in the userInfo cache. Returns true if the values are different.
+         * @param fieldKey String the key in the userInfo object to check.
+         * @param formId String the id on the DOM form to read.
+         * @returns {boolean} true if the two values are different. false if they are the same.
+         */
+        isChangedUserInfoField: function (fieldKey, formId) {
+            var result = false,
+                fieldValue = null,
+                formElement,
+                formValue = null;
+
+            if (siteConfiguration.userInfo !== undefined && siteConfiguration.userInfo != null && siteConfiguration.userInfo[fieldKey] !== undefined) {
+                fieldValue = siteConfiguration.userInfo[fieldKey];
             }
-            return isChanged;
+            formElement = document.getElementById(formId);
+            if (formElement != null) {
+                formValue = formElement.value;
+            }
+            if (fieldValue != null && formValue != null) {
+                result = fieldValue != formValue;
+            }
+            return result;
         },
 
         /**
