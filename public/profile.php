@@ -72,6 +72,7 @@
                 } else {
                     $isLoggedIn = true;
                     $authToken = $userInfo->authtok;
+                    $userId = $userInfo->user_id;
                     setVarynUserCookie($userInfo, $enginesis->getServerName());
                     $userInfoJSON = getVarynUserCookie();
                 }
@@ -85,6 +86,7 @@
         $userInfoJSON = getVarynUserCookie();
         $userInfo = getVarynUserCookieObject();
         $authToken = $userInfo->authtok;
+        $userId = $userInfo->user_id;
         $networkId = $enginesis->getNetworkId();
         $socialServices = SocialServices::create($networkId);
         $userInfoSSO = $socialServices->connectSSO();
@@ -114,6 +116,7 @@
         } else {
             $isLoggedIn = true;
             $authToken = $userInfo->authtok;
+            $userId = $userInfo->user_id;
             setVarynUserCookie($userInfo, $enginesis->getServerName());
             $userInfoJSON = getVarynUserCookie();
         }
@@ -208,7 +211,7 @@
             $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
             $hackerToken = getPostVar("all-clear", '');
             if ($thisFieldMustBeEmpty == null && $hackerToken == '') {
-                // TODO: call Enginesis and get a fresh view of the user's data
+                // Call Enginesis to get a fresh view of the user's data in case it was changed in some other process.
                 $userInfo = $enginesis->registeredUserGetEx($userId);
                 if ($userInfo == null) {
                     // TODO: Need to handle any errors
@@ -233,43 +236,81 @@
                 // TODO: security fields updated?
                 // TODO: new password?
 
-                $userName = getPostVar("register_form_username", '');
-                $email = getPostVar("register_form_email", '');
-                $fullname = getPostVar("register-fullname", '');
-                $location = getPostVar("register_form_location", '');
-                $tagline = getPostVar("register_form_tagline", '');
-                $dateOfBirth = getPostVar("register_form_dob", '');
-                $gender = getPostVar("register_form_gender", 'F');
-                $cellphone = getPostVar("register_form_phone", '');
-                $aboutMe = getPostVar("register_form_aboutme", '');
-                $parameters = array(
-                    'user_name' => $userName,
-                    'email_address' => $email,
-                    'real_name' => $fullname,
-                    'city' => $location,
-                    'state' => '',
-                    'zipcode' => '',
-                    'country_code' => 'US',
-                    'tagline' => $tagline,
-                    'dob' => $dateOfBirth,
-                    'gender' => $gender,
-                    'mobile_number' => $cellphone,
-                    'im_id' => '',
-                    'about_me' => $aboutMe,
-                    'additional_info' => ''
-                );
-                $invalidFields = $enginesis->userRegistrationValidation($userId, $parameters);
-                if ($invalidFields == null) {
-                    $updateResult = $enginesis->registeredUserUpdate($userId, $parameters);
-                    echo("<h4>registeredUserUpdate result:</h4>");
-                    print_r($updateResult);
-                    // TODO: Handle Error
-                    // TODO: update $userInfo with the changed fields and save it
-                } else {
-                    // TODO: handle invalid fields by showing UI
-                    $showRegistrationForm = true;
+                // Validate the hacker stuff is ok
+                if ( ! ($thisFieldMustBeEmpty == '' && validateInputFormHackerToken($hackerToken))) {
+                    $errorMessage = "<p class=\"error-text\">Registration info is incomplete, please check your entry.</p>";
                     $inputFocusId = 'register_form_email';
-                    print_r($invalidFields);
+                } else {
+                    $userRegistrationDataChanged = true; // TODO: set for when we want to optimize these updates and only save when something changed.
+                    $userSecurityDataChanged = true;     // TODO: for now just save it.
+                    if ($userRegistrationDataChanged) {
+                        $userName = getPostVar("register_form_username", '');
+                        $email = getPostVar("register_form_email", '');
+                        $fullname = getPostVar("register-fullname", '');
+                        $location = getPostVar("register_form_location", '');
+                        $tagline = getPostVar("register_form_tagline", '');
+                        $dateOfBirth = getPostVar("register_form_dob", '');
+                        $gender = getPostVar("register_form_gender", 'F');
+                        $cellphone = getPostVar("register_form_phone", '');
+                        $aboutMe = getPostVar("register_form_aboutme", '');
+                        $parameters = array(
+                            'user_name' => $userName,
+                            'email_address' => $email,
+                            'real_name' => $fullname,
+                            'city' => $location,
+                            'state' => '',
+                            'zipcode' => '',
+                            'country_code' => 'US',
+                            'tagline' => $tagline,
+                            'dob' => $dateOfBirth,
+                            'gender' => $gender,
+                            'mobile_number' => $cellphone,
+                            'im_id' => '',
+                            'about_me' => $aboutMe,
+                            'additional_info' => ''
+                        );
+                        $invalidFields = $enginesis->userRegistrationValidation($userId, $parameters);
+                        if ($invalidFields == null) {
+                            $updateResult = $enginesis->registeredUserUpdate($parameters);
+                            // TODO: Handle Error
+                            // TODO: update $userInfo with the changed fields and save it
+                        } else {
+                            // TODO: handle invalid fields by showing UI
+                            $showRegistrationForm = true;
+                            $inputFocusId = 'register_form_email';
+                            echo("<h4>registeredUserUpdate bad data:</h4>");
+                            print_r($invalidFields);
+                        }
+                    }
+                    if ($inputFocusId == '' && $userSecurityDataChanged) {
+                        $securityQuestionId = 1;
+                        $securityQuestion = getPostVar("register_form_question", '');
+                        $securityAnswer = getPostVar("register_form_answer", '');
+                        $cellphone = getPostVar("register_form_phone", '');
+                        if (strlen($securityQuestion) > 3 and strlen($securityAnswer) > 2) {
+                            $invalidFields = $enginesis->registeredUserSecurityValidation($userId, $cellphone, $securityQuestionId, $securityQuestion, $securityAnswer);
+                            if ($invalidFields == null) {
+                                $updateResult = $enginesis->registeredUserSecurityUpdate($cellphone, $securityQuestionId, $securityQuestion, $securityAnswer);
+                                // TODO: Handle Error
+                                // TODO: update $userInfo with the changed fields and save it
+                            } else {
+                                // TODO: handle invalid fields by showing UI
+                                $showRegistrationForm = true;
+                                $inputFocusId = 'register_form_email';
+                                echo("<h4>registeredUserSecurityUpdate failed:</h4>");
+                                print_r($invalidFields);
+                            }
+                        }
+                    }
+                    if ($inputFocusId == '') {
+                        // TODO: if the password changed then start the reset password process.
+                        $newPassword = getPostVar("register_form_new_password", '');
+                        if ($newPassword != '') {
+                            $updateResult = $enginesis->registeredUserRequestPasswordChange();
+                            echo("<h4>registeredUserRequestPasswordChange response:</h4>");
+                            print_r($updateResult);
+                        }
+                    }
                 }
             }
         }
@@ -299,26 +340,36 @@
             }
             $inputFocusId = 'profile_forgot_password';
         }
-    } elseif ($action == 'view') {
-        $userId = getPostOrRequestVar('id', '');
-        if ($userId == '') {
-            $userId = getPostOrRequestVar('user', '');
-        }
-        if ($userId != '') {
-            $otherUserInfo = $enginesis->registeredUserGet($userId);
-        }
     } elseif ($action == 'logout') {
         $result = $enginesis->userLogout();
         $isLoggedIn = false;
         $userName = '';
         $password = '';
+    } elseif ($action == 'view') {
+        $viewUserId = getPostOrRequestVar('id', '');
+        if ($viewUserId == '') {
+            $viewUserId = getPostOrRequestVar('user', '');
+        }
+        if ($viewUserId != '') {
+            $otherUserInfo = $enginesis->userGet($viewUserId);
+        }
     } else {
-        $action = '';
-        $userName = '';
-        $password = '';
+        $viewUserId = getPostOrRequestVar('id', '');
+        if ($viewUserId == '') {
+            $viewUserId = getPostOrRequestVar('user', '');
+        }
+        if ($viewUserId != '') {
+            $otherUserInfo = $enginesis->userGet($viewUserId);
+            $action = 'view';
+        } else {
+            $action = '';
+            $userName = '';
+            $password = '';
+        }
         if ($isLoggedIn) {
             $userInfo = getVarynUserCookieObject();
             $authToken = $userInfo->authtok;
+            $userId = $userInfo->user_id;
             $userInfoJSON = getVarynUserCookie();
         }
     }
@@ -389,9 +440,14 @@
     <div id="user_profile">
 <?php
     if ($debug == 1) {
-        echo("<p>Page called with action $action; User name $userName; password $password; email $email; Fullname: $fullname; Loc: $location; Tag: $tagline; DOB: $dateOfBirth;</p>");
+        echo("<h3>Debug info:</h3><p>Page called with action $action; User name $userName; password $password; email $email; Fullname: $fullname; Loc: $location; Tag: $tagline; DOB: $dateOfBirth;</p>");
         if ($invalidFields != null) {
+            echo("<h4>Invalid fields detected:</h4>");
             print_r($invalidFields);
+        }
+        if ($otherUserInfo != null) {
+            echo("<h4>View user:</h4>");
+            print_r($otherUserInfo);
         }
     }
     if ($otherUserInfo == null && $isLoggedIn && ! $showRegistrationForm) {
@@ -491,7 +547,7 @@
 ?>
         <h2>Profile Update</h2>
         <p>Update the attributes of your user registration.</p>
-            <ul class="nav nav-tabs" role="tablist">
+            <ul class="nav nav-tabs col-md-6" role="tablist">
                 <li role="presentation" class="active"><a href="#basicInfo" id="basic-info" role="tab" aria-controls="basicInfo" data-toggle="tab">Basic Info</a></li>
                 <li role="presentation"><a href="#extendedInfo" id="extended-info" role="tab" aria-controls="extendedInfo" data-toggle="tab">Extended Info</a></li>
                 <li role="presentation"><a href="#secureInfo" id="secure-info" role="tab" aria-controls="secureInfo" data-toggle="tab">Security</a></li>
@@ -506,7 +562,7 @@
         }
 ?>
         <div class="row">
-            <div class="panel col-md-10 profile-login">
+            <div class="col-md-6 profile-login">
                 <div id="errorContent" class="errorContent"><?php echo($errorMessage);?></div>
                 <form id="register_form" method="POST" action="profile.php" onsubmit="return <?php if ($isLoggedIn) { echo('profilePage.updateFormValidation()'); } else {echo('profilePage.registerFormValidation()');} ?>;">
                     <div class="tab-content">
@@ -556,10 +612,10 @@
                         </div>
                         <div role="tabpanel" class="tab-pane fade" id="secureInfo">
                             <p>Manage security settings for your account:</p>
-                            <div class="form-group"><label for="register_form_new_password">New password:</label><input type="password" name="register_form_new_password" class="popup-form-input required password" id="register_form_new_password" placeholder="A new password" autocomplete="off" value="<?php echo($newPassword);?>"/></div>
-                            <div class="form-group"><label for="register_form_question">Your question:</label><input type="text" name="register_form_question" class="popup-form-input" id="register_form_question" placeholder="Security question" autocomplete="on" maxlength="80" value="<?php echo($securityQuestion);?>"/></div>
-                            <div class="form-group"><label for="register_form_answer">Your answer:</label><input type="text" name="register_form_answer" class="popup-form-input" id="register_form_answer" placeholder="Security answer" autocomplete="on" maxlength="80" value="<?php echo($securityAnswer);?>"/></div>
-                            <div class="form-group"><label for="register_form_phone">Mobile number:</label><input type="tel" name="register_form_phone" class="popup-form-input cellphone" id="register_form_phone" placeholder="Mobile number" autocorrect="off" autocomplete="tel" maxlength="20" value="<?php echo($cellphone);?>"/></div>
+                            <div class="form-group"><label for="register_form_new_password">New password:</label><div class="input-group"><input type="password" name="register_form_new_password" class="form-control required password" id="register_form_new_password" placeholder="A new password" autocomplete="off" value="<?php echo($newPassword);?>"/><span class="input-group-addon"><input type="checkbox" aria-label="Check to show password" value="Show"> Show</span></div></div>
+                            <div class="form-group"><label for="register_form_question">Your question:</label><input type="text" name="register_form_question" class="form-control" id="register_form_question" placeholder="Security question" autocomplete="on" maxlength="80" value="<?php echo($securityQuestion);?>"/></div>
+                            <div class="form-group"><label for="register_form_answer">Your answer:</label><input type="text" name="register_form_answer" class="form-control" id="register_form_answer" placeholder="Security answer" autocomplete="on" maxlength="80" value="<?php echo($securityAnswer);?>"/></div>
+                            <div class="form-group"><label for="register_form_phone">Mobile number:</label><input type="tel" name="register_form_phone" class="form-control cellphone" id="register_form_phone" placeholder="Mobile number" autocorrect="off" autocomplete="tel" maxlength="20" value="<?php echo($cellphone);?>"/></div>
                         </div>
                     </div>
                 </form>

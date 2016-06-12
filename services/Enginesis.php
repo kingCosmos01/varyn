@@ -132,6 +132,67 @@
         }
 
         /**
+         * Determine if the string is valid.
+         * @param $string string to test
+         * @param $minLength int The minimum length allowed. 0 will allow both null and empty string.
+         * @param $maxLength int The maximum length allowed.
+         * @param $allowEmpty bool true then allow empty/non-existing string.
+         * @param $allowTags bool true then make sure string does not contain HTML.
+         * @return bool
+         */
+        public function isValidString ($string, $minLength, $maxLength, $allowEmpty, $allowTags) {
+            if ($allowEmpty && strlen($string) == 0) {
+                return true;
+            } else {
+                if ( ! $allowTags && $string != strip_tags($string)) {
+                    return false;
+                } else {
+                    $len = strlen($string);
+                    return  $len >= $minLength && $len <= $maxLength;
+                }
+            }
+        }
+
+        /**
+         * Determine if a user name passes basic validity checks.
+         * @param $userName
+         * @return bool
+         */
+        public function isValidUserName ($userName) {
+            $badNames = array('null', 'undefined', 'xxx', 'shit', 'fuck', 'dick');
+            return strlen(trim($userName)) > 2 && ! in_array($userName, $badNames);
+        }
+
+        /**
+         * Determine if a password passes basic validity checks.
+         * @param $password
+         * @return bool
+         */
+        public function isValidPassword ($password) {
+            return strlen(trim($password)) > 3;
+        }
+
+        /**
+         * Determine if we have a valid gender setting.
+         * @param $gender
+         * @return bool
+         */
+        public function isValidGender ($gender) {
+            $acceptableGenders = array('M', 'Male', 'F', 'Female', 'X', 'undefined');
+            return in_array($gender, $acceptableGenders);
+        }
+
+        /**
+         * Determine if the date is acceptable.
+         * @param $date
+         * @return bool
+         */
+        public function isValidDate ($date) {
+            $dateParts = explode('-', $date);
+            return count($dateParts) == 3 && checkdate($dateParts[1], $dateParts[2], $dateParts[0]);
+        }
+
+        /**
          * Determine the site-id.
          * @return int
          */
@@ -930,25 +991,76 @@
          *   Determine if user registration parameters are valid. If not, indicate the first parameter that is invalid.
          * @param $user_id: id of existing user to validate, or 0/null if a new registration.
          * @param $parameters: key/value object of registration data.
-         * @return object: key/value pairs that we think are unacceptable. null if acceptable. key is the field in error, value is the error message.
+         * @return array: keys that we think are unacceptable. null if acceptable.
          * TODO: this is not implemented, returns null (OK) as a placeholder.
          */
         public function userRegistrationValidation ($user_id, $parameters) {
-//        $parameters = array(
-//            'user_name' => $userName,
-//            'password' => $password,
-//            'email_address' => $email_address,
-//            'full_name' => $fullname,
-//            'location' => $location,
-//            'tagline' => $tagline,
-//            'dob' => $dateOfBirth,
-//            'gender' => $gender,
-//            'captcha' => $captcha,
-//            'agreement' => $agreement
-//        );
-            // Mandatory: user_name, password, email, agreement
-            // optional - must be valid if provided: full_name, dob, gender
-            return null;
+            $errors = array();
+
+            $key = 'user_name';
+            if ( ! isset($parameters[$key]) || ! $this->isValidUserName($parameters[$key])) {
+                array_push($errors, $key);
+            }
+            $key = 'email_address';
+            if ( ! isset($parameters[$key]) || ! checkEmailAddress($parameters[$key])) {
+                array_push($errors, $key);
+            }
+            if ($user_id == 0) {
+                // This is a new registration
+                $key = 'password';
+                if ( ! isset($parameters[$key]) || ! $this->isValidPassword($parameters[$key])) {
+                    array_push($errors, $key);
+                }
+            }
+            $key = 'dob';
+            if (isset($parameters[$key]) && ! $this->isValidDate($parameters[$key])) {
+                array_push($errors, $key);
+            }
+            $key = 'real_name';
+            if (isset($parameters[$key]) && ! $this->isValidString($parameters[$key], 0, 50, true, false)) {
+                array_push($errors, $key);
+            }
+            $key = 'city';
+            if (isset($parameters[$key]) && ! $this->isValidString($parameters[$key], 0, 80, true, false)) {
+                array_push($errors, $key);
+            }
+            $key = 'state';
+            if (isset($parameters[$key]) && ! $this->isValidString($parameters[$key], 2, 2, true, false)) {
+                array_push($errors, $key);
+            }
+            $key = 'country_code';
+            if (isset($parameters[$key]) && ! $this->isValidString($parameters[$key], 2, 2, true, false)) {
+                array_push($errors, $key);
+            }
+            $key = 'zipcode';
+            if (isset($parameters[$key]) && ! $this->isValidString($parameters[$key], 5, 10, true, false)) {
+                array_push($errors, $key);
+            }
+            $key = 'gender';
+            if (isset($parameters[$key]) && ! $this->isValidGender($parameters[$key])) {
+                array_push($errors, $key);
+            }
+            $key = 'tagline';
+            if (isset($parameters[$key]) && ! $this->isValidString($parameters[$key], 0, 255, true, true)) {
+                array_push($errors, $key);
+            }
+            $key = 'about_me';
+            if (isset($parameters[$key]) && ! $this->isValidString($parameters[$key], 0, 500, true, true)) {
+                array_push($errors, $key);
+            }
+            $key = 'additional_info';
+            if (isset($parameters[$key]) && ! $this->isValidString($parameters[$key], 0, 1000, true, true)) {
+                array_push($errors, $key);
+            }
+            $key = 'mobile_number';
+            if (isset($parameters[$key]) && ! $this->isValidString($parameters[$key], 0, 20, true, false)) {
+                array_push($errors, $key);
+            }
+            $key = 'im_id';
+            if (isset($parameters[$key]) && ! $this->isValidString($parameters[$key], 0, 50, true, false)) {
+                array_push($errors, $key);
+            }
+            return count($errors) > 0 ? $errors : null;
         }
 
         /* @function userRegistration
@@ -1013,11 +1125,10 @@
         /* @function registeredUserUpdate
          * @description
          *   Update and existing user's registration information.
-         * @param $userId: int the user's internal id
          * @param $parameters: key/value object of registration data. Only changed keys may be provided.
          * @return object: null if registration fails, otherwise returns the user info object.
          */
-        public function registeredUserUpdate ($userId, $parameters) {
+        public function registeredUserUpdate ($parameters) {
             $service = 'RegisteredUserUpdate';
             $userInfo = array(
                 'user_name' => $parameters['user_name'],
@@ -1064,6 +1175,46 @@
             return $results;
         }
 
+        /* @function registeredUserSecurityValidation
+         * @description
+         *   Determine if user security parameters are valid. If not, indicate the first parameter that is invalid.
+         * @param $user_id int
+         * @param $mobile_number string
+         * @param $security_question_id int
+         * @param $security_question string
+         * @param $security_answer string
+         * @return object: null if all acceptable. key/value pairs that we think are unacceptable. key is the field in error, value is the error message.
+         */
+        public function registeredUserSecurityValidation ($user_id, $mobile_number, $security_question_id, $security_question, $security_answer) {
+            $errors = array();
+            $key = 'mobile_number';
+            $questionOK = true;
+            if ( ! $this->isValidString($mobile_number, 7, 20, true, false)) {
+                array_push($errors, $key);
+            }
+            $key = 'security_question_id';
+            if ( ! $this->isValidId($security_question_id)) {
+                array_push($errors, $key);
+            }
+            $key = 'security_answer';
+            if ( ! $this->isValidString($security_answer, 3, 50, true, false)) {
+                array_push($errors, $key);
+                $questionOK = false;
+            }
+            $key = 'security_question';
+            if ( ! $this->isValidString($security_question, 4, 80, true, false)) {
+                array_push($errors, $key);
+                $questionOK = false;
+            }
+            $q = strlen($security_question);
+            $a = strlen($security_answer);
+            if ($questionOK && ($q xor $a)) {
+                // both question and answer must be empty or not empty
+                array_push($errors, $key);
+            }
+            return count($errors) > 0 ? $errors : null;
+        }
+
         /**
          * Set the security info for the current logged in user.
          * @param $mobile_number - this is optional, pass either null or empty string to skip.
@@ -1079,7 +1230,9 @@
                 'mobile_number' => $mobile_number,
                 'security_question_id' => $security_question_id,
                 'security_question' => $security_question,
-                'security_answer' => $security_answer
+                'security_answer' => $security_answer,
+                'captcha_id' => '99999',
+                'captcha_response' => 'DEADMAN'
             );
             $enginesisResponse = $this->callServerAPI($service, $userInfo);
             $results = $this->setLastErrorFromResponse($enginesisResponse);
@@ -1160,18 +1313,39 @@
 
         /**
          * The general public user get - returns a minimum set of public attributes about a user.
-         * @param $userId
-         * @return boolean
+         * @param $userId - may be either an int indicating a user_id or a string indicating a user_name.
+         * @return object A user info object containing only the public attributes.
          */
         public function userGet ($userId) {
             $user = null;
-            if ($userId < 9999) {
-                $userId = $this->m_userId;
+            if (is_numeric ($userId)) {
+                if ($userId < 9999) {
+                    $userId = $this->m_userId;
+                }
+                $enginesisResponse = $this->callServerAPI('UserGet', array('get_user_id' => $userId));
+            } elseif ($this->isValidUserName($userId)) {
+                $enginesisResponse = $this->callServerAPI('UserGetByName', array('user_name' => $userId));
             }
-            $enginesisResponse = $this->callServerAPI('UserGet', array('get_user_id' => $userId));
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             if ($results != null && isset($results[0])) {
                 $user = $results[0];
+            }
+            return $user;
+        }
+
+        /**
+         * The general public user get by a user name - returns a minimum set of public attributes about a user.
+         * @param $userName - may be either an int indicating a user_id or a string indicating a user_name.
+         * @return object A user info object containing only the public attributes.
+         */
+        public function userGetByName ($userName) {
+            $user = null;
+            if ($this->isValidUserName($userName)) {
+                $enginesisResponse = $this->callServerAPI('UserGetByName', array('user_name' => $userName));
+                $results = $this->setLastErrorFromResponse($enginesisResponse);
+                if ($results != null && isset($results[0])) {
+                    $user = $results[0];
+                }
             }
             return $user;
         }
