@@ -524,11 +524,11 @@ var varyn = function (parameters) {
                 userName = document.getElementById("login_username").value.toString(),
                 errorField = "";
 
-            if (errorField == "" && ! isValidUserName(userName)) {
+            if (errorField == "" && ! this.isValidUserName(userName)) {
                 this.setPopupMessage("loginPopup", "Your user name " + userName + " looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "login_username";
             }
-            if (errorField == "" && ! isValidPassword(password)) {
+            if (errorField == "" && ! this.isValidPassword(password)) {
                 this.setPopupMessage("loginPopup", "Your password looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "login_password";
             }
@@ -551,12 +551,39 @@ var varyn = function (parameters) {
                 userName = document.getElementById("forgotpassword_username").value.toString(),
                 errorField = "";
 
-            if (errorField == "" && ! isValidUserName(userName)) {
+            if (errorField == "" && ! this.isValidUserName(userName)) {
                 this.setPopupMessage("forgotPasswordPopup", "Your user name '" + userName + "' looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "forgotpassword_username";
             }
-            if (errorField == "" && ! isValidEmail(email)) {
+            if (errorField == "" && ! this.isValidEmail(email)) {
                 this.setPopupMessage("forgotPasswordPopup", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
+                errorField = "forgotpassword_email";
+            }
+            if (errorField != "") {
+                $(errorField).removeClass("popup-form-input").addClass("popup-form-input-error");
+                document.getElementById(errorField).focus();
+            }
+            return errorField == ""; // return true to submit form
+        },
+
+        /**
+         * The submit button on the forgot password popup was clicked. Validate user inputs on the
+         * forgot password form before we attempt to submit the request with the server. Will
+         * set focus to a field in error.
+         *
+         * @returns {boolean} true if ok to submit the form
+         */
+        formForgotPasswordClicked: function () {
+            var email = document.getElementById("forgotpassword_email_form").value.toString(),
+                userName = document.getElementById("forgotpassword_username_form").value.toString(),
+                errorField = "";
+
+            if (errorField == "" && ! this.isValidUserName(userName)) {
+                this.setPopupMessage("forgot-password-form", "Your user name '" + userName + "' looks bad. Can you try again?", "popupMessageResponseError");
+                errorField = "forgotpassword_username";
+            }
+            if (errorField == "" && ! this.isValidEmail(email)) {
+                this.setPopupMessage("forgot-password-form", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "forgotpassword_email";
             }
             if (errorField != "") {

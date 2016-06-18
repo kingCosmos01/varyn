@@ -336,7 +336,46 @@
             if ($errorCode == 'SYSTEM_ERROR') {
                 $errorMessage = '<p class="error-text">' . errorToLocalString($errorCode) . '</p>';
             } else {
-                $errorMessage = '<p class="error-text">' . errorToLocalString($errorCode) . '<br/>' . $userName . ', ' . $email . '. Please check your entry.</p>';
+                $info = '';
+                if ( ! empty($userName) && ! empty($email)) {
+                    $info = $userName . ', ' . $email;
+                } else {
+                    if ( ! empty($userName)) {
+                        $info = $userName;
+                    }
+                    if ( ! empty($email)) {
+                        $info = ($info == '' ? '' : ', ') . $email;
+                    }
+                }
+                $info .= $info == '' ? '' : '. ';
+                $errorMessage = '<p class="error-text">' . errorToLocalString($errorCode) . '<br/>' . $info . 'Please check your entry.</p>';
+            }
+            $inputFocusId = 'profile_forgot_password';
+        }
+    } elseif ($action == 'resetpassword') {
+        $result = $enginesis->userResetPassword();
+        if ($result) {
+            $errorMessage = '<p class="info-text">Email has been sent with instructions to complete your account password reset.</p>';
+            $inputFocusId = 'login_form_username';
+        } else {
+            $error = $enginesis->getLastError();
+            $errorCode = $error['message'];
+            if ($errorCode == 'SYSTEM_ERROR') {
+                $errorMessage = '<p class="error-text">' . errorToLocalString($errorCode) . '</p>';
+            } else {
+                $info = '';
+                if ( ! empty($userName) && ! empty($email)) {
+                    $info = $userName . ', ' . $email;
+                } else {
+                    if ( ! empty($userName)) {
+                        $info = $userName;
+                    }
+                    if ( ! empty($email)) {
+                        $info = ($info == '' ? '' : ', ') . $email;
+                    }
+                }
+                $info .= $info == '' ? '' : '. ';
+                $errorMessage = '<p class="error-text">' . errorToLocalString($errorCode) . '<br/>' . $info . '. Please check your entry.</p>';
             }
             $inputFocusId = 'profile_forgot_password';
         }
@@ -723,6 +762,5 @@
     head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js", "/common/varynProfilePage.js");
 
 </script>
-</div><!-- page_container -->
 </body>
 </html>
