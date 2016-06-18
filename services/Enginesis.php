@@ -1297,6 +1297,21 @@
             return $results;
         }
 
+        /* @function userResetPassword
+         * @description
+         *   Trigger the reset password procedure. The server will reset the user's password and
+         *   send an email to the email address on record to follow a link to reset the password.
+         * @return bool: true if the process was started, false if there was an error.
+         */
+        public function userResetPassword () {
+            $enginesisResponse = $this->callServerAPI('RegisteredUserResetPassword', array());
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results == null) {
+                debugLog('userResetPassword failed: ' . $this->m_lastError['message'] . ' / ' . $this->m_lastError['extended_info']);
+            }
+            return $results;
+        }
+
         /* @function userVerifyForgotPassword
          * @description
          *   When the user comes back to reset the password.
