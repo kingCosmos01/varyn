@@ -117,9 +117,9 @@ echo("<p>redirect to $redirectTo</p>");
                     ?>
                     <form method="POST" action="" onsubmit="return validateForm();">
                         <table>
+                            <tr><td colspan="2" width="100%"><div id="messageArea"><?php echo($errorMessage);?></div></td></tr>
                             <tr><td width="50%"><label>New Password</label></td><td width="50%"><input name="newPassword" id="newPassword" type="password" required size="20" maxlength="20" /></td></tr>
                             <tr><td width="50%"><label>Retype New Password</label></td><td width="50%"><input name="retypePassword" id="retypePassword" type="password" required size="20" maxlength="20" /></td></tr>
-                            <tr><td colspan="2" width="100%"><div id="messageArea"><?php echo($errorMessage);?></div></td></tr>
                             <tr><td colspan="2" width="100%"><input type="submit" value="Reset"/></td></tr>
                         </table>
                     </form>

@@ -126,9 +126,21 @@ var varyn = function (parameters) {
             }
         },
 
+        /**
+         * Return the current logged in user info object.
+         * TODO: Verify the user is in fact logged in and token is valid.
+         * @returns {*}
+         */
         getVarynUserInfo: function () {
             // user info could come from authtok or cookie.
-            return getVarynUserInfoFromCookie();
+            var userInfo = siteConfiguration.userInfo;
+            if (userInfo == null) {
+                userInfo = commonUtilities.loadObjectWithKey(userInfoKey);
+                if (userInfo == null) {
+                    userInfo = getVarynUserInfoFromCookie();
+                }
+            }
+            return userInfo;
         },
 
         getEnginesisSession: function () {

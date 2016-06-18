@@ -51,6 +51,12 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
                     }
                     break;
 
+                case 'RegisteredUserRequestPasswordChange':
+                    if (succeeded == 1) {
+                        // update popup with error message or success message
+                    }
+                    break;
+
                 default:
                     break;
             }
@@ -254,8 +260,48 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             commonUtilities.removeObjectWithKey('VarynSecurityInfo');
         },
 
+        sendPasswordResetRequest: function () {
+            return enginesisSession.registeredUserRequestPasswordChange(this.enginesisCallBack);
+        },
+
         forgotPassword: function () {
             varynApp.showForgotPasswordPopup(true);
+        },
+
+        /**
+         * Call enginesis API to reset the password for the current logged in user.
+         */
+        changePassword: function () {
+            var userInfo = varynApp.getVarynUserInfo(),
+                errorMessage = '',
+                error = false;
+
+            if (userInfo != null) {
+                error = this.sendPasswordResetRequest();
+                if (error) {
+                    errorMessage = 'We are not able to generate a password reset on your behalf. Please contact our support channel.';
+                }
+            } else {
+                error = true;
+                errorMessage = 'You must be logged in to reset your password.';
+            }
+            this.showResetPasswordPopup(error, errorMessage);
+        },
+
+        showResetPasswordPopup: function (error, errorMessage) {
+            var popupCover = document.getElementById("popupCoverProfilePage"),
+                popupFrame = document.getElementById("resetPasswordPopup");
+
+            popupCover.style.display = 'block';
+            popupFrame.style.display = 'block';
+        },
+
+        closeResetPasswordPopup: function () {
+            var popupCover = document.getElementById("popupCoverProfilePage"),
+                popupFrame = document.getElementById("resetPasswordPopup");
+
+            popupCover.style.display = 'none';
+            popupFrame.style.display = 'none';
         },
 
         showRegistrationPopup: function () {

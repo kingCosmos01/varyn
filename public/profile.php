@@ -475,6 +475,15 @@
 <?php
     include_once('common/header.php');
 ?>
+<div id="popupCoverProfilePage" class="popupCover">
+    <div id="resetPasswordPopup" class="popupFrame">
+        <div class="popupCloseButton" onclick="profilePage.closeResetPasswordPopup();"><img src="/images/close-button.png" width="24" height="24" border="0"/></div>
+        <h3><span class="varyn-shield-icon"></span>Reset password</h3>
+        <div class="resetPasswordMessageArea">
+            This is the response from the server
+        </div>
+    </div>
+</div>
 <div class="container marketing">
     <div id="user_profile">
 <?php
@@ -651,7 +660,9 @@
                         </div>
                         <div role="tabpanel" class="tab-pane fade" id="secureInfo">
                             <p>Manage security settings for your account:</p>
-                            <div class="form-group"><label for="register_form_new_password">New password:</label><div class="input-group"><input type="password" name="register_form_new_password" class="form-control required password" id="register_form_new_password" placeholder="A new password" autocomplete="off" value="<?php echo($newPassword);?>"/><span class="input-group-addon"><input type="checkbox" aria-label="Check to show password" value="Show"> Show</span></div></div>
+                            <div class="form-group">
+                                <input type="button" id="change_password" onclick="profilePage.changePassword();" value="Change Password" class="btn btn-info"/>
+                            </div>
                             <div class="form-group"><label for="register_form_question">Your question:</label><input type="text" name="register_form_question" class="form-control" id="register_form_question" placeholder="Security question" autocomplete="on" maxlength="80" value="<?php echo($securityQuestion);?>"/></div>
                             <div class="form-group"><label for="register_form_answer">Your answer:</label><input type="text" name="register_form_answer" class="form-control" id="register_form_answer" placeholder="Security answer" autocomplete="on" maxlength="80" value="<?php echo($securityAnswer);?>"/></div>
                             <div class="form-group"><label for="register_form_phone">Mobile number:</label><input type="tel" name="register_form_phone" class="form-control cellphone" id="register_form_phone" placeholder="Mobile number" autocorrect="off" autocomplete="tel" maxlength="20" value="<?php echo($cellphone);?>"/></div>
