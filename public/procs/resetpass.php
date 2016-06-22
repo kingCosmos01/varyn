@@ -4,6 +4,8 @@
      * not expired, then accept a new password from a form. THis page is intended to be called from a link such as
      * http://%domain%/procs/resetpass.php?id=10093&e=1e6&s=%site_id%&u=%user_id%&t=%token%
      * @Date: 6/18/2016
+     *
+     * TEST: http://www.varyn-l.com/procs/resetpass.php?id=10093&e=1e6&s=106&u=10239&t=1234
      */
     require_once('../../services/common.php');
     $debug = true;
@@ -13,6 +15,7 @@
         header('location:/allgames.php?q=' . $search);
         exit;
     }
+    processTrackBack();
     $showSubscribe = getPostOrRequestVar('s', '0');
     $user_id = getPostOrRequestVar('u', 0);
     $site_id = getPostOrRequestVar('s', 0);

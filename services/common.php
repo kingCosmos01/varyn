@@ -253,6 +253,9 @@
         $event = getPostOrRequestVar('e', '');
         $userId = getPostOrRequestVar('u', '');
         $newsletterId = getPostOrRequestVar('i', '');
+        if ($newsletterId == '') {
+            $newsletterId = getPostOrRequestVar('id', '');
+        }
         if ($event != '' && $userId != '' && $newsletterId != '') {
             if (isset($_SERVER['HTTP_REFERER'])) {
                 $url = parse_url($_SERVER['HTTP_REFERER']);

@@ -25,6 +25,7 @@
         header('location:/allgames.php?q=' . $search);
         exit;
     }
+    processTrackBack();
     $showSubscribe = getPostOrRequestVar('s', '0');
 
     $action = ''; // this value tells the page how to function.
