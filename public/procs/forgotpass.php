@@ -168,7 +168,7 @@ include_once('../common/header.php');
                 <div class="panel-body">
                     <?php
                     if ($reset) {
-                        ?>
+                    ?>
                         <p>Email has been sent to the owner of this account. Please follow the instructions in that message to reset the account password.</p>
                         <p><a href="login.php">Login</a></p>
                         <p><a href="mailto:support@enginesis.com">Contact Support</a></p>

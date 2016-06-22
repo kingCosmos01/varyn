@@ -256,6 +256,14 @@
         }
 
         /**
+         * Return the language code.
+         * @return string
+         */
+        public function getLanguageCode () {
+            return $this->m_languageCode;
+        }
+
+        /**
          * @method serverName
          * @purpose: determine the full domain name of the server we are currently running on.
          * @return: {string} server host name only, e.g. www.enginesis.com.
@@ -1270,7 +1278,9 @@
 
             $userInfo = array(
                 'password' => $newPassword,
-                'secondary_password' => $secondaryPassword
+                'secondary_password' => $secondaryPassword,
+                'captcha_id' => '99999',
+                'captcha_response' => 'DEADMAN'
             );
             $enginesisResponse = $this->callServerAPI($service, $userInfo);
             $results = $this->setLastErrorFromResponse($enginesisResponse);

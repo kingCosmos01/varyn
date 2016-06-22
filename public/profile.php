@@ -475,15 +475,6 @@
 <?php
     include_once('common/header.php');
 ?>
-<div id="popupCoverProfilePage" class="popupCover">
-    <div id="resetPasswordPopup" class="popupFrame">
-        <div class="popupCloseButton" onclick="profilePage.closeResetPasswordPopup();"><img src="/images/close-button.png" width="24" height="24" border="0"/></div>
-        <h3><span class="varyn-shield-icon"></span>Reset password</h3>
-        <div class="resetPasswordMessageArea">
-            This is the response from the server
-        </div>
-    </div>
-</div>
 <div class="container marketing">
     <div id="user_profile">
 <?php

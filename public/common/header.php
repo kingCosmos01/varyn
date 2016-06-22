@@ -7,6 +7,12 @@
     }
 ?>
 <div id="popupCover" class="popupCover">
+    <div id="infoMessagePopup" class="popupFrame">
+        <div class="popupCloseButton" onclick="varynApp.closeInfoMessagePopup();"><img src="/images/close-button.png" width="24" height="24" border="0"/></div>
+        <h3><span class="varyn-shield-icon"></span><span id="infoMessageTitle"></span></h3>
+        <div id="infoMessageArea" class="infoMessageArea">
+        </div>
+    </div>
     <div id="subscribePopup" class="popupFrame">
         <div class="popupCloseButton" onclick="varynApp.popupCloseClicked();"><img src="/images/close-button.png" width="24" height="24" border="0"/></div>
         <img src="/images/VarynIcon120x120.png" class="logoImg">

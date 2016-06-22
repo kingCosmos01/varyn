@@ -84,10 +84,10 @@ var varyn = function (parameters) {
             pageViewParameters = pageViewParameterObject;
             document.domain = siteConfiguration.serverHostDomain;
             enginesisSession = enginesis(enginesisParameters);
-            varynApp.checkLoggedInSSO(getNetworkId());
+            this.checkLoggedInSSO(getNetworkId());
             if (enginesisSession.isUserLoggedIn()) {
-                if (pageViewParameterObject['userInfo'] !== undefined && pageViewParameterObject.userInfo != '') {
-                    siteConfiguration.userInfo = JSON.parse(pageViewParameterObject.userInfo); // when user logs in first time this is passed from PHP
+                if (pageViewParameters != null && pageViewParameters['userInfo'] !== undefined && pageViewParameters.userInfo != '') {
+                    siteConfiguration.userInfo = JSON.parse(pageViewParameters.userInfo); // when user logs in first time this is passed from PHP
                     commonUtilities.saveObjectWithKey(userInfoKey, siteConfiguration.userInfo);
                 } else {
                     siteConfiguration.userInfo = commonUtilities.loadObjectWithKey(userInfoKey); // when user already logged in this is saved locally
@@ -96,10 +96,10 @@ var varyn = function (parameters) {
                     }
                 }
             }
-            if (pageViewParameters.showSubscribe !== undefined && pageViewParameters.showSubscribe == '1') {
+            if (pageViewParameters != null && pageViewParameters.showSubscribe !== undefined && pageViewParameters.showSubscribe == '1') {
                 varynApp.showSubscribePopup();
             }
-            if (pageView !== undefined) {
+            if (pageView !== undefined && pageView != null) {
                 pageViewTemplate = pageView(varynApp, siteConfiguration);
                 pageViewTemplate.pageLoaded(pageViewParameters);
             }
@@ -463,6 +463,40 @@ var varyn = function (parameters) {
             this.showForgotPasswordPopup(false);
             // $('.popupFrame').attr('display', 'none');
         },
+
+        /**
+         * Display a take-over popup with a title and message. Use this as a general informational popup on any page.
+         * @param title - title text of popup.
+         * @param message - message HTML shown inside popup body.
+         * @param timeToClose - number of milliseoncds to auto-close the popup. 0 to never close automatically.
+         */
+        showInfoMessagePopup: function (title, message, timeToClose) {
+            var popupCover = document.getElementById("popupCover"),
+                popupFrame = document.getElementById("infoMessagePopup"),
+                popupTitle = document.getElementById("infoMessageTitle"),
+                popupMessage = document.getElementById("infoMessageArea");
+
+            popupTitle.innerText = title;
+            popupMessage.innerHTML = message;
+            popupCover.style.display = 'block';
+            popupFrame.style.display = 'block';
+            if (timeToClose > 0) {
+                window.setTimeout(this.closeInfoMessagePopup.bind(this), timeToClose);
+            }
+        },
+
+        /**
+         * Closes the popup that was opened with showInfoMesssagePopup.
+         * TODO: Maybe smart to cancel the close interval if this was closed from the close button.
+         */
+        closeInfoMessagePopup: function () {
+            var popupCover = document.getElementById("popupCover"),
+                popupFrame = document.getElementById("infoMessagePopup");
+
+            popupCover.style.display = 'none';
+            popupFrame.style.display = 'none';
+        },
+
 
         /**
          * The submit button was clicked on the subscribe popup. Validate user inputs before we
@@ -992,6 +1026,17 @@ var varyn = function (parameters) {
                             document.location.href = "/profile.php?network_id=" + getNetworkId();
                         } else {
                             // TODO: User is not logged in, we should display an error message.
+                        }
+                        break;
+
+                    case 'RegisteredUserRequestPasswordChange':
+                        if (succeeded == 1) {
+                            varynApp.showInfoMessagePopup("Change Password", "A request to change your password has been sent to the email address on file. Please continue the password reset process from the link provided there.", 0);
+                        } else {
+                            if (results.status.extended_info != undefined) {
+                                errorMessage += ' ' + results.status.extended_info;
+                            }
+                            varynApp.showInfoMessagePopup("Change Password", "There was a system issue while trying to reset your password: " + errorMessage, 0);
                         }
                         break;
 

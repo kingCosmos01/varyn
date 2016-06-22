@@ -53,7 +53,12 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
 
                 case 'RegisteredUserRequestPasswordChange':
                     if (succeeded == 1) {
-                        // update popup with error message or success message
+                        varynApp.showInfoMessagePopup("Change Password", "A request to change your password has been sent to the email address on file. Please continue the password reset process from the link provided there.", 0);
+                    } else {
+                        if (results.status.extended_info != undefined) {
+                            errorMessage += ' ' + results.status.extended_info;
+                        }
+                        varynApp.showInfoMessagePopup("Change Password", "There was a system issue while trying to reset your password: " + errorMessage, 0);
                     }
                     break;
 
@@ -261,7 +266,8 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
         },
 
         sendPasswordResetRequest: function () {
-            return enginesisSession.registeredUserRequestPasswordChange(this.enginesisCallBack);
+            var sent = enginesisSession.registeredUserRequestPasswordChange(this.enginesisCallBack);
+            return ! sent;
         },
 
         forgotPassword: function () {
@@ -285,23 +291,9 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
                 error = true;
                 errorMessage = 'You must be logged in to reset your password.';
             }
-            this.showResetPasswordPopup(error, errorMessage);
-        },
-
-        showResetPasswordPopup: function (error, errorMessage) {
-            var popupCover = document.getElementById("popupCoverProfilePage"),
-                popupFrame = document.getElementById("resetPasswordPopup");
-
-            popupCover.style.display = 'block';
-            popupFrame.style.display = 'block';
-        },
-
-        closeResetPasswordPopup: function () {
-            var popupCover = document.getElementById("popupCoverProfilePage"),
-                popupFrame = document.getElementById("resetPasswordPopup");
-
-            popupCover.style.display = 'none';
-            popupFrame.style.display = 'none';
+            if (error) {
+                varynApp.showInfoMessagePopup('Change Password', errorMessage, 0);
+            }
         },
 
         showRegistrationPopup: function () {

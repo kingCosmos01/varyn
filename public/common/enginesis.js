@@ -93,7 +93,8 @@ var enginesis = function (parameters) {
 
     var sendRequest = function (fn, parameters, overRideCallBackFunction) {
         var enginesisParameters = serverParamObjectMake(fn, parameters),
-            crossOriginRequest = new XMLHttpRequest();
+            crossOriginRequest = new XMLHttpRequest(),
+            requestSent = false;
 
         if ( ! disabled) {
             crossOriginRequest.onload = function(e) {
@@ -109,7 +110,9 @@ var enginesis = function (parameters) {
             crossOriginRequest.overrideMimeType("application/json");
             crossOriginRequest.send(convertParamsToFormData(enginesisParameters));
             lastCommand = fn;
+            requestSent = true;
         }
+        return requestSent;
     };
 
     var serverParamObjectMake = function (whichCommand, additionalParameters) {
