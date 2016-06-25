@@ -457,6 +457,7 @@ var varyn = function (parameters) {
          * TODO: Smarter approach would be to take all .popupFrame elements and set them to display:none.
          */
         popupCloseClicked: function () {
+            this.closeInfoMessagePopup();
             this.showSubscribePopup(false);
             this.showLoginPopup(false);
             this.showRegistrationPopup(false);

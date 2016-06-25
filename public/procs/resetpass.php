@@ -161,8 +161,8 @@ include_once('../common/header.php');
                         <ul>
                             <li><a href="/">Home</a></li>
                             <li><a href="/profile.php">Your profile</a></li>
-                            <li><a href="login.php">Login again</a></li>
-                            <li><a href="mailto:support@enginesis.com">Contact Support</a></li>
+                            <li><a href="/profile.php?action=logout">Login again</a></li>
+                            <li><a href="mailto:support@varyn.com">Contact Support</a></li>
                         </ul>
                     <?php
                     } else {

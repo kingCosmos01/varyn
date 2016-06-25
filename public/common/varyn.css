@@ -235,6 +235,10 @@ input [type="radio"] {
     color: #FFFFFF;
 }
 
+#infoMessagePopup {
+    display: none;
+}
+
 #subscribePopup {
     display: none;
 }
