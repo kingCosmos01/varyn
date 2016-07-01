@@ -2,25 +2,53 @@
  *
  * @module commonUtilities
  * @classdesc
- *   A static object of static utility functions for handling common problems
+ *   A static object of utility functions for handling common problems
  *   found in JavaScript and web development. I find on every JS project I work
  *   on I need most of these functions, so I pulled them all together in one place.
  *
  *   This module includes many function utilities for data transformations such as
- *   base64, url and query string processing, data validation, and cookie handling.
+ *   base64, url and query string processing, data validation, and storage handling.
  *
  * @since 1.0
  */
+
 (function commonUtilities (global) {
     'use strict';
 
     var commonUtilities = {
-        version: '1.2.5'
+        version: '1.2.6'
     },
     _base64KeyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
     _testNumber = 0;
 
+    /**
+     * Private function to validate HTML5 local or session storage.
+     * @param storageType - either localStorage or sessionStorage, default is localStorage
+     * @param robustCheck - true for the more robust but un-performant test
+     * @returns {boolean} - true if supported.
+     */
+    function browserStorageAvailable (storageType, robustCheck) {
+        var hasSupport = false,
+            storage,
+            testKey;
 
+        if (storageType === undefined || storageType == null || storageType == '') {
+            storageType = 'localStorage';
+        }
+        try {
+            hasSupport = storageType in global && global[storageType] !== null;
+            if (hasSupport && robustCheck) { // even if "supported" make sure we can write and read from it
+                storage = global[storageType];
+                testKey = 'commonUtilities';
+                storage.setItem(testKey, '1');
+                storage.removeItem(testKey);
+            }
+        } catch (exception) {
+            hasSupport = false;
+        }
+        return hasSupport;
+    }
+  
     /**
      * Return the provided object as a string in key: value; format.
      *
@@ -560,52 +588,100 @@
      * ----------------------------------------------------------------------------------*/
 
     /**
-     * Determine if this device supports local storage
+     * Determine if we have sessionStorage available.
      * @returns {boolean}
      */
-    commonUtilities.hasHTML5LocalStorage = function () {
-        var hasSupport = false,
-            storage,
-            testKey;
-
-        try {
-            hasSupport = 'localStorage' in window && window['localStorage'] !== null;
-            if (hasSupport) { // even if "supported" make sure we can write and read from it
-                storage = window.localStorage;
-                testKey = 'commonUtilities';
-                storage.setItem(testKey, '1');
-                storage.removeItem(testKey);
-            }
-        } catch (e) {
-            hasSupport = false;
-        }
-        return hasSupport;
+    commonUtilities.haveSessionStorage = function () {
+        return browserStorageAvailable('sessionStorage', true);
     };
 
     /**
-     * save object in local storage
-     * @param key
-     * @param object
+     * Determine if we have localStorage available.
+     * @returns {boolean}
+     */
+    commonUtilities.haveLocalStorage = function () {
+        return browserStorageAvailable('localStorage', true);
+    };
+
+    /**
+     * Look up an item's value in a local or session storage and return it. If it is
+     * stored as JSON then we parse it and return an object.
+     *
+     * @param key {string} the key to look up and return its respective value from the storage object indicated. The expectation
+     * is you previously saved it with commonUtilities.storageSave(key, value);
+     * @param storageObject {object} use either localStorage, sessionStorage, or null will default to 'localStorage'
+     * @returns {string|*}
+     */
+    commonUtilities.storageGet = function (key, storageObject) {
+        var itemValueRaw,
+            itemValueParsed;
+
+        if (storageObject === undefined || storageObject == null) {
+            storageObject = global.localStorage;
+        }
+        itemValueRaw = storageObject.getItem(key);
+        if (itemValueRaw != null) {
+            itemValueParsed = JSON.parse(itemValueRaw);
+            if (itemValueParsed == null) {
+                itemValueParsed = itemValueRaw;
+            }
+        }
+        return itemValueParsed;
+    };
+
+    /**
+     * Save an item in local storage. If the value is null, it will attempt to remove the item if it was
+     * previously saved.
+     * @param key {string} the key to store a respective value in the storage object indicated.
+     * @param object {*} any data you want to store. Note Objects and Arrays are saved as JSON and loadObjectWithKey will
+     * re-hydrate the object. Other types are converted to string so loadObjectWithKey will return a string.
+     * @return {boolean} true if saved or removed. false for an error.
      */
     commonUtilities.saveObjectWithKey = function (key, object) {
-        if (commonUtilities.hasHTML5LocalStorage() && key != null && object != null) {
-            window.localStorage[key] = JSON.stringify(object);
+        var storageObject,
+            itemValueRaw,
+            saved = false;
+
+        if (browserStorageAvailable('localStorage', false) && key != null) {
+            try {
+                storageObject = global.localStorage;
+                if (object != null) {
+                    if (typeof object === 'object') {
+                        itemValueRaw = JSON.stringify(object);
+                    } else {
+                        itemValueRaw = object.toString();
+                    }
+                    storageObject.setItem(key, itemValueRaw);
+                } else {
+                    storageObject.removeItem(key);
+                }
+                saved = true;
+            } catch (exception) {
+                saved = false;
+            }
         }
+        return saved;
     };
 
     /**
-     * Return object from local storage
-     * @param key
-     * @returns {*}
+     * Return object from local storage that was saved with saveObjectWithKey.
+     * @param key {string}
+     * @returns {*} object that was saved with saveObjectWithKey
      */
     commonUtilities.loadObjectWithKey = function (key) {
         var jsonData,
+            storageObject,
             object = null;
 
-        if (commonUtilities.hasHTML5LocalStorage() && key != null) {
-            jsonData = window.localStorage[key];
-            if (jsonData != null) {
-                object = JSON.parse(jsonData);
+        if (browserStorageAvailable('localStorage', false) && key != null) {
+            try {
+                storageObject = global.localStorage;
+                jsonData = storageObject[key];
+                if (jsonData != null) {
+                    object = JSON.parse(jsonData);
+                }
+            } catch (exception) {
+                object = null;
             }
         }
         return object;
@@ -616,9 +692,17 @@
      * @param key
      */
     commonUtilities.removeObjectWithKey = function (key) {
-        if (commonUtilities.hasHTML5LocalStorage() && key != null) {
-            window.localStorage.removeItem(key);
+        var removed = false;
+
+        if (browserStorageAvailable('localStorage', false) && key != null) {
+            try {
+                global.localStorage.removeItem(key);
+                removed = true;
+            } catch (exception) {
+                removed = false;
+            }
         }
+        return removed;
     };
 
     /* ----------------------------------------------------------------------------------
@@ -684,7 +768,7 @@
      *        require parameters then wrap into a function that takes no parameters.
      * @param testId {string} any id you want to assign to the test. Not used, but returned.
      * @param totalIterations {int} number of times to call this function.
-     * @returns {object} test results object including test number, test function id, duration,
+     * @return {object} test results object including test number, test function id, duration,
      *         duration units, and total iterations.
      */
     commonUtilities.performanceTest = function (testFunction, testId, totalIterations) {
@@ -891,4 +975,4 @@
         };
         global.commonUtilities = commonUtilities;
     }
-})(window);
+})(this);
