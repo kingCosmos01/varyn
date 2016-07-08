@@ -603,6 +603,18 @@ var enginesis = function (parameters) {
                 }, overRideCallBackFunction);
         },
 
+        /**
+         * Confirm a new user registration given the user-id and the token. These are supplied in the email sent when
+         * a new registration is created with RegisteredUserCreate. If successful the user is logged in and a login
+         * token (authtok) is sent back from the server.
+         * @param user_id
+         * @param secondary_password
+         * @param overRideCallBackFunction
+         */
+        registeredUserConfirm: function (user_id, secondary_password, overRideCallBackFunction) {
+            return sendRequest("RegisteredUserConfirm", {user_id: user_id, secondary_password: secondary_password}, overRideCallBackFunction);
+        },
+
         registeredUserForgotPassword: function (userName, email, overRideCallBackFunction) {
             // this function generates the email that is sent to the email address matching username or email address
             // that email leads to the change password web page
@@ -615,6 +627,7 @@ var enginesis = function (parameters) {
                 }, overRideCallBackFunction);
         },
 
+        // TODO: SHould include the user-id?
         registeredUserPasswordChange: function (captcha_id, captcha_response, password, secondary_password, overRideCallBackFunction) {
             return sendRequest("RegisteredUserPasswordChange", {
                     site_id: siteId,

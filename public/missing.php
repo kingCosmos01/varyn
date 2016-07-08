@@ -48,20 +48,20 @@
     <meta property="fb:app_id" content="" />
     <meta property="fb:admins" content="726468316" />
     <meta property="og:title" content="Varyn: Great games you can play anytime, anywhere">
-    <meta property="og:url" content="http://www.varyn.com">
+    <meta property="og:url" content="//www.varyn.com">
     <meta property="og:site_name" content="Varyn">
     <meta property="og:description" content="Varyn makes games using technology that performs on the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between desktop, tablet, and smart-phone.">
-    <meta property="og:image" content="http://www.varyn.com/images/1200x900.png"/>
-    <meta property="og:image" content="http://www.varyn.com/images/1024.png"/>
-    <meta property="og:image" content="http://www.varyn.com/images/1200x600.png"/>
-    <meta property="og:image" content="http://www.varyn.com/images/600x600.png"/>
-    <meta property="og:image" content="http://www.varyn.com/images/2048x1536.png"/>
+    <meta property="og:image" content="//www.varyn.com/images/1200x900.png"/>
+    <meta property="og:image" content="//www.varyn.com/images/1024.png"/>
+    <meta property="og:image" content="//www.varyn.com/images/1200x600.png"/>
+    <meta property="og:image" content="//www.varyn.com/images/600x600.png"/>
+    <meta property="og:image" content="//www.varyn.com/images/2048x1536.png"/>
     <meta property="og:type" content="game"/>
     <meta name="twitter:card" content="photo"/>
     <meta name="twitter:site" content="@varyndev"/>
     <meta name="twitter:creator" content="@varyndev"/>
     <meta name="twitter:title" content="Varyn: Great games you can play anytime, anywhere"/>
-    <meta name="twitter:image:src" content="http://www.varyn.com/images/600x600.png"/>
+    <meta name="twitter:image:src" content="//www.varyn.com/images/600x600.png"/>
     <meta name="twitter:domain" content="varyn.com"/>
     <script src="/common/head.min.js"></script>
 </head>

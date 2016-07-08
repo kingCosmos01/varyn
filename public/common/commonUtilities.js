@@ -273,6 +273,26 @@
         return (typeof field === 'undefined') || field === null || field === "" || (field instanceof Array && field.length == 0) || field === false || field === 0;
     };
 
+    /**
+     * Convert a string into one that has no HTML vulnerabilities such that it can be rendered inside an HTML tag.
+     * @param string
+     * @returns {string}
+     */
+    commonUtilities.safeForHTML = function (string) {
+        var htmlEscapeMap = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#x27;',
+                '/': '&#x2F;'
+            },
+            htmlEscaper = /[&<>"'\/]/g;
+        return ('' + string).replace(htmlEscaper, function (match) {
+            return htmlEscapeMap[match]
+        });
+    };
+
     /* ----------------------------------------------------------------------------------
      * Platform and feature detection
      * ----------------------------------------------------------------------------------*/

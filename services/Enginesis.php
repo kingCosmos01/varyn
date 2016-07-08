@@ -877,6 +877,13 @@
         }
 
         /**
+         * @return object: the last error, null if the most recent operation succeeded.
+         */
+        public function getLastErrorCode () {
+            return ($this->m_lastError != null) ? $this->m_lastError['message'] : '';
+        }
+
+        /**
          * Return the last error information as a string.
          * @return string
          */
@@ -1166,6 +1173,29 @@
         }
 
         /**
+         * Confirm a new user registration given the user-id and the token. These are supplied in the email sent when
+         * a new registration is created with RegisteredUserCreate. If successful the user is logged in and a login
+         * token (authtok) is sent back from the server.
+         * @param $userId
+         * @param $secondaryPassword
+         * @return null|object
+         */
+        public function registeredUserConfirm ($userId, $secondaryPassword) {
+            $service = 'RegisteredUserConfirm';
+
+            $userInfo = array(
+                'user_id' => $userId,
+                'secondary_password' => $secondaryPassword
+            );
+            $enginesisResponse = $this->callServerAPI($service, $userInfo);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null) {
+                $results = $results->row;
+            }
+            return $results;
+        }
+
+        /**
          * Get the security info for the current logged in user. Returns {mobile_number, security_question_id, security_question, security_answer}
          * @return null|object
          */
@@ -1267,8 +1297,9 @@
         }
 
         /**
-         * Complete the setting of a new password for the user. Requires a new password and the secondary password
-         * token that was given with RegisteredUserRequestPasswordChange. The token expires in 24 hours.
+         * Complete the setting of a new password for the user who is logged in. Requires a authenticated user, a
+         * new password and the secondary password token that was given with RegisteredUserRequestPasswordChange.
+         * The token expires in 24 hours.
          * @param $newPassword
          * @param $secondaryPassword
          * @return null|object
@@ -1277,6 +1308,33 @@
             $service = 'RegisteredUserPasswordChange';
 
             $userInfo = array(
+                'password' => $newPassword,
+                'secondary_password' => $secondaryPassword,
+                'captcha_id' => '99999',
+                'captcha_response' => 'DEADMAN'
+            );
+            $enginesisResponse = $this->callServerAPI($service, $userInfo);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null) {
+                $results = $results[0];
+            }
+            return $results;
+        }
+
+        /**
+         * Complete the setting of a new password for a user who is not currently logged in. Requires the user-id,
+         * a new password and the secondary password token that was given with RegisteredUserRequestPasswordChange.
+         * The token expires in 24 hours.
+         * @param $userId
+         * @param $newPassword
+         * @param $secondaryPassword
+         * @return null|object
+         */
+        public function registeredUserPasswordChangeUnauth ($userId, $newPassword, $secondaryPassword) {
+            $service = 'RegisteredUserPasswordChangeUnauth';
+
+            $userInfo = array(
+                'user_id' => $userId,
                 'password' => $newPassword,
                 'secondary_password' => $secondaryPassword,
                 'captcha_id' => '99999',

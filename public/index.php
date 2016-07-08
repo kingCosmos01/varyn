@@ -49,22 +49,22 @@
         <meta property="fb:app_id" content="" />
         <meta property="fb:admins" content="726468316" />
         <meta property="og:title" content="Varyn: Great games you can play anytime, anywhere">
-        <meta property="og:url" content="http://www.varyn.com">
+        <meta property="og:url" content="//www.varyn.com">
         <meta property="og:site_name" content="Varyn">
         <meta property="og:description" content="Varyn makes games using technology that performs on the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between desktop, tablet, and smart-phone.">
-        <meta property="og:image" content="http://www.varyn.com/images/1200x900.png"/>
-        <meta property="og:image" content="http://www.varyn.com/images/VarynIcon1080.jpg"/>
-        <meta property="og:image" content="http://www.varyn.com/images/1200x600.png"/>
-        <meta property="og:image" content="http://www.varyn.com/images/VarynIcon640.jpg"/>
-        <meta property="og:image" content="http://www.varyn.com/images/2048x1536.png"/>
+        <meta property="og:image" content="//www.varyn.com/images/1200x900.png"/>
+        <meta property="og:image" content="//www.varyn.com/images/VarynIcon1080.jpg"/>
+        <meta property="og:image" content="//www.varyn.com/images/1200x600.png"/>
+        <meta property="og:image" content="//www.varyn.com/images/VarynIcon640.jpg"/>
+        <meta property="og:image" content="//www.varyn.com/images/2048x1536.png"/>
         <meta property="og:type" content="website"/>
         <meta name="twitter:card" content="summary_large_image"/>
         <meta name="twitter:domain" content="varyn.com"/>
         <meta name="twitter:site" content="@varyndev"/>
-        <meta name="twitter:url" content="http://www.varyn.com">
+        <meta name="twitter:url" content="//www.varyn.com">
         <meta name="twitter:creator" content="@varyndev"/>
         <meta name="twitter:title" content="Varyn: Great games you can play anytime, anywhere"/>
-        <meta name="twitter:image" content="http://www.varyn.com/images/600x600.png"/>
+        <meta name="twitter:image" content="//www.varyn.com/images/600x600.png"/>
         <script src="/common/head.min.js"></script>
     </head>
   <body>
@@ -103,7 +103,7 @@
                     <div class="carousel-caption">
                       <h3>Top Chef Memory Challenge</h3>
                       <p class="sliderCaption">A Top Chef knows the recipe for success. Test your skills in the ultimate memory challenge.</p>
-                      <p><a class="btn btn-md btn-danger" href="http://www.bravotv.com/media/games/top-chef-memory-challenge/index.html" role="button">Play Now &gt;</a></p>
+                      <p><a class="btn btn-md btn-danger" href="//www.bravotv.com/media/games/top-chef-memory-challenge/index.html" role="button">Play Now &gt;</a></p>
                     </div>
                   </div>
                 </div>

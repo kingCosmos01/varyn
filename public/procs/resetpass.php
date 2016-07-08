@@ -6,6 +6,7 @@
      * @Date: 6/18/2016
      *
      * TEST: http://www.varyn-l.com/procs/resetpass.php?id=10093&e=1e6&s=106&u=10239&t=1234
+     * http://varyn-l.com/procs/resetpass.php?id=10093&e=1e6&s=106&u=10239&t=f4568d65d635c41733aeca662f760d12a9f19957
      */
     require_once('../../services/common.php');
     $debug = true;
@@ -20,7 +21,7 @@
     $user_id = getPostOrRequestVar('u', 0);
     $site_id = getPostOrRequestVar('s', 0);
 
-    // User must be logged in to call this page:
+    // User may not be logged in to call this page (forgot password vs. change password)
     $authToken = '';
     $token = '';
     if ($site_id > 0 && $user_id > 0) { // make sure page is called with correct parameters
@@ -32,12 +33,19 @@
         $user_id = $userInfo->user_id; // only use the user_id that is logged in
         $site_id = $userInfo->site_id;
     }
-    if ($site_id > 0 && $user_id > 0 && ! empty($authToken) && strlen($token) > 0) {
-        $action = getPostOrRequestVar('action', 'reset');
-        $hackerToken = isset($_POST['clearall']) ? $_POST['clearall'] : '';          // must match token when page loaded
-        $hackerHoneyPot = isset($_POST['emailaddress']) ? $_POST['emailaddress'] : ''; // must be empty
-        $newPassword = isset($_POST['newPassword']) ? $_POST['newPassword'] : '';
-        $retypePassword = isset($_POST['retypePassword']) ? $_POST['retypePassword'] : '';
+    if ($site_id > 0 && $user_id > 0 && strlen($token) > 0) {
+        $action = getPostOrRequestVar('action', '');
+        if ($action == 'resetpassword') {
+            $hackerToken = isset($_POST['clearall']) ? $_POST['clearall'] : '';          // must match token when page loaded
+            $hackerHoneyPot = isset($_POST['emailaddress']) ? $_POST['emailaddress'] : ''; // must be empty
+            $newPassword = isset($_POST['newPassword']) ? $_POST['newPassword'] : '';
+            $retypePassword = isset($_POST['retypePassword']) ? $_POST['retypePassword'] : '';
+        } else {
+            $newPassword = '';
+            $retypePassword = '';
+            $hackerHoneyPot = '';
+            $hackerToken = '';
+        }
         $newPasswordSet = false;
         $hashPassword = '';
         $language_code = $enginesis->getLanguageCode();
@@ -46,30 +54,35 @@
         $errorMessage = '';
         $errorFieldId = '';
         $inputFocusId = '';
-        $hackerVerification = '';
         $isValidRequest = $action == 'resetpassword' && empty($hackerHoneyPot) && validateInputFormHackerToken($hackerToken);
         if ($newPassword == '') {
             // First time in: prompt for a new password
-            $hackerVerification = makeInputFormHackerToken();
+            $hackerToken = makeInputFormHackerToken();
         } elseif ( ! $isValidRequest) {
             $redirectTo = '/profile.php';
             // Should log this was most probably a hack attack
         } elseif ($enginesis->isValidPassword($newPassword) && $newPassword == $retypePassword) {
-            $serverResponse = $enginesis->registeredUserPasswordChange($newPassword, $token);
+            if ($enginesis->isLoggedInUser()) {
+                $serverResponse = $enginesis->registeredUserPasswordChange($newPassword, $token);
+            } else {
+                $serverResponse = $enginesis->registeredUserPasswordChangeUnauth($user_id, $newPassword, $token);
+            }
             if ($serverResponse == null) {
-                // TODO: Need to handle any errors
-                $errorCode = $enginesis->getLastError();
+                $errorCode = $enginesis->getLastErrorCode();
                 if ($errorCode == 'INVALID_SECONDARY_PASSWORD') {
-                    $errorMessage = "Your password change request is invalid or is has expired.";
+                    $errorMessage = "Your password change request is invalid or it has expired.";
+                } elseif ($errorCode == 'PASSWORD_EXPIRED') {
+                    $errorMessage = "Your password change request has expired.";
                 } elseif ($errorCode == 'NOT_AUTHENTICATED') {
                     $errorMessage = "Your must be logged in to change your password.";
                 } else {
                     $errorMessage = "There was a system error saving your information (" . $enginesis->getLastErrorDescription() . ")";
                 }
                 $errorMessage = "<p class=\"error-text\">$errorMessage Please <a href=\"/profile.php\">begin the request again</a>.</p>";
-                $hackerVerification = makeInputFormHackerToken();
+                $hackerToken = makeInputFormHackerToken();
             } else {
                 $newPasswordSet = true;
+                $redirectTo = '/profile.php';
             }
         } else {
             $sql = '';
@@ -125,20 +138,20 @@
     <meta property="fb:app_id" content="" />
     <meta property="fb:admins" content="726468316" />
     <meta property="og:title" content="Reset password at Varyn.com">
-    <meta property="og:url" content="http://www.varyn.com/procs/resetpass.php">
+    <meta property="og:url" content="//www.varyn.com/procs/resetpass.php">
     <meta property="og:site_name" content="Varyn">
     <meta property="og:description" content="Reset user password at Varyn.com.">
-    <meta property="og:image" content="http://www.varyn.com/images/1200x900.png"/>
-    <meta property="og:image" content="http://www.varyn.com/images/1024.png"/>
-    <meta property="og:image" content="http://www.varyn.com/images/1200x600.png"/>
-    <meta property="og:image" content="http://www.varyn.com/images/600x600.png"/>
-    <meta property="og:image" content="http://www.varyn.com/images/2048x1536.png"/>
+    <meta property="og:image" content="//www.varyn.com/images/1200x900.png"/>
+    <meta property="og:image" content="//www.varyn.com/images/1024.png"/>
+    <meta property="og:image" content="//www.varyn.com/images/1200x600.png"/>
+    <meta property="og:image" content="//www.varyn.com/images/600x600.png"/>
+    <meta property="og:image" content="//www.varyn.com/images/2048x1536.png"/>
     <meta property="og:type" content="game"/>
     <meta name="twitter:card" content="photo"/>
     <meta name="twitter:site" content="@varyndev"/>
     <meta name="twitter:creator" content="@varyndev"/>
     <meta name="twitter:title" content="Varyn: Great games you can play anytime, anywhere"/>
-    <meta name="twitter:image:src" content="http://www.varyn.com/images/600x600.png"/>
+    <meta name="twitter:image:src" content="//www.varyn.com/images/600x600.png"/>
     <meta name="twitter:domain" content="varyn.com"/>
     <script src="../common/head.min.js"></script>
 </head>
@@ -190,7 +203,7 @@ include_once('../common/header.php');
                         </div>
                         <div class="form-group">
                             <input type="submit" class="btn btn-success disabled" id="reset-password-button" value="Change" tabindex="25"/><img id="password-match" class="password-match" src="/images/green_tick.png" width="32" height="32"/>
-                            <input type="hidden" name="action" value="resetpassword" /><input type="text" name="emailaddress" class="popup-form-address-input" /><input type="hidden" name="clearall" value="<?php echo($hackerVerification);?>" /><input type="hidden" name="s" value="<?php echo($site_id);?>" /><input type="hidden" name="u" value="<?php echo($user_id);?>" /><input type="hidden" name="t" value="<?php echo($token);?>" />
+                            <input type="hidden" name="action" value="resetpassword" /><input type="text" name="emailaddress" class="popup-form-address-input" /><input type="hidden" name="clearall" value="<?php echo($hackerToken);?>" /><input type="hidden" name="s" value="<?php echo($site_id);?>" /><input type="hidden" name="u" value="<?php echo($user_id);?>" /><input type="hidden" name="t" value="<?php echo($token);?>" />
                         </div>
                     </form>
                     <p class="info-text-small">Password security is something we take very seriously. Please use a password that is at least 12 characters and does not conform to any common patterns.</p>

@@ -289,6 +289,31 @@
     }
 
     /**
+     * Transform a string into a safe to show inside HTML string. Unsafe HTML chars are converted to their escape equivalents.
+     * @param $string a string to transform.
+     * @return string the transformed string.
+     */
+    function safeForHTML ($string) {
+        $htmlEscapeMap = array(
+            '&' => '&amp;',
+            '<' => '&lt;',
+            '>' => '&gt;',
+            '"' => '&quot;',
+            "'" => '&#x27;',
+            '/' => '&#x2F;'
+        );
+        $htmlEscapePattern = array(
+            '/&/',
+            '/</',
+            '/>/',
+            '/"/',
+            '/\'/',
+            '/\//'
+        );
+        return preg_replace($htmlEscapePattern, $htmlEscapeMap, $string);
+    }
+
+    /**
      * We cache the logged in user object locally so we have the user data at our disposal without going back to the server.
      * @param $userInfo
      * @param $domain
