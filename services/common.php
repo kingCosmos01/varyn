@@ -35,10 +35,10 @@
             ini_set('html_errors', 'On');
             error_reporting(E_ALL);
         } else {
-            ini_set('error_reporting', E_NONE);
+            ini_set('error_reporting', E_ERROR);
             ini_set('display_errors', 0);
             ini_set('html_errors', 'Off');
-            error_reporting(E_NONE);
+            error_reporting(E_ERROR);
         }
         return $reportingFlag;
     }
