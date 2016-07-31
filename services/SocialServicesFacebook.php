@@ -22,11 +22,11 @@ class SocialServicesFacebook extends SocialServices
         $this->appId = $socialServiceKeys[EnginesisNetworks::Facebook]['app_id'];
         $this->appSecret = $socialServiceKeys[EnginesisNetworks::Facebook]['app_secret'];
         $this->setNetworkId(EnginesisNetworks::Facebook);
-        $this->fb = new Facebook\Facebook([
+        $this->fb = new Facebook\Facebook(array(
             'app_id' => $this->appId,
             'app_secret' => $this->appSecret,
             'default_graph_version' => 'v2.5'
-        ]);
+        ));
         if (isset($_SESSION[FACEBOOK_SESSION_KEY])) {
             $accessToken = $_SESSION[FACEBOOK_SESSION_KEY];
             $this->m_accessToken = (string) $accessToken;
