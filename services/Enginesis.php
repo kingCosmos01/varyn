@@ -10,6 +10,9 @@
     define('SESSION_USERINFO', 'engsession_user');
     define('SESSION_DAYSTAMP_HOURS', 48);
     define('SESSION_USERID_CACHE', 'engsession_uid');
+    if ( ! defined('ENGINESIS_VERSION')) {
+        define('ENGINESIS_VERSION', '2.3.26');
+    }
 
     abstract class EnginesisNetworks {
         const Enginesis = 1;
@@ -111,6 +114,14 @@
             $this->m_isLoggedIn = false;
             $this->m_syncId = 0;
             $this->m_serviceProtocol = $this->getServiceProtocol();
+        }
+
+        /**
+         * Return the version of this Enginesis library.
+         * @return string version identifier
+         */
+        public function version() {
+            return ENGINESIS_VERSION;
         }
 
         /**
