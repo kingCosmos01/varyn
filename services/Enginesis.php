@@ -1126,26 +1126,29 @@
             $enginesisResponse = $this->callServerAPI('RegisteredUserCreate', $userInfo);
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             if ($results != null) {
-                $parameters = $results[0];
-                $userInfo = array(
-                    'user_name' => $parameters->user_name,
-                    'email_address' => $parameters->email_address,
-                    'full_name' => $parameters->fullname,
-                    'city' => $parameters->city,
-                    'state' => $parameters->state,
-                    'zipcode' => $parameters->zipcode,
-                    'country_code' => $parameters->country_code,
-                    'tagline' => $parameters->tagline,
-                    'about_me' => $parameters->about_me,
-                    'additional_info' => $parameters->additional_info,
-                    'age' => $parameters->age,
-                    'gender' => $parameters->gender,
-                    'dob' => $parameters->dob,
-                    'mobile_number' => $parameters->mobile_number,
-                    'im_id' => $parameters->im_id
+                $user_id = $results->row->user_id;
+                $secondary_password = $results->row->secondary_password;
+                $userInfoResult = array(
+                    'user_id' => $user_id,
+                    'network_id' => $userInfo['network_id'],
+                    'user_name' => $userInfo['user_name'],
+                    'email_address' => $userInfo['email_address'],
+                    'full_name' => $userInfo['real_name'],
+                    'city' => $userInfo['city'],
+                    'state' => $userInfo['state'],
+                    'zipcode' => $userInfo['zipcode'],
+                    'country_code' => $userInfo['country_code'],
+                    'tagline' => $userInfo['tagline'],
+                    'about_me' => $userInfo['about_me'],
+                    'additional_info' => $userInfo['additional_info'],
+                    'gender' => $userInfo['gender'],
+                    'dob' => $userInfo['dob'],
+                    'mobile_number' => $userInfo['mobile_number'],
+                    'im_id' => $userInfo['im_id'],
+                    'secondary_password' => $secondary_password
                 );
             }
-            return $userInfo;
+            return $userInfoResult;
         }
 
         /* @function registeredUserUpdate
