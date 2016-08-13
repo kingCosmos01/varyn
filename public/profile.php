@@ -632,7 +632,7 @@
 <?php
         if ( ! $isLoggedIn) {
 ?>
-                            <div class="form-group"><label for="register_form_password">Password: <span class="required-field">*</span></label><input type="password" name="register_form_password" class="popup-form-input required password" id="register_form_password" placeholder="A secure password" autocomplete="current-password" autocorrect="off" required maxlength="20" value="<?php echo($password);?>"/></div>
+                            <div class="form-group"><label for="register_form_password">Password: <span class="required-field">*</span></label><input type="password" name="register_form_password" class="popup-form-input required password" id="register_form_password" placeholder="A secure password" autocomplete="current-password" autocorrect="off" required maxlength="20" value="<?php echo($password);?>"/><div id="optional-small-label" class="checkbox optional-small"><label for="ShowPassword" onclick="profilePage.onClickShowPassword();"><input type="checkbox" name="register_form_showpassword" id="register_form_showpassword" onclick="profilePage.onClickShowPassword();"> <span id="register_form_showpassword_label">Show</span> <span id="register_form_showpassword_icon" class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></label></div></div>
 <?php
         }
 ?>

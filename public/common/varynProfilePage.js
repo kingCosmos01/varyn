@@ -113,6 +113,29 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             varynApp.onChangeRegisterUserName($('#register_form_username').get(0), 'register_user_name_unique'); // in case field is pre-populated
         },
 
+        onClickShowPassword: function(event) {
+            var showPasswordCheckbox = document.getElementById('register_form_showpassword'),
+                passwordInput = document.getElementById('register_form_password'),
+                icon = document.getElementById('register_form_showpassword_icon'),
+                text = document.getElementById('register_form_showpassword_label'),
+                show = false;
+
+            if (showPasswordCheckbox != null) {
+                show = showPasswordCheckbox.checked;
+                if (show) {
+                    showPasswordCheckbox.checked = false;
+                    passwordInput.type = 'password';
+                    icon.className = 'glyphicon glyphicon-eye-open';
+                    text.innerText = 'Show';
+                } else {
+                    showPasswordCheckbox.checked = true;
+                    passwordInput.type = 'text';
+                    icon.className = 'glyphicon glyphicon-eye-close';
+                    text.innerText = 'Hide';
+                }
+            }
+        },
+
         onPageLoadSetFocus: function () {
             if (inputFocusId != "") {
                 document.getElementById(inputFocusId).focus();

@@ -640,6 +640,29 @@ var varyn = function (parameters) {
             return errorField == ""; // return true to submit form
         },
 
+        onClickShowPassword: function(event) {
+            var showPasswordCheckbox = document.getElementById('register-showpassword'),
+                passwordInput = document.getElementById('register-password'),
+                icon = document.getElementById('register-showpassword-icon'),
+                text = document.getElementById('register-showpassword-text'),
+                show = false;
+
+            if (showPasswordCheckbox != null) {
+                show = showPasswordCheckbox.checked;
+                if (show) {
+                    showPasswordCheckbox.checked = false;
+                    passwordInput.type = 'password';
+                    icon.className = 'glyphicon glyphicon-eye-open';
+                    text.innerText = 'Show';
+                } else {
+                    showPasswordCheckbox.checked = true;
+                    passwordInput.type = 'text';
+                    icon.className = 'glyphicon glyphicon-eye-close';
+                    text.innerText = 'Hide';
+                }
+            }
+        },
+
         /**
          * Single sign-on registration. In this case, the user id comes from a 3rd party network and we need to map that
          * to an new Enginesis user_id. Additional processing/error checking must be handled in the Enginesis callback.
