@@ -1131,6 +1131,7 @@
                 $userInfoResult = array(
                     'user_id' => $user_id,
                     'network_id' => $userInfo['network_id'],
+                    'access_level' => 10,
                     'user_name' => $userInfo['user_name'],
                     'email_address' => $userInfo['email_address'],
                     'full_name' => $userInfo['real_name'],
@@ -1147,6 +1148,13 @@
                     'im_id' => $userInfo['im_id'],
                     'secondary_password' => $secondary_password
                 );
+                // TODO: If this site auto-confirms user registration then we should log the user in automatically now.
+                // We know this because the server gives us the token when we are to do this.
+                if (isset($results->row->authtok)) {
+                    $userInfoResult['authtok'] = $results->row->authtok;
+                    $this->sessionSave($results->row->authtok, $userInfoResult->user_id, $userInfoResult->user_name, $userInfoResult->site_user_id, $userInfoResult->access_level, EnginesisNetworks::Enginesis);
+                    $this->sessionUserInfoSave($userInfoResult);
+                }
             }
             return $userInfoResult;
         }
@@ -1205,6 +1213,13 @@
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             if ($results != null) {
                 $results = $results->row;
+                // TODO: If this site auto-confirms user registration then we should log the user in automatically now.
+                // We know this because the server gives us the token when we are to do this.
+                if (isset($results->authtok)) {
+                    $userInfoResult['authtok'] = $results->authtok;
+                    $this->sessionSave($results->authtok, $results->user_id, $results->user_name, $results->site_user_id, $results->access_level, EnginesisNetworks::Enginesis);
+                    $this->sessionUserInfoSave($results);
+                }
             }
             return $results;
         }
@@ -1408,6 +1423,18 @@
             return $results != null;
         }
 
+        /**
+         * If the secondary password expires or the user lost it, we come here to generate a new one and send a new email.
+         * site-id, user-id, and previous token must match otherwise generates INVALID_USER_ID error.
+         * @param $userId
+         * @param $token
+         * @return bool
+         */
+        public function registeredUserResetSecondaryPassword ($userId, $token) {
+            $enginesisResponse = $this->callServerAPI('RegisteredUserResetSecondaryPassword', array('user_id' => $userId, 'secondary_password' => $token));
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            return $results != null;
+        }
         /**
          * The general public user get - returns a minimum set of public attributes about a user.
          * @param $userId - may be either an int indicating a user_id or a string indicating a user_name.

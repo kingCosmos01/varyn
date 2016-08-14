@@ -6,7 +6,7 @@
  * @Date: 1/5/16
  */
 require_once('../../services/common.php');
-$page = 'forgotpass';
+$page = 'regconfirm';
 $search = getPostOrRequestVar('q', null);
 if ($search != null) {
     header('location:/allgames.php?q=' . $search);
@@ -35,6 +35,7 @@ if ($site_id > 0 && $user_id > 0 && $token != '') {
     } else {
         $errorCode = 'SUCCESS';
         $errorMessage = 'Your registration has been confirmed! Welcome to Varyn. Now let\'s play some games!';
+        setVarynUserCookie($serverResponse, $enginesis->getServerName());
     }
 } else {
     $errorCode = 'INVALID_PARAM';
