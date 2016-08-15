@@ -854,8 +854,10 @@
                 curl_setopt($ch, CURLOPT_URL, $this->m_serviceEndPoint);
                 curl_setopt($ch, CURLOPT_HEADER, 0);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($ch, CURLOPT_COOKIEJAR, 'cookie.txt');
-                curl_setopt($ch, CURLOPT_COOKIEFILE, 'cookie.txt');
+                curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+                curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 600);
+                curl_setopt($ch, CURLOPT_REFERER, $this->m_server);
+                curl_setopt($ch, CURLOPT_USERAGENT, 'Enginesis PHP SDK');
                 curl_setopt($ch, CURLOPT_POST, 1);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $this->encodeURLParams($parameters));
                 $contents = curl_exec($ch);
