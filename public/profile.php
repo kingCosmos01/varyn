@@ -110,7 +110,8 @@
         if ($userInfo == null) {
             $error = $enginesis->getLastError();
             if ($error != null) {
-                $errorMessage = '<p class="error-text">Your account could not be logged in at this time. ' . errorToLocalString($error['message']) . '</p>';
+                $linkToResendToken = createResendConfirmEmailLink($error['message'], $userName);
+                $errorMessage = '<p class="error-text">Your account could not be logged in at this time. ' . errorToLocalString($error['message']) . ' ' . $linkToResendToken . '</p>';
             } else {
                 $errorMessage = '<p class="error-text">Your user name and password did not match.</p>';
             }
@@ -381,6 +382,10 @@
             }
             $inputFocusId = 'profile_forgot_password';
         }
+    } elseif ($action == 'resendconfirm') {
+        $userName = getPostOrRequestVar('u');
+        // TODO: 1. verify user-name is in waiting for confirm state. 2. call RegisteredUserResetSecondaryPassword
+        $redirectedStatusMessage = 'Your registration confirmation email has been resent. Please check your email.';
     } elseif ($action == 'logout') {
         $result = $enginesis->userLogout();
         $isLoggedIn = false;
@@ -421,6 +426,15 @@
             $authToken = $userInfo->authtok;
             $userId = $userInfo->user_id;
             $userInfoJSON = getVarynUserCookie();
+        }
+    }
+
+    function createResendConfirmEmailLink($errorCode, $user_name) {
+        $regConfirmErrors = array(EnginesisErrors::REGISTRATION_NOT_CONFIRMED, EnginesisErrors::INVALID_SECONDARY_PASSWORD, EnginesisErrors::PASSWORD_EXPIRED);
+        if (in_array($errorCode, $regConfirmErrors)) {
+            return '<a href=/profile.php?action=resendconfirm&u=' . $user_name . '>Resend confirmation</a>';
+        } else {
+            return '';
         }
     }
  ?>

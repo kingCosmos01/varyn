@@ -18,13 +18,15 @@
         const SYSTEM_ERROR = 'SYSTEM_ERROR';
         const INVALID_SECONDARY_PASSWORD = 'INVALID_SECONDARY_PASSWORD';
         const PASSWORD_EXPIRED = 'PASSWORD_EXPIRED';
+        const NAME_IN_USE = 'NAME_IN_USE';
+        const REGISTRATION_NOT_CONFIRMED = 'REGISTRATION_NOT_CONFIRMED';
     }
 
     $errorCodeTable = array (
         EnginesisErrors::INVALID_PARAM => 'A required parameter is missing or not valid in this context.',
         EnginesisErrors::INVALID_USER_ID => 'There is no user registered with the provided information.',
-        'NAME_IN_USE' => 'The user name is already in use. Please choose another user name.',
-        'REGISTRATION_NOT_CONFIRMED' => 'Registration has not been confirmed.',
+        EnginesisErrors::NAME_IN_USE => 'The user name is already in use. Please choose another user name.',
+        EnginesisErrors::REGISTRATION_NOT_CONFIRMED => 'Registration has not been confirmed.',
         EnginesisErrors::INVALID_LOGIN => 'Your credentials do not match.',
         EnginesisErrors::INVALID_SECONDARY_PASSWORD => 'Your confirmation token is not valid or it has expired.',
         EnginesisErrors::PASSWORD_EXPIRED => 'Your confirmation token has expired.',
