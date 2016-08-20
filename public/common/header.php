@@ -14,7 +14,7 @@
                 <h3 class="modal-title" id="modalMessageLabel"><span class="varyn-shield-icon"></span> <span id="infoMessageTitle">Message Title</span></h3>
             </div>
             <div class="modal-body infoMessageArea" id="infoMessageArea">
-                <p>This is the message area. Content here is replaced at runtime.</p>
+                <p></p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -38,7 +38,6 @@
                     </div>
                 </form>
                 <div class="modalMessageArea">
-                    This is the response from the server
                 </div>
             </div>
             <div class="modal-footer">
@@ -82,7 +81,6 @@
                     </div>
                 </form>
                 <div class="modalMessageArea">
-                    This is the response from the server
                 </div>
             </div>
             <div class="modal-footer">
@@ -119,7 +117,6 @@
                     </div>
                 </form>
                 <div class="modalMessageArea">
-                    This is the response from the server
                 </div>
             </div>
             <div class="modal-footer">
@@ -167,7 +164,6 @@
                     </div>
                 </form>
                 <div class="modalMessageArea">
-                    This is the response from the server
                 </div>
             </div>
             <div class="modal-footer">
