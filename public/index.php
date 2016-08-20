@@ -85,7 +85,7 @@
                     <div class="carousel-caption">
                       <h3>Welcome to Varyn!</h3>
                       <p class="sliderCaption">We have games for all ages and the most popular platforms. Follow us for updates.</p>
-                      <p><a class="btn btn-md btn-danger" href="#" onclick="varynApp.showSubscribePopup();" role="button">Sign up now</a></p>
+                      <p><button type="button" class="btn btn-md btn-danger" data-toggle="modal" data-target="#modal-subscribe">Sign up now</button></p>
                     </div>
                   </div>
                 </div>

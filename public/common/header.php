@@ -6,93 +6,183 @@
         $page = 'home';
     }
 ?>
-<div id="popupCover" class="popupCover">
-    <div id="infoMessagePopup" class="popupFrame">
-        <div class="popupCloseButton" onclick="varynApp.closeInfoMessagePopup();"><img src="/images/close-button.png" width="24" height="24" border="0"/></div>
-        <h3><span class="varyn-shield-icon"></span><span id="infoMessageTitle"></span></h3>
-        <div id="infoMessageArea" class="infoMessageArea">
+<div class="modal fade topmost" id="modal-message" tabindex="-1" role="dialog" aria-labelledby="modalMessageLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modal-content-varyn">
+            <div class="modal-header">
+                <button type="button" class="close color-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title" id="modalMessageLabel"><span class="varyn-shield-icon"></span> <span id="infoMessageTitle">Message Title</span></h3>
+            </div>
+            <div class="modal-body infoMessageArea" id="infoMessageArea">
+                <p>This is the message area. Content here is replaced at runtime.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
         </div>
     </div>
-    <div id="subscribePopup" class="popupFrame">
-        <div class="popupCloseButton" onclick="varynApp.popupCloseClicked();"><img src="/images/close-button.png" width="24" height="24" border="0"/></div>
-        <img src="/images/VarynIcon120x120.png" class="logoImg">
-        <h3><span class="varyn-shield-icon"></span>Join Our Mailing List?</h3>
-        <p>Sign up for our email updates and we will let you know when we have new games, prizes, interesting things to say. We will not abuse this privilege. <a href="/Privacy.php" class="text-muted small" title="Review our privacy policy" alt="Review our privacy policy">Review our privacy policy.</a></p>
-        <div class="popupFieldGroup">
-            <input type="email" name="email" class="form-control required email" id="emailInput" placeholder="Your email address" autocapitalize="off" autocorrect="off" autocomplete="email"/><input type="submit" value="Subscribe" name="subscribe" id="subscribeButton" class="btn btn-default"  onclick="varynApp.popupSubscribeClicked();"/>
-        </div>
-        <div class="popupMessageArea">
-            This is the response from the server
+</div>
+<div class="modal fade topmost" id="modal-subscribe" tabindex="-1" role="dialog" aria-labelledby="modalSubscribeLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modal-content-varyn">
+            <div class="modal-header">
+                <button type="button" class="close color-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title" id="modalSubscribeLabel"><span class="varyn-shield-icon"></span> Subscribe</h3>
+            </div>
+            <div class="modal-body">
+                <p>Sign up for our email updates and we will let you know when we have new games, prizes, interesting things to say. We will not abuse this privilege. <a href="/Privacy.php" class="text-muted small" title="Review our privacy policy" alt="Review our privacy policy">Review our privacy policy.</a></p>
+                <form>
+                    <div class="form-group leader-1 trailer-1 left-2 right-2">
+                        <label for="subscribe-email">Email address</label>
+                        <input type="email" name="subscribe-email" class="form-control required" id="subscribe-email" placeholder="Your email address" autocapitalize="off" autocorrect="off" autocomplete="email" />
+                    </div>
+                </form>
+                <div class="modalMessageArea">
+                    This is the response from the server
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" value="Subscribe" name="subscribe" id="subscribeButton" onclick="varynApp.popupSubscribeClicked();">Subscribe</button>
+            </div>
         </div>
     </div>
+</div>
 <?php
     if ( ! $isLoggedIn) {
         $hackerVerification = makeInputFormHackerToken();
 ?>
-    <div id="registrationPopup" class="popupFrame">
-        <form id="registration-form" method="POST" action="profile.php" onsubmit="return varynApp.popupRegistrationClicked();">
-            <div class="popupCloseButton" onclick="varynApp.popupCloseClicked();"><img src="/images/close-button.png" width="24" height="24" border="0"/></div>
-            <h3><span class="varyn-shield-icon"></span>Registration</h3>
-            <p>Sign up now to track your progress, earn rewards, and compete with friends!</p>
-            <div class="popupFieldGroup">
-                <label for="register-email">Email:</label><input type="email" name="register-email" class="popup-form-input required email" id="register-email" placeholder="Your email address" autocapitalize="off" autocorrect="off" autocomplete="email" required maxlength="80" tabindex="10"/><br/>
-                <label for="register-username">User name:</label><input type="text" name="register-username" class="popup-form-input required username" id="register-username" placeholder="A unique user name" data-target="popup_user_name_unique" autocorrect="off" autocomplete="name" required maxlength="50" tabindex="11"/><img id="popup_user_name_unique" class="username-is-not-unique" src="/images/red_x.png" width="32" height="32"/><br/>
-                <label for="register-password">Password:</label><input type="password" name="register-password" class="popup-form-input required password" id="register-password" placeholder="A secure password" autocomplete="current-password" autocorrect="off" required maxlength="20" tabindex="12"/><div id="optional-small-label" class="checkbox optional-small"><label for="ShowPassword" onclick="varynApp.onClickShowPassword();"><input type="checkbox" name="ShowPassword" id="register-showpassword" onclick="varynApp.onClickShowPassword();"> <span id="register-showpassword-text">Show</span> <span id="register-showpassword-icon" class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></label></div>
-                <div class="validation-slider-area">
-                    <label for="register-agreement">I agree to the <a href="/tos.php" target="_popup">Terms of Use</a></label><br/>
-                    <span><small>No</small>&nbsp;&nbsp;<input type="range" name="register-agreement" class="validation-slider" id="register-agreement" placeholder="Slide this all the way left to agree" tabindex="13" min="0" max="2" />&nbsp;&nbsp;<small>Yes</small></span>
+<div class="modal fade topmost" id="modal-login" tabindex="-1" role="dialog" aria-labelledby="modalLoginLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modal-content-varyn">
+            <div class="modal-header">
+                <button type="button" class="close color-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title" id="modalLoginLabel"><span class="varyn-shield-icon"></span> Member Login</h3>
+            </div>
+            <div class="modal-body">
+                <form id="login-form" method="POST" action="profile.php" onsubmit="return varynApp.popupLoginClicked();">
+                    <div class="leader-1 trailer-1 left-2 right-2">
+                        <div class="form-group">
+                            <label for="login_username">User name:</label>
+                            <input type="text" id="login_username" name="login_username" tabindex="17" maxlength="20" class="popup-form-input required" autocorrect="off" autocomplete="name"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="login_password">Password:</label>
+                            <input type="password" id="login_password" name="login_password" tabindex="18" maxlength="20" class="popup-form-input required" />
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="login_email" class="popup-form-address-input" />
+                            <input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
+                            <span id="rememberme-container"><input type="checkbox" tabindex="20" checked="checked" name="rememberme" id="rememberme"><label for="rememberme">Remember Me</label></span>
+                            <div class="loginPopup_auxLinks">
+                                <a id="loginPopup_forgot_password" href="#" onclick="varynApp.popupCloseClicked(); varynApp.showForgotPasswordPopup(1);" tabindex="21">Forgot password?</a><br/>Not a member? <a id="loginPopup_signup" href="#" onclick="varynApp.popupCloseClicked(); varynApp.showRegistrationPopup(1);" tabindex="22">Sign up!</a>
+                            </div>
+                            <input type="hidden" name="action" value="popuplogin" />
+                        </div>
+                    </div>
+                </form>
+                <div class="modalMessageArea">
+                    This is the response from the server
                 </div>
-                <input type="text" name="emailaddress" class="popup-form-address-input" /><input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" /><br />
-                <input type="submit" value="Register" name="popupregister" id="registerButton" class="btn btn-success" tabindex="15"/>
-                <span id="rememberme-container"><input type="checkbox" checked="checked" name="rememberme" id="rememberme" tabindex="16"><label for="rememberme">Remember Me</label></span>
-                <input type="hidden" name="action" value="popupregister" />
             </div>
-            <div class="popupMessageArea">
-                This is the response from the server
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" value="loginButton" name="loginButton" id="loginButton" onclick="varynApp.popupLoginClicked();">Login</button>
             </div>
-        </form>
+        </div>
     </div>
-    <div id="loginPopup" class="popupFrame">
-        <form id="login-form" method="POST" action="profile.php" onsubmit="return varynApp.popupLoginClicked();">
-            <div class="popupCloseButton" onclick="varynApp.popupCloseClicked();"><img src="/images/close-button.png" width="24" height="24" border="0"/></div>
-            <h3><span class="varyn-shield-icon"></span>Member login:</h3>
-            <div class="popupFieldGroup">
-                <label for="login_username">User name:</label><input type="text" id="login_username" name="login_username" tabindex="17" maxlength="20" class="popup-form-input required" autocorrect="off" autocomplete="name"/><br/>
-                <label for="login_password">Password:</label><input type="password" id="login_password" name="login_password" tabindex="18" maxlength="20" class="popup-form-input required" /><br/>
-                <input type="submit" value="Login >" name="loginButton" id="loginButton" class="btn btn-success" tabindex="19"/><input type="text" name="login_email" class="popup-form-address-input" /><input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
-                <span id="rememberme-container"><input type="checkbox" tabindex="20" checked="checked" name="rememberme" id="rememberme"><label for="rememberme">Remember Me</label></span>
-                <div class="loginPopup_auxLinks"><a id="loginPopup_forgot_password" href="#" onclick="varynApp.popupCloseClicked(); varynApp.showForgotPasswordPopup(1);" tabindex="21">Forgot password?</a><br/>Not a member? <a id="loginPopup_signup" href="#" onclick="varynApp.popupCloseClicked(); varynApp.showRegistrationPopup(1);" tabindex="22">Sign up!</a></div>
-                <input type="hidden" name="action" value="popuplogin" />
+</div>
+<div class="modal fade topmost" id="modal-forgot-password" tabindex="-1" role="dialog" aria-labelledby="modalForgotPasswordLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modal-content-varyn">
+            <div class="modal-header">
+                <button type="button" class="close color-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title" id="modalForgotPasswordLabel"><span class="varyn-shield-icon"></span> Forgot Password</h3>
             </div>
-            <div class="popupMessageArea">
-                This is the response from the server
+            <div class="modal-body">
+                <p>Please identify your account. We will send email to the address set on the account to allow you to reset your password.</p>
+                <form id="forgot-password-form" method="POST" action="profile.php" onsubmit="return varynApp.popupForgotPasswordClicked();">
+                    <div class="leader-1 trailer-1 left-2 right-2">
+                        <div class="form-group">
+                            <label for="forgotpassword_username">User name:</label>
+                            <input type="text" id="forgotpassword_username" name="forgotpassword_username" tabindex="23" maxlength="20" class="popup-form-input required"  placeholder="Your user name" autocorrect="off" autocomplete="name"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="forgotpassword_email">Email:</label>
+                            <input type="email" id="forgotpassword_email" name="forgotpassword_email" tabindex="24" maxlength="80" class="popup-form-input required email" placeholder="Your email address" autocapitalize="off" autocorrect="off" autocomplete="email"/>
+                        </div>
+                            <div class="form-group">
+                            <input type="hidden" name="action" value="forgotpassword" />
+                            <input type="text" name="emailaddress" class="popup-form-address-input" />
+                            <input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
+                        </div>
+                    </div>
+                </form>
+                <div class="modalMessageArea">
+                    This is the response from the server
+                </div>
             </div>
-        </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" value="Reset" name="Reset" id="forgot-password-button" onclick="varynApp.popupForgotPasswordClicked();">Reset</button>
+            </div>
+        </div>
     </div>
-    <div id="forgotPasswordPopup" class="popupFrame">
-        <form id="forgot-password-form" method="POST" action="profile.php" onsubmit="return varynApp.popupForgotPasswordClicked();">
-            <div class="popupCloseButton" onclick="varynApp.popupCloseClicked();"><img src="/images/close-button.png" width="24" height="24" border="0"/></div>
-            <h3><span class="varyn-shield-icon"></span>Forgot password</h3>
-            <p>Please identify your account. We will send email to the address set on the account to allow you to reset your password.</p>
-            <div class="popupFieldGroup">
-                <label for="forgotpassword_username">User name:</label><input type="text" id="forgotpassword_username" name="forgotpassword_username" tabindex="23" maxlength="20" class="popup-form-input required"  placeholder="Your user name" autocorrect="off" autocomplete="name"/><br/>
-                <label for="forgotpassword_email">Email:</label><input type="email" id="forgotpassword_email" name="forgotpassword_email" tabindex="24" maxlength="80" class="popup-form-input required email" placeholder="Your email address" autocapitalize="off" autocorrect="off" autocomplete="email"/><br/>
-                <input type="submit" class="btn btn-success" id="forgot-password-button" value="Reset" tabindex="25"/>
-                <input type="hidden" name="action" value="forgotpassword" /><input type="text" name="emailaddress" class="popup-form-address-input" /><input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
+</div>
+<div class="modal fade topmost" id="modal-register" tabindex="-1" role="dialog" aria-labelledby="modalRegisterLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modal-content-varyn">
+            <div class="modal-header">
+                <button type="button" class="close color-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title" id="modalRegisterLabel"><span class="varyn-shield-icon"></span> Register New Member</h3>
             </div>
-            <div class="popupMessageArea">
-                This is the response from the server
+            <div class="modal-body">
+                <p>Sign up now to track your progress, earn rewards, and compete with friends!</p>
+                <form id="registration-form" method="POST" action="profile.php" onsubmit="return varynApp.popupRegistrationClicked();">
+                    <div class="leader-1 trailer-1 left-1 right-1">
+                        <div class="form-group">
+                            <label for="register-email">Email:</label>
+                            <input type="email" name="register-email" class="popup-form-input required email" id="register-email" placeholder="Your email address" autocapitalize="off" autocorrect="off" autocomplete="email" required maxlength="80" tabindex="10"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-username">User name:</label>
+                            <input type="text" name="register-username" class="popup-form-input required username" id="register-username" placeholder="A unique user name" data-target="popup_user_name_unique" autocorrect="off" autocomplete="name" required maxlength="50" tabindex="11"/><img id="popup_user_name_unique" class="username-is-not-unique" src="/images/red_x.png" width="32" height="32"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="register-password">Password:</label>
+                            <input type="password" name="register-password" class="popup-form-input required password" id="register-password" placeholder="A secure password" autocomplete="current-password" autocorrect="off" required maxlength="20" tabindex="12"/><div id="optional-small-label" class="checkbox optional-small"><label for="ShowPassword" onclick="varynApp.onClickShowPassword();"><input type="checkbox" name="ShowPassword" id="register-showpassword" onclick="varynApp.onClickShowPassword();"> <span id="register-showpassword-text">Show</span> <span id="register-showpassword-icon" class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></label></div>
+                        </div>
+                        <div class="form-group">
+                            <div class="validation-slider-area">
+                                <label for="register-agreement">I agree to the <a href="/tos.php" target="_popup">Terms of Use</a></label><br/>
+                                <span><small>No</small>&nbsp;&nbsp;<input type="range" name="register-agreement" class="validation-slider" id="register-agreement" placeholder="Slide this all the way left to agree" tabindex="13" min="0" max="2" />&nbsp;&nbsp;<small>Yes</small></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" name="emailaddress" class="popup-form-address-input" />
+                            <input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
+                            <span id="rememberme-container"><input type="checkbox" checked="checked" name="rememberme" id="rememberme" tabindex="16"><label for="rememberme">Remember Me</label></span>
+                            <input type="hidden" name="action" value="popupregister" />
+                        </div>
+                    </div>
+                </form>
+                <div class="modalMessageArea">
+                    This is the response from the server
+                </div>
             </div>
-        </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" value="Register" name="popupregister" id="registerButton" onclick="varynApp.popupRegistrationClicked();">Register</button>
+            </div>
+        </div>
     </div>
+</div>
 <?php
         $userLoggedInMenuItem = '<span class="glyphicon glyphicon-user"></span> Login';
     } else {
         $userLoggedInMenuItem = '<span class="glyphicon glyphicon-user"></span> Profile'; // TODO: show Avatar, User-name, Reputation swatch
     }
 ?>
-    <div id="popupErrorMessage" style="display:none;"></div>
-</div>
 <div class="navbar-wrapper">
     <div class="container">
         <nav class="navbar navbar-default navbar-static-top" role="navigation">

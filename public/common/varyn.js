@@ -394,7 +394,12 @@ var varyn = function (parameters) {
          * showSubscribePopup show the popup form to capture an email address to subscribe to the newsletter.
          */
         showSubscribePopup: function (showFlag) {
-            this.showCommonFormPopup(document.getElementById("popupCover"), document.getElementById("subscribePopup"), showFlag);
+            if (showFlag) {
+                $('#modal-subscribe').modal('show');
+                this.setPopupMessage('modal-subscribe', '', null);
+            } else {
+                $('#modal-subscribe').modal('hide');
+            }
         },
 
         /**
@@ -402,8 +407,13 @@ var varyn = function (parameters) {
          * for the long form go to the profile.php page.
          */
         showRegistrationPopup: function (showFlag) {
-            this.showCommonFormPopup(document.getElementById("popupCover"), document.getElementById("registrationPopup"), showFlag);
-            this.onChangeRegisterUserName(document.getElementById('register-username'), 'popup_user_name_unique');
+            if (showFlag) {
+                $('#modal-register').modal('show');
+                this.setPopupMessage('modal-register', '', null);
+                this.onChangeRegisterUserName(document.getElementById('register-username'), 'popup_user_name_unique');
+            } else {
+                $('#modal-register').modal('hide');
+            }
         },
 
         /**
@@ -411,43 +421,35 @@ var varyn = function (parameters) {
          * for the long form go to the profile.php page.
          */
         showLoginPopup: function (showFlag) {
-            this.showCommonFormPopup(document.getElementById("popupCover"), document.getElementById("loginPopup"), showFlag);
+            if (showFlag) {
+                $('#modal-login').modal('show');
+                this.setPopupMessage('modal-login', '', null);
+            } else {
+                $('#modal-login').modal('hide');
+            }
         },
 
         /**
          * showForgotPasswordPopup show the popup form initiate forgot password flow.
          */
         showForgotPasswordPopup: function (showFlag) {
-            this.showCommonFormPopup(document.getElementById("popupCover"), document.getElementById("forgotPasswordPopup"), showFlag);
-        },
-
-        /**
-         * showCommonFormPopup shows the popup div given the correct DOM elements.
-         */
-        showCommonFormPopup: function (popupCover, popupFrame, showFlag) {
-            if (showFlag === undefined) {
-                showFlag = true;
-            }
-            if (popupCover != null && popupFrame != null) {
-                if (showFlag) {
-                    popupCover.style.display = 'block';
-                    popupFrame.style.display = 'block';
-                } else {
-                    popupCover.style.display = 'none';
-                    popupFrame.style.display = 'none';
-                }
+            if (showFlag) {
+                $('#modal-forgot-password').modal('show');
+                this.setPopupMessage('modal-forgot-password', '', null);
+            } else {
+                $('#modal-forgot-password').modal('hide');
             }
         },
 
         setPopupMessage: function (popupId, message, className) {
-            var messageClass = 'popupMessageArea',
-                messageElement = $('#' + popupId + ' .' + messageClass);
+            var messageClass = 'modalMessageArea',
+                messageElement = $('#' + popupId).find('.' + messageClass);
 
             if (messageElement != null) {
                 messageElement.css('display', 'block');
                 messageElement.text(message);
                 if (className != null) {
-                    messageElement.attr("class", messageClass + ' ' + className);
+                    messageElement.attr('class', messageClass + ' ' + className);
                 }
             }
         },
@@ -472,15 +474,12 @@ var varyn = function (parameters) {
          * @param timeToClose - number of milliseoncds to auto-close the popup. 0 to never close automatically.
          */
         showInfoMessagePopup: function (title, message, timeToClose) {
-            var popupCover = document.getElementById("popupCover"),
-                popupFrame = document.getElementById("infoMessagePopup"),
-                popupTitle = document.getElementById("infoMessageTitle"),
+            var popupTitle = document.getElementById("infoMessageTitle"),
                 popupMessage = document.getElementById("infoMessageArea");
 
             popupTitle.innerText = title;
             popupMessage.innerHTML = message;
-            popupCover.style.display = 'block';
-            popupFrame.style.display = 'block';
+            $('#modal-message').modal('show');
             if (timeToClose > 0) {
                 window.setTimeout(this.closeInfoMessagePopup.bind(this), timeToClose);
             }
@@ -491,11 +490,7 @@ var varyn = function (parameters) {
          * TODO: Maybe smart to cancel the close interval if this was closed from the close button.
          */
         closeInfoMessagePopup: function () {
-            var popupCover = document.getElementById("popupCover"),
-                popupFrame = document.getElementById("infoMessagePopup");
-
-            popupCover.style.display = 'none';
-            popupFrame.style.display = 'none';
+            $('#modal-message').modal('hide');
         },
 
 
@@ -510,11 +505,11 @@ var varyn = function (parameters) {
                 errorField = "";
 
             if (this.isValidEmail(email)) {
-                this.setPopupMessage("subscribePopup", "Subscribing " + email + " with the service...", "popupMessageResponseOK");
+                this.setPopupMessage("modal-subscribe", "Subscribing " + email + " with the service...", "popupMessageResponseOK");
                 enginesisSession.newsletterAddressAssign(email, '', '', '2', null); // the newsletter category id for Varyn/General is 2
             } else {
                 errorField = "emailInput";
-                this.setPopupMessage("subscribePopup", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
+                this.setPopupMessage("modal-subscribe", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
                 document.getElementById(errorField).focus();
             }
             return errorField == "";
@@ -534,23 +529,23 @@ var varyn = function (parameters) {
                 errorField = "";
 
             if (errorField == "" && ! this.isValidEmail(email)) {
-                this.setPopupMessage("registrationPopup", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
+                this.setPopupMessage("modal-register", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "register-email";
             }
             if (errorField == "" && ! this.isValidUserName(userName)) {
-                this.setPopupMessage("registrationPopup", "Your user name " + userName + " looks bad. Can you try again?", "popupMessageResponseError");
+                this.setPopupMessage("modal-register", "Your user name " + userName + " looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "register-username";
             }
             if (errorField == "" && ! this.testUserNameIsUnique('popup_user_name_unique')) {
-                this.setPopupMessage("registrationPopup", "Your user name " + userName + " is in use by another user. Please pick a unique user name.", "popupMessageResponseError");
+                this.setPopupMessage("modal-register", "Your user name " + userName + " is in use by another user. Please pick a unique user name.", "popupMessageResponseError");
                 errorField = "register-username";
             }
             if (errorField == "" && ! this.isValidPassword(password)) {
-                this.setPopupMessage("registrationPopup", "Your password looks bad. Can you try again?", "popupMessageResponseError");
+                this.setPopupMessage("modal-register", "Your password looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "register-password";
             }
             if (errorField == "" && agreement < 2) {
-                this.setPopupMessage("registrationPopup", "You must agree with the terms of use or you cannot register.", "popupMessageResponseError");
+                this.setPopupMessage("modal-register", "You must agree with the terms of use or you cannot register.", "popupMessageResponseError");
                 errorField = "register-agreement";
             }
             if (errorField != "") {
@@ -572,11 +567,11 @@ var varyn = function (parameters) {
                 errorField = "";
 
             if (errorField == "" && ! this.isValidUserName(userName)) {
-                this.setPopupMessage("loginPopup", "Your user name " + userName + " looks bad. Can you try again?", "popupMessageResponseError");
+                this.setPopupMessage("modal-login", "Your user name " + userName + " looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "login_username";
             }
             if (errorField == "" && ! this.isValidPassword(password)) {
-                this.setPopupMessage("loginPopup", "Your password looks bad. Can you try again?", "popupMessageResponseError");
+                this.setPopupMessage("modal-login", "Your password looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "login_password";
             }
             if (errorField != "") {
@@ -599,11 +594,11 @@ var varyn = function (parameters) {
                 errorField = "";
 
             if (errorField == "" && ! this.isValidUserName(userName)) {
-                this.setPopupMessage("forgotPasswordPopup", "Your user name '" + userName + "' looks bad. Can you try again?", "popupMessageResponseError");
+                this.setPopupMessage("modal-forgot-password", "Your user name '" + userName + "' looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "forgotpassword_username";
             }
             if (errorField == "" && ! this.isValidEmail(email)) {
-                this.setPopupMessage("forgotPasswordPopup", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
+                this.setPopupMessage("modal-forgot-password", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "forgotpassword_email";
             }
             if (errorField != "") {
@@ -812,10 +807,10 @@ var varyn = function (parameters) {
          */
         handleNewsletterServerResponse: function (succeeded, errorMessage) {
             if (succeeded == 1) {
-                this.setPopupMessage("subscribePopup", "You are subscribed - Thank you!", "popupMessageResponseOK");
+                this.setPopupMessage("modal-subscribe", "You are subscribed - Thank you!", "popupMessageResponseOK");
                 window.setTimeout(this.hideSubscribePopup.bind(this), 2500);
             } else {
-                this.setPopupMessage("subscribePopup", "Service reports an error: " + errorMessage, "popupMessageResponseError");
+                this.setPopupMessage("modal-subscribe", "Service reports an error: " + errorMessage, "popupMessageResponseError");
             }
         },
 

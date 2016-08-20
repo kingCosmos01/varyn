@@ -67,16 +67,22 @@
     <script src="/common/head.min.js"></script>
 </head>
 <body>
-<?php
-    include_once('common/header.php');
-?>
+<?php include_once('common/header.php'); ?>
 <div class="container marketing">
     <div class="jumbotron">
-        <h1>Style Guide</h1>
+        <h1>Varyn's Style Guide</h1>
         <p>This page serves as the site CSS style guide. Use it to demonstrate how styles are applied. If you add new styles or patterns, please update the HTML in this document to demonstrate the new styles.</p>
         <p>
             <a class="btn btn-lg btn-primary" href="http://getbootstrap.com/css/" role="button">View Bootstrap docs &raquo;</a>
         </p>
+    </div>
+    <div class="panel panel-default div-padded">
+        <h2>Modal Popups</h2>
+        <button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#modal-subscribe">New Subscribe</button>
+        <button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#modal-message">Message</button>
+        <button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#modal-login">Login</button>
+        <button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#modal-register">Register</button>
+        <button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#modal-forgot-password">Forgot Password</button>
     </div>
     <div class="panel panel-default div-padded">
         <p>Headers</p>
@@ -92,12 +98,12 @@
         <p class="lead">&lt;P class="lead"&gt;: Make a paragraph stand out by adding <code>.lead</code> class to the paragraph tag.</p>
         <p>&lt;P&gt;: Members of the OGC would agree that, to quote from <q>The Importance of Going <q>Open</q></q> (<a href="http://portal.opengeospatial.org/files/?artifact_id=6211&version=2&format=pdf">http://portal.opengeospatial.org/files/?artifact_id=6211&version=2&format=pdf</a>), <q>It is incumbent upon buyers of geoprocessing software, data and services to carefully review their requirements and then draft interoperability architecture documents that lead to purchase of solutions that implement the appropriate OGC Standards. This can be done piecemeal, one upgrade or add-on at a time, or, if it is time for the organization to put a whole new solution in place, it can be done comprehensively, all at once. OGC and OGC's members can help by examining use cases and explaining where <kbd>open</kbd> interfaces can be specified into the architecture on which procurements will be based.</q></p>
         <p>&lt;SMALL&gt;: <small>Open standards and Open Source software are both important parts of today’s ICT ecosystem, but they are quite different things. The OGC facilitates an Open Standards process and promotes the use of Open Standards in both proprietary and Open Source software. The OGC also promotes the use of Open Standards in the production and publishing of geospatial data, regardless of the policies of the producers and publishers.</small></p>
-        <p>&lt;STRONG&gt;: <strong>Open standards vs. Open Source software</strong> You can use the mark tag to <mark>highlight</mark> text.</p>
-        <p>&lt;b&gt;: <b>Open standards vs. Open Source software</b> <del>This line of text is meant to be treated as deleted text.</del></p>
-        <p>&lt;i&gt;: <i>Open standards vs. Open Source software</i> <s>This line of text is meant to be treated as no longer accurate.</s></p>
-        <p>&lt;EM&gt;: <em>Open standards vs. Open Source software</em> <ins>This line of text is meant to be treated as an addition to the document.</ins></p>
-        <p><quote>&lt;QUOTE&gt;: Providers of both proprietary and Open Source software join the OGC to further the development and market uptake of Open Standards in the world geospatial market, because Open Standards help both types of providers. This is true also for data providers.</quote></p>
-        <p><blockquote>&lt;BLOCKQUOTE&gt;: Providers of both proprietary and Open Source software join the OGC to further the development and market uptake of Open Standards in the world geospatial market, because Open Standards help both types of providers. This is true also for data providers.</blockquote></p>
+        <p>&lt;STRONG&gt;: <strong>Open standards vs. Open Source software</strong> You can use the mark tag to &lt;MARK&gt;:<mark>highlight</mark> text.</p>
+        <p>&lt;b&gt;: <b>Open standards vs. Open Source software</b> &lt;DEL&gt;:<del>This line of text is meant to be treated as deleted text.</del></p>
+        <p>&lt;i&gt;: <i>Open standards vs. Open Source software</i> &lt;S&gt;:<s>This line of text is meant to be treated as no longer accurate.</s></p>
+        <p>&lt;EM&gt;: <em>Open standards vs. Open Source software</em> &lt;INS&gt;:<ins>This line of text is meant to be treated as an addition to the document.</ins></p>
+        <p>This is some leading text before the quote: <quote>&lt;QUOTE&gt;: Providers of both proprietary and Open Source software join the OGC to further the development and market uptake of Open Standards in the world geospatial market, because Open Standards help both types of providers. This is true also for data providers.</quote></p>
+        <blockquote>&lt;BLOCKQUOTE&gt;: Providers of both proprietary and Open Source software join the OGC to further the development and market uptake of Open Standards in the world geospatial market, because Open Standards help both types of providers. This is true also for data providers.</blockquote>
         <blockquote class="blockquote-reverse">
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante.</p>
             <footer>Someone famous in <cite title="Source Title">Source Title</cite></footer>
@@ -146,6 +152,9 @@
         <p class="entry-content-info">
             AftaSansItalic - ABC - xyz - 1234567890
         </p>
+    </div>
+    <div class="panel panel-default div-padded">
+        <h2>Images</h2>
     </div>
     <div class="panel panel-default div-padded">
         <h2>Tables</h2>
@@ -238,9 +247,7 @@
         </div>
     </div>
 </div><!-- /.container -->
-<?php
-    include_once('common/footer.php');
-?>
+<?php include_once('common/footer.php'); ?>
 <script type="text/javascript">
 
     /**
@@ -303,8 +310,9 @@
         varynApp = varyn(siteConfiguration);
         varynApp.initApp(varynTemplatePage, pageParameters);
         hljs.initHighlightingOnLoad();
+
         });
-    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/hljs.min.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/varyn.js");
+    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/hljs.min.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js");
 
 </script>
 </body>
