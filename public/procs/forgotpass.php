@@ -6,7 +6,7 @@
      */
     require_once('../../services/common.php');
     $debug = (int) strtolower(getPostOrRequestVar('debug', 0));
-    $page = 'forgotpass';
+    $page = 'profile';
     $search = getPostOrRequestVar('q', null);
     if ($search != null) {
         header('location:/allgames.php?q=' . $search);

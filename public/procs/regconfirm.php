@@ -6,7 +6,7 @@
  * @Date: 1/5/16
  */
 require_once('../../services/common.php');
-$page = 'regconfirm';
+$page = 'profile';
 $search = getPostOrRequestVar('q', null);
 if ($search != null) {
     header('location:/allgames.php?q=' . $search);

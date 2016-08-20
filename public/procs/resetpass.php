@@ -9,7 +9,7 @@
      * http://varyn-l.com/procs/resetpass.php?id=10093&e=1e6&s=106&u=10239&t=f4568d65d635c41733aeca662f760d12a9f19957
      */
     require_once('../../services/common.php');
-    $debug = true;
+    $debug = (int) strtolower(getPostOrRequestVar('debug', 0));
     $page = 'profile';
     $search = getPostOrRequestVar('q', null);
     if ($search != null) {
