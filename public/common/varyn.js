@@ -501,14 +501,14 @@ var varyn = function (parameters) {
          * @return boolean true if ok to submit the form
          */
         popupSubscribeClicked: function () {
-            var email = document.getElementById("emailInput").value,
+            var email = document.getElementById("subscribe-email").value,
                 errorField = "";
 
             if (this.isValidEmail(email)) {
                 this.setPopupMessage("modal-subscribe", "Subscribing " + email + " with the service...", "popupMessageResponseOK");
                 enginesisSession.newsletterAddressAssign(email, '', '', '2', null); // the newsletter category id for Varyn/General is 2
             } else {
-                errorField = "emailInput";
+                errorField = "subscribe-email";
                 this.setPopupMessage("modal-subscribe", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
                 document.getElementById(errorField).focus();
             }
@@ -552,6 +552,9 @@ var varyn = function (parameters) {
                 $(errorField).removeClass("popup-form-input").addClass("popup-form-input-error");
                 document.getElementById(errorField).focus();
             }
+            if (errorField == "") {
+                document.getElementById("registration-form").submit();
+            }
             return errorField == ""; // return true to submit form
         },
 
@@ -577,6 +580,9 @@ var varyn = function (parameters) {
             if (errorField != "") {
                 $(errorField).removeClass("popup-form-input").addClass("popup-form-input-error");
                 document.getElementById(errorField).focus();
+            }
+            if (errorField == "") {
+                document.getElementById("login-form").submit();
             }
             return errorField == ""; // return true to submit form
         },
@@ -604,6 +610,9 @@ var varyn = function (parameters) {
             if (errorField != "") {
                 $(errorField).removeClass("popup-form-input").addClass("popup-form-input-error");
                 document.getElementById(errorField).focus();
+            }
+            if (errorField == "") {
+                document.getElementById("forgot-password-form").submit();
             }
             return errorField == ""; // return true to submit form
         },

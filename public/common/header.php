@@ -31,7 +31,7 @@
             </div>
             <div class="modal-body">
                 <p>Sign up for our email updates and we will let you know when we have new games, prizes, interesting things to say. We will not abuse this privilege. <a href="/Privacy.php" class="text-muted small" title="Review our privacy policy" alt="Review our privacy policy">Review our privacy policy.</a></p>
-                <form>
+                <form id="subscribe-form">
                     <div class="form-group leader-1 trailer-1 left-2 right-2">
                         <label for="subscribe-email">Email address</label>
                         <input type="email" name="subscribe-email" class="form-control required" id="subscribe-email" placeholder="Your email address" autocapitalize="off" autocorrect="off" autocomplete="email" />
