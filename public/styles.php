@@ -310,7 +310,7 @@
         varynApp = varyn(siteConfiguration);
         varynApp.initApp(varynTemplatePage, pageParameters);
         hljs.initHighlightingOnLoad();
-
+        varynApp.showInfoMessagePopup('Welcome to Varyn!', 'This page is used to test our CSS styles and common JavaScript page functionality. It is not part of the website.', 30000);
         });
     head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/hljs.min.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js");
 
