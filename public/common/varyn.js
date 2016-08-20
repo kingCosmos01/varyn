@@ -496,7 +496,9 @@ var varyn = function (parameters) {
 
         /**
          * The submit button was clicked on the subscribe popup. Validate user inputs before we
-         * attempt to submit the request with the server. Will set focus to a field in error.
+         * attempt to submit the request with the server. Will set focus to a field in error. This
+         * function also auto-submits the request ajax style so the form submit is not used. If
+         * successful the popup will dismiss automatically after a timer.
          *
          * @return boolean true if ok to submit the form
          */
@@ -618,7 +620,7 @@ var varyn = function (parameters) {
         },
 
         /**
-         * The submit button on the forgot password popup was clicked. Validate user inputs on the
+         * The submit button on the forgot password form was clicked. Validate user inputs on the
          * forgot password form before we attempt to submit the request with the server. Will
          * set focus to a field in error.
          *

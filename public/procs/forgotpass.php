@@ -181,10 +181,18 @@ include_once('../common/header.php');
                             </div>
                             <p>Please identify your account. We will send email to the address set on the account to allow you to reset your password.</p>
                             <div class="form-group">
-                                <label for="forgotpassword_username_form">User name:</label><input type="text" id="forgotpassword_username_form" name="forgotpassword_username_form" tabindex="23" maxlength="20" class="popup-form-input"  placeholder="Your user name" autocorrect="off" autocomplete="name"/><br/>
-                                <label for="forgotpassword_email_form">Email:</label><input type="email" id="forgotpassword_email_form" name="forgotpassword_email_form" tabindex="24" maxlength="80" class="popup-form-input required email" placeholder="Your email address" autocapitalize="off" autocorrect="off" autocomplete="email"/><br/>
+                                <label for="forgotpassword_username_form">User name:</label>
+                                <input type="text" id="forgotpassword_username_form" name="forgotpassword_username_form" tabindex="23" maxlength="20" class="popup-form-input"  placeholder="Your user name" autocorrect="off" autocomplete="name"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="forgotpassword_email_form">Email:</label>
+                                <input type="email" id="forgotpassword_email_form" name="forgotpassword_email_form" tabindex="24" maxlength="80" class="popup-form-input required email" placeholder="Your email address" autocapitalize="off" autocorrect="off" autocomplete="email"/>
+                            </div>
+                            <div class="form-group">
                                 <input type="submit" class="btn btn-success" id="forgot-password-button" value="Reset" tabindex="25"/>
-                                <input type="hidden" name="action" value="forgotpassword" /><input type="text" name="emailaddress" class="popup-form-address-input" /><input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
+                                <input type="hidden" name="action" value="forgotpassword" />
+                                <input type="text" name="emailaddress" class="popup-form-address-input" />
+                                <input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
                             </div>
                         </form>
                         <?php
