@@ -385,6 +385,11 @@
     } elseif ($action == 'resendconfirm') {
         $userName = getPostOrRequestVar('u');
         // TODO: 1. verify user-name is in waiting for confirm state. 2. call RegisteredUserResetSecondaryPassword
+        $_user_id = getPostOrRequestVar('u', 0);
+        $_user_name = getPostOrRequestVar('n', '');
+        $_email = getPostOrRequestVar('e', '');
+        $_token = getPostOrRequestVar('t', '');
+        $result = $enginesis->RegisteredUserResetSecondaryPassword($userName, $email);
         $redirectedStatusMessage = 'Your registration confirmation email has been resent. Please check your email.';
     } elseif ($action == 'logout') {
         $result = $enginesis->userLogout();
@@ -401,11 +406,14 @@
         }
     } else {
         if ($action == 'regconfirm') {
-            // redirect from regconfirm so we can display the error message
+            // redirect from regconfirm.php so we can display the error message
             $code = getPostOrRequestVar('code', '');
-            if ($code == 'SUCCESS') {
+            if ($code == 'SUCCESS' || $code == '') {
                 $redirectedStatusMessage = 'Your registration has been confirmed! Welcome to Varyn. Now let\'s play some games!';
             } elseif ($code != '') {
+                $user_user_id = getPostOrRequestVar('u', '');
+                $confirmation_token = getPostOrRequestVar('t', '');
+                $linkToResendToken = createResendConfirmEmailLink($code, $user_user_id, $userName, '', $confirmation_token);
                 $redirectedStatusMessage = errorToLocalString($code);
             }
         }
@@ -429,10 +437,22 @@
         }
     }
 
-    function createResendConfirmEmailLink($errorCode, $user_name) {
+    function appendParamIfNotEmpty($params, $key, $value) {
+        if ( ! empty($value)) {
+            $params .= '&' . $key . '=' . $value;
+        }
+        return $params;
+    }
+
+    function createResendConfirmEmailLink($errorCode, $user_id, $user_name, $email, $confirmation_token) {
         $regConfirmErrors = array(EnginesisErrors::REGISTRATION_NOT_CONFIRMED, EnginesisErrors::INVALID_SECONDARY_PASSWORD, EnginesisErrors::PASSWORD_EXPIRED);
         if (in_array($errorCode, $regConfirmErrors)) {
-            return '<a href=/profile.php?action=resendconfirm&u=' . $user_name . '>Resend confirmation</a>';
+            $params = '';
+            appendParamIfNotEmpty($params, 'u', $user_id);
+            appendParamIfNotEmpty($params, 'n', $user_name);
+            appendParamIfNotEmpty($params, 'e', $email);
+            appendParamIfNotEmpty($params, 't', $confirmation_token);
+            return '<a href=/profile.php?action=resendconfirm' . $params . '>Resend confirmation</a>';
         } else {
             return '';
         }

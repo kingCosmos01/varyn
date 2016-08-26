@@ -1,8 +1,9 @@
 <?php
 /**
- * Handle registration confirmation from email request. The link in teh email redirects to here, we use the parameters
+ * Handle registration confirmation from email request. The link in the email redirects to here, we use the parameters
  * u (user-id), s (site-id), and t (token, or secondary-password) to verify this is the user. Once confirmed the
- * user is logged in.
+ * user is logged in. If not confirmed a reason message is displayed. All cases redirect to profile.php with the
+ * error code and the message is diplayed there.
  * @Date: 1/5/16
  */
 require_once('../../services/common.php');
@@ -17,29 +18,30 @@ $user_id = getPostOrRequestVar('u', 0);
 $site_id = getPostOrRequestVar('s', 0);
 $token = getPostOrRequestVar('t', '');
 $redirectTo = '/profile.php?action=regconfirm&code=';
+$errorCode = '';
 
 if ($site_id > 0 && $user_id > 0 && $token != '') {
     $errorCode = '';
-    $errorMessage = 'Testing';
     $serverResponse = $enginesis->registeredUserConfirm($user_id, $token);
     if ($serverResponse == null) {
         $errorCode = $enginesis->getLastErrorCode();
-        if ($errorCode == 'INVALID_SECONDARY_PASSWORD') {
-            $errorMessage = "Your registration request is invalid or it has expired.";
-        } elseif ($errorCode == 'PASSWORD_EXPIRED') {
-            $errorMessage = "Your registration request has expired.";
-        } else {
-            $errorMessage = "There was a system error servicing this request (" . $enginesis->getLastErrorDescription() . ")";
-        }
-        $errorMessage = "<p class=\"error-text\">$errorMessage Please <a href=\"/profile.php\">begin the request again</a>.</p>";
+//        if ($errorCode == 'INVALID_SECONDARY_PASSWORD') {
+//            $errorMessage = "Your registration request is invalid or it has expired.";
+//        } elseif ($errorCode == 'PASSWORD_EXPIRED') {
+//            $errorMessage = "Your registration request has expired.";
+//        } else {
+//            $errorMessage = "There was a system error servicing this request (" . $enginesis->getLastErrorDescription() . ")";
+//        }
+//        $errorMessage = "<p class=\"error-text\">$errorMessage Please <a href=\"/profile.php\">begin the request again</a>.</p>";
     } else {
         $errorCode = 'SUCCESS';
-        $errorMessage = 'Your registration has been confirmed! Welcome to Varyn. Now let\'s play some games!';
+        // $errorMessage = 'Your registration has been confirmed! Welcome to Varyn. Now let\'s play some games!';
         setVarynUserCookie($serverResponse, $enginesis->getServerName());
+        $errorCode .= '&u=' . $user_id . '&t=' . $token;
     }
 } else {
     $errorCode = 'INVALID_PARAM';
-    $errorMessage = 'The information supplied to confirm your registration does not appear to be correct.';
+    // $errorMessage = 'The information supplied to confirm your registration does not appear to be correct.';
 }
 header('Location: ' . $redirectTo . $errorCode);
 return;

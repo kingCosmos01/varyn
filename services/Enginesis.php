@@ -1427,13 +1427,16 @@
 
         /**
          * If the secondary password expires or the user lost it, we come here to generate a new one and send a new email.
-         * site-id, user-id, and previous token must match otherwise generates INVALID_USER_ID error.
+         * site-id, user-id, and previous token must match otherwise generates INVALID_USER_ID error. At least two
+         * of the parameters must be provided to identify the user.
          * @param $userId
+         * @param $userName
+         * @param $userEmail
          * @param $token
          * @return bool
          */
-        public function registeredUserResetSecondaryPassword ($userId, $token) {
-            $enginesisResponse = $this->callServerAPI('RegisteredUserResetSecondaryPassword', array('user_id' => $userId, 'secondary_password' => $token));
+        public function registeredUserResetSecondaryPassword ($userId, $userName, $userEmail, $token) {
+            $enginesisResponse = $this->callServerAPI('RegisteredUserResetSecondaryPassword', array('user_id' => $userId, 'user_name' => $userName, 'email' => $userEmail, 'secondary_password' => $token));
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             return $results != null;
         }
