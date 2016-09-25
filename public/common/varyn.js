@@ -82,7 +82,7 @@ var varyn = function (parameters) {
 
             currentPage = this.getCurrentPage();
             pageViewParameters = pageViewParameterObject;
-            document.domain = siteConfiguration.serverHostDomain;
+            // document.domain = siteConfiguration.serverHostDomain;
             enginesisSession = enginesis(enginesisParameters);
             this.checkLoggedInSSO(getNetworkId());
             if (enginesisSession.isUserLoggedIn()) {
@@ -646,7 +646,7 @@ var varyn = function (parameters) {
             return errorField == ""; // return true to submit form
         },
 
-        onClickShowPassword: function(event) {
+        onClickShowPassword: function(element) {
             var showPasswordCheckbox = document.getElementById('register-showpassword'),
                 passwordInput = document.getElementById('register-password'),
                 icon = document.getElementById('register-showpassword-icon'),
@@ -654,7 +654,10 @@ var varyn = function (parameters) {
                 show = false;
 
             if (showPasswordCheckbox != null) {
-                show = showPasswordCheckbox.checked;
+                if (passwordInput == null) {
+                    passwordInput = document.getElementById('newPassword');
+                }
+                show = passwordInput.type == 'text';
                 if (show) {
                     showPasswordCheckbox.checked = false;
                     passwordInput.type = 'password';

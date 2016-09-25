@@ -62,14 +62,11 @@ var varynResetPasswordPage = function (varynApp, siteConfiguration) {
 
         passwordChangeHandler: function () {
             var newPassword = document.getElementById('newPassword').value,
-                retypePassword = document.getElementById('retypePassword').value,
-                isValid = false,
+                isValid,
                 id = 'password-match',
                 button = 'reset-password-button';
 
-            if (enginesisSession.isValidPassword(newPassword) && enginesisSession.isValidPassword(retypePassword) && newPassword == retypePassword) {
-                isValid = true;
-            }
+            isValid = enginesisSession.isValidPassword(newPassword);
             if (isValid) {
                 $('#' + id).removeClass('password-no-match').addClass('password-match').css('display', 'inline-block');
                 $('#' + button).removeClass('disabled');

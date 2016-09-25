@@ -350,6 +350,7 @@
                         $info = ($info == '' ? '' : ', ') . $email;
                     }
                 }
+                $info = htmlentities($info);
                 $info .= $info == '' ? '' : '. ';
                 $errorMessage = '<p class="error-text">' . errorToLocalString($errorCode) . '<br/>' . $info . 'Please check your entry.</p>';
             }

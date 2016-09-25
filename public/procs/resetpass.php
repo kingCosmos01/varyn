@@ -10,7 +10,7 @@
      */
     require_once('../../services/common.php');
     $debug = (int) strtolower(getPostOrRequestVar('debug', 0));
-    $page = 'profile';
+    $page = 'resetpass';
     $search = getPostOrRequestVar('q', null);
     if ($search != null) {
         header('location:/allgames.php?q=' . $search);
@@ -196,7 +196,7 @@ include_once('../common/header.php');
                         <div class="form-group">
                             <label for="newPassword">New password:</label><br/>
                             <input type="password" id="newPassword" name="newPassword" tabindex="23" maxlength="20" required class="form-control"  placeholder="New password" autocorrect="off" autocapitalize="off" autocomplete="off"/>
-                            <div id="optional-small-label" class="checkbox optional-small"><label for="ShowPassword" onclick="varynApp.onClickShowPassword();"><input type="checkbox" name="ShowPassword" id="register-showpassword" onclick="varynApp.onClickShowPassword();"> <span id="register-showpassword-text">Show</span> <span id="register-showpassword-icon" class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></label></div>
+                            <div id="optional-small-label" class="checkbox optional-small"><label for="ShowPassword" onclick="varynApp.onClickShowPassword(this);"><input type="checkbox" name="ShowPassword" id="register-showpassword"> <span id="register-showpassword-text">Show</span> <span id="register-showpassword-icon" class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></label></div>
                         </div>
                         <div class="form-group">
                             <input type="submit" class="btn btn-success disabled" id="reset-password-button" value="Change" tabindex="25"/><img id="password-match" class="password-match" src="/images/green_tick.png" width="32" height="32"/>

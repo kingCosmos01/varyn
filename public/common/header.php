@@ -1,4 +1,5 @@
 <?php
+    $pagesDoNotHaveRegistrationForms = array('resetpass', 'forgotpass', 'requestConfirm');
     if ( ! isset($isLoggedIn)) {
         $isLoggedIn = false;
     }
@@ -22,6 +23,9 @@
         </div>
     </div>
 </div>
+<?php
+    if ( ! in_array($page, $pagesDoNotHaveRegistrationForms)) {
+?>
 <div class="modal fade topmost" id="modal-subscribe" tabindex="-1" role="dialog" aria-labelledby="modalSubscribeLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content modal-content-varyn">
@@ -48,8 +52,8 @@
     </div>
 </div>
 <?php
-    if ( ! $isLoggedIn) {
         $hackerVerification = makeInputFormHackerToken();
+        if ( ! $isLoggedIn) {
 ?>
 <div class="modal fade topmost" id="modal-login" tabindex="-1" role="dialog" aria-labelledby="modalLoginLabel">
     <div class="modal-dialog" role="document">
@@ -86,42 +90,6 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-success" value="loginButton" name="loginButton" id="loginButton" onclick="varynApp.popupLoginClicked();">Login</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade topmost" id="modal-forgot-password" tabindex="-1" role="dialog" aria-labelledby="modalForgotPasswordLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content modal-content-varyn">
-            <div class="modal-header">
-                <button type="button" class="close color-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h3 class="modal-title" id="modalForgotPasswordLabel"><span class="varyn-shield-icon"></span> Forgot Password</h3>
-            </div>
-            <div class="modal-body">
-                <p>Please identify your account. We will send email to the address set on the account to allow you to reset your password.</p>
-                <form id="forgot-password-form" method="POST" action="profile.php" onsubmit="return varynApp.popupForgotPasswordClicked();">
-                    <div class="leader-1 trailer-1 left-2 right-2">
-                        <div class="form-group">
-                            <label for="forgotpassword_username">User name:</label>
-                            <input type="text" id="forgotpassword_username" name="forgotpassword_username" tabindex="23" maxlength="20" class="popup-form-input required"  placeholder="Your user name" autocorrect="off" autocomplete="name"/>
-                        </div>
-                        <div class="form-group">
-                            <label for="forgotpassword_email">Email:</label>
-                            <input type="email" id="forgotpassword_email" name="forgotpassword_email" tabindex="24" maxlength="80" class="popup-form-input required email" placeholder="Your email address" autocapitalize="off" autocorrect="off" autocomplete="email"/>
-                        </div>
-                            <div class="form-group">
-                            <input type="hidden" name="action" value="forgotpassword" />
-                            <input type="text" name="emailaddress" class="popup-form-address-input" />
-                            <input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
-                        </div>
-                    </div>
-                </form>
-                <div class="modalMessageArea">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success" value="Reset" name="Reset" id="forgot-password-button" onclick="varynApp.popupForgotPasswordClicked();">Reset</button>
             </div>
         </div>
     </div>
@@ -174,10 +142,52 @@
     </div>
 </div>
 <?php
-        $userLoggedInMenuItem = '<span class="glyphicon glyphicon-user"></span> Login';
-    } else {
-        $userLoggedInMenuItem = '<span class="glyphicon glyphicon-user"></span> Profile'; // TODO: show Avatar, User-name, Reputation swatch
+        }
+?>
+<div class="modal fade topmost" id="modal-forgot-password" tabindex="-1" role="dialog" aria-labelledby="modalForgotPasswordLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content modal-content-varyn">
+            <div class="modal-header">
+                <button type="button" class="close color-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h3 class="modal-title" id="modalForgotPasswordLabel"><span class="varyn-shield-icon"></span> Forgot Password</h3>
+            </div>
+            <div class="modal-body">
+                <p>Please identify your account. We will send email to the address set on the account to allow you to reset your password.</p>
+                <form id="forgot-password-form" method="POST" action="profile.php" onsubmit="return varynApp.popupForgotPasswordClicked();">
+                    <div class="leader-1 trailer-1 left-2 right-2">
+                        <div class="form-group">
+                            <label for="forgotpassword_username">User name:</label>
+                            <input type="text" id="forgotpassword_username" name="forgotpassword_username" tabindex="23" maxlength="20" class="popup-form-input required"  placeholder="Your user name" autocorrect="off" autocomplete="name"/>
+                        </div>
+                        <div class="form-group">
+                            <label for="forgotpassword_email">Email:</label>
+                            <input type="email" id="forgotpassword_email" name="forgotpassword_email" tabindex="24" maxlength="80" class="popup-form-input required email" placeholder="Your email address" autocapitalize="off" autocorrect="off" autocomplete="email"/>
+                        </div>
+                        <div class="form-group">
+                            <input type="hidden" name="action" value="forgotpassword" />
+                            <input type="text" name="emailaddress" class="popup-form-address-input" />
+                            <input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
+                        </div>
+                    </div>
+                </form>
+                <div class="modalMessageArea">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" value="Reset" name="Reset" id="forgot-password-button" onclick="varynApp.popupForgotPasswordClicked();">Reset</button>
+            </div>
+        </div>
+    </div>
+</div>
+<?php
     }
+    if ($isLoggedIn) {
+        $userLoggedInMenuItem = '<span class="glyphicon glyphicon-user"></span> Profile'; // TODO: show Avatar, User-name, Reputation swatch
+    } else {
+        $userLoggedInMenuItem = '<span class="glyphicon glyphicon-user"></span> Login';
+    }
+
 ?>
 <div class="navbar-wrapper">
     <div class="container">

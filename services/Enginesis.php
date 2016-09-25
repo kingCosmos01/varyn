@@ -865,10 +865,10 @@
                 $succeeded = strlen($contents) > 0;
                 // TODO: We should verify the response is a valid EnginesisReponse object
                 if ( ! $succeeded) {
-                    $contents = '{"results":{"status":{"success":"0","message":"SYSTEM_ERR","extended_info":"System error: ' . $this->m_serviceEndPoint . ' replied with no data."},"passthru":{"fn":"' . $fn . '","state_seq":0}}}';
+                    $contents = '{"results":{"status":{"success":"0","message":"SYSTEM_ERROR","extended_info":"System error: ' . $this->m_serviceEndPoint . ' replied with no data."},"passthru":{"fn":"' . $fn . '","state_seq":0}}}';
                 }
             } else {
-                $contents = '{"results":{"status":{"success":"0","message":"SYSTEM_ERR","extended_info":"System error: unable to contact ' . $this->m_serviceEndPoint . ' or the server did not respond."},"passthru":{"fn":"' . $fn . '","state_seq":0}}}';
+                $contents = '{"results":{"status":{"success":"0","message":"SYSTEM_ERROR","extended_info":"System error: unable to contact ' . $this->m_serviceEndPoint . ' or the server did not respond."},"passthru":{"fn":"' . $fn . '","state_seq":0}}}';
             }
             if ($debug) {
                 echo("<h3>Response from $fn:</h3><p>$contents</p>");
