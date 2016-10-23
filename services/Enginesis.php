@@ -1440,6 +1440,7 @@
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             return $results != null;
         }
+        
         /**
          * The general public user get - returns a minimum set of public attributes about a user.
          * @param $userId - may be either an int indicating a user_id or a string indicating a user_name.
