@@ -189,7 +189,7 @@
     }
 
 ?>
-<div class="navbar-wrapper">
+<div class="navbar-wrapper" id="varyn-navbar">
     <div class="container">
         <nav class="navbar navbar-default navbar-static-top" role="navigation">
             <div class="container">

@@ -143,7 +143,7 @@ var varynPlayPage = function (varynApp, siteConfiguration) {
 
     function showOnlyTheGame (showFlag) {
         // show/hide all divs except the gameContainer
-        var hideTheseElements = ['playgame-navbar', 'playgame-InfoPanel', 'playgame-BottomPanel'],
+        var hideTheseElements = ['varyn-navbar', 'playgame-InfoPanel', 'playgame-BottomPanel'],
             unwantedElement,
             elementDiv,
             showStyle;
@@ -158,6 +158,11 @@ var varynPlayPage = function (varynApp, siteConfiguration) {
             if (elementDiv != null) {
                 elementDiv.style.display = showStyle;
             }
+        }
+        elementDiv = document.getElementById('varyn-body');
+        if (elementDiv != null) {
+            elementDiv.style.padding = "0";
+            elementDiv.style.margin = "0";
         }
         fitGameToFullScreen();
     }
@@ -201,7 +206,7 @@ var varynPlayPage = function (varynApp, siteConfiguration) {
                 serverHostDomain = 'varyn' + serverStage + '.com';
 
             ga('send', 'event', 'game', 'play', gameId, 1);
-            document.domain = serverHostDomain;
+            // document.domain = serverHostDomain;
             enginesisSession.siteListGamesRandom(24, enginesisCallBack);
             enginesisSession.developerGet(pageViewParameters.developerId, enginesisCallBack);
             setGameContainer(pageViewParameters);

@@ -7,24 +7,10 @@
         exit;
     }
     $showSubscribe = getPostOrRequestVar('s', '0');
-    $gameId = getPostOrRequestVar('id', '');
-    if ($gameId == '') {
-        $gameId = getPostOrRequestVar('gameid', '');
-    }
-    if ($gameId == '') {
-        $gameId = getPostOrRequestVar('game_id', '');
-    }
-    if ($gameId == '') {
-        $gameId = getPostOrRequestVar('gameId', '');
-    }
-    if ($gameId == '') {
-        $gameId = getPostOrRequestVar('gameName', '');
-    }
-    if ($gameId == '') {
-        $gameId = getPostOrRequestVar('gamename', '');
-    }
-    if ($gameId == '') {
-        $gameId = getPostOrRequestVar('g', '');
+    $possibleIds = array('id', 'gameid', 'game_id', 'gameId', 'gameName', 'g');
+    for ($i = 0; $i < count($possibleIds); $i ++) {
+        $possibleId = $possibleIds[$i];
+        $gameId = getPostOrRequestVar($possibleId, '');
     }
     if ($gameId == '') {
         header("Location: /allgames.php");
@@ -38,8 +24,7 @@
     $isPlayBuzzSpecialCase = false;
 
     // get game info: we need the game info immediately in order to build the page
-    // TODO: GameGet only works for numeric game_id, if game name we need to call GameGetByName
-
+    // GameGet only works for numeric game_id, if game name we need to call GameGetByName
     if (is_numeric($gameId)) {
         $gameInfo = $enginesis->gameGet($gameId);
     } elseif ( ! empty($gameId)) {
@@ -145,7 +130,7 @@
     <meta name="twitter:domain" content="varyn.com"/>
     <script src="/common/head.min.js"></script>
 </head>
-<body>
+<body id="varyn-body">
 <?php
     include_once('common/header.php');
 ?>
