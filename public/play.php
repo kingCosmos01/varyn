@@ -7,10 +7,10 @@
         exit;
     }
     $showSubscribe = getPostOrRequestVar('s', '0');
+    $gameId = '';
     $possibleIds = array('id', 'gameid', 'game_id', 'gameId', 'gameName', 'g');
-    for ($i = 0; $i < count($possibleIds); $i ++) {
-        $possibleId = $possibleIds[$i];
-        $gameId = getPostOrRequestVar($possibleId, '');
+    for ($i = 0; $i < count($possibleIds) && $gameId == ''; $i ++) {
+        $gameId = getPostOrRequestVar($possibleIds[$i], '');
     }
     if ($gameId == '') {
         header("Location: /allgames.php");
