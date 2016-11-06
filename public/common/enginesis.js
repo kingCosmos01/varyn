@@ -12,7 +12,7 @@
 "use strict";
 
 /**
- * Construct the singleton Enginesis object with initial parmeters.
+ * Construct the singleton Enginesis object with initial parameters.
  * @param parameters object {
  *      siteId: number, required,
  *      developerKey: string, required,
@@ -23,58 +23,89 @@
  *      serverStage: string, optional, default to live server,
  *      callBackFunction: function, optional but highly recommended.
  *      }
- * @returns {{ShareHelper, gameId: (*|number), gameWidth: number, gameHeight: number, gamePluginId: number, version: string, versionGet: versionGet, isTouchDevice: isTouchDevice, serverStageSet: serverStageSet, serverStageGet: serverStageGet, useHTTPS: useHTTPS, serverBaseUrlGet: serverBaseUrlGet, gameIdGet: gameIdGet, gameIdSet: gameIdSet, gameGroupIdGet: gameGroupIdGet, gameGroupIdSet: gameGroupIdSet, siteIdGet: siteIdGet, siteIdSet: siteIdSet, getGameImageURL: getGameImageURL, getDateNow: getDateNow, sessionBegin: sessionBegin, addOrUpdateVoteByURI: addOrUpdateVoteByURI, developerGet: developerGet, gameDataGet: gameDataGet, gameDataCreate: gameDataCreate, gameTrackingRecord: gameTrackingRecord, getNumberOfVotesPerURIGroup: getNumberOfVotesPerURIGroup, gameFind: gameFind, gameFindByName: gameFindByName, gameGet: gameGet, gameGetByName: gameGetByName, gameListByCategory: gameListByCategory, gameListList: gameListList, gameListListGames: gameListListGames, gameListListGamesByName: gameListListGamesByName, gameListByMostPopular: gameListByMostPopular, gameListCategoryList: gameListCategoryList, gameListListRecommendedGames: gameListListRecommendedGames, gamePlayEventListByMostPlayed: gamePlayEventListByMostPlayed, newsletterCategoryList: newsletterCategoryList, newsletterAddressAssign: newsletterAddressAssign, newsletterAddressUpdate: newsletterAddressUpdate, newsletterAddressDelete: newsletterAddressDelete, newsletterAddressGet: newsletterAddressGet, promotionItemList: promotionItemList, promotionList: promotionList, recommendedGameList: recommendedGameList, registeredUserCreate: registeredUserCreate, registeredUserUpdate: registeredUserUpdate, registeredUserSecurityUpdate: registeredUserSecurityUpdate, registeredUserForgotPassword: registeredUserForgotPassword, registeredUserGet: registeredUserGet, siteListGames: siteListGames, siteListGamesRandom: siteListGamesRandom, userGetByName: userGetByName, userLogin: userLogin, userLoginCoreg: userLoginCoreg}}
+ * @returns {object}
  */
-var enginesis = function (parameters) {
+(function enginesis (global) {
+    'use strict';
 
-    var VERSION = '2.3.25',
-        debugging = true,
-        disabled = false, // use this flag to turn off communicating with the server
-        errorLevel = 15,  // bitmask: 1=info, 2=warning, 4=error, 8=severe
-        useHTTPS = false,
-        serverStage = null,
-        serverHost = null,
-        submitToURL = null,
-        avatarImageURL = null,
-        siteId = 0,
-        gameId = 0,
-        gameWidth = 0,
-        gameHeight = 0,
-        gamePluginId = 0,
-        gameGroupId = 0,
-        languageCode = 'en',
-        syncId = 0,
-        lastCommand = null,
-        lastError = '',
-        lastErrorMessage = '',
-        callBackFunction = null,
-        authToken = null,
-        authTokenWasValidated = false,
-        developerKey = null,
-        loggedInUserId = 0,
-        loggedInUserName = '',
-        userAccessLevel = 0,
-        siteUserId = '',
-        networkId = 1,
-        platform = '',
-        locale = 'US-en',
-        isNativeBuild = false,
-        isTouchDevice = false,
-        SESSION_COOKIE = 'engsession',
-        SESSION_USERINFO = 'engsession_user';
+    var enginesis = {
+        VERSION: '2.3.30',
+        debugging: true,
+        disabled: false, // use this flag to turn off communicating with the server
+        errorLevel: 15,  // bitmask: 1=info, 2=warning, 4=error, 8=severe
+        useHTTPS: false,
+        serverStage: null,
+        serverHost: null,
+        submitToURL: null,
+        avatarImageURL: null,
+        siteId: 0,
+        gameId: 0,
+        gameWidth: 0,
+        gameHeight: 0,
+        gamePluginId: 0,
+        gameGroupId: 0,
+        languageCode: 'en',
+        syncId: 0,
+        lastCommand: null,
+        lastError: '',
+        lastErrorMessage: '',
+        callBackFunction: null,
+        authToken: null,
+        authTokenWasValidated: false,
+        developerKey: null,
+        loggedInUserId: 0,
+        loggedInUserName: '',
+        userAccessLevel: 0,
+        siteUserId: '',
+        networkId: 1,
+        platform: '',
+        locale: 'US-en',
+        isNativeBuild: false,
+        isTouchDeviceFlag: false,
+        SESSION_COOKIE: 'engsession',
+        SESSION_USERINFO: 'engsession_user',
+        captchaId: '99999',
+        captchaResponse: 'DEADMAN',
+        anonymousUserKey: 'enginesisAnonymousUser',
+        anonymousUser: null
+    };
 
-    if (parameters) {
-        siteId = parameters.siteId != undefined ? parameters.siteId : 0;
-        gameId = parameters.gameId != undefined ? parameters.gameId : 0;
-        gameGroupId = parameters.gameGroupId != undefined ? parameters.gameGroupId : 0;
-        languageCode = parameters.languageCode != undefined ? parameters.languageCode : 'en';
-        serverStage = parameters.serverStage != undefined ? parameters.serverStage : '';
-        developerKey = parameters.developerKey != undefined ? parameters.developerKey : '';
-        authToken = parameters.authToken != undefined ? parameters.authToken : null;
-        callBackFunction = parameters.callBackFunction != undefined ? parameters.callBackFunction : null;
+    enginesis.init = function(parameters) {
+        if (parameters) {
+            enginesis.siteId = parameters.siteId != undefined ? parameters.siteId : 0;
+            enginesis.gameId = parameters.gameId != undefined ? parameters.gameId : 0;
+            enginesis.gameGroupId = parameters.gameGroupId != undefined ? parameters.gameGroupId : 0;
+            enginesis.languageCode = parameters.languageCode != undefined ? parameters.languageCode : 'en';
+            enginesis.serverStage = parameters.serverStage != undefined ? parameters.serverStage : '';
+            enginesis.developerKey = parameters.developerKey != undefined ? parameters.developerKey : '';
+            enginesis.authToken = parameters.authToken != undefined ? parameters.authToken : null;
+            enginesis.callBackFunction = parameters.callBackFunction != undefined ? parameters.callBackFunction : null;
+        }
+        setPlatform();
+        setProtocolFromCurrentLocation();
+        qualifyAndSetServerStage(enginesis.serverStage);
+        restoreUserFromAuthToken();
+        if ( ! enginesis.isUserLoggedIn()) {
+            anonymousUserLoad();
+        }
+    };
+
+    /**
+     * Determine if a given variable is considered an empty value.
+     * @param field
+     * @returns {boolean}
+     */
+    function isEmpty (field) {
+        return (typeof field === 'undefined') || field === null || (typeof field === 'string' && field === "") || (field instanceof Array && field.length == 0) || field === false || (typeof field === 'number' && (isNaN(field) || field === 0));
     }
 
-    var requestComplete = function (enginesisResponseData, overRideCallBackFunction) {
+    /**
+     * Internal function to handle q completed service request and convert the JSON response to
+     * an object and then invoke the call back function.
+     * @param enginesisResponseData
+     * @param overRideCallBackFunction
+     */
+    function requestComplete (enginesisResponseData, overRideCallBackFunction) {
         var enginesisResponseObject;
 
         debugLog("CORS request complete " + enginesisResponseData);
@@ -89,14 +120,21 @@ var enginesis = function (parameters) {
         } else if (callBackFunction != null) {
             callBackFunction(enginesisResponseObject);
         }
-    };
+    }
 
-    var sendRequest = function (fn, parameters, overRideCallBackFunction) {
+    /**
+     * Internal function to send a service request to the server.
+     * @param fn
+     * @param parameters
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    function sendRequest (fn, parameters, overRideCallBackFunction) {
         var enginesisParameters = serverParamObjectMake(fn, parameters),
             crossOriginRequest = new XMLHttpRequest(),
             requestSent = false;
 
-        if ( ! disabled) {
+        if ( ! enginesis.disabled) {
             crossOriginRequest.onload = function(e) {
                 requestComplete(this.responseText, overRideCallBackFunction);
             };
@@ -106,28 +144,35 @@ var enginesis = function (parameters) {
             };
 
             // TODO: Need "GET", "PUT", and "DELETE" methods
-            crossOriginRequest.open("POST", submitToURL, true);
+            crossOriginRequest.open("POST", enginesis.submitToURL, true);
             crossOriginRequest.overrideMimeType("application/json");
             crossOriginRequest.send(convertParamsToFormData(enginesisParameters));
-            lastCommand = fn;
+            enginesis.lastCommand = fn;
             requestSent = true;
         }
         return requestSent;
-    };
+    }
 
-    var serverParamObjectMake = function (whichCommand, additionalParameters) {
+    /**
+     * Internal function to make a parameter object complementing a service request. Depending on the
+     * current state of the system specific internal variables are appended to the service request.
+     * @param whichCommand
+     * @param additionalParameters
+     * @returns {{fn: *, language_code: *, site_id: *, user_id: *, game_id: *, state_seq: number, response: string}}
+     */
+    function serverParamObjectMake (whichCommand, additionalParameters) {
         var serverParams = { // these are defaults that could be overridden with additionalParameters
             fn: whichCommand,
-            language_code: languageCode,
-            site_id: siteId,
-            user_id: loggedInUserId,
-            game_id: gameId,
-            state_seq: ++ syncId,
+            language_code: enginesis.languageCode,
+            site_id: enginesis.siteId,
+            user_id: enginesis.loggedInUserId,
+            game_id: enginesis.gameId,
+            state_seq: ++ enginesis.syncId,
             response: "json"
         };
-        if (loggedInUserId != 0) {
-            serverParams.logged_in_user_id = loggedInUserId;
-            serverParams.authtok = authToken;
+        if (enginesis.loggedInUserId != 0) {
+            serverParams.logged_in_user_id = enginesis.loggedInUserId;
+            serverParams.authtok = enginesis.authToken;
         }
         if (additionalParameters != null) {
             for (var key in additionalParameters) {
@@ -137,14 +182,26 @@ var enginesis = function (parameters) {
             }
         }
         return serverParams;
-    };
+    }
 
-    var forceErrorResponse = function (fn, stateSeq, errorCode, ErrorMessage) {
-        // generate an internal error that looks the same as an error response from the server.
-        var errorJSONString = '{"results":{"status":{"success":"0","message":"' + errorCode + '","extended_info":"' + ErrorMessage + '"},"passthru":{"fn":"' + fn + '","state_seq":"' + stateSeq + '"}}}';
-    };
+    /**
+     * Generate an internal error that looks the same as an error response from the server.
+     * @param fn
+     * @param stateSeq
+     * @param errorCode
+     * @param ErrorMessage
+     * @return {string} a JSON string representing a standard Enginesis error.
+     */
+    function forceErrorResponse (fn, stateSeq, errorCode, ErrorMessage) {
+        return '{"results":{"status":{"success":"0","message":"' + errorCode + '","extended_info":"' + ErrorMessage + '"},"passthru":{"fn":"' + fn + '","state_seq":"' + stateSeq + '"}}}';
+    }
 
-    var convertParamsToFormData = function (parameterObject) {
+    /**
+     * Convert a parameter object to a proper HTTP Form request.
+     * @param parameterObject
+     * @returns {*}
+     */
+    function convertParamsToFormData (parameterObject) {
         var key,
             formDataObject = new FormData();
 
@@ -154,48 +211,78 @@ var enginesis = function (parameters) {
             }
         }
         return formDataObject;
-    };
+    }
 
-    var setProtocolFromCurrentLocation = function () {
-        useHTTPS = document.location.protocol == 'https:';
-    };
+    /**
+     * Set the internal https protocol flag based on the current page we are loaded on.
+     */
+    function setProtocolFromCurrentLocation () {
+        enginesis.useHTTPS = window.location.protocol == 'https:';
+    }
 
-    var qualifyAndSetServerStage = function (newServerStage) {
+    /**
+     * Return the proper protocol based on our interal HTTPS setting.
+     * @returns {string}
+     */
+    function getProtocol() {
+        return enginesis.useHTTPS ? 'https://' : 'http://';
+    }
+
+    /**
+     * Set the server stage we will converse with using some simple heuristics.
+     * @param newServerStage
+     * @returns {*}
+     */
+    function qualifyAndSetServerStage (newServerStage) {
         var regMatch;
 
+        if (newServerStage === undefined || newServerStage == null) {
+            newServerStage = window.location.host;
+        }
         switch (newServerStage) {
             case '':
             case '-l':
             case '-d':
             case '-q':
             case '-x':
-                serverStage = newServerStage;
-                serverHost = 'www.enginesis' + serverStage + '.com';
+                enginesis.serverStage = newServerStage;
+                enginesis.serverHost = 'www.enginesis' + enginesis.serverStage + '.com';
                 break;
             default:
                 // if it was not a stage match assume it is a full host name, find the stage in it if it exists
                 regMatch = /\-[ldqx]\./.exec(newServerStage);
                 if (regMatch != null && regMatch.index > 0) {
-                    serverStage = newServerStage.substr(regMatch.index, 2);
+                    enginesis.serverStage = newServerStage.substr(regMatch.index, 2);
                 } else {
-                    serverStage = ''; // anything we do not expect goes to the live instance
+                    enginesis.serverStage = ''; // anything we do not expect goes to the live instance
                 }
-                serverHost = newServerStage;
+                enginesis.serverHost = newServerStage;
                 break;
         }
-        submitToURL = (useHTTPS ? 'https://' : 'http://') + serverHost + '/index.php';
-        avatarImageURL = (useHTTPS ? 'https://' : 'http://') + serverHost + '/avatar.php';
-        return serverStage;
-    };
+        enginesis.submitToURL = getProtocol() + enginesis.serverHost + '/index.php';
+        enginesis.avatarImageURL = getProtocol() + enginesis.serverHost + '/avatar.php';
+        return enginesis.serverStage;
+    }
 
-    var setPlatform = function () {
-        platform = navigator.platform;
-        locale = navigator.language;
-        isNativeBuild = document.location.protocol == 'file:';
-        if (Modernizr != null && Modernizr.touch != null) {
-            isTouchDevice = Modernizr.touch;
+    function touchDevice () {
+        var isTouch = false;
+        if ('ontouchstart' in window) {
+            isTouch = true;
+        } else if (window.DocumentTouch && document instanceof DocumentTouch) {
+            isTouch = true;
         }
-    };
+        return isTouch;
+    }
+
+    /**
+     * Cache settings regarding the current platform we are running on.
+     */
+    function setPlatform () {
+        enginesis.platform = navigator.platform;
+        enginesis.locale = navigator.language;
+        enginesis.isNativeBuild = window.location.protocol == 'file:';
+        enginesis.isTouchDeviceFlag = touchDevice();
+    }
 
     /**
      * Return the current document query string as an object with
@@ -206,7 +293,7 @@ var enginesis = function (parameters) {
      *   provided then use window.location.search.
      * @return {object} result The query string converted to an object of key/value pairs.
      */
-    var queryStringToObject = function (urlParameterString) {
+    function queryStringToObject (urlParameterString) {
         var match,
             search = /([^&=]+)=?([^&]*)/g,
             decode = function (s) {
@@ -220,7 +307,7 @@ var enginesis = function (parameters) {
             result[decode(match[1])] = decode(match[2]);
         }
         return result;
-    };
+    }
 
     /**
      * Return the contents of the cookie indexed by the specified key.
@@ -229,19 +316,20 @@ var enginesis = function (parameters) {
      * @param {string} key Indicate which cookie to get.
      * @returns {string} value Contents of cookie stored with key.
      */
-    var cookieGet = function (key) {
+    function cookieGet (key) {
         if (key) {
             return decodeURIComponent(document.cookie.replace(new RegExp("(?:(?:^|.*;)\\s*" + encodeURIComponent(key).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1")) || null;
         } else {
             return '';
         }
-    };
+    }
 
     /**
      * Get info about the current logged in user, if there is one, from authtok parameter or cookie
      */
-    var restoreUserFromAuthToken = function () {
+    function restoreUserFromAuthToken () {
         var queryParameters,
+            authToken = enginesis.authToken,
             userInfo;
 
         if (authToken == null || authToken == '') {
@@ -251,530 +339,920 @@ var enginesis = function (parameters) {
             }
         }
         if (authToken == null || authToken == '') {
-            authToken = cookieGet(SESSION_COOKIE);
+            authToken = cookieGet(enginesis.SESSION_COOKIE);
         }
         if (authToken != null && authToken != '') {
             // TODO: Validate the token (for now we are accepting that it is valid but we should check!) If the authToken is valid then we can trust the userInfo
             // TODO: we can use cr to validate the token was not changed
-            authTokenWasValidated = true;
-            userInfo = cookieGet(SESSION_USERINFO);
+            enginesis.authToken = authToken;
+            enginesis.authTokenWasValidated = true;
+            userInfo = cookieGet(enginesis.SESSION_USERINFO);
             if (userInfo != null && userInfo != '') {
                 userInfo = JSON.parse(userInfo);
                 if (userInfo != null) {
-                    loggedInUserId = userInfo.user_id;
-                    loggedInUserName = userInfo.user_name;
-                    userAccessLevel = userInfo.access_level;
-                    siteUserId = userInfo.site_user_id;
-                    networkId = userInfo.network_id;
+                    enginesis.loggedInUserId = userInfo.user_id;
+                    enginesis.loggedInUserName = userInfo.user_name;
+                    enginesis.userAccessLevel = userInfo.access_level;
+                    enginesis.siteUserId = userInfo.site_user_id;
+                    enginesis.networkId = userInfo.network_id;
                 }
             }
         }
-    };
+    }
 
-    var debugLog = function (message, level) {
-        if (debugging) {
+    /**
+     * Internal logging function. All logging should call this function to abstract and control the interface.
+     * @param message
+     * @param level
+     */
+    function debugLog(message, level) {
+        if (enginesis.debugging) {
             if (level == null) {
                 level = 15;
             }
-            if ((errorLevel & level) > 0) { // only show this message if the error level is on for the level we are watching
+            if ((enginesis.errorLevel & level) > 0) { // only show this message if the error level is on for the level we are watching
                 console.log(message);
             }
             if (level == 9) {
                 alert(message);
             }
         }
+    }
+
+    /**
+     * Save an object in HTML5 local storage given a key.
+     * @param key
+     * @param object
+     */
+    function saveObjectWithKey(key, object) {
+        if (key != null && object != null) {
+            window.localStorage[key] = JSON.stringify(object);
+        }
+    }
+
+    /**
+     * Restore an object previously saved in HTML5 local storage
+     * @param key
+     * @returns {object}
+     */
+    function loadObjectWithKey(key) {
+        var jsonData,
+            object = null;
+
+        if (key != null) {
+            jsonData = window.localStorage[key];
+            if (jsonData != null) {
+                object = JSON.parse(jsonData);
+            }
+        }
+        return object;
+    }
+
+    /**
+     * Load the anonymous user data from HTML5 local storage. If we do not have a prior save then initialize
+     * a first time user.
+     * @return object
+     */
+    function anonymousUserLoad() {
+        if (enginesis.anonymousUser == null) {
+            enginesis.anonymousUser = loadObjectWithKey(enginesis.anonymousUserKey);
+            if (enginesis.anonymousUser == null) {
+                enginesis.anonymousUser = {
+                    dateCreated: new Date(),
+                    dateLastVisit: new Date(),
+                    subscriberEmail: '',
+                    userName: '',
+                    favoriteGames: [],
+                    gamesPlayed: []
+                };
+            }
+        }
+        return enginesis.anonymousUser;
+    }
+
+    /**
+     * Save the anonymous user to HTML5 local storage.
+     */
+    function anonymousUserSave() {
+        if (enginesis.anonymousUser != null) {
+            saveObjectWithKey(enginesis.anonymousUserKey, enginesis.anonymousUser);
+        }
+    }
+
+    /**
+     * Return the Enginesis version.
+     * @returns {string}
+     */
+    enginesis.versionGet = function () {
+        return enginesis.VERSION;
     };
 
-    setPlatform();
-    setProtocolFromCurrentLocation();
-    qualifyAndSetServerStage(serverStage);
-    restoreUserFromAuthToken();
+    /**
+     * Determine if we have a logged in user.
+     * @returns {boolean}
+     */
+    enginesis.isUserLoggedIn = function () {
+        return enginesis.loggedInUserId != 0 && enginesis.authToken != '';
+    };
 
-    // =====================================================================
-    // this is the public interface
-    //
-    return {
+    /**
+     * Return the error of the most recent service call.
+     * @returns {{isError: boolean, error: string, description: string}}
+     */
+    enginesis.getLastError = function () {
+        return {isError: enginesis.lastError != '', error: enginesis.lastError, description: enginesis.lastErrorMessage};
+    };
 
-        ShareHelper: ShareHelper,
-        gameId: gameId,
-        siteId: siteId,
-        gameWidth: gameWidth,
-        gameHeight: gameHeight,
-        gamePluginId: gamePluginId,
-        version: VERSION,
+    /**
+     * Return an object of user information. If no user is logged in a valid object is still returned but with invalid user info.
+     * @returns {{isLoggedIn: boolean, userId: number, userName: string, siteUserId: string, networkId: number, accessLevel: number}}
+     */
+    enginesis.getLoggedInUserInfo = function () {
+        return {isLoggedIn: enginesis.loggedInUserId != 0, userId: enginesis.loggedInUserId, userName: enginesis.loggedInUserName, siteUserId: enginesis.siteUserId, networkId: enginesis.networkId, accessLevel: enginesis.userAccessLevel};
+    };
 
-        versionGet: function () {
-            return VERSION;
-        },
+    /**
+     * Return true if the current device is a touch device.
+     * @returns {boolean}
+     */
+    enginesis.isTouchDevice = function () {
+        return enginesis.isTouchDeviceFlag;
+    };
 
-        isUserLoggedIn: function () {
-            return loggedInUserId != 0 && authToken != '';
-        },
+    /**
+     * Determine if the user name is a valid format that would be accepted by the server.
+     * @param userName
+     * @returns {boolean}
+     */
+    enginesis.isValidUserName = function (userName) {
+        // TODO: reuse the regex we used on enginesis or varyn
+        return userName.length > 2;
+    };
 
-        getLastError: function () {
-            return {isError: lastError != '', error: lastError, description: lastErrorMessage};
-        },
+    /**
+     * Determine if the password is a valid password that will be accepted by the server.
+     * @param password
+     * @returns {boolean}
+     */
+    enginesis.isValidPassword = function (password) {
+        // TODO: reuse the regex we use on enginesis or varyn
+        return password.length > 4;
+    };
 
-        getLoggedInUserInfo: function () {
-            return {isLoggedIn: loggedInUserId != 0, userId: loggedInUserId, userName: loggedInUserName, siteUserId: siteUserId, networkId: networkId, accessLevel: userAccessLevel};
-        },
+    /**
+     * Determine and set the server stage from the specified string. It can be a stage request or a domain.
+     * @param newServerStage
+     * @returns {string}
+     */
+    enginesis.serverStageSet = function (newServerStage) {
+        return qualifyAndSetServerStage(newServerStage);
+    };
 
-        isTouchDevice: function () {
-            return isTouchDevice;
-        },
+    /**
+     * Return the current server stage we are set to converse with.
+     * @returns {string}
+     */
+    enginesis.serverStageGet = function () {
+        return enginesis.serverStage;
+    };
 
-        isValidUserName: function (userName) {
-            return userName.length > 2;
-        },
+    /**
+     * @method: useHTTPS
+     * @purpose: get and/or set the use HTTPS flag, allowing the caller to force the protocol. By default we set
+     *           useHTTPS from the current document location. This allows the caller to query it and override its value.
+     * @param: {boolean} useHTTPSFlag should be either true to force https or false to force http, or undefined to leave it as is
+     * @returns: {boolean} the current state of the useHTTPS flag.
+     */
+    enginesis.useHTTPS = function (useHTTPSFlag) {
+        if (useHTTPSFlag !== undefined) {
+            enginesis.useHTTPS = useHTTPSFlag ? true : false; // force implicit boolean conversion of flag in case we get some value other than true/false
+        }
+        return enginesis.useHTTPS;
+    };
 
-        isValidPassword: function (password) {
-            return password.length > 3;
-        },
+    /**
+     * Return the base URL we are using to converse with the server.  We can use this base URL to construct a path to
+     * sub-services.
+     * @returns {string}
+     */
+    enginesis.serverBaseUrlGet = function () {
+        return enginesis.serverHost;
+    };
 
-        serverStageSet: function (newServerStage) {
-            return qualifyAndSetServerStage(newServerStage);
-        },
+    /**
+     * Return the current game-id.
+     * @returns {number}
+     */
+    enginesis.gameIdGet = function () {
+        return enginesis.gameId;
+    };
 
-        serverStageGet: function () {
-            return serverStage;
-        },
+    /**
+     * Set or override the current game-id.
+     * @param newGameId
+     * @returns {*}
+     */
+    enginesis.gameIdSet = function (newGameId) {
+        return enginesis.gameId = newGameId;
+    };
 
-        /**
-         * @method: useHTTPS
-         * @purpose: get and/or set the use HTTPS flag, allowing the caller to force the protocol. By default we set
-         *           useHTTPS from the current document location. This allows the caller to query it and override its value.
-         * @param: {boolean} useHTTPSFlag should be either true to force https or false to force http, or undefined to leave it as is
-         * @returns: {boolean} the current state of the useHTTPS flag.
-         */
-        useHTTPS: function (useHTTPSFlag) {
-            if (useHTTPSFlag !== undefined) {
-                useHTTPS = useHTTPSFlag ? true : false; // force boolean conversion of flag in case we get some value other than true/false
-            }
-            return useHTTPS;
-        },
+    /**
+     * Return the current game-group-id.
+     * @returns {number}
+     */
+    enginesis.gameGroupIdGet = function () {
+        return enginesis.gameGroupId;
+    };
 
-        serverBaseUrlGet: function () {
-            return serverHost;
-        },
+    /**
+     * Set or override the current game-group-id.
+     * @param newGameGroupId
+     * @returns {number}
+     */
+    enginesis.gameGroupIdSet = function (newGameGroupId) {
+        return enginesis.gameGroupId = newGameGroupId;
+    };
 
-        gameIdGet: function () {
-            return gameId;
-        },
+    /**
+     * Return the current site-id.
+     * @returns {number}
+     */
+    enginesis.siteIdGet = function () {
+        return enginesis.siteId;
+    };
 
-        gameIdSet: function (newGameId) {
-            return gameId = newGameId;
-        },
+    /**
+     * Set or override the current site-id.
+     * @param newSiteId
+     * @returns {number}
+     */
+    enginesis.siteIdSet = function (newSiteId) {
+        return enginesis.siteId = newSiteId;
+    };
 
-        gameGroupIdGet: function () {
-            return gameGroupId;
-        },
+    /**
+     * Return the URL of the request game image.
+     * @param gameName
+     * @param width
+     * @param height
+     * @returns {string} a URL you can use to load the image.
+     */
+    enginesis.getGameImageURL = function (gameName, width, height) {
+        return getProtocol() + enginesis.serverHost + '/games/' + gameName + '/images/' + width + "x" + height + ".png";
+    };
 
-        gameGroupIdSet: function (newGameGroupId) {
-            return gameGroupId = newGameGroupId;
-        },
+    /**
+     * Return the current date in a standard format.
+     * @returns {string}
+     */
+    enginesis.getDateNow = function () {
+        return new Date().toISOString().slice(0, 19).replace('T', ' ');
+    };
 
-        siteIdGet: function () {
-            return siteId;
-        },
+    /**
+     * Call Enginesis SessionBegin whcih is used to start any conversation with the server. Must call before beginning a game.
+     * @param gameKey
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.sessionBegin = function (gameKey, overRideCallBackFunction) {
+        return sendRequest("SessionBegin", {gamekey: gameKey}, overRideCallBackFunction);
+    };
 
-        siteIdSet: function (newSiteId) {
-            return siteId = newSiteId;
-        },
+    /**
+     * Submit a vote for a URI key.
+     * @param voteURI {string} the URI key of the item we are voting on.
+     * @param voteGroupURI {string} the URI group used to sub-group keys, for example you are voting on the best of 5 images.
+     * @param voteValue {int} the value of the vote. This depends on the voting system set by the URI key/group (for example a rating vote may range from 1 to 5.)
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.addOrUpdateVoteByURI = function (voteURI, voteGroupURI, voteValue, overRideCallBackFunction) {
+        return sendRequest("AddOrUpdateVoteByURI", {uri: voteURI, vote_group_uri: voteGroupURI, vote_value: voteValue}, overRideCallBackFunction);
+    };
 
-        getGameImageURL: function (gameName, width, height) {
-            return (useHTTPS ? 'https://' : 'http://') + serverHost + '/games/' + gameName + '/images/' + width + "x" + height + ".png";
-        },
+    /**
+     * Return information about a specific Enginesis Developer.
+     * @param developerId {int} developer id.
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.developerGet = function (developerId, overRideCallBackFunction) {
+        return sendRequest("DeveloperGet", {developer_id: developerId}, overRideCallBackFunction);
+    };
 
-        getDateNow: function () {
-            return new Date().toISOString().slice(0, 19).replace('T', ' ');
-        },
+    /**
+     * Return the current developer key. This can only be set when the Enginesis object is constructed.
+     * @returns {string}
+     */
+    enginesis.developerKeyGet = function () {
+        return enginesis.developerKey;
+    };
 
-        sessionBegin: function (gameKey, overRideCallBackFunction) {
-            return sendRequest("SessionBegin", {gamekey: gameKey}, overRideCallBackFunction);
-        },
+    /**
+     * @method: gameDataGet
+     * @purpose: Get user generated game data. Not to be confused with gameConfigGet (which is system generated.)
+     * @param: {int} gameDataId The specific id assigned to the game data to get. Was generated by gameDataCreate.
+     * @returns: {boolean} status of send to server.
+     */
+    enginesis.gameDataGet = function (gameDataId, overRideCallBackFunction) {
+        return sendRequest("GameDataGet", {game_data_id: gameDataId}, overRideCallBackFunction);
+    };
 
-        addOrUpdateVoteByURI: function (voteURI, voteGroupURI, voteValue, overRideCallBackFunction) {
-            // voteGroupURI = voting group that collects all the items to be voted on
-            // voteURI = item voting on
-            // voteValue = vote (e.g. 1 to 5)
-            return sendRequest("AddOrUpdateVoteByURI", {uri: voteURI, vote_group_uri: voteGroupURI, vote_value: voteValue}, overRideCallBackFunction);
-        },
+    /**
+     * Create a user generated content object on the server and send it to the requested individual.
+     * @param referrer
+     * @param fromAddress
+     * @param fromName
+     * @param toAddress
+     * @param toName
+     * @param userMessage
+     * @param userFiles
+     * @param gameData
+     * @param nameTag
+     * @param addToGallery
+     * @param lastScore
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.gameDataCreate = function (referrer, fromAddress, fromName, toAddress, toName, userMessage, userFiles, gameData, nameTag, addToGallery, lastScore, overRideCallBackFunction) {
+        return sendRequest("GameDataCreate", {
+            referrer: referrer,
+            from_address: fromAddress,
+            from_name: fromName,
+            to_address: toAddress,
+            to_name: toName,
+            user_msg: userMessage,
+            user_files: userFiles,
+            game_data: gameData,
+            name_tag: nameTag,
+            add_to_gallery: addToGallery ? 1 : 0,
+            last_score: lastScore
+        }, overRideCallBackFunction);
+    };
 
-        developerGet: function (developerId, overRideCallBackFunction) {
-            return sendRequest("DeveloperGet", {developer_id: developerId}, overRideCallBackFunction);
-        },
+    /**
+     * @method: gameConfigGet
+     * @purpose: Get game data configuration. Not to be confused with GameData (which is user generated.)
+     * @param: {int} gameConfigId A specific game data configuration to get. If provided the other parameters are ignored.
+     * @param: {int} gameId The gameId, if 0 then the gameId set previously will be assumed. gameId is mandatory.
+     * @param: {int} categoryId A category id if the game organizes its data configurations by categories. Otherwise use 0.
+     * @param: {date} airDate A specific date to return game configuration data. Use "" to let the server decide (usually means "today" or most recent.)
+     * @returns: {boolean} status of send to server.
+     */
+    enginesis.gameConfigGet = function (gameConfigId, gameId, categoryId, airDate, overRideCallBackFunction) {
+        if (gameConfigId === undefined) {
+            gameConfigId = 0;
+        }
+        if (gameId === undefined || gameId == 0) {
+            gameId = enginesis.gameIdGet();
+        }
+        if (airDate === undefined) {
+            airDate = "";
+        }
+        if (categoryId === undefined) {
+            categoryId = 0;
+        }
+        return sendRequest("GameConfigGet", {game_config_id: gameConfigId, game_id: gameId, category_id: categoryId, air_date: airDate}, overRideCallBackFunction);
+    };
 
-        /**
-         * @method: gameDataGet
-         * @purpose: Get user generated game data. Not to be confused with gameConfigGet (which is system generated.)
-         * @param: {int} gameDataId The specific id assigned to the game data to get. Was generated by gameDataCreate.
-         * @returns: {bool} status of send to server.
-         */
-        gameDataGet: function (gameDataId, overRideCallBackFunction) {
-            return sendRequest("GameDataGet", {game_data_id: gameDataId}, overRideCallBackFunction);
-        },
+    /**
+     * Track a game event for game-play metrics.
+     * @param category {string} what generated the event
+     * @param action {string} what happened (LOAD, PLAY, GAMEOVER, EVENT, ZONECHG)
+     * @param label {string} path in game where event occurred
+     * @param hitData {string} a value related to the action, quantifying the action, if any
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.gameTrackingRecord = function (category, action, label, hitData, overRideCallBackFunction) {
+        if (window.ga != null) {
+            // use Google Analytics if it is there (send, event, category, action, label, value)
+            ga('send', 'event', category, action, label, hitData);
+        }
+        return sendRequest("GameTrackingRecord", {hit_type: 'REQUEST', hit_category: category, hit_action: action, hit_label: label, hit_data: hitData}, overRideCallBackFunction);
+    };
 
-        gameDataCreate: function (referrer, fromAddress, fromName, toAddress, toName, userMessage, userFiles, gameData, nameTag, addToGallery, lastScore, overRideCallBackFunction) {
-            return sendRequest("GameDataCreate", {
-                referrer: referrer,
-                from_address: fromAddress,
-                from_name: fromName,
-                to_address: toAddress,
-                to_name: toName,
-                user_msg: userMessage,
-                user_files: userFiles,
-                game_data: gameData,
-                name_tag: nameTag,
-                add_to_gallery: addToGallery ? 1 : 0,
-                last_score: lastScore
-            }, overRideCallBackFunction);
-        },
+    /**
+     * Return voting results by voting group key.
+     * @param voteGroupURI {string} voting group that collects all the items to be voted on
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     * @seealso: addOrUpdateVoteByURI
+     */
+    enginesis.getNumberOfVotesPerURIGroup = function (voteGroupURI, overRideCallBackFunction) {
+        return sendRequest("GetNumberOfVotesPerURIGroup", {vote_group_uri: voteGroupURI}, overRideCallBackFunction);
+    };
 
-        /**
-         * @method: gameConfigGet
-         * @purpose: Get game data configuration. Not to be confused with GameData (which is user generated.)
-         * @param: {int} gameConfigId A specific game data configuration to get. If provided the other parameters are ignored.
-         * @param: {int} gameId The gameId, if 0 then the gameId set previously will be assumed. gameId is mandatory.
-         * @param: {int} categoryId A category id if the game organizes its data configurations by categories. Otherwise use 0.
-         * @param: {date} airDate A specific date to return game configuration data. Use "" to let the server decide (usually means "today" or most recent.)
-         * @returns: {bool} status of send to server.
-         */
-        gameConfigGet: function (gameConfigId, gameId, categoryId, airDate, overRideCallBackFunction) {
-            if (gameConfigId === undefined) {
-                gameConfigId = 0;
-            }
-            if (gameId === undefined || gameId == 0) {
-                gameId = this.gameIdGet();
-            }
-            if (airDate === undefined) {
-                airDate = "";
-            }
-            if (categoryId === undefined) {
-                categoryId = 0;
-            }
-            return sendRequest("GameConfigGet", {game_config_id: gameConfigId, game_id: gameId, category_id: categoryId, air_date: airDate}, overRideCallBackFunction);
-        },
+    /**
+     * Search for games given a keyword search.
+     * @param game_name_part
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.gameFind = function(game_name_part, overRideCallBackFunction) {
+        return sendRequest("GameFind", {game_name_part: game_name_part}, overRideCallBackFunction);
+    };
 
-        gameTrackingRecord: function (category, action, label, hitData, overRideCallBackFunction) {
-            // category = what generated the event
-            // action = what happened (LOAD, PLAY, GAMEOVER, EVENT, ZONECHG)
-            // label = path in game where event occurred
-            // data = a value related to the action, quantifying the action, if any
-            if (window.ga != null) {
-                // use Google Analytics if it is there (send, event, category, action, label, value)
-                ga('send', 'event', category, action, label, hitData);
-            }
-            return sendRequest("GameTrackingRecord", {hit_type: 'REQUEST', hit_category: category, hit_action: action, hit_label: label, hit_data: hitData}, overRideCallBackFunction);
-        },
+    /**
+     * Search for games by only search game names.
+     * @param gameName
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.gameFindByName = function (gameName, overRideCallBackFunction) {
+        return sendRequest("GameFindByName", {game_name: gameName}, overRideCallBackFunction);
+    };
 
-        getNumberOfVotesPerURIGroup: function (voteGroupURI, overRideCallBackFunction) {
-            // voteGroupURI = voting group that collects all the items to be voted on
-            return sendRequest("GetNumberOfVotesPerURIGroup", {vote_group_uri: voteGroupURI}, overRideCallBackFunction);
-        },
+    /**
+     * Return game info given a specific game-id.
+     * @param gameId
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.gameGet = function (gameId, overRideCallBackFunction) {
+        return sendRequest("GameGet", {game_id: gameId}, overRideCallBackFunction);
+    };
 
-        gameFind: function(game_name_part, overRideCallBackFunction) {
-            return sendRequest("GameFind", {game_name_part: game_name_part}, overRideCallBackFunction);
-        },
+    /**
+     * Return game info given the game name.
+     * @param gameName
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.gameGetByName = function (gameName, overRideCallBackFunction) {
+        return sendRequest("GameGetByName", {game_name: gameName}, overRideCallBackFunction);
+    };
 
-        gameFindByName: function (gameName, overRideCallBackFunction) {
-            return sendRequest("GameFindByName", {game_name: gameName}, overRideCallBackFunction);
-        },
+    /**
+     * Return a list of games for each game category.
+     * @param numItemsPerCategory
+     * @param gameStatusId
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.gameListByCategory = function (numItemsPerCategory, gameStatusId, overRideCallBackFunction) {
+        return sendRequest("GameListByCategory", {num_items_per_category: numItemsPerCategory, game_status_id: gameStatusId}, overRideCallBackFunction);
+    };
 
-        gameGet: function (gameId, overRideCallBackFunction) {
-            return sendRequest("GameGet", {game_id: gameId}, overRideCallBackFunction);
-        },
+    /**
+     * Return a list of available game lists for the current site-id.
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.gameListList = function (overRideCallBackFunction) {
+        return sendRequest("GameListList", {}, overRideCallBackFunction);
+    };
 
-        gameGetByName: function (gameName, overRideCallBackFunction) {
-            return sendRequest("GameGetByName", {game_name: gameName}, overRideCallBackFunction);
-        },
+    /**
+     * Return the list of games belonging to the requested game list id.
+     * @param gameListId
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.gameListListGames = function (gameListId, overRideCallBackFunction) {
+        return sendRequest("GameListListGames", {game_list_id: gameListId}, overRideCallBackFunction);
+    };
 
-        gameListByCategory: function (numItemsPerCategory, gameStatusId, overRideCallBackFunction) {
-            return sendRequest("GameListByCategory", {num_items_per_category: numItemsPerCategory, game_status_id: gameStatusId}, overRideCallBackFunction);
-        },
+    /**
+     * Return the list of games belonging to the requested game list given its name.
+     * @param gameListName
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.gameListListGamesByName = function (gameListName, overRideCallBackFunction) {
+        return sendRequest("GameListListGamesByName", {game_list_name: gameListName}, overRideCallBackFunction);
+    };
 
-        gameListList: function (overRideCallBackFunction) {
-            return sendRequest("GameListList", {}, overRideCallBackFunction);
-        },
+    enginesis.gameListByMostPopular = function (startDate, endDate, firstItem, numItems, overRideCallBackFunction) {
+        return sendRequest("GameListByMostPopular", {start_date: startDate, end_date: endDate, first_item: firstItem, num_items: numItems}, overRideCallBackFunction);
+    };
 
-        gameListListGames: function (gameListId, overRideCallBackFunction) {
-            return sendRequest("GameListListGames", {game_list_id: gameListId}, overRideCallBackFunction);
-        },
+    /**
+     * Return a list of games when given a list of individual game ids. Specify the list delimiter, default is ','.
+     * @param gameIdList
+     * @param delimiter
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.gameListByIdList = function (gameIdList, delimiter, overRideCallBackFunction) {
+        return sendRequest("GameListByIdList", {game_id_list: gameIdList, delimiter: delimiter}, overRideCallBackFunction);
+    };
 
-        gameListListGamesByName: function (gameListName, overRideCallBackFunction) {
-            return sendRequest("GameListListGamesByName", {game_list_name: gameListName}, overRideCallBackFunction);
-        },
+    enginesis.gameListCategoryList = function (overRideCallBackFunction) {
+        return sendRequest("GameListCategoryList", {}, overRideCallBackFunction);
+    };
 
-        gameListByMostPopular: function (startDate, endDate, firstItem, numItems, overRideCallBackFunction) {
-            return sendRequest("GameListByMostPopular", {start_date: startDate, end_date: endDate, first_item: firstItem, num_items: numItems}, overRideCallBackFunction);
-        },
+    enginesis.gameListListRecommendedGames = function (gameListId, overRideCallBackFunction) {
+        return sendRequest("GameListListRecommendedGames", {game_list_id: gameListId}, overRideCallBackFunction);
+    };
 
-        gameListCategoryList: function (overRideCallBackFunction) {
-            return sendRequest("GameListCategoryList", {}, overRideCallBackFunction);
-        },
+    enginesis.gamePlayEventListByMostPlayed = function (startDate, endDate, numItems, overRideCallBackFunction) {
+        return sendRequest("GamePlayEventListByMostPlayed", {start_date: startDate, end_date: endDate, num_items: numItems}, overRideCallBackFunction);
+    };
 
-        gameListListRecommendedGames: function (gameListId, overRideCallBackFunction) {
-            return sendRequest("GameListListRecommendedGames", {game_list_id: gameListId}, overRideCallBackFunction);
-        },
+    enginesis.gameRatingGet = function (gameId, overRideCallBackFunction) {
+        return sendRequest("GameRatingGet", {game_id: gameId}, overRideCallBackFunction);
+    };
 
-        gamePlayEventListByMostPlayed: function (startDate, endDate, numItems, overRideCallBackFunction) {
-            return sendRequest("GamePlayEventListByMostPlayed", {start_date: startDate, end_date: endDate, num_items: numItems}, overRideCallBackFunction);
-        },
+    enginesis.gameRatingList = function (gameId, numberOfGames, overRideCallBackFunction) {
+        return sendRequest("GameRatingList", {game_id: gameId, num_items: numberOfGames}, overRideCallBackFunction);
+    };
 
-        gameRatingGet: function (gameId, overRideCallBackFunction) {
-            return sendRequest("GameRatingGet", {game_id: gameId}, overRideCallBackFunction);
-        },
+    enginesis.gameRatingUpdate = function (gameId, rating, overRideCallBackFunction) {
+        return sendRequest("GameRatingUpdate", {game_id: gameId, rating: rating}, overRideCallBackFunction);
+    };
 
-        gameRatingList: function (gameId, numberOfGames, overRideCallBackFunction) {
-            return sendRequest("GameRatingList", {game_id: gameId, num_items: numberOfGames}, overRideCallBackFunction);
-        },
+    enginesis.newsletterCategoryList = function (overRideCallBackFunction) {
+        return sendRequest("NewsletterCategoryList", {}, overRideCallBackFunction);
+    };
 
-        gameRatingUpdate: function (gameId, rating, overRideCallBackFunction) {
-            return sendRequest("GameRatingUpdate", {game_id: gameId, rating: rating}, overRideCallBackFunction);
-        },
+    enginesis.newsletterAddressAssign = function (emailAddress, userName, companyName, categories, overRideCallBackFunction) {
+        return sendRequest("NewsletterAddressAssign", {email_address: emailAddress, user_name: userName, company_name: companyName, categories: categories, delimiter: ","}, overRideCallBackFunction);
+    };
 
-        newsletterCategoryList: function (overRideCallBackFunction) {
-            return sendRequest("NewsletterCategoryList", {}, overRideCallBackFunction);
-        },
+    enginesis.newsletterAddressUpdate = function (newsletterAddressId, emailAddress, userName, companyName, active, overRideCallBackFunction) {
+        return sendRequest("NewsletterAddressUpdate", {newsletter_address_id: newsletterAddressId, email_address: emailAddress, user_name: userName, company_name: companyName, active: active}, overRideCallBackFunction);
+    };
 
-        newsletterAddressAssign: function (emailAddress, userName, companyName, categories, overRideCallBackFunction) {
-            return sendRequest("NewsletterAddressAssign", {email_address: emailAddress, user_name: userName, company_name: companyName, categories: categories, delimiter: ","}, overRideCallBackFunction);
-        },
+    enginesis.newsletterAddressDelete = function (emailAddress, overRideCallBackFunction) {
+        return sendRequest("NewsletterAddressDelete", {email_address: emailAddress, newsletter_address_id: "NULL"}, overRideCallBackFunction);
+    };
 
-        newsletterAddressUpdate: function (newsletterAddressId, emailAddress, userName, companyName, active, overRideCallBackFunction) {
-            return sendRequest("NewsletterAddressUpdate", {newsletter_address_id: newsletterAddressId, email_address: emailAddress, user_name: userName, company_name: companyName, active: active}, overRideCallBackFunction);
-        },
+    enginesis.newsletterAddressGet = function (emailAddress, overRideCallBackFunction) {
+        return sendRequest("NewsletterAddressGet", {email_address: emailAddress}, overRideCallBackFunction);
+    };
 
-        newsletterAddressDelete: function (emailAddress, overRideCallBackFunction) {
-            return sendRequest("NewsletterAddressDelete", {email_address: emailAddress, newsletter_address_id: "NULL"}, overRideCallBackFunction);
-        },
+    enginesis.promotionItemList = function (promotionId, queryDate, overRideCallBackFunction) {
+        return sendRequest("PromotionItemList", {promotion_id: promotionId, query_date: queryDate}, overRideCallBackFunction);
+    };
 
-        newsletterAddressGet: function (emailAddress, overRideCallBackFunction) {
-            return sendRequest("NewsletterAddressGet", {email_address: emailAddress}, overRideCallBackFunction);
-        },
+    enginesis.promotionList = function (promotionId, queryDate, showItems, overRideCallBackFunction) {
+        return sendRequest("PromotionItemList", {promotion_id: promotionId, query_date: queryDate, show_items: showItems}, overRideCallBackFunction);
+    };
 
-        promotionItemList: function (promotionId, queryDate, overRideCallBackFunction) {
-            return sendRequest("PromotionItemList", {promotion_id: promotionId, query_date: queryDate}, overRideCallBackFunction);
-        },
+    enginesis.recommendedGameList = function (gameId, overRideCallBackFunction) {
+        return sendRequest("RecommendedGameList", {game_id: gameId}, overRideCallBackFunction);
+    };
 
-        promotionList: function (promotionId, queryDate, showItems, overRideCallBackFunction) {
-            return sendRequest("PromotionItemList", {promotion_id: promotionId, query_date: queryDate, show_items: showItems}, overRideCallBackFunction);
-        },
+    enginesis.registeredUserCreate = function (userName, password, email, realName, dateOfBirth, gender, city, state, zipcode, countryCode, mobileNumber, imId, tagline, siteUserId, networkId, agreement, securityQuestionId, securityAnswer, imgUrl, aboutMe, additionalInfo, sourceSiteId, captchaId, captchaResponse, overRideCallBackFunction) {
+        return sendRequest("RegisteredUserCreate", {
+            site_id: siteId,
+            captcha_id: isEmpty(captchaId) ? enginesis.captchaId : captchaId,
+            captcha_response: isEmpty(captchaResponse) ? enginesis.captchaResponse : captchaResponse,
+            user_name: userName,
+            site_user_id: siteUserId,
+            network_id: networkId,
+            real_name: realName,
+            password: password,
+            dob: dateOfBirth,
+            gender: gender,
+            city: city,
+            state: state,
+            zipcode: zipcode,
+            email_address: email,
+            country_code: countryCode,
+            mobile_number: mobileNumber,
+            im_id: imId,
+            agreement: agreement,
+            security_question_id: 1,
+            security_answer: '',
+            img_url: '',
+            about_me: aboutMe,
+            tagline: tagline,
+            additional_info: additionalInfo,
+            source_site_id: sourceSiteId
+        }, overRideCallBackFunction);
+    };
 
-        recommendedGameList: function (gameId, overRideCallBackFunction) {
-            return sendRequest("RecommendedGameList", {game_id: gameId}, overRideCallBackFunction);
-        },
+    enginesis.registeredUserUpdate = function (userName, password, email, realName, dateOfBirth, gender, city, state, zipcode, countryCode, mobileNumber, imId, tagline, siteUserId, networkId, agreement, securityQuestionId, securityAnswer, imgUrl, aboutMe, additionalInfo, sourceSiteId, captchaId, captchaResponse, overRideCallBackFunction) {
+        return sendRequest("RegisteredUserUpdate", {
+            site_id: siteId,
+            captcha_id: isEmpty(captchaId) ? enginesis.captchaId : captchaId,
+            captcha_response: isEmpty(captchaResponse) ? enginesis.captchaResponse : captchaResponse,
+            user_name: userName,
+            real_name: realName,
+            dob: dateOfBirth,
+            gender: gender,
+            city: city,
+            state: state,
+            zipcode: zipcode,
+            email_address: email,
+            country_code: countryCode,
+            mobile_number: mobileNumber,
+            im_id: imId,
+            img_url: '',
+            about_me: aboutMe,
+            tagline: tagline,
+            additional_info: additionalInfo
+        }, overRideCallBackFunction);
+    };
 
-        registeredUserCreate: function (userName, password, email, realName, dateOfBirth, gender, city, state, zipcode, countryCode, mobileNumber, imId, tagline, siteUserId, networkId, agreement, securityQuestionId, securityAnswer, imgUrl, aboutMe, additionalInfo, sourceSiteId, captchaId, captchaResponse, overRideCallBackFunction) {
-            captchaId = '99999';
-            captchaResponse = 'DEADMAN';
-            return sendRequest("RegisteredUserCreate",
-                {
-                    site_id: siteId,
-                    captcha_id: captchaId,
-                    captcha_response: captchaResponse,
-                    user_name: userName,
-                    site_user_id: siteUserId,
-                    network_id: networkId,
-                    real_name: realName,
-                    password: password,
-                    dob: dateOfBirth,
-                    gender: gender,
-                    city: city,
-                    state: state,
-                    zipcode: zipcode,
-                    email_address: email,
-                    country_code: countryCode,
-                    mobile_number: mobileNumber,
-                    im_id: imId,
-                    agreement: agreement,
-                    security_question_id: 1,
-                    security_answer: '',
-                    img_url: '',
-                    about_me: aboutMe,
-                    tagline: tagline,
-                    additional_info: additionalInfo,
-                    source_site_id: sourceSiteId
-                }, overRideCallBackFunction);
-        },
+    enginesis.registeredUserSecurityUpdate = function (captcha_id, captcha_response, security_question_id, security_question, security_answer, overRideCallBackFunction) {
+        return sendRequest("RegisteredUserSecurityUpdate", {
+            site_id: siteId,
+            captcha_id: isEmpty(captchaId) ? enginesis.captchaId : captchaId,
+            captcha_response: isEmpty(captchaResponse) ? enginesis.captchaResponse : captchaResponse,
+            security_question_id: security_question_id,
+            security_question: security_question,
+            security_answer: security_answer
+        }, overRideCallBackFunction);
+    };
 
-        registeredUserUpdate: function (userName, password, email, realName, dateOfBirth, gender, city, state, zipcode, countryCode, mobileNumber, imId, tagline, siteUserId, networkId, agreement, securityQuestionId, securityAnswer, imgUrl, aboutMe, additionalInfo, sourceSiteId, captchaId, captchaResponse, overRideCallBackFunction) {
-            captchaId = '99999';
-            captchaResponse = 'DEADMAN';
-            return sendRequest("RegisteredUserUpdate",
-                {
-                    site_id: siteId,
-                    captcha_id: captchaId,
-                    captcha_response: captchaResponse,
-                    user_name: userName,
-                    real_name: realName,
-                    dob: dateOfBirth,
-                    gender: gender,
-                    city: city,
-                    state: state,
-                    zipcode: zipcode,
-                    email_address: email,
-                    country_code: countryCode,
-                    mobile_number: mobileNumber,
-                    im_id: imId,
-                    img_url: '',
-                    about_me: aboutMe,
-                    tagline: tagline,
-                    additional_info: additionalInfo
-                }, overRideCallBackFunction);
-        },
+    /**
+     * Confirm a new user registration given the user-id and the token. These are supplied in the email sent when
+     * a new registration is created with RegisteredUserCreate. If successful the user is logged in and a login
+     * token (authtok) is sent back from the server.
+     * @param user_id
+     * @param secondary_password
+     * @param overRideCallBackFunction
+     */
+    enginesis.registeredUserConfirm = function (user_id, secondary_password, overRideCallBackFunction) {
+        return sendRequest("RegisteredUserConfirm", {user_id: user_id, secondary_password: secondary_password}, overRideCallBackFunction);
+    };
 
-        registeredUserSecurityUpdate: function (captcha_id, captcha_response, security_question_id, security_question, security_answer, overRideCallBackFunction) {
-            return sendRequest("RegisteredUserSecurityUpdate", {
-                    site_id: siteId,
-                    captcha_id: captchaId,
-                    captcha_response: captchaResponse,
-                    security_question_id: security_question_id,
-                    security_question: security_question,
-                    security_answer: security_answer
-                }, overRideCallBackFunction);
-        },
+    enginesis.registeredUserForgotPassword = function (userName, email, overRideCallBackFunction) {
+        // this function generates the email that is sent to the email address matching username or email address
+        // that email leads to the change password web page
+        return sendRequest("RegisteredUserForgotPassword", {user_name: userName, email: email}, overRideCallBackFunction);
+    };
 
-        /**
-         * Confirm a new user registration given the user-id and the token. These are supplied in the email sent when
-         * a new registration is created with RegisteredUserCreate. If successful the user is logged in and a login
-         * token (authtok) is sent back from the server.
-         * @param user_id
-         * @param secondary_password
-         * @param overRideCallBackFunction
-         */
-        registeredUserConfirm: function (user_id, secondary_password, overRideCallBackFunction) {
-            return sendRequest("RegisteredUserConfirm", {user_id: user_id, secondary_password: secondary_password}, overRideCallBackFunction);
-        },
-
-        registeredUserForgotPassword: function (userName, email, overRideCallBackFunction) {
-            // this function generates the email that is sent to the email address matching username or email address
-            // that email leads to the change password web page
-            return sendRequest("RegisteredUserForgotPassword", {user_name: userName, email: email}, overRideCallBackFunction);
-        },
-
-        registeredUserRequestPasswordChange: function (overRideCallBackFunction) {
-            return sendRequest("RegisteredUserRequestPasswordChange", {
-                    site_id: siteId
-                }, overRideCallBackFunction);
-        },
+    enginesis.registeredUserRequestPasswordChange = function (overRideCallBackFunction) {
+        return sendRequest("RegisteredUserRequestPasswordChange", {
+            site_id: enginesis.siteId
+        }, overRideCallBackFunction);
+    };
 
         // TODO: SHould include the user-id?
-        registeredUserPasswordChange: function (captcha_id, captcha_response, password, secondary_password, overRideCallBackFunction) {
-            return sendRequest("RegisteredUserPasswordChange", {
-                    site_id: siteId,
-                    captcha_id: captchaId,
-                    captcha_response: captchaResponse,
-                    password: password,
-                    secondary_password: secondary_password
-                }, overRideCallBackFunction);
-        },
-
-        registeredUserSecurityGet: function (overRideCallBackFunction) {
-            return sendRequest("RegisteredUserSecurityGet", {
-                    site_id: siteId,
-                    site_user_id: ''
-                }, overRideCallBackFunction);
-        },
-
-        registeredUserGet: function (userId, siteUserId, overRideCallBackFunction) {
-            // Return public information about user given id
-            return sendRequest("RegisteredUserGet", {get_user_id: userId, site_user_id: siteUserId}, overRideCallBackFunction);
-        },
-
-        siteListGames: function(firstItem, numItems, gameStatusId, overRideCallBackFunction) {
-            // return a list of all assets assigned to the site in title order
-            if (firstItem == null || firstItem < 0) {
-                firstItem = 1;
-            }
-            if (numItems == null || numItems > 500) {
-                numItems = 500;
-            }
-            if (gameStatusId == null || gameStatusId > 3) {
-                gameStatusId = 2;
-            }
-            return sendRequest("SiteListGames", {first_item: firstItem, num_items: numItems, game_status_id: gameStatusId}, overRideCallBackFunction);
-        },
-
-        siteListGamesRandom: function(numItems, overRideCallBackFunction) {
-            if (numItems == null || numItems > 500) {
-                numItems = 500;
-            }
-            return sendRequest("SiteListGamesRandom", {num_items: numItems}, overRideCallBackFunction);
-        },
-
-        userGetByName: function (userName, overRideCallBackFunction) {
-            // Return public information about user give name
-            return sendRequest("UserGetByName", {user_name: userName}, overRideCallBackFunction);
-        },
-
-        userLogin: function(userName, password, overRideCallBackFunction) {
-            return sendRequest("UserLogin", {user_name: userName, password: password}, overRideCallBackFunction);
-        },
-
-        /**
-         * Enginesis co-registration accepts validated login from another network and creates a new user or logs in
-         * a matching user. site-user-id, user-name, and network-id are mandatory. Everything else is optional.
-         * @param registrationParameters {object} registration data values
-         * @param networkId {int} we must know which network this registration comes from.
-         * @param overRideCallBackFunction {function} called when server replies.
-         */
-        userLoginCoreg: function (registrationParameters, networkId, overRideCallBackFunction) {
-            if (registrationParameters.siteUserId === undefined || registrationParameters.siteUserId.length == 0) {
-                return false;
-            }
-            if ((registrationParameters.userName === undefined || registrationParameters.userName.length == 0) && (registrationParameters.realName === undefined || registrationParameters.realName.length == 0)) {
-                return false; // Must provide either userName, realName, or both
-            }
-            if (registrationParameters.userName === undefined) {
-                registrationParameters.userName = '';
-            }
-            if (registrationParameters.realName === undefined) {
-                registrationParameters.realName = '';
-            }
-            if (registrationParameters.gender === undefined || registrationParameters.gender.length == 0) {
-                registrationParameters.gender = 'F';
-            } else if (registrationParameters.gender != 'M' && registrationParameters.gender != 'F') {
-                registrationParameters.gender = 'F';
-            }
-            if (registrationParameters.emailAddress === undefined) {
-                registrationParameters.emailAddress = '';
-            }
-            if (registrationParameters.scope === undefined) {
-                registrationParameters.scope = '';
-            }
-            if (registrationParameters.dob === undefined || registrationParameters.dob.length == 0) {
-                registrationParameters.dob = new Date();
-                registrationParameters.dob = registrationParameters.dob.toISOString().slice(0, 9);
-            } else if (registrationParameters.dob instanceof Date) {
-                // if is date() then convert to string
-                registrationParameters.dob = registrationParameters.dob.toISOString().slice(0, 9);
-            }
-
-            return sendRequest("UserLoginCoreg", {
-                    site_user_id: registrationParameters.siteUserId,
-                    user_name: registrationParameters.userName,
-                    real_name: registrationParameters.realName,
-                    email_address: registrationParameters.emailAddress,
-                    gender: registrationParameters.gender,
-                    dob: registrationParameters.dob,
-                    network_id: networkId,
-                    scope: registrationParameters.scope
-                },
-                overRideCallBackFunction);
-        },
-
-        /**
-         * Return the proper URL to use to show an avatar for a given user. The default is the default size and the current user.
-         * @param size {int} 0 small, 1 medium, 2 large
-         * @param userId {int}
-         * @return string
-         */
-        avatarURL: function avatarURL (size, userId) {
-            if (userId == 0) {
-                userId = loggedInUserId;
-            }
-            size = 0;
-            return avatarImageURL + '?site_id=' + siteId + '&user_id=' + userId + '&size=' + size;
-        }
+    enginesis.registeredUserPasswordChange = function (captcha_id, captcha_response, password, secondary_password, overRideCallBackFunction) {
+        return sendRequest("RegisteredUserPasswordChange", {
+            site_id: siteId,
+            captcha_id: isEmpty(captchaId) ? enginesis.captchaId : captchaId,
+            captcha_response: isEmpty(captchaResponse) ? enginesis.captchaResponse : captchaResponse,
+            password: password,
+            secondary_password: secondary_password
+        }, overRideCallBackFunction);
     };
-};
+
+    enginesis.registeredUserSecurityGet = function (overRideCallBackFunction) {
+        return sendRequest("RegisteredUserSecurityGet", {
+            site_id: enginesis.siteId,
+            site_user_id: ''
+        }, overRideCallBackFunction);
+    };
+
+    enginesis.registeredUserGet = function (userId, siteUserId, overRideCallBackFunction) {
+        // Return public information about user given id
+        return sendRequest("RegisteredUserGet", {get_user_id: userId, site_user_id: siteUserId}, overRideCallBackFunction);
+    };
+
+    enginesis.siteListGames = function(firstItem, numItems, gameStatusId, overRideCallBackFunction) {
+        // return a list of all assets assigned to the site in title order
+        if (firstItem == null || firstItem < 0) {
+            firstItem = 1;
+        }
+        if (numItems == null || numItems > 500) {
+            numItems = 500;
+        }
+        if (gameStatusId == null || gameStatusId > 3) {
+            gameStatusId = 2;
+        }
+        return sendRequest("SiteListGames", {first_item: firstItem, num_items: numItems, game_status_id: gameStatusId}, overRideCallBackFunction);
+    };
+
+    enginesis.siteListGamesRandom = function(numItems, overRideCallBackFunction) {
+        if (numItems == null || numItems > 500) {
+            numItems = 500;
+        }
+        return sendRequest("SiteListGamesRandom", {num_items: numItems}, overRideCallBackFunction);
+    };
+
+    enginesis.userGetByName = function (userName, overRideCallBackFunction) {
+        // Return public information about user give name
+        return sendRequest("UserGetByName", {user_name: userName}, overRideCallBackFunction);
+    };
+
+    enginesis.userLogin = function(userName, password, overRideCallBackFunction) {
+        return sendRequest("UserLogin", {user_name: userName, password: password}, overRideCallBackFunction);
+    };
+
+    /**
+     * Enginesis co-registration accepts validated login from another network and creates a new user or logs in
+     * a matching user. site-user-id, user-name, and network-id are mandatory. Everything else is optional.
+     * @param registrationParameters {object} registration data values
+     * @param networkId {int} we must know which network this registration comes from.
+     * @param overRideCallBackFunction {function} called when server replies.
+     */
+    enginesis.userLoginCoreg = function (registrationParameters, networkId, overRideCallBackFunction) {
+        if (registrationParameters.siteUserId === undefined || registrationParameters.siteUserId.length == 0) {
+            return false;
+        }
+        if ((registrationParameters.userName === undefined || registrationParameters.userName.length == 0) && (registrationParameters.realName === undefined || registrationParameters.realName.length == 0)) {
+            return false; // Must provide either userName, realName, or both
+        }
+        if (registrationParameters.userName === undefined) {
+            registrationParameters.userName = '';
+        }
+        if (registrationParameters.realName === undefined) {
+            registrationParameters.realName = '';
+        }
+        if (registrationParameters.gender === undefined || registrationParameters.gender.length == 0) {
+            registrationParameters.gender = 'F';
+        } else if (registrationParameters.gender != 'M' && registrationParameters.gender != 'F') {
+            registrationParameters.gender = 'F';
+        }
+        if (registrationParameters.emailAddress === undefined) {
+            registrationParameters.emailAddress = '';
+        }
+        if (registrationParameters.scope === undefined) {
+            registrationParameters.scope = '';
+        }
+        if (registrationParameters.dob === undefined || registrationParameters.dob.length == 0) {
+            registrationParameters.dob = new Date();
+            registrationParameters.dob = registrationParameters.dob.toISOString().slice(0, 9);
+        } else if (registrationParameters.dob instanceof Date) {
+            // if is date() then convert to string
+            registrationParameters.dob = registrationParameters.dob.toISOString().slice(0, 9);
+        }
+
+        return sendRequest("UserLoginCoreg", {
+            site_user_id: registrationParameters.siteUserId,
+            user_name: registrationParameters.userName,
+            real_name: registrationParameters.realName,
+            email_address: registrationParameters.emailAddress,
+            gender: registrationParameters.gender,
+            dob: registrationParameters.dob,
+            network_id: networkId,
+            scope: registrationParameters.scope
+        },
+        overRideCallBackFunction);
+    };
+
+    /**
+     * Return the proper URL to use to show an avatar for a given user. The default is the default size and the current user.
+     * @param size {int} 0 small, 1 medium, 2 large
+     * @param userId {int}
+     * @return string
+     */
+    enginesis.avatarURL = function (size, userId) {
+        if (userId == 0) {
+            userId = loggedInUserId;
+        }
+        size = 0;
+        return avatarImageURL + '?site_id=' + siteId + '&user_id=' + userId + '&size=' + size;
+    };
+
+    /**
+     * Get information about a specific quiz.
+     * @param quiz_id
+     * @param overRideCallBackFunction
+     */
+    enginesis.quizGet = function (quiz_id, overRideCallBackFunction) {
+        return sendRequest("QuizGet", {game_id: quiz_id}, overRideCallBackFunction);
+    };
+
+    /**
+     * Ask quiz service to begin playing a specific quiz given the quiz id. If the quiz-id does not exist
+     * then an error is returned.
+     * @param quiz_id
+     * @param game_group_id
+     * @param overRideCallBackFunction
+     */
+    enginesis.quizPlay = function (quiz_id, game_group_id, overRideCallBackFunction) {
+        return sendRequest("QuizPlay", {game_id: quiz_id, game_group_id: game_group_id}, overRideCallBackFunction);
+    };
+
+    /**
+     * Ask quiz service to begin playing the next quiz in a scheduled quiz series. This should always return at least
+     * one quiz.
+     * @param quiz_id {int} if a specific quiz id is requested we try to return this one. If for some reason we cannot, the next quiz in the scheduled series is returned.
+     * @param game_group_id {int} quiz group id.
+     * @param overRideCallBackFunction
+     */
+    enginesis.quizPlayScheduled = function (quiz_id, game_group_id, overRideCallBackFunction) {
+        return sendRequest("QuizPlayScheduled", {game_id: quiz_id, game_group_id: game_group_id}, overRideCallBackFunction);
+    };
+
+    /**
+     * Return a summary of quiz outcomes for the given quiz id.
+     * @param quiz_id
+     * @param game_group_id
+     * @param overRideCallBackFunction
+     */
+    enginesis.quizOutcomesCountList = function(quiz_id, game_group_id, overRideCallBackFunction) {
+        return sendRequest("QuizOutcomesCountList", {game_id: quiz_id, game_group_id: game_group_id}, overRideCallBackFunction);
+    };
+
+    /**
+     * Submit the results of a completed quiz. Results is a JSON object we need to document.
+     * @param quiz_id
+     * @param results
+     * @param overRideCallBackFunction
+     */
+    enginesis.quizSubmit = function(quiz_id, results, overRideCallBackFunction) {
+        return sendRequest("QuizSubmit", {game_id: quiz_id, results: results}, overRideCallBackFunction);
+    };
+
+    enginesis.anonymousUserSetDateLastVisit = function() {
+        if (enginesis.anonymousUser == null) {
+            anonymousUserLoad();
+        }
+        enginesis.anonymousUser.dateLastVisit = new Date();
+    };
+
+    /**
+     * Set the user email address and save the user data.
+     * @param emailAddress
+     */
+    enginesis.anonymousUserSetSubscriberEmail = function(emailAddress) {
+        if (enginesis.anonymousUser == null) {
+            anonymousUserLoad();
+        }
+        enginesis.anonymousUser.subscriberEmail = emailAddress;
+        anonymousUserSave();
+    };
+
+    /**
+     * Set the user name and save the user data.
+     * @param userName
+     */
+    enginesis.anonymousUserSetUserName = function(userName) {
+        if (enginesis.anonymousUser == null) {
+            anonymousUserLoad();
+        }
+        enginesis.anonymousUser.userName = userName;
+        anonymousUserSave();
+    };
+
+    /**
+     * Add a favorite game_id to the user favorite games list only if it does not already exist in the list.
+     * @param gameId
+     */
+    enginesis.anonymousUserAddFavoriteGame = function(gameId) {
+        var gameIdList,
+            existingPos;
+
+        if (enginesis.anonymousUser == null) {
+            anonymousUserLoad();
+        }
+        gameIdList = enginesis.anonymousUser.favoriteGames;
+        if (gameIdList != null && gameIdList.length > 0) {
+            existingPos = gameIdList.indexOf(gameId);
+            if (existingPos < 0) {
+                gameIdList.unshift(gameId);
+            }
+        } else if (gameIdList == null) {
+            gameIdList = [gameId];
+        } else {
+            gameIdList.push(gameId);
+        }
+        enginesis.anonymousUser.favoriteGames = gameIdList;
+        anonymousUserSave();
+    };
+
+    /**
+     * Add a gameId to the list of game_ids played by this user. If the game_id already exists it moves to
+     * the top of the list.
+     * @param gameId
+     */
+    enginesis.anonymousUserGamePlayed = function(gameId) {
+        var gameIdList,
+            existingPos;
+
+        if (enginesis.anonymousUser == null) {
+            anonymousUserLoad();
+        }
+        gameIdList = enginesis.anonymousUser.gamesPlayed;
+        if (gameIdList != null && gameIdList.length > 0) {
+            existingPos = gameIdList.indexOf(gameId);
+            if (existingPos > 0) {
+                gameIdList.splice(0, 0, gameIdList.splice(existingPos, 1)[0]);
+            } else if (existingPos < 0) {
+                gameIdList.unshift(gameId);
+            }
+        } else if (gameIdList == null) {
+            gameIdList = [gameId];
+        } else {
+            gameIdList.push(gameId);
+        }
+        enginesis.anonymousUser.gamesPlayed = gameIdList;
+        anonymousUserSave();
+    };
+
+
+    /* ----------------------------------------------------------------------------------
+     * Setup for AMD, node, or standalone reference the commonUtilities object.
+     * ----------------------------------------------------------------------------------*/
+    if (typeof define === 'function' && define.amd) {
+        define(function () { return enginesis; });
+    } else if (typeof exports === 'object') {
+        module.exports = enginesis;
+    } else {
+        var existingEnginesis = global.enginesis;
+        enginesis.existingEnginesis = function () {
+            global.enginesis = existingEnginesis;
+            return this;
+        };
+        global.enginesis = enginesis;
+    }
+})(window);

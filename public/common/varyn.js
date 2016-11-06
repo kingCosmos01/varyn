@@ -36,7 +36,7 @@ var varyn = function (parameters) {
         currentPage = '',
         waitingForUserNameReply = false,
         domImage,
-        enginesisSession = null,
+        enginesisSession = window.enginesis,
         pageViewParameters = null;
 
     /**
@@ -83,7 +83,7 @@ var varyn = function (parameters) {
             currentPage = this.getCurrentPage();
             pageViewParameters = pageViewParameterObject;
             // document.domain = siteConfiguration.serverHostDomain;
-            enginesisSession = enginesis(enginesisParameters);
+            enginesisSession.init(enginesisParameters);
             this.checkLoggedInSSO(getNetworkId());
             if (enginesisSession.isUserLoggedIn()) {
                 if (pageViewParameters != null && pageViewParameters['userInfo'] !== undefined && pageViewParameters.userInfo != '') {
