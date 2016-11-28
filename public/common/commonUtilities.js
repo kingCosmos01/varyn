@@ -48,7 +48,7 @@
         }
         return hasSupport;
     }
-  
+
     /**
      * Return the provided object as a string in key: value; format.
      *
@@ -171,6 +171,42 @@
     };
 
     /**
+     * Extend an object with properties copied from other objects. Takes a variable number of arguments:
+     *  If no arguments, and empty object is returned.
+     *  If one argument, that object is returned unchanged.
+     *  If more than one argument, each object is copied to the first object one property at a time. When
+     *    properties conflict the last property is the one retained.
+     * @returns {object}
+     */
+    commonUtilities.extendObject = function() {
+        var key,
+            value,
+            extendedObject,
+            object,
+            objects,
+            index,
+            objectCount;
+
+
+        if (arguments.length > 0) {
+            extendedObject = arguments[0];
+            if (arguments.length > 1) {
+                objects = arguments.slice.(1);
+                for (index = 0, objectCount = objects.length; index < objectCount; index ++) {
+                    object = objects[index];
+                    for (key in object) {
+                        value = object[key];
+                        extendedObject[key] = value;
+                    }
+                }
+            }
+        } else {
+            extendedObject = {};
+        }
+        return extendedObject;
+    };
+
+    /**
      * Determine if at least one string in the array matches the pattern. Since we are using regex pattern
      * to match we cannot use Array.indexOf(). If the pattern were a simple string, use Array.indexOf().
      * @param pattern a regex pattern to match.
@@ -248,10 +284,12 @@
         var token,
             regexMatch;
 
-        for (token in parameters) {
-            if (parameters.hasOwnProperty(token)) {
-                regexMatch = new RegExp("\{" + token + "\}", 'g');
-                text = text.replace(regexMatch, parameters[token]);
+        if (text !== undefined && text.length > 0) {
+            for (token in parameters) {
+                if (parameters.hasOwnProperty(token)) {
+                    regexMatch = new RegExp("\{" + token + "\}", 'g');
+                    text = text.replace(regexMatch, parameters[token]);
+                }
             }
         }
         return text;
