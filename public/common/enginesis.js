@@ -117,8 +117,8 @@
         enginesisResponseObject.fn = enginesisResponseObject.results.passthru.fn;
         if (overRideCallBackFunction != null) {
             overRideCallBackFunction(enginesisResponseObject);
-        } else if (callBackFunction != null) {
-            callBackFunction(enginesisResponseObject);
+        } else if (enginesis.callBackFunction != null) {
+            enginesis.callBackFunction(enginesisResponseObject);
         }
     }
 
@@ -1173,6 +1173,17 @@
     };
 
     /**
+     * Return the anonymous user email.
+     * @returns {string}
+     */
+    enginesis.anonymousUserGetSubscriberEmail = function() {
+        if (enginesis.anonymousUser == null) {
+            anonymousUserLoad();
+        }
+        return enginesis.anonymousUser.subscriberEmail;
+    };
+
+    /**
      * Set the user name and save the user data.
      * @param userName
      */
@@ -1182,6 +1193,17 @@
         }
         enginesis.anonymousUser.userName = userName;
         anonymousUserSave();
+    };
+
+    /**
+     * Get the anonymous user name.
+     * @returns {string}
+     */
+    enginesis.anonymousUserGetUserName = function() {
+        if (enginesis.anonymousUser == null) {
+            anonymousUserLoad();
+        }
+        return enginesis.anonymousUser.userName;
     };
 
     /**

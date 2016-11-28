@@ -392,10 +392,12 @@ var varyn = function (parameters) {
 
         /**
          * showSubscribePopup show the popup form to capture an email address to subscribe to the newsletter.
+         * TODO: track if user already signed up?
          */
         showSubscribePopup: function (showFlag) {
             if (showFlag) {
-                $('#modal-subscribe').modal('show');
+                document.getElementById("subscribe-email").value = enginesisSession.anonymousUserGetSubscriberEmail();
+                // $('#modal-subscribe').modal('show');
                 this.setPopupMessage('modal-subscribe', '', null);
             } else {
                 $('#modal-subscribe').modal('hide');
@@ -508,6 +510,7 @@ var varyn = function (parameters) {
 
             if (this.isValidEmail(email)) {
                 this.setPopupMessage("modal-subscribe", "Subscribing " + email + " with the service...", "popupMessageResponseOK");
+                enginesisSession.anonymousUserSetSubscriberEmail(email);
                 enginesisSession.newsletterAddressAssign(email, '', '', '2', null); // the newsletter category id for Varyn/General is 2
             } else {
                 errorField = "subscribe-email";
