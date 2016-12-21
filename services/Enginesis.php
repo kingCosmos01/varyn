@@ -1430,17 +1430,15 @@
          * site-id, user-id, and previous token must match otherwise generates INVALID_USER_ID error. At least two
          * of the parameters must be provided to identify the user.
          * @param $userId
-         * @param $userName
-         * @param $userEmail
-         * @param $token
+         * @param $secondaryPassword
          * @return bool
          */
-        public function registeredUserResetSecondaryPassword ($userId, $userName, $userEmail, $token) {
-            $enginesisResponse = $this->callServerAPI('RegisteredUserResetSecondaryPassword', array('user_id' => $userId, 'user_name' => $userName, 'email' => $userEmail, 'secondary_password' => $token));
+        public function registeredUserResetSecondaryPassword ($userId, $secondaryPassword) {
+            $enginesisResponse = $this->callServerAPI('RegisteredUserResetSecondaryPassword', array('user_id' => $userId, 'secondary_password' => $secondaryPassword));
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             return $results != null;
         }
-        
+
         /**
          * The general public user get - returns a minimum set of public attributes about a user.
          * @param $userId - may be either an int indicating a user_id or a string indicating a user_name.
@@ -1639,6 +1637,23 @@
                 $numberOfGames = 5;
             }
             $enginesisResponse = $this->callServerAPI('GameRatingList', array('num_items' => $numberOfGames));
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null && isset($results[0])) {
+                $gameList = $results[0];
+            } else {
+                $gameList = null;
+            }
+            return $gameList;
+        }
+
+        public function gameListByIdList ($listOfGameIds, $delimiter) {
+            if (empty($listOfGameIds)) {
+                $listOfGameIds = '' . $this->gameId . '';
+            }
+            if (empty($delimiter)) {
+                $delimiter = ',';
+            }
+            $enginesisResponse = $this->callServerAPI('GameListByIdList', array('game_id_list' => $listOfGameIds, 'delimiter' => $delimiter));
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             if ($results != null && isset($results[0])) {
                 $gameList = $results[0];

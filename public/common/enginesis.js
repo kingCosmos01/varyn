@@ -971,10 +971,29 @@
         return sendRequest("RegisteredUserConfirm", {user_id: user_id, secondary_password: secondary_password}, overRideCallBackFunction);
     };
 
+    /**
+     * this function generates the email that is sent to the email address matching username or email address.
+     * that email leads to the change password web page. Currently only user name or email address is required to invoke
+     * the flow, but we should consider more matching info before we start it in case accounts are being hacked.
+     * @param userName
+     * @param email
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
     enginesis.registeredUserForgotPassword = function (userName, email, overRideCallBackFunction) {
-        // this function generates the email that is sent to the email address matching username or email address
-        // that email leads to the change password web page
         return sendRequest("RegisteredUserForgotPassword", {user_name: userName, email: email}, overRideCallBackFunction);
+    };
+
+    /**
+     * this function generates the email that is sent to the email address matching user_id if the secondary password matches.
+     * This is used when the secondary password is attempted but expired (such as user lost the reset email).
+     * @param user_id - the user in question.
+     * @param secondary_password - the original secondary password generated in forgot password flow.
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.registeredUserResetSecondaryPassword = function (user_id, secondary_password, overRideCallBackFunction) {
+        return sendRequest("RegisteredUserResetSecondaryPassword", {user_id: userid, secondary_password: secondary_password}, overRideCallBackFunction);
     };
 
     enginesis.registeredUserRequestPasswordChange = function (overRideCallBackFunction) {
