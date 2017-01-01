@@ -191,7 +191,7 @@
         if (arguments.length > 0) {
             extendedObject = arguments[0];
             if (arguments.length > 1) {
-                objects = arguments.slice.(1);
+                objects = arguments.slice(1);
                 for (index = 0, objectCount = objects.length; index < objectCount; index ++) {
                     object = objects[index];
                     for (key in object) {
