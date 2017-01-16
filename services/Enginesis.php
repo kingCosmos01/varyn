@@ -7,12 +7,11 @@
 
     require_once('errors.php');
     define('SESSION_COOKIE', 'engsession');
+    define('REFRESH_COOKIE', 'engrefreshtoken');
     define('SESSION_USERINFO', 'engsession_user');
     define('SESSION_DAYSTAMP_HOURS', 48);
     define('SESSION_USERID_CACHE', 'engsession_uid');
-    if ( ! defined('ENGINESIS_VERSION')) {
-        define('ENGINESIS_VERSION', '2.3.26');
-    }
+    define('ENGINESIS_VERSION', '2.3.32');
 
     abstract class EnginesisNetworks {
         const Enginesis = 1;
@@ -54,6 +53,7 @@
         private $m_languageCode;
         private $m_authToken;
         private $m_authTokenWasValidated;
+        private $m_refreshToken;
 
         /**
          * @method constructor
@@ -454,7 +454,43 @@
         }
 
         /**
+         * Get the refresh token if it was provided in the http get/post.
+         * This function does not determine if the authentication token is actually valid (use sessionValidateAuthenticationToken for that.)
+         * @return string token, null if no token could be found.
+         */
+        public function sessionGetRefreshToken () {
+            if (empty($this->m_refreshToken)) {
+                $refreshToken = getPostOrRequestVar('refreshToken', '');
+                if (empty($refreshToken)) {
+                    if (isset($_COOKIE[REFRESH_COOKIE])) {
+                        $refreshToken = $_COOKIE[REFRESH_COOKIE];
+                    } else {
+                        $refreshToken = null;
+                    }
+                }
+            } else {
+                $refreshToken = $this->m_refreshToken;
+            }
+            return $refreshToken;
+        }
+
+        /**
+         * Allow the user to save the refresh token with this session. Then we can use it if we detect an
+         * expired authentication token.
+         * @param $refreshToken
+         * @return string
+         */
+        public function saveRefreshToken($refreshToken) {
+            $this->m_refreshToken = $refreshToken;
+            setcookie(REFRESH_COOKIE, $refreshToken, time() + (365 * 24 * 60 * 60), '/', $this->sessionCookieDomain());
+            return $this->m_refreshToken;
+        }
+
+        /**
          * Restore the user's session from the provided authentication token.
+         * TODO: This code is actually WRONG! We cannot do this on the (PHP) client. Instead, we should
+         * send a SessionBegin request to the Enginesis server and it will tell us this authtoken is
+         * acceptable or not.
          * @param null $authToken
          */
         private function restoreUserFromAuthToken ($authToken = null) {
@@ -479,9 +515,22 @@
                     $this->m_userAccessLevel = $sessionAccessLevel;
                     $this->m_authToken = $this->authTokenMake($sessionSiteId, $sessionUserId, $sessionUserName, $sessionSiteUserId, $sessionAccessLevel, $sessionNetworkId);
                     $this->m_authTokenWasValidated = true;
-                // } else {
-                    // echo("<h3>restoreUserFromAuthToken FAILED</h3>");
-                    // exit(0);
+                } elseif ($errorCode == EnginesisErrors::TOKEN_EXPIRED) {
+                    // if the auth token is expired we need to ask the server for a new one IF we have the refresh token
+                    $refreshToken = $this->sessionGetRefreshToken();
+                    if ( ! empty($refreshToken)) {
+                        $userInfo = $this->sessionRefresh($refreshToken);
+//                        if ($userInfo == null) {
+//                            echo("<h3>restoreUserFromAuthToken FAILED and SessionRefresh FAILED with $errorCode</h3>");
+//                            exit(0);
+//                        } else {
+//                            echo("<h3>restoreUserFromAuthToken FAILED and SessionRefresh SUCCEEDED!</h3>");
+//                            exit(0);
+//                        }
+//                    } else {
+//                        echo("<h3>restoreUserFromAuthToken FAILED and NO SessionRefresh!</h3>");
+//                        exit(0);
+                    }
                 }
             }
             if ( ! $this->m_authTokenWasValidated) {
@@ -682,6 +731,23 @@
         }
 
         /**
+         * In cases when the server replies with a new or updated user session then restore our
+         * internal variables so we can continue conversing with the server.
+         * @param $serverResponse
+         */
+        private function sessionRestoreFromResponse($serverResponse) {
+            $userInfo = $serverResponse->row;
+            if ($userInfo) {
+                $this->sessionSave($userInfo->authtok, $userInfo->user_id, $userInfo->user_name, $userInfo->site_user_id, $userInfo->access_level, EnginesisNetworks::Enginesis);
+                $this->sessionUserInfoSave($userInfo);
+                if (isset($userInfo->refreshToken)) {
+                    $this->saveRefreshToken($userInfo->refreshToken);
+                }
+            }
+            return $userInfo;
+        }
+
+        /**
          * Clear any session data and forget any logged in user.
          * @return string An error code if the function fails to clear the cookies, or an empty string if successful.
          */
@@ -845,8 +911,6 @@
             $response = $parameters['response'];
             if ($debug) {
                 print_r(array('Before callServerAPI', $fn, $this->m_server, $paramArray));
-            }
-            if ($debug) {
                 echo("<h3>Params for $fn:</h3><p>" . $this->encodeURLParams($parameters) . "</p>");
             }
             $ch = curl_init();
@@ -948,6 +1012,83 @@
         }
 
         /**
+         * Return the URL of the request game image.
+         * @param gameName {string} game folder on server where the game assets are stored. Most of the game queries
+         *    (GameGet, GameList, etc) return game_name and this is used as the game folder.
+         * @param width {int} optional width, use null to ignore. Server will choose common width.
+         * @param height {int} optional height, use null to ignore. Server will choose common height.
+         * @param format {string} optional image format, use null and server will choose. Otherwise {jpg|png|svg}
+         * @returns {string} a URL you can use to load the image.
+         * TODO: this really needs to call a server-side service to perform this resolution as we need to use PHP to determine which files are available and the closest match.
+         */
+        public function getGameImageURL ($gameName, $width, $height, $format) {
+            if (empty($width) || $width == '*') {
+                $width = 600;
+            }
+            if (empty($height) || $height == '*') {
+                $height = 450;
+            }
+            if (substr($format, 0, 1) != '.') {
+                $format = '.' . $format;
+            }
+            $regex = '/\.(jpg|png|svg)/i';
+            $found = preg_match($regex, $format);
+            if ($found == 0 || $found === false) {
+                $format = '.jpg';
+            }
+            $path = $this->m_serviceEndPoint . '/games/' . $gameName . '/images/' . $width . 'x' . $height . $format;
+            return $path;
+        }
+
+        /**
+         * Call Enginesis SessionBegin which is used to start any conversation with the server. Must call before beginning a game.
+         * @param gameKey
+         * @param overRideCallBackFunction
+         * @returns {boolean}
+         */
+        public function sessionBegin ($gameId, $gameKey) {
+            $userInfo = null;
+            $service = 'SessionBegin';
+            $parameters = array(
+                'game_id' => $gameId,
+                'game_key' => $gameKey
+            );
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null && isset($results->row)) {
+                $userInfo = $this->sessionRestoreFromResponse($results);
+            }
+            return $userInfo;
+        }
+
+        /**
+         * Call Enginesis SessionRefresh to exchange the long-lived refresh token for a new authentication token. Usually you
+         * call this when you attempt to call a service and it replied with TOKEN_EXPIRED.
+         * @param refreshToken {string} optional, if not provided (empty/null) then we try to pull the one we have in the local store.
+         * @returns {object} The user object if successful, null if failed.
+         */
+        public function sessionRefresh ($refreshToken) {
+            $service = 'SessionRefresh';
+            $userInfo = null;
+            if (empty($refreshToken)) {
+                $refreshToken = $this->sessionGetRefreshToken();
+                if (empty($refreshToken)) {
+                    $this->m_lastError = EnginesisErrors::INVALID_TOKEN;
+                    return $userInfo;
+                }
+            }
+            $parameters = array(
+                'token' => $refreshToken
+            );
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null && isset($results->row)) {
+                $userInfo = $this->sessionRestoreFromResponse($results);
+            }
+            return $userInfo;
+        }
+
+        /**
          * @method userLogin
          * @description
          *   Login a user by calling the Enginesis function and wait for the response. If the user is successfully
@@ -959,14 +1100,15 @@
          */
         public function userLogin ($userName, $password, $saveSession) {
             $userInfo = null;
-            $enginesisResponse = $this->callServerAPI('UserLogin', array('user_name' => $userName, 'password' => $password));
+            $service = 'UserLogin';
+            $parameters = array(
+                'user_name' => $userName,
+                'password' => $password
+            );
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             if ($results != null && isset($results->row)) {
-                $userInfo = $results->row;
-                if ($userInfo && $saveSession) {
-                    $this->sessionSave($userInfo->authtok, $userInfo->user_id, $userInfo->user_name, $userInfo->site_user_id, $userInfo->access_level, EnginesisNetworks::Enginesis);
-                    $this->sessionUserInfoSave($userInfo);
-                }
+                $userInfo = $this->sessionRestoreFromResponse($results);
             }
             return $userInfo;
         }
@@ -993,11 +1135,7 @@
             $enginesisResponse = $this->callServerAPI('UserLoginCoreg', array('site_user_id' => $site_user_id, 'user_name' => $user_name, 'real_name' => $real_name, 'email_address' => $email_address, 'gender' => $gender, 'dob' => $dob, 'network_id' => $network_id, 'scope' => $scope));
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             if ($results != null && isset($results->row)) {
-                $userInfo = $results->row;
-                if ($userInfo && $saveSession) {
-                    $this->sessionSave($userInfo->authtok, $userInfo->user_id, $userInfo->user_name, $userInfo->site_user_id, $userInfo->access_level, $network_id);
-                    $this->sessionUserInfoSave($userInfo);
-                }
+                $userInfo = $this->sessionRestoreFromResponse($results);
             }
             return $userInfo;
         }
@@ -1661,5 +1799,68 @@
                 $gameList = null;
             }
             return $gameList;
+        }
+
+        public function voteForURIUnauth($uri, $voteGroupURI, $voteValue, $securityKey) {
+            $service = 'VoteForURIUnauth';
+            $parameters = array(
+                'uri' => $uri,
+                'vote_group_uri' => $voteGroupURI,
+                'vote_value' => $voteValue,
+                'security_key' => $securityKey
+            );
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null && isset($results[0])) {
+                $response = $results[0];
+            } else {
+                $response = null;
+            }
+            return $response;
+        }
+
+        public function voteCountPerURIGroup($voteGroupURI) {
+            $service = 'VoteCountPerURIGroup';
+            $parameters = array(
+                'vote_group_uri' => $voteGroupURI
+            );
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null && isset($results[0])) {
+                $response = $results[0];
+            } else {
+                $response = null;
+            }
+            return $response;
+        }
+
+        public function developerGet($developerId) {
+            $service = 'DeveloperGet';
+            $parameters = array(
+                'developer_id' => $developerId
+            );
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null && isset($results[0])) {
+                $response = $results[0];
+            } else {
+                $response = null;
+            }
+            return $response;
+        }
+
+        public function gameDataGet($gameId) {
+            $service = 'GameDataGet';
+            $parameters = array(
+                'game_id' => $gameId
+            );
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null && isset($results[0])) {
+                $response = $results[0];
+            } else {
+                $response = null;
+            }
+            return $response;
         }
     }

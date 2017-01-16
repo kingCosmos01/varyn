@@ -715,8 +715,19 @@
      * @param overRideCallBackFunction
      * @returns {boolean}
      */
-    enginesis.addOrUpdateVoteByURI = function (voteURI, voteGroupURI, voteValue, overRideCallBackFunction) {
-        return sendRequest("AddOrUpdateVoteByURI", {uri: voteURI, vote_group_uri: voteGroupURI, vote_value: voteValue}, overRideCallBackFunction);
+    enginesis.voteForURIUnauth = function (voteURI, voteGroupURI, voteValue, securityKey, overRideCallBackFunction) {
+        return sendRequest("VoteForURIUnauth", {uri: voteURI, vote_group_uri: voteGroupURI, vote_value: voteValue, security_key: securityKey}, overRideCallBackFunction);
+    };
+
+    /**
+     * Return voting results by voting group key.
+     * @param voteGroupURI {string} voting group that collects all the items to be voted on
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     * @seealso: addOrUpdateVoteByURI
+     */
+    enginesis.voteCountPerURIGroup = function (voteGroupURI, overRideCallBackFunction) {
+        return sendRequest("VoteCountPerURIGroup", {vote_group_uri: voteGroupURI}, overRideCallBackFunction);
     };
 
     /**
@@ -819,17 +830,6 @@
             ga('send', 'event', category, action, label, hitData);
         }
         return sendRequest("GameTrackingRecord", {hit_type: 'REQUEST', hit_category: category, hit_action: action, hit_label: label, hit_data: hitData}, overRideCallBackFunction);
-    };
-
-    /**
-     * Return voting results by voting group key.
-     * @param voteGroupURI {string} voting group that collects all the items to be voted on
-     * @param overRideCallBackFunction
-     * @returns {boolean}
-     * @seealso: addOrUpdateVoteByURI
-     */
-    enginesis.getNumberOfVotesPerURIGroup = function (voteGroupURI, overRideCallBackFunction) {
-        return sendRequest("GetNumberOfVotesPerURIGroup", {vote_group_uri: voteGroupURI}, overRideCallBackFunction);
     };
 
     /**

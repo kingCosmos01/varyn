@@ -112,7 +112,7 @@
         if ($userInfo == null) {
             $error = $enginesis->getLastError();
             if ($error != null) {
-                $linkToResendToken = createResendConfirmEmailLink($error['message'], $userName);
+                $linkToResendToken = createResendConfirmEmailLink($error['message'], null, $userName, null, null);
                 $errorMessage = '<p class="error-text">Your account could not be logged in at this time. ' . errorToLocalString($error['message']) . ' ' . $linkToResendToken . '</p>';
             } else {
                 $errorMessage = '<p class="error-text">Your user name and password did not match.</p>';

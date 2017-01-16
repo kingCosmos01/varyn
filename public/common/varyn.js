@@ -1095,6 +1095,9 @@ var varyn = function (parameters) {
             }
         },
 
+        /**
+         * A develop/debug function to run through Unit tests. Do not include this in a production deployment.
+         */
         runUnitTests: function() {
             console.log('enginesisSession.versionGet: ' + enginesisSession.versionGet());
             console.log('enginesisSession.getRefreshToken: ' + enginesisSession.getRefreshToken());
