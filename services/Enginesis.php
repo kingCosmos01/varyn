@@ -54,6 +54,7 @@
         private $m_languageCode;
         private $m_authToken;
         private $m_authTokenWasValidated;
+        private $m_refreshToken;
 
         /**
          * @method constructor
@@ -82,6 +83,7 @@
             $this->m_languageCode = 'en';
             $this->m_authToken = null;
             $this->m_authTokenWasValidated = false;
+            $this->m_refreshToken = null;
             if (empty($enginesisServer)) {
                 // Caller doesn't know which stage, converse with the one that matches the stage we are on
                 $enginesisServiceRoot = $this->m_serviceProtocol . '://enginesis' . $this->m_stage . '.com/';
@@ -297,6 +299,14 @@
             return $this->m_serviceRoot;
         }
 
+        public function setDeveloperKey($developerKey) {
+            $this->m_developerKey = $developerKey;
+        }
+
+        public function setRefreshToken($refreshToken) {
+            $this->m_refreshToken = $refreshToken;
+        }
+
         /**
          * Return the domain name and TLD only (remove server name, protocol, anything else) e.g. this function
          * converts http://www.games.com into games.com or http://www.games-q.com into games-q.com
@@ -454,6 +464,20 @@
         }
 
         /**
+         * Get the refresh token, either it was provided in the http get/post, or it was set by the client.
+         * This function does not determine if the authentication token is actually valid (use sessionValidateAuthenticationToken for that.)
+         * @return string token, null if no token could be found.
+         */
+        public function sessionGetRefreshToken () {
+            if (empty($this->m_refreshToken)) {
+                $refreshToken = getPostOrRequestVar('refreshToken', '');
+            } else {
+                $refreshToken = $this->m_refreshToken;
+            }
+            return $refreshToken;
+        }
+
+        /**
          * Restore the user's session from the provided authentication token.
          * @param null $authToken
          */
@@ -479,6 +503,12 @@
                     $this->m_userAccessLevel = $sessionAccessLevel;
                     $this->m_authToken = $this->authTokenMake($sessionSiteId, $sessionUserId, $sessionUserName, $sessionSiteUserId, $sessionAccessLevel, $sessionNetworkId);
                     $this->m_authTokenWasValidated = true;
+                } elseif ($errorCode == 'TOKEN_EXPIRED') {
+                    // TODO: - should send refresh token to Enginesis via SessionRefresh then process results.
+                    $refreshToken = $this->sessionGetRefreshToken();
+                    if ( ! empty($refreshToken)) {
+                        $this->sessionRefresh($refreshToken);
+                    }
                 // } else {
                     // echo("<h3>restoreUserFromAuthToken FAILED</h3>");
                     // exit(0);
@@ -498,7 +528,7 @@
          * @param $userName
          * @param $accessLevel
          * @param $networkId
-         * @returns {string} encrypted user authentication token
+         * @returns string encrypted user authentication token
          */
         private function authTokenMake ($siteId, $userId, $userName, $siteUserId, $accessLevel, $networkId) {
             if ($this->m_authTokenWasValidated) {
@@ -514,17 +544,15 @@
                 $userName = $this->m_userName;
             }
             $decryptedData = 'siteid=' . $siteId . '&userid=' . $userId . '&siteuserid=' . $siteUserId . '&networkid=' . $networkId . '&username=' . $userName . '&accesslevel=' . $accessLevel . '&daystamp=' . $this->sessionDayStamp();
-            $tokenDataBase64 = base64_encode(mcrypt_encrypt(MCRYPT_BLOWFISH, pack('H*', $this->m_developerKey), $this->blowfishPad($decryptedData), MCRYPT_MODE_ECB, pack('H*', '000000000000000')));
-            $tokenDataBase64Clean = str_replace('+', ' ', $tokenDataBase64);
-            return $tokenDataBase64Clean;
+            return str_replace('+', ' ', base64_encode(mcrypt_encrypt(MCRYPT_BLOWFISH, pack('H*', $this->m_developerKey), $this->blowfishPad($decryptedData), MCRYPT_MODE_ECB, pack('H*', '000000000000000'))));
         }
 
         /**
          * Decrypt an authentication token and return an array of items contained in it. This function is designed to undo
-         * what sessionMakeAuthenticationTokenEncrypted did but returning an array of the input parameters.
+         * what authTokenMake did but returning an array of the input parameters.
          * @param $authenticationToken {string} the encrypted token.
          * @return array|null Returns null if the token could not be decrypted, when successful returns an array matching the
-         *     input parameters of sessionMakeAuthenticationTokenEncrypted.
+         *     input parameters of authTokenMake.
          */
         private function authTokenDecrypt ($authenticationToken) {
             $dataArray = null;
@@ -539,7 +567,7 @@
          * Generate a time stamp for the current time rounded to the nearest SESSION_DAYSTAMP_HOURS hour.
          * @return int
          */
-        private function sessionDayStamp () {
+        private function sessionDayStamp() {
             return floor(time() / (SESSION_DAYSTAMP_HOURS * 60 * 60)); // good for SESSION_DAYSTAMP_HOURS hours
         }
 
@@ -548,7 +576,7 @@
          * @param $dayStamp
          * @return bool
          */
-        private function sessionIsValidDayStamp ($dayStamp) {
+        private function sessionIsValidDayStamp($dayStamp) {
             $day_stamp_current = $this->sessionDayStamp();
             return ! ($dayStamp < ($day_stamp_current - (SESSION_DAYSTAMP_HOURS / 24)) || $dayStamp > $day_stamp_current);
         }
@@ -558,7 +586,7 @@
          * for a specific user so another user can't spoof that user.
          * @return string
          */
-        private function sessionMakeId () {
+        private function sessionMakeId() {
             return md5($this->m_developerKey . '' . $this->sessionDayStamp() . '' . $this->m_userId);
         }
 
@@ -794,11 +822,8 @@
                 return true;
             } else {
                 $this->restoreUserFromAuthToken(null);
-                if ($this->m_authTokenWasValidated && $this->m_userId > 0) {
-                    return true;
-                }
+                return $this->m_authTokenWasValidated && $this->m_userId > 0;
             }
-            return false;
         }
 
         /**
@@ -1012,6 +1037,49 @@
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             $this->sessionClear();
             return $results != null;
+        }
+
+        /**
+         * Call Enginesis SessionBegin which is used to start any conversation with the server. Must call before beginning a game.
+         * @param game_id
+         * @param gameKey
+         * @param overRideCallBackFunction
+         * @returns {boolean}
+         */
+        public function sessionBegin($game_id, $gameKey) {
+            $service = 'SessionBegin';
+
+            $parameters = array(
+                'game_id' => $game_id,
+                'game_key' => $gameKey
+            );
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null) {
+                $results = $results[0];
+            }
+            return $results;
+        }
+
+        /**
+         * Ask authentication server to generate a new authTok and a new refreshToken. Use this when the authtok fails
+         * with TOKEN_EXPIRED. You get the refreshToken when login methods return successful.
+         * @param refreshToken
+         * @param overRideCallBackFunction
+         * @returns {bool}
+         */
+        public function sessionRefresh($refreshToken) {
+            $service = 'SessionRefresh';
+
+            $parameters = array(
+                'token' => $refreshToken
+            );
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            if ($results != null) {
+                $results = $results[0];
+            }
+            return $results;
         }
 
         /* @function userRegistrationValidation
