@@ -39,6 +39,7 @@
     $otherUserInfo = null;
     $userInfoJSON = ''; // a JSON representation of the $userInfo object
     $authToken = '';
+    $refreshToken = '';
 
     // Related form variables
     $userName = '';
@@ -74,6 +75,7 @@
                 } else {
                     $isLoggedIn = true;
                     $authToken = $userInfo->authtok;
+                    $refreshToken = $userInfo->refreshToken;
                     $userId = $userInfo->user_id;
                     setVarynUserCookie($userInfo, $enginesis->getServerName());
                     $userInfoJSON = getVarynUserCookie();
@@ -119,6 +121,7 @@
         } else {
             $isLoggedIn = true;
             $authToken = $userInfo->authtok;
+            $refreshToken = $userInfo->refreshToken;
             $userId = $userInfo->user_id;
             setVarynUserCookie($userInfo, $enginesis->getServerName());
             $userInfoJSON = getVarynUserCookie();
@@ -783,6 +786,11 @@
 </div>
 <?php
     include_once('common/footer.php');
+    if (empty($refreshToken)) {
+        $refreshTokenJavaScript = '';
+    } else {
+        $refreshTokenJavaScript = "\n        varynApp.saveRefreshToken('$refreshToken');\n";
+    }
  ?>
 <script type="text/javascript">
 
@@ -794,20 +802,21 @@
                 siteId: <?php echo($siteId);?>,
                 gameId: 0,
                 gameGroupId: 0,
-                serverStage: "<?php echo($stage);?>",
+                serverStage: '<?php echo($stage);?>',
                 languageCode: navigator.language || navigator.userLanguage,
                 developerKey: '<?php echo($developerKey);?>',
                 facebookAppId: '<?php echo($socialServiceKeys[2]['app_id']);?>',
                 authToken: '<?php echo($authToken);?>'
             },
             profilePageParameters = {
-                errorFieldId: "<?php echo($errorFieldId);?>",
-                inputFocusId: "<?php echo($inputFocusId);?>",
-                showSubscribe: "<?php echo($showSubscribe);?>",
+                errorFieldId: '<?php echo($errorFieldId);?>',
+                inputFocusId: '<?php echo($inputFocusId);?>',
+                showSubscribe: '<?php echo($showSubscribe);?>',
                 userInfo: '<?php echo(addslashes($userInfoJSON));?>'
             };
         varynApp = varyn(siteConfiguration);
-        profilePage = varynApp.initApp(varynProfilePage, profilePageParameters);
+        profilePage = varynApp.initApp(varynProfilePage, profilePageParameters);<?php echo($refreshTokenJavaScript);?>
+        varynApp.runUnitTests();
     });
 
     head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js", "/common/varynProfilePage.js");

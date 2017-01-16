@@ -107,6 +107,18 @@ var varyn = function (parameters) {
         },
 
         /**
+         * Save the refresh token client-side. This means that the token is saved only on the device
+         * the user successfully logs in in from. The app can use this token when the auth-token is
+         * rejected due to TOKEN_EXPIRED error in order to ask for a new token.
+         * @param refreshToken
+         */
+        saveRefreshToken: function(refreshToken) {
+            if (enginesisSession != null) {
+                enginesisSession.saveRefreshToken(refreshToken);
+            }
+        },
+
+        /**
          * If we think we should be logged in on a certain network then verify that network also agrees
          * @param networkId
          */
@@ -1081,6 +1093,13 @@ var varyn = function (parameters) {
                         break;
                 }
             }
+        },
+
+        runUnitTests: function() {
+            console.log('enginesisSession.versionGet: ' + enginesisSession.versionGet());
+            console.log('enginesisSession.getRefreshToken: ' + enginesisSession.getRefreshToken());
+            console.log('enginesisSession.getGameImageURL: ' + enginesisSession.getGameImageURL('MatchMaster3000', 0, 0, null));
+            console.log('enginesisSession.getDateNow: ' + enginesisSession.getDateNow());
         }
     }
 };
