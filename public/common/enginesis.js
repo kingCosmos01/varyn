@@ -29,7 +29,7 @@
     'use strict';
 
     var enginesis = {
-        VERSION: '2.3.30',
+        VERSION: '2.3.32',
         debugging: true,
         disabled: false, // use this flag to turn off communicating with the server
         errorLevel: 15,  // bitmask: 1=info, 2=warning, 4=error, 8=severe
@@ -64,6 +64,7 @@
         isTouchDeviceFlag: false,
         SESSION_COOKIE: 'engsession',
         SESSION_USERINFO: 'engsession_user',
+        refreshTokenStorageKey: 'engrefreshtoken',
         captchaId: '99999',
         captchaResponse: 'DEADMAN',
         anonymousUserKey: 'enginesisAnonymousUser',
@@ -100,7 +101,7 @@
     }
 
     /**
-     * Internal function to handle q completed service request and convert the JSON response to
+     * Internal function to handle completed service request and convert the JSON response to
      * an object and then invoke the call back function.
      * @param enginesisResponseData
      * @param overRideCallBackFunction
@@ -108,7 +109,7 @@
     function requestComplete (enginesisResponseData, overRideCallBackFunction) {
         var enginesisResponseObject;
 
-        debugLog("CORS request complete " + enginesisResponseData);
+        debugLog("Enginesis CORS request complete " + enginesisResponseData);
         try {
             enginesisResponseObject = JSON.parse(enginesisResponseData);
         } catch (exception) {
@@ -361,6 +362,34 @@
     }
 
     /**
+     * Save a refresh token in local storage.
+     * @param refreshToken
+     */
+    function _saveRefreshToken(refreshToken) {
+        if ( ! isEmpty(refreshToken)) {
+            var refreshTokenData = {
+                    refreshToken: refreshToken,
+                    timestamp: new Date().getTime()
+                };
+            saveObjectWithKey(enginesis.refreshTokenStorageKey, refreshTokenData);
+        }
+    }
+
+    /**
+     * Recall a refresh token in local storage.
+     * @returns {string} either the token that was saved or an empty string.
+     */
+    function _getRefreshToken() {
+        var refreshToken,
+            refreshTokenData = loadObjectWithKey(enginesis.refreshTokenStorageKey);
+
+        if (refreshTokenData != null && refreshTokenData.refreshToken !== undefined) {
+            refreshToken = refreshTokenData.refreshToken;
+        }
+        return refreshToken;
+    }
+
+    /**
      * Internal logging function. All logging should call this function to abstract and control the interface.
      * @param message
      * @param level
@@ -500,6 +529,22 @@
     };
 
     /**
+     * Return the Enginesis refresh token if one has been previously saved.
+     * @returns {string}
+     */
+    enginesis.getRefreshToken = function () {
+        return _getRefreshToken();
+    };
+
+    /**
+     * Save the Enginesis refresh token for later recall.
+     * @returns {string}
+     */
+    enginesis.saveRefreshToken = function (refreshToken) {
+        return _saveRefreshToken(refreshToken);
+    };
+
+    /**
      * Determine and set the server stage from the specified string. It can be a stage request or a domain.
      * @param newServerStage
      * @returns {string}
@@ -592,17 +637,38 @@
 
     /**
      * Return the URL of the request game image.
-     * @param gameName
-     * @param width
-     * @param height
+     * @param gameName {string} game folder on server where the game assets are stored. Most of the game queries
+     *    (GameGet, GameList, etc) return game_name and this is used as the game folder.
+     * @param width {int} optional width, use null to ignore. Server will choose common width.
+     * @param height {int} optional height, use null to ignore. Server will choose common height.
+     * @param format {string} optional image format, use null and server will choose. Otherwise {jpg|png|svg}
      * @returns {string} a URL you can use to load the image.
+     * TODO: this really needs to call a server-side service to perform this resolution as we need to use PHP to determine which files are available and the closest match.
      */
-    enginesis.getGameImageURL = function (gameName, width, height) {
-        return getProtocol() + enginesis.serverHost + '/games/' + gameName + '/images/' + width + "x" + height + ".png";
+    enginesis.getGameImageURL = function (gameName, width, height, format) {
+        var defaultImageFormat = '.jpg';
+        if (isEmpty(format)) {
+            format = defaultImageFormat;
+        } else {
+            if (format[0] != '.') {
+                format = '.' + format;
+            }
+            var regexPattern = /\.(jpg|png|svg)/i;
+            if ( ! regexPattern.match(format)) {
+                format = defaultImageFormat;
+            }
+        }
+        if (isEmpty(width) || width == '*') {
+            width = 600;
+        }
+        if (isEmpty(height) || height == '*') {
+            height = 450;
+        }
+        return getProtocol() + enginesis.serverHost + '/games/' + gameName + '/images/' + width + 'x' + height + format;
     };
 
     /**
-     * Return the current date in a standard format.
+     * Return the current date in a standard format such as "2017-01-15 23:11:52".
      * @returns {string}
      */
     enginesis.getDateNow = function () {
@@ -610,13 +676,35 @@
     };
 
     /**
-     * Call Enginesis SessionBegin whcih is used to start any conversation with the server. Must call before beginning a game.
+     * Call Enginesis SessionBegin which is used to start any conversation with the server. Must call before beginning a game.
      * @param gameKey
      * @param overRideCallBackFunction
      * @returns {boolean}
      */
-    enginesis.sessionBegin = function (gameKey, overRideCallBackFunction) {
-        return sendRequest("SessionBegin", {gamekey: gameKey}, overRideCallBackFunction);
+    enginesis.sessionBegin = function (gameId, gameKey, overRideCallBackFunction) {
+        if (gameId === undefined || gameId == 0) {
+            gameId = enginesis.gameIdGet();
+        }
+        return sendRequest("SessionBegin", {game_id: gameId, gamekey: gameKey}, overRideCallBackFunction);
+    };
+
+    /**
+     * Call Enginesis SessionRefresh to exchange the long-lived refresh token for a new authentication token. Usually you
+     * call this when you attempt to call a service and it replied with TOKEN_EXPIRED.
+     * @param refreshToken {string} optional, if not provided (empty/null) then we try to pull the one we have in the local store.
+     * @param overRideCallBackFunction
+     * @returns {boolean} true if successful but if false call getLastError to get an error code as to what went wrong.
+     */
+    enginesis.sessionRefresh = function (refreshToken, overRideCallBackFunction) {
+        if (isEmpty(refreshToken)) {
+            refreshToken = _getRefreshToken();
+            if (isEmpty(refreshToken)) {
+                enginesis.lastError = 'INVALID_TOKEN';
+                enginesis.lastErrorMessage = 'Refresh token not provided or is invalid.';
+                return false;
+            }
+        }
+        return sendRequest("SessionRefresh", {token: refreshToken}, overRideCallBackFunction);
     };
 
     /**
