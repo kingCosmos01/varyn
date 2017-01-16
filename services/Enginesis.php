@@ -1046,9 +1046,9 @@
 
         /**
          * Call Enginesis SessionBegin which is used to start any conversation with the server. Must call before beginning a game.
+         * @param gameId
          * @param gameKey
-         * @param overRideCallBackFunction
-         * @returns {boolean}
+         * @returns {Object} null if failed, user info if success.
          */
         public function sessionBegin ($gameId, $gameKey) {
             $userInfo = null;
@@ -1154,49 +1154,6 @@
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             $this->sessionClear();
             return $results != null;
-        }
-
-        /**
-         * Call Enginesis SessionBegin which is used to start any conversation with the server. Must call before beginning a game.
-         * @param game_id
-         * @param gameKey
-         * @param overRideCallBackFunction
-         * @returns {boolean}
-         */
-        public function sessionBegin($game_id, $gameKey) {
-            $service = 'SessionBegin';
-
-            $parameters = array(
-                'game_id' => $game_id,
-                'game_key' => $gameKey
-            );
-            $enginesisResponse = $this->callServerAPI($service, $parameters);
-            $results = $this->setLastErrorFromResponse($enginesisResponse);
-            if ($results != null) {
-                $results = $results[0];
-            }
-            return $results;
-        }
-
-        /**
-         * Ask authentication server to generate a new authTok and a new refreshToken. Use this when the authtok fails
-         * with TOKEN_EXPIRED. You get the refreshToken when login methods return successful.
-         * @param refreshToken
-         * @param overRideCallBackFunction
-         * @returns {bool}
-         */
-        public function sessionRefresh($refreshToken) {
-            $service = 'SessionRefresh';
-
-            $parameters = array(
-                'token' => $refreshToken
-            );
-            $enginesisResponse = $this->callServerAPI($service, $parameters);
-            $results = $this->setLastErrorFromResponse($enginesisResponse);
-            if ($results != null) {
-                $results = $results[0];
-            }
-            return $results;
         }
 
         /* @function userRegistrationValidation
