@@ -346,7 +346,7 @@
         $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
         $hackerToken = getPostVar("all-clear", '');
         $result = $enginesis->userForgotPassword($userName, $email);
-        if ($result) {
+        if ($result == null) { // no response is sent when it succeeds
             $errorMessage = '<p class="info-text">Email has been sent to the owner of this account. Please follow the instructions in that message to reset the account password.</p>';
             $inputFocusId = 'login_form_username';
         } else {
