@@ -105,8 +105,11 @@
                 $enginesisServiceRoot = $this->m_serviceProtocol . '://' . $enginesisServer . '/';
             }
             $this->m_serviceRoot = $enginesisServiceRoot;
-            $this->m_serviceEndPoint = $enginesisServiceRoot . '/index.php';
-            $this->m_avatarEndPoint = $enginesisServiceRoot . '/avatar.php';
+            if (substr($this->m_serviceRoot, -1) != '/') {
+                $this->m_serviceRoot .= '/';
+            }
+            $this->m_serviceEndPoint = $enginesisServiceRoot . 'index.php';
+            $this->m_avatarEndPoint = $enginesisServiceRoot . 'avatar.php';
             $this->restoreUserFromAuthToken(null);
         }
 
@@ -1087,7 +1090,7 @@
             if ($found == 0 || $found === false) {
                 $format = '.jpg';
             }
-            $path = $this->m_serviceEndPoint . '/games/' . $gameName . '/images/' . $width . 'x' . $height . $format;
+            $path = $this->m_serviceRoot . 'games/' . $gameName . '/images/' . $width . 'x' . $height . $format;
             return $path;
         }
 
