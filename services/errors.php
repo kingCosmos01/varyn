@@ -9,6 +9,7 @@
      */
 
     abstract class EnginesisErrors {
+        const NO_ERROR = '';
         const INVALID_PARAM = 'INVALID_PARAM';
         const INVALID_LOGIN = 'INVALID_LOGIN';
         const INVALID_USER_ID = 'INVALID_USER_ID';

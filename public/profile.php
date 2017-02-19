@@ -87,8 +87,21 @@
     } elseif ($isLoggedIn) {
         // if we have the Enginesis login cookie then we should also verify the user's login with any SSO is still valid.
         //
+        if ($enginesis->getTokenStatus() == EnginesisRefreshStatus::refreshed) {
+            echo("<h3>isloggedin and Refreshed and set new cookies</h3>");
+            $userInfo = $enginesis->getRefreshedUserInfo();
+            var_dump($userInfo);
+            setVarynUserCookie($userInfo, $enginesis->getServerName());
+        } else {
+            $userInfo = getVarynUserCookieObject();
+            if ($userInfo == null) {
+                $userInfo = $enginesis->sessionUserInfoGet();
+            }
+        }
+        if ($userInfo == null) {
+            echo("<h3>isloggedin cookies NOT set</h3>");
+        }
         $userInfoJSON = getVarynUserCookie();
-        $userInfo = getVarynUserCookieObject();
         $authToken = $userInfo->authtok;
         $userId = $userInfo->user_id;
         $networkId = $enginesis->getNetworkId();
@@ -434,7 +447,12 @@
             $password = '';
         }
         if ($isLoggedIn) {
-            $userInfo = getVarynUserCookieObject();
+            if ($userInfo == null) {
+                $userInfo = getVarynUserCookieObject();
+                if ($userInfo == null) {
+                    $userInfo = $enginesis->sessionUserInfoGet();
+                }
+            }
             $authToken = $userInfo->authtok;
             $userId = $userInfo->user_id;
             $userInfoJSON = getVarynUserCookie();
@@ -544,6 +562,9 @@
     if ($otherUserInfo == null && $isLoggedIn && ! $showRegistrationForm) {
         if (!isset($userInfo)) {
             $userInfo = getVarynUserCookieObject();
+            if ($userInfo == null) {
+                $userInfo = $enginesis->sessionUserInfoGet();
+            }
         }
         ?>
         <h2>Welcome <?php echo($userInfo->user_name); ?>!</h2>

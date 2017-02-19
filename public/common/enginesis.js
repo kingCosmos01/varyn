@@ -1260,6 +1260,20 @@
         return sendRequest("QuizSubmit", {game_id: quiz_id, results: results}, overRideCallBackFunction);
     };
 
+    /**
+     * When the user plays a question we record the event and the choice the user made. This helps us with question
+     * usage statistics and allows us to track question consumption so the return visits to this quiz can provide
+     * fresh questions for this user.
+     * @param quiz_id
+     * @param question_id
+     * @param choice_id
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.quizQuestionPlayed = function(quiz_id, question_id, choice_id, overRideCallBackFunction) {
+        return sendRequest("QuizQuestionPlayed", {game_id: quiz_id, question_id: question_id, choice_id: choice_id}, overRideCallBackFunction);
+    };
+
     enginesis.anonymousUserSetDateLastVisit = function() {
         if (enginesis.anonymousUser == null) {
             anonymousUserLoad();

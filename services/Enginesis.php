@@ -28,6 +28,14 @@
         const AOL = 12;
     }
 
+    abstract class EnginesisRefreshStatus {
+        const valid = 1;      // authentication token is valid.
+        const refreshed = 2;  // user had a valid refresh token and we used it to get a new authentication token.
+        const expired = 3;    // user had a valid token but it has expired.
+        const invalid = 4;    // had a token but we were not able to validate it.
+        const missing = 9;    // no token to validate, or possibly an invalid token.
+    }
+
     class Enginesis
     {
         private $m_server;
@@ -54,6 +62,8 @@
         private $m_authToken;
         private $m_authTokenWasValidated;
         private $m_refreshToken;
+        private $m_refreshedUserInfo;
+        private $m_tokenStatus;
 
         /**
          * @method constructor
@@ -64,7 +74,7 @@
         public function __construct ($siteId, $enginesisServer, $developerKey) {
             $this->m_server = $this->serverName();
             $this->m_stage = $this->serverStage($this->m_server);
-            $this->m_lastError = null;
+            $this->m_lastError = EnginesisErrors::NO_ERROR;
             $this->m_siteId = $siteId;
             $this->m_userId = 0;
             $this->m_userName = '';
@@ -83,6 +93,7 @@
             $this->m_authToken = null;
             $this->m_authTokenWasValidated = false;
             $this->m_refreshToken = null;
+            $this->m_tokenStatus = EnginesisRefreshStatus::missing;
             if (empty($enginesisServer)) {
                 // Caller doesn't know which stage, converse with the one that matches the stage we are on
                 $enginesisServiceRoot = $this->m_serviceProtocol . '://enginesis' . $this->m_stage . '.com/';
@@ -276,6 +287,21 @@
         }
 
         /**
+         * Return the token status so we can know if the constructor succeeded or failed to validate a authentication token.
+         * @return int EnginesisRefreshStatus
+         */
+        public function getTokenStatus() {
+            return $this->m_tokenStatus;
+        }
+
+        /**
+         * Return the user info object we discovered when we refreshed the session.
+         * @return object|null user info object if the session was refreshed.
+         */
+        public function getRefreshedUserInfo() {
+            return $this->m_refreshedUserInfo;
+        }
+        /**
          * @method serverName
          * @purpose: determine the full domain name of the server we are currently running on.
          * @return: {string} server host name only, e.g. www.enginesis.com.
@@ -337,6 +363,7 @@
         /**
          * @method serverStage
          * @purpose Parse the given host name to determine which stage we are currently running on.
+         * @param $hostName string - host name or domain name to parase. If null we try the current serverName().
          * @return string: server host name only, e.g. www.enginesis.com.
          */
         private function serverStage ($hostName = null) {
@@ -501,8 +528,10 @@
          * send a SessionBegin request to the Enginesis server and it will tell us this authtoken is
          * acceptable or not.
          * @param null $authToken
+         * @return EnginesisRefreshStatus a status code indicating the token situation
          */
         private function restoreUserFromAuthToken ($authToken = null) {
+            $status = EnginesisRefreshStatus::missing;
             $this->m_authTokenWasValidated = false;
             if (empty($authToken)) {
                 $authToken = $this->sessionGetAuthenticationToken();
@@ -524,28 +553,43 @@
                     $this->m_userAccessLevel = $sessionAccessLevel;
                     $this->m_authToken = $this->authTokenMake($sessionSiteId, $sessionUserId, $sessionUserName, $sessionSiteUserId, $sessionAccessLevel, $sessionNetworkId);
                     $this->m_authTokenWasValidated = true;
+                    $status = EnginesisRefreshStatus::valid;
                 } elseif ($errorCode == EnginesisErrors::TOKEN_EXPIRED) {
                     // if the auth token is expired we need to ask the server for a new one IF we have the refresh token
                     $refreshToken = $this->sessionGetRefreshToken();
                     if ( ! empty($refreshToken)) {
                         $userInfo = $this->sessionRefresh($refreshToken);
-//                        if ($userInfo == null) {
-//                            echo("<h3>restoreUserFromAuthToken FAILED and SessionRefresh FAILED with $errorCode</h3>");
-//                            exit(0);
-//                        } else {
-//                            echo("<h3>restoreUserFromAuthToken FAILED and SessionRefresh SUCCEEDED!</h3>");
-//                            exit(0);
-//                        }
-//                    } else {
-//                        echo("<h3>restoreUserFromAuthToken FAILED and NO SessionRefresh!</h3>");
-//                        exit(0);
+                        if ($userInfo == null) {
+                            $errorCode = $this->m_lastError;
+                            $status = EnginesisRefreshStatus::expired;
+                        } else {
+                            $status = EnginesisRefreshStatus::refreshed;
+                            $this->m_refreshedUserInfo = $userInfo;
+                        }
+                    } else {
+                        $status = EnginesisRefreshStatus::missing;
+                    }
+                } else {
+                    $status = EnginesisRefreshStatus::missing;
+                }
+            } else {
+                $refreshToken = $this->sessionGetRefreshToken();
+                if ( ! empty($refreshToken)) {
+                    $userInfo = $this->sessionRefresh($refreshToken);
+                    if ($userInfo == null) {
+                        $errorCode = $this->m_lastError;
+                        $status = EnginesisRefreshStatus::invalid;
+                    } else {
+                        $status = EnginesisRefreshStatus::refreshed;
+                        $this->m_refreshedUserInfo = $userInfo;
                     }
                 }
             }
+            $this->m_tokenStatus = $status;
             if ( ! $this->m_authTokenWasValidated) {
-                // TODO: should we clear the cookie and user info?
                 $this->sessionClear();
             }
+            return $status;
         }
 
         /**
@@ -600,13 +644,15 @@
         }
 
         /**
-         * Determine if a day stamp is currently valid. Day stamps expire after SESSION_DAYSTAMP_HOURS.
+         * Determine if a day stamp is currently valid. Day stamps expire after SESSION_DAYSTAMP_HOURS. A day stamp is
+         * valid if it is equal or ahead of (greater than) the current day stamp.
          * @param $dayStamp
          * @return bool
          */
         private function sessionIsValidDayStamp($dayStamp) {
             $day_stamp_current = $this->sessionDayStamp();
-            return ! ($dayStamp < ($day_stamp_current - (SESSION_DAYSTAMP_HOURS / 24)) || $dayStamp > $day_stamp_current);
+            $isValid = $day_stamp_current <= ($dayStamp + 1);
+            return $isValid;
         }
 
         /**
@@ -691,7 +737,7 @@
                 $this->m_isLoggedIn = true;
                 $_COOKIE[SESSION_COOKIE] = $authenticationToken;
                 $GLOBALS[SESSION_USERID_CACHE] = $user_id;
-                // $_POST['authtok'] = $authenticationToken; // not sure about this
+                $_POST['authtok'] = $authenticationToken; // TODO: not sure about this
             }
             return $rc;
         }
@@ -725,7 +771,7 @@
          * Restore the user info data from cookie
          * @return null|object
          */
-        private function sessionUserInfoGet () {
+        public function sessionUserInfoGet () {
             $userInfo = null;
             if (isset($_COOKIE[SESSION_USERINFO])) {
                 try {
@@ -741,6 +787,7 @@
          * In cases when the server replies with a new or updated user session then restore our
          * internal variables so we can continue conversing with the server.
          * @param $serverResponse
+         * @return object of user info.
          */
         private function sessionRestoreFromResponse($serverResponse) {
             $userInfo = $serverResponse->row;
@@ -1074,6 +1121,7 @@
         public function sessionRefresh ($refreshToken) {
             $service = 'SessionRefresh';
             $userInfo = null;
+            $this->m_lastError = EnginesisErrors::NO_ERROR;
             if (empty($refreshToken)) {
                 $refreshToken = $this->sessionGetRefreshToken();
                 if (empty($refreshToken)) {
