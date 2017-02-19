@@ -45,7 +45,8 @@
             $hackerToken = getPostVar('clearall', '');          // must match token when page loaded
             $hackerHoneyPot = getPostVar('emailaddress', ''); // must be empty
             $newPassword = getPostVar('newPassword', '');
-            $retypePassword = getPostVar('retypePassword', ''); // for now disable retype.
+            $retypePassword = getPostVar('retypePassword', ''); // for now disable retype. Lot's of UX research says its useless and frustrating.
+            $retypePassword = $newPassword;
         }
         $hashPassword = '';
         $language_code = $enginesis->getLanguageCode();

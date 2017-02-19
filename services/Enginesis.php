@@ -1564,7 +1564,12 @@
             $enginesisResponse = $this->callServerAPI($service, $userInfo);
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             if ($results != null) {
-                $results = $results[0];
+                var_dump($results);
+                if (is_array($results) && count($results) > 0) {
+                    $results = $results[0];
+                } else {
+                    $results = $results->row;
+                }
             }
             return $results;
         }
