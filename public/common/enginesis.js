@@ -637,16 +637,37 @@
 
     /**
      * Return the URL of the request game image.
-     * @param gameName {string} game folder on server where the game assets are stored. Most of the game queries
+     * @param parameters {object} Parameters object as we want to be flexible about what we will accept.
+     *    Parameters are:
+     *    gameName {string} game folder on server where the game assets are stored. Most of the game queries
      *    (GameGet, GameList, etc) return game_name and this is used as the game folder.
-     * @param width {int} optional width, use null to ignore. Server will choose common width.
-     * @param height {int} optional height, use null to ignore. Server will choose common height.
-     * @param format {string} optional image format, use null and server will choose. Otherwise {jpg|png|svg}
+     *    width {int} optional width, use null to ignore. Server will choose common width.
+     *    height {int} optional height, use null to ignore. Server will choose common height.
+     *    format {string} optional image format, use null and server will choose. Otherwise {jpg|png|svg}
      * @returns {string} a URL you can use to load the image.
      * TODO: this really needs to call a server-side service to perform this resolution as we need to use PHP to determine which files are available and the closest match.
      */
-    enginesis.getGameImageURL = function (gameName, width, height, format) {
-        var defaultImageFormat = '.jpg';
+    enginesis.getGameImageURL = function (parameters) {
+        var gameName = null,
+            width = 0,
+            height = 0,
+            format = null,
+            defaultImageFormat = '.jpg';
+
+        if (parameters !== undefined && parameters != null) {
+            if ( ! isEmpty(parameters.gameName)) {
+                gameName = parameters.gameName;
+            }
+            if ( ! isEmpty(parameters.format)) {
+                format = parameters.format;
+            }
+            if (parameters.width !== undefined) {
+                width = parameters.width;
+            }
+            if (parameters.height !== undefined) {
+                width = parameters.height;
+            }
+        }
         if (isEmpty(format)) {
             format = defaultImageFormat;
         } else {
