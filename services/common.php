@@ -63,6 +63,29 @@
     }
 
     /**
+     * Debug a variable by echoing information to the output stream.
+     * @param $variable
+     * @param null $message
+     */
+    function debugVar($variable, $message = null) {
+        if ( ! isset($message) || $message == null) {
+            $caller = debug_backtrace()[0];
+            $message = 'From ' . basename($caller['file']) . ':' . $caller['line'];
+        }
+        echo("<h3>$message</h3>");
+        var_dump($variable);
+    }
+
+    /**
+     * Convert a boolean value to a string.
+     * @param $variable
+     * @return string
+     */
+    function boolToString($variable) {
+        return $variable ? 'true' : 'false';
+    }
+
+    /**
      * Return a variable that was posted from a form, or in the REQUEST object (GET or COOKIES), or a default if not found.
      * This way POST is the primary concern but if not found will fallback to the other methods.
      * @param $varName

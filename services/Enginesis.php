@@ -1539,8 +1539,10 @@
             );
             $enginesisResponse = $this->callServerAPI($service, $userInfo);
             $results = $this->setLastErrorFromResponse($enginesisResponse);
-            if ($results != null) {
+            if ($results != null && is_array($results)) {
                 $results = $results[0];
+            } elseif ($results != null && isset($results->row)) {
+                $results = $results->row;
             }
             return $results;
         }
@@ -1567,7 +1569,6 @@
             $enginesisResponse = $this->callServerAPI($service, $userInfo);
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             if ($results != null) {
-                var_dump($results);
                 if (is_array($results) && count($results) > 0) {
                     $results = $results[0];
                 } else {
@@ -1590,6 +1591,15 @@
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             if ($results == null) {
                 debugLog('userForgotPassword failed: ' . $this->m_lastError['message'] . ' / ' . $this->m_lastError['extended_info']);
+            } else {
+                if (is_array($results) && count($results) > 0) {
+                    $results = $results[0];
+                }
+                if ($results != null && isset($results->row)) {
+                    $results = $results->row;
+                } elseif ($results != null && is_array($results) && count($results) > 0 && isset($result['row'])) {
+                    $results = $results['row'];
+                }
             }
             return $results;
         }

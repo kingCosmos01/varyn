@@ -17,7 +17,7 @@
         exit;
     }
     processTrackBack();
-    $showSubscribe = getPostOrRequestVar('s', '0');
+    $showSubscribe = 0;
     $user_id = getPostOrRequestVar('u', 0);
     $site_id = getPostOrRequestVar('s', 0);
     $newPasswordSet = false;
@@ -36,9 +36,20 @@
     }
     if ($isLoggedIn) {
         $userInfo = getVarynUserCookieObject();
-        $authToken = $userInfo->authtok;
-        $user_id = $userInfo->user_id; // only use the user_id that is logged in
-        $site_id = $userInfo->site_id;
+        if ($userInfo != null) {
+            $authToken = $userInfo->authtok;
+            $user_id = $userInfo->user_id; // only use the user_id that is logged in
+            $site_id = $userInfo->site_id;
+        } else {
+            $userInfo = $enginesis->sessionUserInfoGet();
+            if ($userInfo == null) {
+                $isLoggedIn = false;
+            } else {
+                $authToken = $userInfo->authtok;
+                $user_id = $userInfo->user_id; // only use the user_id that is logged in
+                $site_id = $userInfo->site_id;
+            }
+        }
     }
     if ($site_id > 0 && $user_id > 0 && strlen($token) > 0) {
         if ($action == 'resetpassword') {
@@ -61,7 +72,7 @@
             $hackerToken = makeInputFormHackerToken();
         } elseif ( ! $isValidRequest) {
             $redirectTo = '/profile.php';
-            // Should log this was most probably a hack attack
+            // TODO: Should log this was most probably a hack attack
         } elseif ($enginesis->isValidPassword($newPassword) && $newPassword == $retypePassword) {
             if ($enginesis->isLoggedInUser()) {
                 $serverResponse = $enginesis->registeredUserPasswordChange($newPassword, $token);
@@ -83,14 +94,12 @@
                 $hackerToken = makeInputFormHackerToken();
             } else {
                 $newPasswordSet = true;
-                $redirectTo = '/profile.php';
             }
         } else {
             $sql = '';
             $errorMessage = '<p class="errormsg">Invalid password. Your password must match and be between 4 and 20 characters without leading or trailing space.</p>';
         }
-    } else {
-        // not a valid request
+    } else { // not a valid request
         $redirectTo = '/profile.php';
     }
     if ( ! $debug && $redirectTo != '') {
@@ -219,7 +228,7 @@ include_once('../common/header.php');
     </div>
     <?php
     if ($debug == 1) {
-        echo("<div class=\"panel panel-info panel-padded\"><h3>Debug info:</h3><p>Page called with action $action; User id $user_id; site id: $site_id; token: $token; password $newPassword, $retypePassword;</p><p>redirect to $redirectTo</p><p>Honeypot: $hackerHoneyPot</p><p>Hacker token: $hackerToken; Current token: " . makeInputFormHackerToken() . "</p></div>");
+        echo("<div class=\"panel panel-info panel-padded\"><h3>Debug info:</h3><p>Is valid request? " . boolToString($isValidRequest) . "</p><p>Page called with action $action; User id $user_id; site id: $site_id; token: $token; password $newPassword, $retypePassword;</p><p>redirect to $redirectTo</p><p>Honeypot: $hackerHoneyPot</p><p>Hacker token: $hackerToken; Current token: " . makeInputFormHackerToken() . "</p></div>");
     }
     ?>
     <div class="panel panel-info panel-padded">

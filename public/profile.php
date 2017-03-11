@@ -86,11 +86,9 @@
         }
     } elseif ($isLoggedIn) {
         // if we have the Enginesis login cookie then we should also verify the user's login with any SSO is still valid.
-        //
         if ($enginesis->getTokenStatus() == EnginesisRefreshStatus::refreshed) {
-            echo("<h3>isloggedin and Refreshed and set new cookies</h3>");
             $userInfo = $enginesis->getRefreshedUserInfo();
-            var_dump($userInfo);
+//            debugVar($userInfo, 'isloggedin and Refreshed and set new cookies');
             setVarynUserCookie($userInfo, $enginesis->getServerName());
         } else {
             $userInfo = getVarynUserCookieObject();
@@ -98,9 +96,9 @@
                 $userInfo = $enginesis->sessionUserInfoGet();
             }
         }
-        if ($userInfo == null) {
-            echo("<h3>isloggedin cookies NOT set</h3>");
-        }
+//        if ($userInfo == null) {
+//            echo("<h3>isloggedin cookies NOT set</h3>");
+//        }
         $userInfoJSON = getVarynUserCookie();
         $authToken = $userInfo->authtok;
         $userId = $userInfo->user_id;
@@ -346,10 +344,15 @@
         $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
         $hackerToken = getPostVar("all-clear", '');
         $result = $enginesis->userForgotPassword($userName, $email);
-        if ($result == null) { // no response is sent when it succeeds
-            $errorMessage = '<p class="info-text">Email has been sent to the owner of this account. Please follow the instructions in that message to reset the account password.</p>';
-            $inputFocusId = 'login_form_username';
-        } else {
+        if ($result != null) {
+            if (isset($result->user_id) && $result->user_id > 0) {
+                $errorMessage = '<p class="info-text">Email has been sent to the owner of this account. Please follow the instructions in that message to reset the account password.</p>';
+                $inputFocusId = 'login_form_username';
+            } else {
+                $result = null;
+            }
+        }
+        if ($result == null) {
             $error = $enginesis->getLastError();
             $errorCode = $error['message'];
             if ($errorCode == 'SYSTEM_ERROR') {
