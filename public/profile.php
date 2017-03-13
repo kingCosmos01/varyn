@@ -413,9 +413,15 @@
         $redirectedStatusMessage = 'Your registration confirmation email has been resent. Please check your email.';
     } elseif ($action == 'logout') {
         $result = $enginesis->userLogout();
+        clearVarynUserCookie($enginesis->getServerName());
         $isLoggedIn = false;
+        $userInfo = null;
+        $userId = 0;
         $userName = '';
         $password = '';
+        $authToken = '';
+        $refreshToken = '';
+        $userInfoJSON = '';
     } elseif ($action == 'view') {
         $viewUserId = getPostOrRequestVar('id', '');
         if ($viewUserId == '') {

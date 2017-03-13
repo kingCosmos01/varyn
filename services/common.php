@@ -366,14 +366,15 @@
         setcookie(VARYN_SESSION_COOKIE, null, time() - 86400, '/', $domain);
     }
 
-    // "Global" PHP variables available to all scripts
+    // "Global" PHP variables available to all scripts. Use ROOTPATH when you need the full file path to the root of the website (not web path).
     if ( ! defined('ROOTPATH') ) {
         define('ROOTPATH', $_SERVER['DOCUMENT_ROOT']);
     }
-
     $page = '';
     $siteId = 106;
-    $userId = 0;
+    if ( ! isset($userId)) {
+        $userId = 0;
+    }
     $webServer = '';
     $enginesis = new Enginesis($siteId, null, $developerKey);
     $stage = $enginesis->getServerStage();

@@ -824,6 +824,7 @@
             $_COOKIE[SESSION_COOKIE] = null;
             $_COOKIE[SESSION_USERINFO] = null;
             $GLOBALS[SESSION_USERID_CACHE] = null;
+            $_POST['authtok'] = null;
             return $rc;
         }
 
@@ -1203,6 +1204,8 @@
         public function userLogout () {
             $enginesisResponse = $this->callServerAPI('UserLogout', array());
             $results = $this->setLastErrorFromResponse($enginesisResponse);
+            $this->m_refreshToken = null;
+            setcookie(REFRESH_COOKIE, null, time() - 86400, '/', $this->sessionCookieDomain());
             $this->sessionClear();
             return $results != null;
         }
