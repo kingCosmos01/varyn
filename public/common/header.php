@@ -115,7 +115,7 @@
                         </div>
                         <div class="form-group">
                             <label for="register-password">Password:</label>
-                            <input type="password" name="register-password" class="popup-form-input required password" id="register-password" placeholder="A secure password" autocomplete="current-password" autocorrect="off" required maxlength="20" tabindex="12"/><div id="optional-small-label" class="checkbox optional-small"><label for="ShowPassword" onclick="varynApp.onClickShowPassword();"><input type="checkbox" name="ShowPassword" id="register-showpassword" onclick="varynApp.onClickShowPassword();"> <span id="register-showpassword-text">Show</span> <span id="register-showpassword-icon" class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></label></div>
+                            <input type="password" name="register-password" class="popup-form-input required password" id="register-password" placeholder="A secure password" autocomplete="current-password" autocorrect="off" required maxlength="20" tabindex="12"/><div id="optional-small-label" class="checkbox optional-small"><label for="ShowPassword" onclick="varynApp.onClickShowPassword();"><input type="checkbox" name="ShowPassword" id="register-showpassword"> <span id="register-showpassword-text">Show</span> <span id="register-showpassword-icon" class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></label></div>
                         </div>
                         <div class="form-group">
                             <div class="validation-slider-area">
