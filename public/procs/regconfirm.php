@@ -25,23 +25,13 @@ if ($site_id > 0 && $user_id > 0 && $token != '') {
     $serverResponse = $enginesis->registeredUserConfirm($user_id, $token);
     if ($serverResponse == null) {
         $errorCode = $enginesis->getLastErrorCode();
-//        if ($errorCode == 'INVALID_SECONDARY_PASSWORD') {
-//            $errorMessage = "Your registration request is invalid or it has expired.";
-//        } elseif ($errorCode == 'PASSWORD_EXPIRED') {
-//            $errorMessage = "Your registration request has expired.";
-//        } else {
-//            $errorMessage = "There was a system error servicing this request (" . $enginesis->getLastErrorDescription() . ")";
-//        }
-//        $errorMessage = "<p class=\"error-text\">$errorMessage Please <a href=\"/profile.php\">begin the request again</a>.</p>";
     } else {
         $errorCode = 'SUCCESS';
-        // $errorMessage = 'Your registration has been confirmed! Welcome to Varyn. Now let\'s play some games!';
         setVarynUserCookie($serverResponse, $enginesis->getServerName());
         $errorCode .= '&u=' . $user_id . '&t=' . $token;
     }
 } else {
     $errorCode = 'INVALID_PARAM';
-    // $errorMessage = 'The information supplied to confirm your registration does not appear to be correct.';
 }
 header('Location: ' . $redirectTo . $errorCode);
 return;

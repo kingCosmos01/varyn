@@ -436,7 +436,15 @@
             $code = getPostOrRequestVar('code', '');
             if ($code == 'SUCCESS' || $code == '') {
                 $redirectedStatusMessage = 'Your registration has been confirmed! Welcome to Varyn. Now let\'s play some games!';
-            } elseif ($code != '') {
+                // TODO: Verify the cookie/token matches this user
+                // TODO: There should be a safeguard if a hacker comes with action+code but is really not the user we think he is spoofing
+                $userInfo = getVarynUserCookieObject();
+                $userInfoJSON = getVarynUserCookie();
+                $isLoggedIn = true;
+                $authToken = $userInfo->authtok;
+                $refreshToken = $userInfo->refreshToken;
+                $userId = $userInfo->user_id;
+            } else {
                 $user_user_id = getPostOrRequestVar('u', '');
                 $confirmation_token = getPostOrRequestVar('t', '');
                 $linkToResendToken = createResendConfirmEmailLink($code, $user_user_id, $userName, '', $confirmation_token);
