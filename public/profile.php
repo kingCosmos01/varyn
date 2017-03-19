@@ -260,6 +260,7 @@
                 } else {
                     $userRegistrationDataChanged = true; // TODO: set for when we want to optimize these updates and only save when something changed.
                     $userSecurityDataChanged = true;     // TODO: for now just save it.
+                    $regenerateToken = false;
                     if ($userRegistrationDataChanged) {
                         $userName = getPostVar("register_form_username", '');
                         $email = getPostVar("register_form_email", '');
@@ -291,6 +292,7 @@
                             $updateResult = $enginesis->registeredUserUpdate($parameters);
                             // TODO: Handle Error
                             // TODO: update $userInfo with the changed fields and save it
+                            // TODO: if username changed, refresh token
                         } else {
                             // TODO: handle invalid fields by showing UI
                             $showRegistrationForm = true;
@@ -336,7 +338,7 @@
         if ( ! $isLoggedIn) {
             $errorMessage = "<p class=\"error-text\">You must be logged in to use this feature.</p>";
         } else {
-
+            // TODO: Process security question
         }
     } elseif ($action == 'forgotpassword') {
         $userName = getPostVar("forgotpassword_username", '');
@@ -444,6 +446,7 @@
                 $authToken = $userInfo->authtok;
                 $refreshToken = $userInfo->refreshToken;
                 $userId = $userInfo->user_id;
+                $enginesis->userLoginRefresh();
             } else {
                 $user_user_id = getPostOrRequestVar('u', '');
                 $confirmation_token = getPostOrRequestVar('t', '');

@@ -1190,10 +1190,23 @@
             $scope = isset($parameters['scope']) ? $parameters['scope'] : '';
             $enginesisResponse = $this->callServerAPI('UserLoginCoreg', array('site_user_id' => $site_user_id, 'user_name' => $user_name, 'real_name' => $real_name, 'email_address' => $email_address, 'gender' => $gender, 'dob' => $dob, 'network_id' => $network_id, 'scope' => $scope));
             $results = $this->setLastErrorFromResponse($enginesisResponse);
-            if ($results != null && isset($results->row)) {
+            if ($results != null) {
                 $userInfo = $this->sessionRestoreFromResponse($results);
             }
             return $userInfo;
+        }
+
+        /**
+         * A keep-alive for the current logged in user. Will only refresh the user logged in table and user
+         * last-login if there is a user currently logged in.
+         * @return object
+         */
+        public function userLoginRefresh() {
+            $service = 'UserLoginRefresh';
+            $parameters = array();
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            return $results;
         }
 
         /* @function userLogout
