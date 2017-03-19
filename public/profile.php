@@ -620,7 +620,7 @@
                     </tr>
                     <tr>
                         <td><label>Last login</label></td>
-                        <td><?php echo($userInfo->last_login); ?></td>
+                        <td><?php echo(mySqlDateToHumanDate($userInfo->last_login)); ?></td>
                     </tr>
                 </table>
             </div>

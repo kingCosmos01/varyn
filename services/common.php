@@ -337,6 +337,20 @@
     }
 
     /**
+     * Given a MySQL date string return a human readable date string.
+     * @param $date
+     * @return bool|string
+     */
+    function mySqlDateToHumanDate($date) {
+        if ( ! empty($date)) {
+            $defaultUserDateFormat = 'D j-M Y g:i A';
+            return date($defaultUserDateFormat, strtotime($date));
+        } else {
+            return 'unknown';
+        }
+    }
+
+    /**
      * We cache the logged in user object locally so we have the user data at our disposal without going back to the server.
      * @param $userInfo
      * @param $domain
