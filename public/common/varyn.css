@@ -32,6 +32,14 @@
     font-style: normal;
 }
 
+.varyn-red {
+    color: #690606;
+}
+
+.varyn-red-background {
+    background-color: #690606;
+}
+
 body {
     padding-top: 72px;
     color: #1d1d1d;
@@ -208,7 +216,7 @@ input [type="radio"] {
     box-shadow: 0 0 5px 5px rgba(0,0,0,0.7);
     padding: 1px 8px 8px 8px;
     font-size: larger;
-    background-color: #690006;
+    background-color: #690606;
     color: #ffffff;
     z-index: 10001;
 }
