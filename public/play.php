@@ -38,11 +38,11 @@
         $gameId = $gameInfo->game_id;
         $gameName = $gameInfo->game_name;
         $title = $gameInfo->title;
-        $gameImg = 'http://enginesis.varyn.com/games/' . $gameName . '/images/600x450.png';
-        $gameImg2 = 'http://enginesis.varyn.com/games/' . $gameName . '/images/586x308.png';
-        $gameThumb = 'http://enginesis.varyn.com/games/' . $gameName . '/images/50x50.png';
-        $gameLink = 'http://www.varyn.com/play.php?gameid=' . $gameId;
-        $gameOGLink = 'http://www.varyn.com/play/' . $gameId;
+        $gameImg = '//enginesis.varyn.com/games/' . $gameName . '/images/600x450.png';
+        $gameImg2 = '//enginesis.varyn.com/games/' . $gameName . '/images/586x308.png';
+        $gameThumb = '//enginesis.varyn.com/games/' . $gameName . '/images/50x50.png';
+        $gameLink = '//www.varyn.com/play.php?gameid=' . $gameId;
+        $gameOGLink = '//www.varyn.com/play/' . $gameId;
         $gameDesc = $gameInfo->short_desc;
         $gameContainerHTML = setGameContainer($gameInfo, $enginesis->getServiceRoot(), $siteId, $gameId);
     } else {
@@ -65,10 +65,10 @@
                 if (strpos($gameInfo->game_link, '://') > 0) {
                     $gameLink = $gameInfo->game_link;
                 } else {
-                    $gameLink = $enginesisServer . '/games/' . $gameInfo->game_name . '/' . $gameInfo->game_link;
+                    $gameLink = $enginesisServer . 'games/' . $gameInfo->game_name . '/' . $gameInfo->game_link;
                 }
             } else {
-                $gameLink = $enginesisServer . '/games/play.php?site_id=' . $siteId . '&game_id=' . $gameId;
+                $gameLink = $enginesisServer . 'games/play.php?site_id=' . $siteId . '&game_id=' . $gameId;
             }
             $gameContainerHTML = '<iframe id="gameContainer-iframe" src="' . $gameLink . '" allowfullscreen scrolling="' . $allowScroll . '" width="' . $width . '" height="' . $height . '" border="0"></iframe>';
         }
@@ -144,7 +144,7 @@
                 if ($receivedGameInfo) {
                     $shareFacebook = '<li><a href="https://www.facebook.com/sharer/sharer.php?u=' . $gameOGLink . '" target="_blank" title="Share ' . $title . ' with your Facebook network"><div class="facebook-small"></div></a></li>';
                     $shareGoogle = '<li><a href="https://plus.google.com/share?url=' . $gameLink . '" target="_blank" title="Share ' . $title . ' with your Google Plus circles"><div class="gplus-small"></div></a></li>';
-                    $shareTwitter = '<li><a href="http://twitter.com/share?text=Play ' . $title . ' on varyn.com:&url=' . $gameLink . '&via=varyn" target="_blank" title="Share ' . $title . ' with your Twitter followers"><div class="twitter-small"></div></a></li>';
+                    $shareTwitter = '<li><a href="https://twitter.com/share?text=Play ' . $title . ' on varyn.com:&url=' . $gameLink . '&via=varyn" target="_blank" title="Share ' . $title . ' with your Twitter followers"><div class="twitter-small"></div></a></li>';
                     $shareEmail = '<li><a href="mailto:?subject=Check out ' . $title . ' on varyn.com&body=I played ' . $title . ' on varyn.com and thought you would like to check it out: ' . $gameLink . '" title="Share ' . $title . ' by email"><div class="email-small"></div></a></li>';
                     echo('<div class="social-game-info"><ul>' . $shareFacebook . $shareGoogle . $shareTwitter . $shareEmail . '</ul></div><h2>' . $title . '</h2><p>' . $gameInfo->long_desc . '</p>');
                 } else {
