@@ -860,7 +860,7 @@
      * @returns {string}
      */
     commonUtilities.MySQLDate = function (date) {
-        var mysqlDateString = '';
+        var mysqlDateString;
         if (date == undefined) {
             date = new Date();
         } else if (! (date instanceof Date)) {
@@ -869,6 +869,23 @@
         mysqlDateString = date.toISOString().slice(0, 10);
         return mysqlDateString;
     };
+    
+    /**
+     * Inserts a script element to the DOM on the indicated tag.
+     * @param src {string} The src attribute, usually a file reference or URL to a script to load.
+     * @param tagName {string} optional tag you want to insert this script to. Defaults to 'script'
+     */
+    function insertScriptElement(src, tagName) {
+        var script = document.createElement('script');
+
+        if (tagName === undefined || tagName == null || tagName == '') {
+            tagName = 'script';
+        }
+        script.src = src;
+        script.type = 'text/javascript';
+        script.async = true;
+        document.getElementsByTagName(tagName)[0].appendChild(script);
+    }
 
     /**
      * Validate an array of fields, such as user form inputs, by using a matching array of
