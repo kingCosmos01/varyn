@@ -869,7 +869,7 @@
         mysqlDateString = date.toISOString().slice(0, 10);
         return mysqlDateString;
     };
-    
+
     /**
      * Inserts a script element to the DOM on the indicated tag.
      * @param src {string} The src attribute, usually a file reference or URL to a script to load.
