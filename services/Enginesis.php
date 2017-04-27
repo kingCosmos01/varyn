@@ -11,7 +11,9 @@
     define('SESSION_USERINFO', 'engsession_user');
     define('SESSION_DAYSTAMP_HOURS', 48);
     define('SESSION_USERID_CACHE', 'engsession_uid');
-    define('ENGINESIS_VERSION', '2.3.32');
+    if ( ! defined('ENGINESIS_VERSION')) {
+        define('ENGINESIS_VERSION', '2.3.32');
+    }
 
     abstract class EnginesisNetworks {
         const Enginesis = 1;
