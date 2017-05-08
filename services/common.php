@@ -262,6 +262,20 @@
     }
 
     /**
+     * Given a MySQL date string return a human readable date string.
+     * @param $date
+     * @return bool|string
+     */
+    function mySqlDateToHumanDate($date) {
+        if ( ! empty($date)) {
+            $defaultUserDateFormat = 'D j-M Y g:i A';
+            return date($defaultUserDateFormat, strtotime($date));
+        } else {
+            return 'unknown';
+        }
+    }
+
+    /**
      * processTrackBack: process a possible track back request when a page loads.
      * @param e: the event we are tracking, such as "Clicked Logo". While these are arbitrary, we should try to use
      *     the same value for the same event across all pages. Where are these id's documented?
@@ -334,20 +348,6 @@
             '/\//'
         );
         return preg_replace($htmlEscapePattern, $htmlEscapeMap, $string);
-    }
-
-    /**
-     * Given a MySQL date string return a human readable date string.
-     * @param $date
-     * @return bool|string
-     */
-    function mySqlDateToHumanDate($date) {
-        if ( ! empty($date)) {
-            $defaultUserDateFormat = 'D j-M Y g:i A';
-            return date($defaultUserDateFormat, strtotime($date));
-        } else {
-            return 'unknown';
-        }
     }
 
     /**

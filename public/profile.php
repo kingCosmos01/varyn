@@ -151,7 +151,7 @@
         $tagline = '';
         $date12YearsAgo = strtotime('-12 year');
         $dateOfBirth = date('Y-m-d', $date12YearsAgo);
-        $gender = 'F';
+        $gender = 'N';
         $agreement = getPostVar("register-agreement", 0);
         $parameters = array(
             'user_name' => $userName,
@@ -189,7 +189,7 @@
         $location = getPostVar("register_form_location", '');
         $tagline = getPostVar("register_form_tagline", '');
         $dateOfBirth = getPostVar("register_form_dob", '');
-        $gender = getPostVar("register_form_gender", 'F');
+        $gender = getPostVar("register_form_gender", 'N');
         $agreement = getPostVar("register_form_agreement", 0);
         $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
         $hackerToken = getPostVar("all-clear", '');
@@ -268,7 +268,7 @@
                         $location = getPostVar("register_form_location", '');
                         $tagline = getPostVar("register_form_tagline", '');
                         $dateOfBirth = getPostVar("register_form_dob", '');
-                        $gender = getPostVar("register_form_gender", 'F');
+                        $gender = getPostVar("register_form_gender", 'N');
                         $cellphone = getPostVar("register_form_phone", '');
                         $aboutMe = getPostVar("register_form_aboutme", '');
                         $parameters = array(
@@ -580,11 +580,14 @@
         }
     }
     if ($otherUserInfo == null && $isLoggedIn && ! $showRegistrationForm) {
-        if (!isset($userInfo)) {
+        if ( ! isset($userInfo)) {
             $userInfo = getVarynUserCookieObject();
             if ($userInfo == null) {
                 $userInfo = $enginesis->sessionUserInfoGet();
             }
+        }
+        if (empty($userInfo->last_login)) {
+            $userInfo->last_login = date("Y-m-d H:i:s");
         }
         ?>
         <h2>Welcome <?php echo($userInfo->user_name); ?>!</h2>
@@ -716,7 +719,7 @@
         }
 ?>
                             <div class="form-group"><label for="register_form_fullname">Full name:</label><input type="text" name="register-fullname" class="popup-form-input fullname" id="register_form_fullname" placeholder="Your full name" autocomplete="name" autocorrect="off" maxlength="50" value="<?php echo($fullname);?>" autocomplete="on" autocorrect="off"/></div>
-                            <div class="form-group"><label for="register_form_gender">You are:</label><label><input type="radio" name="register_form_gender" value="M" <?php echo($gender == 'M' ? 'checked' : '');?>/>&nbsp;&nbsp;Male</label><label><input type="radio" name="register_form_gender" value="F" <?php echo($gender == 'F' ? 'checked' : '');?>/>&nbsp;&nbsp;Female</label></input></div>
+                            <div class="form-group"><label for="register_form_gender">You are:</label><label><input type="radio" name="register_form_gender" value="M" <?php echo($gender == 'M' ? 'checked' : '');?>/>&nbsp;&nbsp;Male</label><label><input type="radio" name="register_form_gender" value="F" <?php echo($gender == 'F' ? 'checked' : '');?>/>&nbsp;&nbsp;Female</label><label><input type="radio" name="register_form_gender" value="N" <?php echo($gender == 'N' ? 'checked' : '');?>/>&nbsp;&nbsp;Neutral</label></div>
                             <div class="form-group"><label for="register_form_dob">Date of birth:</label><input type="date" name="register_form_dob" class="popup-form-input required dob" id="register_form_dob" placeholder="Birthdate" autocomplete="bday" value="<?php echo($dateOfBirth);?>"/></div>
 <?php
         if ( ! $isLoggedIn) {

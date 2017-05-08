@@ -206,7 +206,7 @@
          * @return bool
          */
         public function isValidGender ($gender) {
-            $acceptableGenders = array('M', 'Male', 'F', 'Female', 'X', 'undefined');
+            $acceptableGenders = array('M', 'Male', 'F', 'Female', 'N', 'Neutral');
             return in_array($gender, $acceptableGenders);
         }
 

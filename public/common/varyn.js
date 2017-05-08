@@ -262,6 +262,41 @@ var varyn = function (parameters) {
         },
 
         /**
+         * Varyn.com standard date format is www dd-mmm yyyy hh:mm aa, for example Sun 18-Sep 2016 11:15 PM
+         * @param date
+         */
+        mySqlDateToHumanDate: function (date) {
+            var internalDate = new Date(date),
+                hours,
+                minutes;
+
+            if (internalDate == null) {
+                internalDate = new Date();
+            }
+            hours = internalDate.getHours() % 12;
+            if (hours < 1) {
+                hours = '12';
+            }
+            minutes = internalDate.getMinutes() % 12;
+            if (minutes < 10) {
+                minutes = '0' + minutes;
+            }
+            return internalDate.toDateString() + ' ' + hours + ':' + minutes + ' ' + (internalDate.getHours() > 11 ? 'PM' : 'AM');
+        },
+
+        /**
+         * Proper formatting of our numbers so they look nice.
+         * @param number
+         * @returns {string}
+         */
+        commaGroupNumber: function (number) {
+            if (typeof number !== 'Number') {
+                number = Number(number);
+            }
+            return number.toLocaleString();
+        },
+
+        /**
          * Return the current web page file name without extension.
          * @returns {string}
          */
