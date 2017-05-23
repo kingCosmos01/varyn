@@ -692,7 +692,7 @@
             $registrationOrUpdate = 'register';
 ?>
         <h2>Register</h2>
-        <p>Let's get you registered so you can login to see your profile, earn coins, appear on leader boards, and participate in contests and the community.</p>
+        <p>Let's get you registered so you can login to see your profile, earn coins, appear on leader boards, earn rewards, and participate in contests and our community. It's <i>free</i> and it's fun!</p>
 <?php
         }
 ?>

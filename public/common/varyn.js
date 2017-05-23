@@ -755,7 +755,10 @@ var varyn = function (parameters) {
          */
         facebookStatusChangeCallback: function (response) {
             if (response.status === 'connected') {
-                // Logged into your app and Facebook.
+                // Logged in to Facebook and authorized Varyn.
+                var facebookToken = response.authResponse.accessToken;
+                var expired = response.authResponse.expiredIn;
+                var facebookUserId = response.authResponse.userID;
                 FB.api('/me', function (response) {
                     // if we get here, the user has approved our app AND they are logged in.
                     // We need to check this state IF a user is not currently logged in, this would indicate they should be logged in
