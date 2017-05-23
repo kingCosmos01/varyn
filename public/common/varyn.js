@@ -107,6 +107,25 @@ var varyn = function (parameters) {
         },
 
         /**
+         * Send an event we want to track to our tracking backend. This function helps abstract what that
+         * backend is in case we want to use different ones or even multiple backends.
+         * Google hit types are: pageview, screenview, event, transaction, item, social, exception, and timing.
+         * @param category - string indicating the category for this event (e.g. 'login').
+         * @param eventId - string indicating the action taken for this event (e.g. 'failed').
+         * @param eventData - string indicating the data value for this event (e.g. 'userId').
+         */
+        trackEvent: function (category, eventId, eventData) {
+            if (typeof ga !== 'undefined' && ga !== null) {
+                ga('send', {
+                    hitType: 'event',
+                    eventCategory: category,
+                    eventAction: eventId,
+                    eventLabel: eventData
+                });
+            }
+        },
+
+        /**
          * Save the refresh token client-side. This means that the token is saved only on the device
          * the user successfully logs in in from. The app can use this token when the auth-token is
          * rejected due to TOKEN_EXPIRED error in order to ask for a new token.
@@ -254,7 +273,7 @@ var varyn = function (parameters) {
 
         /**
          * Determines if a date of birth appears to be a valid. For this site users must be 13 years of age.
-         * @param {string} Date of birth is a string date format from an input type=date control.
+         * @param {string} dob - Date of birth is a string date format from an input type=date control.
          * @returns {boolean}
          */
         isValidDateOfBirth: function (dob) {
@@ -333,7 +352,7 @@ var varyn = function (parameters) {
 
         /**
          * setElementSizeAndColor of DOM element
-         * @param DOM element
+         * @param elementDiv - object of the DOM element
          * @param requiredWidth
          * @param requiredHeight
          * @param bgcolor
@@ -446,6 +465,7 @@ var varyn = function (parameters) {
                 document.getElementById("subscribe-email").value = enginesisSession.anonymousUserGetSubscriberEmail();
                 // $('#modal-subscribe').modal('show');
                 this.setPopupMessage('modal-subscribe', '', null);
+                this.trackEvent('subscribe', 'prompt', currentPage);
             } else {
                 $('#modal-subscribe').modal('hide');
             }
@@ -460,6 +480,7 @@ var varyn = function (parameters) {
                 $('#modal-register').modal('show');
                 this.setPopupMessage('modal-register', '', null);
                 this.onChangeRegisterUserName(document.getElementById('register-username'), 'popup_user_name_unique');
+                this.trackEvent('register', 'prompt', currentPage);
             } else {
                 $('#modal-register').modal('hide');
             }
@@ -473,6 +494,7 @@ var varyn = function (parameters) {
             if (showFlag) {
                 $('#modal-login').modal('show');
                 this.setPopupMessage('modal-login', '', null);
+                this.trackEvent('login', 'prompt', currentPage);
             } else {
                 $('#modal-login').modal('hide');
             }
@@ -485,6 +507,7 @@ var varyn = function (parameters) {
             if (showFlag) {
                 $('#modal-forgot-password').modal('show');
                 this.setPopupMessage('modal-forgot-password', '', null);
+                this.trackEvent('forgotpassword', 'prompt', currentPage);
             } else {
                 $('#modal-forgot-password').modal('hide');
             }
@@ -559,6 +582,7 @@ var varyn = function (parameters) {
                 this.setPopupMessage("modal-subscribe", "Subscribing " + email + " with the service...", "popupMessageResponseOK");
                 enginesisSession.anonymousUserSetSubscriberEmail(email);
                 enginesisSession.newsletterAddressAssign(email, '', '', '2', null); // the newsletter category id for Varyn/General is 2
+                this.trackEvent('subscribe', 'submit', currentPage);
             } else {
                 errorField = "subscribe-email";
                 this.setPopupMessage("modal-subscribe", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
@@ -606,6 +630,7 @@ var varyn = function (parameters) {
             }
             if (errorField == "") {
                 document.getElementById("registration-form").submit();
+                this.trackEvent('register', 'submit', currentPage);
             }
             return errorField == ""; // return true to submit form
         },
@@ -635,6 +660,7 @@ var varyn = function (parameters) {
             }
             if (errorField == "") {
                 document.getElementById("login-form").submit();
+                this.trackEvent('login', 'submit', currentPage);
             }
             return errorField == ""; // return true to submit form
         },
@@ -665,6 +691,7 @@ var varyn = function (parameters) {
             }
             if (errorField == "") {
                 document.getElementById("forgot-password-form").submit();
+                this.trackEvent('forgotpassword', 'submit', currentPage);
             }
             return errorField == ""; // return true to submit form
         },
@@ -1167,5 +1194,5 @@ function getDocumentSize (container) {
         result.gameHeight = enginesisSession.gameHeight;
         result.gameAspectRatio = enginesisSession.gameAspectRatio;
     }
-    return result;
+    return result;  
 }
