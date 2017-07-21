@@ -872,6 +872,17 @@
     };
 
     /**
+     * Return the date it was years from today.
+     * @param years {int} number of years before today.
+     * @returns {Date}
+     */
+    commonUtilities.subtractYearsFromNow = function (years) {
+        var date = new Date();
+        date.setFullYear(date.getFullYear() - years);
+        return date;
+    };
+
+    /**
      * Inserts a script element to the DOM on the indicated tag.
      * @param src {string} The src attribute, usually a file reference or URL to a script to load.
      * @param tagName {string} optional tag you want to insert this script to. Defaults to 'script'
