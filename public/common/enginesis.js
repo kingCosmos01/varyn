@@ -29,7 +29,7 @@
     'use strict';
 
     var enginesis = {
-        VERSION: '2.3.32',
+        VERSION: '2.3.37',
         debugging: true,
         disabled: false, // use this flag to turn off communicating with the server
         errorLevel: 15,  // bitmask: 1=info, 2=warning, 4=error, 8=severe
@@ -55,6 +55,9 @@
         developerKey: null,
         loggedInUserId: 0,
         loggedInUserName: '',
+        loggedInUserFullName: '',
+        loggedInUserGender: 'U',
+        loggedInUserDOB: null,
         userAccessLevel: 0,
         siteUserId: '',
         networkId: 1,
@@ -68,7 +71,14 @@
         captchaId: '99999',
         captchaResponse: 'DEADMAN',
         anonymousUserKey: 'enginesisAnonymousUser',
-        anonymousUser: null
+        anonymousUser: null,
+
+        supportedNetworks: {
+            Enginesis: 1,
+            Facebook:  2,
+            Google:    7,
+            Twitter:  11
+        }
     };
 
     enginesis.init = function(parameters) {
@@ -98,6 +108,24 @@
      */
     function isEmpty (field) {
         return (typeof field === 'undefined') || field === null || (typeof field === 'string' && field === "") || (field instanceof Array && field.length == 0) || field === false || (typeof field === 'number' && (isNaN(field) || field === 0));
+    }
+
+    /**
+     * Verify we only deal with valid genders. Valie genders are M, F, and U.
+     * @param gender {string} any string.
+     * @returns {string|*} a single character, one of [M|F|U]
+     * TODO: Consider language code.
+     */
+    function validGender(gender) {
+        gender = gender.toUpperCase();
+        if (gender[0] == 'M') {
+            gender = 'M';
+        } else if (gender[0] == 'F') {
+            gender = 'F';
+        } else {
+            gender = 'U';
+        }
+        return gender;
     }
 
     /**
@@ -351,11 +379,11 @@
             if (userInfo != null && userInfo != '') {
                 userInfo = JSON.parse(userInfo);
                 if (userInfo != null) {
-                    enginesis.loggedInUserId = userInfo.user_id;
+                    enginesis.loggedInUserId = Math.floor(userInfo.user_id);
                     enginesis.loggedInUserName = userInfo.user_name;
-                    enginesis.userAccessLevel = userInfo.access_level;
+                    enginesis.userAccessLevel = Math.floor(userInfo.access_level);
                     enginesis.siteUserId = userInfo.site_user_id;
-                    enginesis.networkId = userInfo.network_id;
+                    enginesis.networkId = Math.floor(userInfo.network_id);
                 }
             }
         }
@@ -390,6 +418,13 @@
     }
 
     /**
+     * Remove a refresh token in local storage.
+     */
+    function _clearRefreshToken() {
+        removeObjectWithKey(enginesis.refreshTokenStorageKey);
+    }
+
+    /**
      * Internal logging function. All logging should call this function to abstract and control the interface.
      * @param message
      * @param level
@@ -416,6 +451,16 @@
     function saveObjectWithKey(key, object) {
         if (key != null && object != null) {
             window.localStorage[key] = JSON.stringify(object);
+        }
+    }
+
+    /**
+     * Delete a local storage key.
+     * @param key
+     */
+    function removeObjectWithKey(key) {
+        if (key != null) {
+            window.localStorage.removeItem(key);
         }
     }
 
@@ -494,10 +539,22 @@
 
     /**
      * Return an object of user information. If no user is logged in a valid object is still returned but with invalid user info.
-     * @returns {{isLoggedIn: boolean, userId: number, userName: string, siteUserId: string, networkId: number, accessLevel: number}}
+     * @returns {{isLoggedIn: boolean, userId: number, userName: string, fullName: string, siteUserId: string, networkId: number, accessLevel: number, gender: string, DOB: date, accessToken: string, tokenExpiration: date}}
      */
     enginesis.getLoggedInUserInfo = function () {
-        return {isLoggedIn: enginesis.loggedInUserId != 0, userId: enginesis.loggedInUserId, userName: enginesis.loggedInUserName, siteUserId: enginesis.siteUserId, networkId: enginesis.networkId, accessLevel: enginesis.userAccessLevel};
+        return {
+            isLoggedIn: enginesis.loggedInUserId != 0,
+            userId: enginesis.loggedInUserId,
+            userName: enginesis.loggedInUserName,
+            fullName: enginesis.loggedInUserFullName,
+            siteUserId: enginesis.siteUserId,
+            networkId: enginesis.networkId,
+            accessLevel: enginesis.userAccessLevel,
+            gender: enginesis.loggedInUserGender,
+            DOB: enginesis.loggedInUserDOB,
+            accessToken: enginesis.authToken,
+            tokenExpiration: enginesis.tokenExpirationDate
+        };
     };
 
     /**
@@ -525,6 +582,7 @@
      */
     enginesis.isValidPassword = function (password) {
         // TODO: reuse the regex we use on enginesis or varyn
+        // TODO: Passwords should be no fewer than 8 chars.
         return password.length > 4;
     };
 
@@ -542,6 +600,13 @@
      */
     enginesis.saveRefreshToken = function (refreshToken) {
         return _saveRefreshToken(refreshToken);
+    };
+
+    /**
+     * Remove the Enginesis refresh token.
+     */
+    enginesis.clearRefreshToken = function () {
+        _clearRefreshToken();
     };
 
     /**
@@ -633,6 +698,14 @@
      */
     enginesis.siteIdSet = function (newSiteId) {
         return enginesis.siteId = newSiteId;
+    };
+
+    /**
+     * Return the list of supported networks capable of SSO.
+     * @returns {enginesis.supportedNetworks|{Enginesis, Facebook, Google, Twitter}}
+     */
+    enginesis.supportedSSONetworks = function() {
+        return enginesis.supportedNetworks;
     };
 
     /**
@@ -1129,9 +1202,9 @@
         }, overRideCallBackFunction);
     };
 
-    enginesis.registeredUserGet = function (userId, siteUserId, overRideCallBackFunction) {
+    enginesis.registeredUserGet = function (userId, siteUserId, networkId, overRideCallBackFunction) {
         // Return public information about user given id
-        return sendRequest("RegisteredUserGet", {get_user_id: userId, site_user_id: siteUserId}, overRideCallBackFunction);
+        return sendRequest("RegisteredUserGet", {get_user_id: userId, site_user_id: siteUserId, network_id: networkId}, overRideCallBackFunction);
     };
 
     enginesis.siteListGames = function(firstItem, numItems, gameStatusId, overRideCallBackFunction) {
@@ -1186,8 +1259,8 @@
         }
         if (registrationParameters.gender === undefined || registrationParameters.gender.length == 0) {
             registrationParameters.gender = 'F';
-        } else if (registrationParameters.gender != 'M' && registrationParameters.gender != 'F') {
-            registrationParameters.gender = 'F';
+        } else if (registrationParameters.gender != 'M' && registrationParameters.gender != 'F' && registrationParameters.gender != 'U') {
+            registrationParameters.gender = 'U';
         }
         if (registrationParameters.emailAddress === undefined) {
             registrationParameters.emailAddress = '';
@@ -1293,6 +1366,66 @@
      */
     enginesis.quizQuestionPlayed = function(quiz_id, question_id, choice_id, overRideCallBackFunction) {
         return sendRequest("QuizQuestionPlayed", {game_id: quiz_id, question_id: question_id, choice_id: choice_id}, overRideCallBackFunction);
+    };
+
+    /**
+     * Get list of users favorite games. User must be logged in.
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.userFavoriteGamesList = function (overRideCallBackFunction) {
+        return sendRequest("UserFavoriteGamesList", {}, overRideCallBackFunction);
+    };
+
+    /**
+     * Assign a game-id to the list of user favorite games. User must be logged in.
+     * @param game_id
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.userFavoriteGamesAssign = function(game_id, overRideCallBackFunction) {
+        return sendRequest("UserFavoriteGamesAssign", {game_id: game_id}, overRideCallBackFunction);
+    };
+
+    /**
+     * Assign a list of game-ids to the list of user favorite games. User must be logged in. List is separated by commas.
+     * @param game_id_list
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.userFavoriteGamesAssignList = function(game_id_list, overRideCallBackFunction) {
+        return sendRequest("UserFavoriteGamesAssignList", {game_id_list: game_id_list, delimiter: ','}, overRideCallBackFunction);
+    };
+
+    /**
+     * Remove a game-id from the list of user favorite games. User must be logged in.
+     * @param game_id
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.userFavoriteGamesDelete = function(game_id, overRideCallBackFunction) {
+        return sendRequest("UserFavoriteGamesDelete", {game_id: game_id}, overRideCallBackFunction);
+    };
+
+    /**
+     * Remove a list of game-ids from the list of user favorite games. User must be logged in. List is separated by commas.
+     * @param game_id_list
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.userFavoriteGamesDeleteList = function(game_id_list, overRideCallBackFunction) {
+        return sendRequest("UserFavoriteGamesDeleteList", {game_id_list: game_id_list, delimiter: ','}, overRideCallBackFunction);
+    };
+
+    /**
+     * Change the order of a game in the list of user favorites.
+     * @param game_id
+     * @param sort_order
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.userFavoriteGamesMove = function(game_id, sort_order, overRideCallBackFunction) {
+        return sendRequest("UserFavoriteGamesMove", {game_id: game_id, sort_order: sort_order}, overRideCallBackFunction);
     };
 
     enginesis.anonymousUserSetDateLastVisit = function() {
