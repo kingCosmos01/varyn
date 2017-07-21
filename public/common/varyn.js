@@ -8,11 +8,10 @@ var varyn = function (parameters) {
 
     var siteConfiguration = {
             debug: true,
-            originWhiteList: ["www.enginesis.com", "games.enginesis.com", "metrics.enginesis.com", "www.enginesis-l.com", "games.enginesis-l.com", "metrics.enginesis-l.com", "www.enginesis-q.com", "games.enginesis-q.com", "metrics.enginesis-q.com"],
+            originWhiteList: ['www.enginesis.com', 'games.enginesis.com', 'metrics.enginesis.com', 'www.enginesis-l.com', 'games.enginesis-l.com', 'metrics.enginesis-l.com', 'www.enginesis-q.com', 'games.enginesis-q.com', 'metrics.enginesis-q.com'],
             enginesisSessionCookieName: 'engsession',
             varynLoginCookieName: 'varynsession',
             varynUserInfoCookieName: 'varynuser',
-            varynFacebookAppId: parameters.facebookAppId,
             developerKey: parameters.developerKey,
             siteId: parameters.siteId,
             gameId: parameters.gameId,
@@ -61,6 +60,32 @@ var varyn = function (parameters) {
         return null;
     }
 
+    /**
+     * If a prior user object was saved we can retrieve it.
+     * @returns {null|object}
+     */
+    function getSavedUserInfo () {
+        var userInfoJSON = commonUtilities.loadObjectWithKey(userInfoKey);
+        return typeof userInfoJSON === 'string' ? JSON.parse(userInfoJSON) : userInfoJSON;
+    }
+
+    /**
+     * Save the verified logged in user info.
+     * @param userInfo
+     * @returns {*}
+     */
+    function saveUserInfo (userInfo) {
+        return commonUtilities.saveObjectWithKey(userInfoKey, userInfo);
+    }
+
+    /**
+     * Remove the saved logged in user info.
+     * @returns {*}
+     */
+    function clearSavedUserInfo () {
+        return commonUtilities.removeObjectWithKey(userInfoKey);
+    }
+
     return {
 
         /**
@@ -78,24 +103,14 @@ var varyn = function (parameters) {
                     languageCode: this.parseLanguageCode(siteConfiguration.languageCode),
                     callBackFunction: this.enginesisCallBack.bind(this)
                },
+               isLogout = pageViewParameterObject.isLogout,
                pageViewTemplate = null;
 
             currentPage = this.getCurrentPage();
             pageViewParameters = pageViewParameterObject;
             // document.domain = siteConfiguration.serverHostDomain;
+            this.setKeyboardListeners();
             enginesisSession.init(enginesisParameters);
-            this.checkLoggedInSSO(getNetworkId());
-            if (enginesisSession.isUserLoggedIn()) {
-                if (pageViewParameters != null && pageViewParameters['userInfo'] !== undefined && pageViewParameters.userInfo != '') {
-                    siteConfiguration.userInfo = JSON.parse(pageViewParameters.userInfo); // when user logs in first time this is passed from PHP
-                    commonUtilities.saveObjectWithKey(userInfoKey, siteConfiguration.userInfo);
-                } else {
-                    siteConfiguration.userInfo = commonUtilities.loadObjectWithKey(userInfoKey); // when user already logged in this is saved locally
-                    if (siteConfiguration.userInfo == null) {
-                        // TODO: This is a critical error, we expect the userInfo object to be available if the user is logged in.
-                    }
-                }
-            }
             if (pageViewParameters != null && pageViewParameters.showSubscribe !== undefined && pageViewParameters.showSubscribe == '1') {
                 varynApp.showSubscribePopup();
             }
@@ -103,6 +118,10 @@ var varyn = function (parameters) {
                 pageViewTemplate = pageView(varynApp, siteConfiguration);
                 pageViewTemplate.pageLoaded(pageViewParameters);
             }
+            if (isLogout) {
+                this.logout();
+            }
+            this.checkIsUserLoggedIn();
             return pageViewTemplate;
         },
 
@@ -131,29 +150,9 @@ var varyn = function (parameters) {
          * rejected due to TOKEN_EXPIRED error in order to ask for a new token.
          * @param refreshToken
          */
-        saveRefreshToken: function(refreshToken) {
+        saveRefreshToken: function (refreshToken) {
             if (enginesisSession != null) {
                 enginesisSession.saveRefreshToken(refreshToken);
-            }
-        },
-
-        /**
-         * If we think we should be logged in on a certain network then verify that network also agrees
-         * @param networkId
-         */
-        checkLoggedInSSO: function (networkId) {
-            switch (networkId) {
-                case 2: // Facebook
-                    if (FB !== undefined) {
-                        FB.getLoginStatus(varynApp.facebookStatusChangeCallback);
-                    }
-                    break;
-                case 7: // Google
-                    break;
-                case 11: // Twitter
-                    break;
-                default:
-                    break;
             }
         },
 
@@ -212,6 +211,9 @@ var varyn = function (parameters) {
          */
         isChangedUserName: function (newUserName) {
             var userInfo = siteConfiguration.userInfo;
+            if (userInfo == null) {
+                userInfo = this.getVarynUserInfo();
+            }
             return ! (userInfo != null && userInfo.user_name == newUserName);
         },
 
@@ -284,7 +286,7 @@ var varyn = function (parameters) {
          * Varyn.com standard date format is www dd-mmm yyyy hh:mm aa, for example Sun 18-Sep 2016 11:15 PM
          * @param date
          */
-        mySqlDateToHumanDate: function (date) {
+        mysqlDateToHumanDate: function (date) {
             var internalDate = new Date(date),
                 hours,
                 minutes;
@@ -513,6 +515,12 @@ var varyn = function (parameters) {
             }
         },
 
+        /**
+         * Find the popup DOM element and set its internal text to the message and add a CSS class if one is provided.
+         * @param popupId {string} DOM id of the element holding the message area.
+         * @param message {string} the message to show.
+         * @param className {string} optional class to add to the popupId element.
+         */
         setPopupMessage: function (popupId, message, className) {
             var messageClass = 'modalMessageArea',
                 messageElement = $('#' + popupId).find('.' + messageClass);
@@ -723,6 +731,10 @@ var varyn = function (parameters) {
             return errorField == ""; // return true to submit form
         },
 
+        /**
+         * If the show password UI element is activated then toggle the state of the password input.
+         * @param element
+         */
         onClickShowPassword: function(element) {
             var showPasswordCheckbox = document.getElementById('register-showpassword'),
                 passwordInput = document.getElementById('register-password'),
@@ -763,6 +775,171 @@ var varyn = function (parameters) {
         },
 
         /**
+         * Read our cookie/local storage to see if we think we already have a logged in user.
+         * If we think we do, we still need to validate it.
+         * If we do not then we can iterate over all know SSO services to see if any one of them thinks we are logged in.
+         * This method is asynchronous and is required to end by calling either loginSSOSucceeded or loginSSOFailed.
+         */
+        checkIsUserLoggedIn: function() {
+            if (enginesisSession.isUserLoggedIn()) {
+                // if a user is logged in by any method we will have an Enginesis session to back it up.
+                this.checkLoggedInSSO(enginesis.networkId).then(this.loginSSOSucceeded, this.loginSSOFailed);
+            } else {
+                // if Enginesis has no session we could iterate each service to see if we have a logged in user, but
+                // for now we will just assume we don't and ask the user to login.
+                // this.checkLoggedInSSO(-1).then(this.loginSSOSucceeded, this.loginSSOFailed);
+                var supportedNetworks = enginesisSession.supportedSSONetworks(),
+                    supportedNetworksIdList = [],
+                    supportedNetworksIndex = 0;
+
+                // build a list of networks we are going to check. TODO: Could order this list based on preference.
+                for (var network in supportedNetworks) {
+                    if (supportedNetworks.hasOwnProperty(network) && network != 'Enginesis') {
+                        supportedNetworksIdList.push(supportedNetworks[network]);
+                        this.loadSupportedNetwork(supportedNetworks[network]);
+                    }
+                }
+                if (supportedNetworksIdList.length > 0) {
+                    // Decided not to do this as it's a lot of trouble waiting around for all these SDKs to check
+                    // if someone is logged in, and we should be caching that info in the Varyn and Enginesis SSO state.
+                    // this.checkIsUserLoggedInNetworkId(supportedNetworksIdList, supportedNetworksIndex);
+                } else {
+                    this.loginSSOFailed(null);
+                }
+            }
+        },
+
+        /**
+         * Clear any cached user info and forget this user.
+         */
+        logout: function () {
+            clearSavedUserInfo();
+            enginesis.clearRefreshToken();
+        },
+
+        /**
+         * Trigger the SDK load for the given network.
+         * @param networkId
+         */
+        loadSupportedNetwork: function(networkId) {
+            switch (networkId) {
+                case 1: // Enginesis is always loaded
+                    break;
+                case 2: // Facebook
+                    if (ssoFacebook) {
+                        ssoFacebook.load(null);
+                    }
+                    break;
+                case 7: // Google
+                    if (ssoGooglePlus) {
+                        ssoGooglePlus.load(null);
+                    }
+                    break;
+                case 11: // Twitter
+                    if (ssoTwitter) {
+                        ssoTwitter.load(null);
+                    }
+                    break;
+                default:
+                    break;
+            }
+        },
+
+        /**
+         * Check is a user is already logged in to a specified network.
+         * @param supportedNetworksIdList
+         * @param supportedNetworksIndex
+         */
+        checkIsUserLoggedInNetworkId: function(supportedNetworksIdList, supportedNetworksIndex) {
+            var that = this;
+            if (supportedNetworksIdList.length > supportedNetworksIndex) {
+                that.checkLoggedInSSO(supportedNetworksIdList[supportedNetworksIndex]).then(
+                    function(userInfo) {
+                        if (userInfo == null || userInfo instanceof Error) {
+                            supportedNetworksIndex ++;
+                            that.checkIsUserLoggedInNetworkId(supportedNetworksIdList, supportedNetworksIndex);
+                        } else {
+                            that.loginSSOSucceeded(userInfo);
+                        }
+                    },
+                    function() {
+                        supportedNetworksIndex ++;
+                        that.checkIsUserLoggedInNetworkId(supportedNetworksIdList, supportedNetworksIndex);
+                    }
+                );
+            } else {
+                that.loginSSOFailed(new Error('User is not logged in after checking ' + supportedNetworksIndex + ' networks.'));
+            }
+        },
+
+        loginSSOSucceeded: function (userInfo) {
+            // TODO: match up any changed user info from the service
+            if (pageViewParameters != null && pageViewParameters['userInfo'] !== undefined && pageViewParameters.userInfo != '') {
+                siteConfiguration.userInfo = JSON.parse(pageViewParameters.userInfo); // when user logs in first time this is passed from PHP
+                saveUserInfo(siteConfiguration.userInfo);
+            } else {
+                siteConfiguration.userInfo = getSavedUserInfo(); // when user already logged in this is saved locally
+                if (siteConfiguration.userInfo == null) {
+                    // TODO: This is a critical error, we expect the userInfo object to be available if the user is logged in.
+                }
+            }
+        },
+
+        loginSSOFailed: function (error) {
+            if (enginesisSession.isUserLoggedIn()) {
+                // TODO: This is a critical error, enginesis thought user was logged in but network service said no. Probably expired token. Could also be a hacker.
+            } else {
+                if (error) {
+                    if (error instanceof Error) {
+                        console.log('Error from varyn.loginSSOFailed: ' + error.message);
+                    } else if (typeof error === 'string') {
+                        console.log('Error from varyn.loginSSOFailed: ' + error);
+                    } else {
+                        console.log('Error from varyn.loginSSOFailed: ' + error.toString());
+                    }
+                }
+            }
+        },
+
+        /**
+         * If we think this user should be logged in on a certain network then verify that network also agrees.
+         * @param networkId
+         * @return {Promise} since this takes a network call to figure out.
+         */
+        checkLoggedInSSO: function (networkId) {
+            return new Promise(function(resolvePromise, rejectPromise) {
+                switch (networkId) {
+                    case 1:
+                        if (enginesisSession.isUserLoggedIn()) {
+                            resolvePromise(enginesis.getLoggedInUserInfo());
+                        } else {
+                            rejectPromise(null);
+                        }
+                        break;
+                    case 2: // Facebook
+                        if (ssoFacebook) {
+                            ssoFacebook.loadThenLogin(null).then(resolvePromise, rejectPromise);
+                        }
+                        break;
+                    case 7: // Google
+                        if (ssoGooglePlus) {
+                            ssoGooglePlus.loadThenLogin(null).then(resolvePromise, rejectPromise);
+                        }
+                        break;
+                    case 11: // Twitter
+                        if (ssoTwitter) {
+                            ssoTwitter.loadThenLogin(null).then(resolvePromise, rejectPromise);
+                        }
+                        break;
+                    default:
+                        // A network we do not handle
+                        rejectPromise(Error('Network ' + networkId + ' is not handled with SSO.'));
+                        break;
+                }
+            });
+        },
+
+        /**
          * Single sign-on login. In this case, the user id comes from a 3rd party network and we need to map that
          * to an existing Enginesis user_id.
          * @param {object} registrationParameters is a KV object. THe keys must match the Enginesis UserLoginCoreg API
@@ -775,44 +952,53 @@ var varyn = function (parameters) {
             }
         },
 
-        /**
-         * This callback supports Facebook's initialization and auto-login, when a page loads and Facebook SDK
-         * initializes we end up here to determine if we have a properly logged in user.
-         * @param response
-         */
-        facebookStatusChangeCallback: function (response) {
-            if (response.status === 'connected') {
-                // Logged in to Facebook and authorized Varyn.
-                var facebookToken = response.authResponse.accessToken;
-                var expired = response.authResponse.expiredIn;
-                var facebookUserId = response.authResponse.userID;
-                FB.api('/me', function (response) {
-                    // if we get here, the user has approved our app AND they are logged in.
-                    // We need to check this state IF a user is not currently logged in, this would indicate they should be logged in
-                    // automatically with Facebook
-                    unconfirmedNetworkId = 2;
-                    console.log('VARYNAPP Successful Facebook login for: ' + response.name + ' (' + response.id + ')');
-                    // this.loginSSO(); ???
-                });
-            }
-        },
-
-        /**
-         * Function provided to check the login state of the user on a given network.
-         * @param networkId
-         */
-        checkLoginStateSSO: function (networkId) {
+        ssoStatusCallback: function (networkId, callbackInfo) {
             switch (networkId) {
                 case 2: // Facebook
                     FB.getLoginStatus(varynApp.facebookStatusChangeCallback);
                     break;
                 case 7: // Google
+                    if (callbackInfo != null) {
+                        if (callbackInfo.isSignedIn.get()) {
+                            console.log('Gplus user is signed in');
+                        } else {
+                            console.log('Gplus user is NOT signed in');
+                        }
+                    }
                     break;
                 case 11: // Twitter
                     break;
                 default:
                     console.log("varynApp.checkLoginStateSSO unsupported network " + networkId);
                     break;
+            }
+        },
+
+        /**
+         * Setup any keyboard listeers the page should be looking out for.
+         */
+        setKeyboardListeners: function() {
+            document.addEventListener('keydown', this.keyboardListener.bind(this));
+        },
+
+        keyboardListener: function(event) {
+            if (event && event.key) {
+                if (event.key == '?') {
+                    this.setFocusToSearchInput();
+                    event.preventDefault();
+                }
+            }
+        },
+
+        /**
+         * Force focus to the search input and clear it.
+         */
+        setFocusToSearchInput: function() {
+            var searchElements = document.getElementsByName('q');
+            if (searchElements && searchElements.length > 0) {
+                searchElements = searchElements[0];
+                searchElements.focus();
+                searchElements.value = '';
             }
         },
 
@@ -1133,12 +1319,20 @@ var varyn = function (parameters) {
                         break;
 
                     case "UserLoginCoreg":
-                        var userInfo = results.result.row;
+                        var userInfo = null;
+                        if (results.result !== undefined) {
+                            if (results.result.row !== undefined) {
+                                userInfo = results.result.row;
+                            } else {
+                                userInfo = results.result;
+                            }
+                        }
                         if (userInfo) {
                             // TODO: User is now logged in, refresh the page and the page refresh should be able to pick up the logged in state.
                             document.location.href = "/profile.php?network_id=" + getNetworkId();
                         } else {
                             // TODO: User is not logged in, we should display an error message.
+                            varynApp.showInfoMessagePopup("Login", "There was a system issue while trying to login or register your account: " + errorMessage, 0);
                         }
                         break;
 

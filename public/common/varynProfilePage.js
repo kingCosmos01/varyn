@@ -83,26 +83,19 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
                     this.onPageLoadSetTabEvents();
                 }
             }
-            $('#profile_forgot_password').click(this.forgotPassword);
-            $('#facebook-connect-button').click(this.loginFacebook);
-            $('#gapi-signin-button').click(this.loginGoogle);
-            $('#twitter-signin-button').click(this.loginTwitter);
+            if (document.getElementById('profile_forgot_password')) {
+                document.getElementById('profile_forgot_password').addEventListener('click', this.forgotPassword.bind(this));
+            }
+            if (document.getElementById('facebook-connect-button')) {
+                document.getElementById('facebook-connect-button').addEventListener('click', this.loginFacebook.bind(this));
+            }
+            if (document.getElementById('twitter-signin-button')) {
+                document.getElementById('twitter-signin-button').addEventListener('click', this.loginTwitter.bind(this));
+            }
             this.setupUserNameChangeHandler();
             enginesisSession.gameListListGames(siteConfiguration.gameListIdTop, this.enginesisCallBack);
             this.onPageLoadSetFocus();
             window.onunload = this.updateCleanup.bind(this);
-
-            // Google+ login button support
-/*            gapi.signin2.render('g-signin2', {
-                'scope': 'https://www.googleapis.com/auth/plus.login',
-                'width': 200,
-                'height': 50,
-                'longtitle': true,
-                'theme': 'dark',
-                'onsuccess': this.onGapiSuccess,
-                'onfailure': this.onGapiFailure
-            });
-            */
         },
 
         setupUserNameChangeHandler: function () {
@@ -327,14 +320,6 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             varynApp.showRegistrationPopup(false);
         },
 
-        onGapiSuccess: function (googleUser) {
-
-        },
-
-        onGapiFailure: function (error) {
-
-        },
-
         /**
          * When you request a Facebook login (e.g. click the Login to Facebook button) we use Facebook's SDK to
          * determine if we have a logged in user. If the user is logged in we need to refresh the page so the
@@ -342,75 +327,29 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
          * @returns {boolean}
          */
         loginFacebook: function () {
-            FB.login(function(response) {
-                var registrationParameters = {};
-                if (response.authResponse) {
-                    FB.api('/me', 'get', {fields: 'id,name,email,gender'}, function(response) {
-                        registrationParameters.networkId = 2;
-                        registrationParameters.userName = '';
-                        registrationParameters.realName = response.name;
-                        registrationParameters.emailAddress = response.email;
-                        registrationParameters.siteUserId = response.id;
-                        registrationParameters.gender = response.gender.substring(0, 1) == 'm' ? 'M' : 'F';
-                        registrationParameters.dob = commonUtilities.MySQLDate();
-                        registrationParameters.scope = '';
-                        varynApp.registerSSO(registrationParameters, registrationParameters.networkId);
-                    });
-                } else {
-                    // TODO: I'm not sure what we do here, should we message the UI? "Login was not successful, do you want to try again?"
-                    console.log('User cancelled login or did not fully authorize.');
-                }
-            }, {scope: 'email', return_scopes: true});
+            ssoFacebook.login(varynApp.registerSSO);
             return false;
         },
 
         /**
-         * Using this function to fake a login-response from the network service only so we can test our code.
+         * When you request a Google login (e.g. click the Sign in with Google button) we use Google's SDK to
+         * determine if we have a logged in user. If the user is logged in we need to refresh the page so the
+         * Enginesis/PHP code can pick it up. If the user does not complete a login then do nothing.
          * @returns {boolean}
          */
-        loginFacebookFake: function () {
-            var response = {id: "726468316", name: "John Foster", email: "jfoster@acm.org", gender: "male"};
-            var registrationParameters = {};
-
-            registrationParameters.networkId = 2;
-            registrationParameters.userName = '';
-            registrationParameters.realName = response.name;
-            registrationParameters.emailAddress = response.email;
-            registrationParameters.siteUserId = response.id;
-            registrationParameters.gender = response.gender.substring(0, 1) == 'm' ? 'M' : 'F';
-            registrationParameters.dob = commonUtilities.MySQLDate();
-            registrationParameters.scope = 'email';
-            varynApp.registerSSO(registrationParameters, registrationParameters.networkId);
-            return false;
-        },
-
         loginGoogle: function () {
-            var registrationParameters = {};
-            registrationParameters.networkId = 7;
-            registrationParameters.userName = '';
-            registrationParameters.realName = 'Google User';
-            registrationParameters.emailAddress = 'Google email';
-            registrationParameters.siteUserId = 'Google user-id';
-            registrationParameters.gender = 'F';
-            registrationParameters.dob = commonUtilities.MySQLDate();
-            registrationParameters.scope = '';
-            alert('We are working on Google + login');
-            varynApp.registerSSO(registrationParameters, registrationParameters.networkId);
+            ssoGooglePlus.login(varynApp.registerSSO);
             return false;
         },
 
+        /**
+         * When you request a Twitter login (e.g. click the Login to Twitter button) we redirect to our
+         * oauth page and handle it with PHP. When the user returns a cookie should be available to pick up
+         * the Twitter access token.
+         * @returns {boolean}
+         */
         loginTwitter: function () {
-            var registrationParameters = {};
-            registrationParameters.networkId = 11;
-            registrationParameters.userName = '';
-            registrationParameters.realName = 'twitter User';
-            registrationParameters.emailAddress = 'twitter email';
-            registrationParameters.siteUserId = 'twitter user-id';
-            registrationParameters.gender = 'F';
-            registrationParameters.dob = commonUtilities.MySQLDate();
-            registrationParameters.scope = '';
-            alert('We are working on Twitter login');
-            varynApp.registerSSO(registrationParameters, registrationParameters.networkId);
+            ssoTwitter.login();
             return false;
         }
     }

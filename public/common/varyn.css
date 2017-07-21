@@ -587,16 +587,25 @@ footer {
     background-position: 10px, left;
     background-size: 24px 24px;
     padding-left: 40px;
+    height: 50px;
+}
+
+.btn-varyn:hover {
+    background-color: #af0006;
 }
 
 .btn-gapi-signin {
     background-color: #4285F4;
-    background-image: url(/images/google_button4.svg);
+    background-image: url(/images/btn_google_signin.png);
     background-repeat: no-repeat;
-    background-position: 10px, left;
-    background-size: 24px 24px;
     color: #ffffff;
-    padding-left: 40px;
+    padding: 0;
+    margin: 0;
+    height: 50px;
+}
+
+.btn-gapi-signin:hover {
+    background-color: #415cc0;
 }
 
 .btn-facebook {
@@ -607,6 +616,11 @@ footer {
     background-size: 22px 22px;
     color: #ffffff;
     padding-left: 40px;
+    height: 50px;
+}
+
+.btn-facebook:hover {
+    background-color: #428ed4;
 }
 
 .btn-twitter-signin {
@@ -618,6 +632,11 @@ footer {
     color: #141414;
     border-color: #c0c0c0;
     padding-left: 40px;
+    height: 50px;
+}
+
+.btn-twitter-signin:hover {
+    background-color: #afafaf;
 }
 
 .required-field {

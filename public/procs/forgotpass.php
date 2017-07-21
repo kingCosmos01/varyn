@@ -5,7 +5,7 @@
      * @Date: 1/11/16
      */
     require_once('../../services/common.php');
-    $debug = (int) strtolower(getPostOrRequestVar('debug', 0));
+    $debug = (int) getPostOrRequestVar('debug', 0);
     $page = 'forgotpass';
     $search = getPostOrRequestVar('q', null);
     if ($search != null) {

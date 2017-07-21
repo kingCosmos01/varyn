@@ -40,6 +40,7 @@
     $userInfoJSON = ''; // a JSON representation of the $userInfo object
     $authToken = '';
     $refreshToken = '';
+    $isLogout = 'false';
 
     // Related form variables
     $userName = '';
@@ -50,7 +51,7 @@
     $location = '';
     $tagline = '';
     $dateOfBirth = '';
-    $gender = '';
+    $gender = 'U';
     $cellphone = '';
     $securityQuestion = '';
     $securityAnswer = '';
@@ -151,7 +152,7 @@
         $tagline = '';
         $date12YearsAgo = strtotime('-12 year');
         $dateOfBirth = date('Y-m-d', $date12YearsAgo);
-        $gender = 'N';
+        $gender = 'U';
         $agreement = getPostVar("register-agreement", 0);
         $parameters = array(
             'user_name' => $userName,
@@ -189,7 +190,7 @@
         $location = getPostVar("register_form_location", '');
         $tagline = getPostVar("register_form_tagline", '');
         $dateOfBirth = getPostVar("register_form_dob", '');
-        $gender = getPostVar("register_form_gender", 'N');
+        $gender = getPostVar("register_form_gender", 'U');
         $agreement = getPostVar("register_form_agreement", 0);
         $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
         $hackerToken = getPostVar("all-clear", '');
@@ -268,7 +269,7 @@
                         $location = getPostVar("register_form_location", '');
                         $tagline = getPostVar("register_form_tagline", '');
                         $dateOfBirth = getPostVar("register_form_dob", '');
-                        $gender = getPostVar("register_form_gender", 'N');
+                        $gender = getPostVar("register_form_gender", 'U');
                         $cellphone = getPostVar("register_form_phone", '');
                         $aboutMe = getPostVar("register_form_aboutme", '');
                         $parameters = array(
@@ -299,6 +300,7 @@
                             $inputFocusId = 'register_form_email';
                             echo("<h4>registeredUserUpdate bad data:</h4>");
                             print_r($invalidFields);
+                            print_r($parameters);
                         }
                     }
                     if ($inputFocusId == '' && $userSecurityDataChanged) {
@@ -416,6 +418,7 @@
     } elseif ($action == 'logout') {
         $result = $enginesis->userLogout();
         clearVarynUserCookie($enginesis->getServerName());
+        $isLogout = 'true'; // to communicate to varyn.js
         $isLoggedIn = false;
         $userInfo = null;
         $userId = 0;
@@ -519,7 +522,7 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="description" content="Varyn makes games using technology that performs on the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between desktop, tablet, and smart-phone.">
     <meta name="author" content="Varyn">
-    <meta name="google-signin-client_id" content="AIzaSyD22xO1Z71JywxmKfovgRuqZUHRFhZ8i7A.apps.googleusercontent.com">
+    <meta name="google-signin-client_id" content="<?php echo($socialServiceKeys[7]['app_id']);?>">
     <link href="/common/bootstrap.min.css" rel="stylesheet">
     <link href="/common/carousel.css" rel="stylesheet">
     <link href="/common/varyn.css" rel="stylesheet">
@@ -719,7 +722,7 @@
         }
 ?>
                             <div class="form-group"><label for="register_form_fullname">Full name:</label><input type="text" name="register-fullname" class="popup-form-input fullname" id="register_form_fullname" placeholder="Your full name" autocomplete="name" autocorrect="off" maxlength="50" value="<?php echo($fullname);?>" autocomplete="on" autocorrect="off"/></div>
-                            <div class="form-group"><label for="register_form_gender">You are:</label><label><input type="radio" name="register_form_gender" value="M" <?php echo($gender == 'M' ? 'checked' : '');?>/>&nbsp;&nbsp;Male</label><label><input type="radio" name="register_form_gender" value="F" <?php echo($gender == 'F' ? 'checked' : '');?>/>&nbsp;&nbsp;Female</label><label><input type="radio" name="register_form_gender" value="N" <?php echo($gender == 'N' ? 'checked' : '');?>/>&nbsp;&nbsp;Neutral</label></div>
+                            <div class="form-group"><label for="register_form_gender">You are:</label><label><input type="radio" name="register_form_gender" value="M" <?php echo($gender == 'M' ? 'checked' : '');?>/>&nbsp;&nbsp;Male</label><label><input type="radio" name="register_form_gender" value="F" <?php echo($gender == 'F' ? 'checked' : '');?>/>&nbsp;&nbsp;Female</label><label><input type="radio" name="register_form_gender" value="U" <?php echo($gender == 'U' ? 'checked' : '');?>/>&nbsp;&nbsp;Undefined</label></div>
                             <div class="form-group"><label for="register_form_dob">Date of birth:</label><input type="date" name="register_form_dob" class="popup-form-input required dob" id="register_form_dob" placeholder="Birthdate" autocomplete="bday" value="<?php echo($dateOfBirth);?>"/></div>
 <?php
         if ( ! $isLoggedIn) {
@@ -788,7 +791,7 @@
                 <input type="button" class="btn btn-primary btn-varyn" id="profile_register_now" value="Sign up with Email" onclick="profilePage.showRegistrationPopup(true);" title="Sign up with your email address" /><br/>
                 <h4>Or</h4>
                 <input type="button" class="btn btn-primary btn-facebook" id="facebook-connect-button" value="Login with facebook" title="Login with your Facebook account" />
-                <input type="button" class="btn btn-primary btn-gapi-signin" id="gapi-signin-button" value="Sign in with Google" title="Sign in with your Google+ account" />
+                <input type="button" class="btn btn-primary btn-gapi-signin" id="gapi-signin-button" value="" title="Sign in with your Google+ account" />
                 <input type="button" class="btn btn-primary btn-twitter-signin" id="twitter-signin-button" value="Sign in with Twitter" title="Sign in with your Twitter account" />
             </div>
         </div>
@@ -836,10 +839,10 @@
         $refreshTokenJavaScript = "\n        varynApp.saveRefreshToken('$refreshToken');\n";
     }
  ?>
-<script type="text/javascript">
-
+<script>
     var varynApp,
-        profilePage;
+        profilePage,
+        debug = true;
 
     head.ready(function() {
         var siteConfiguration = {
@@ -850,21 +853,26 @@
                 languageCode: navigator.language || navigator.userLanguage,
                 developerKey: '<?php echo($developerKey);?>',
                 facebookAppId: '<?php echo($socialServiceKeys[2]['app_id']);?>',
-                authToken: '<?php echo($authToken);?>'
+                googleAppId: '<?php echo($socialServiceKeys[7]['app_id']);?>',
+                twitterAppId: '<?php echo($socialServiceKeys[11]['app_id']);?>',
+                authToken: '<?php echo($authToken);?>',
             },
             profilePageParameters = {
                 errorFieldId: '<?php echo($errorFieldId);?>',
                 inputFocusId: '<?php echo($inputFocusId);?>',
                 showSubscribe: '<?php echo($showSubscribe);?>',
-                userInfo: '<?php echo(addslashes($userInfoJSON));?>'
+                userInfo: '<?php echo(addslashes($userInfoJSON));?>',
+                isLogout: <?php echo($isLogout);?>
             };
         varynApp = varyn(siteConfiguration);
         profilePage = varynApp.initApp(varynProfilePage, profilePageParameters);<?php echo($refreshTokenJavaScript);?>
         varynApp.runUnitTests();
     });
-
-    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js", "/common/varynProfilePage.js");
-
+    if (debug) {
+        head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.min.js', '/common/ie10-viewport-bug-workaround.js', '//platform.twitter.com/widgets.js', 'https://apis.google.com/js/platform.js', '/common/enginesis.js', '/common/ShareHelper.js', '/common/commonUtilities.js', '/common/ssoFacebook.js', '/common/ssoGooglePlus.js', '/common/ssoTwitter.js', '/common/varyn.js', '/common/varynProfilePage.js');
+    } else {
+        head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.min.js', '/common/ie10-viewport-bug-workaround.js', '//platform.twitter.com/widgets.js', 'https://apis.google.com/js/platform.js', '/common/enginesis.js', '/common/ShareHelper.js', '/common/varyn.min.js');
+    }
 </script>
 </body>
 </html>

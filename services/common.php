@@ -19,8 +19,13 @@
     setErrorReporting(true);
     define('VARYN_VERSION', '2.1.3');
     define('LOGFILE_PREFIX', 'varyn_php_');
-    define('SERVER_DATA_PATH', '..' . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR);
     define('VARYN_SESSION_COOKIE', 'varynuser');
+    if (isset($_SERVER['DOCUMENT_ROOT']) && strlen($_SERVER['DOCUMENT_ROOT']) > 0) {
+        $varynServerRootPath = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . '../';
+    } else {
+        $varynServerRootPath = '..' . DIRECTORY_SEPARATOR;
+    }
+    define('SERVER_DATA_PATH', $varynServerRootPath . 'data' . DIRECTORY_SEPARATOR);
 
     /**
      * @description
@@ -116,9 +121,8 @@
         }
     }
 
-    function setDatabaseConnectionInfo ($serverStage) {
+    function getDatabaseConnectionInfo ($serverStage) {
         global $_DB_CONNECTIONS;
-        global $sqlDatabaseConnectionInfo;
 
         $dbConnectInfo = $_DB_CONNECTIONS[$serverStage];
         if ($dbConnectInfo != null) {
@@ -128,7 +132,10 @@
                 'user' => $dbConnectInfo['user'],
                 'password' => $dbConnectInfo['password'],
                 'db' => $dbConnectInfo['db']);
+        } else {
+            $sqlDatabaseConnectionInfo = null;
         }
+        return $sqlDatabaseConnectionInfo;
     }
 
     function setMailHostsTable ($serverStage) {
@@ -165,6 +172,11 @@
         return $hashStoredInDatabase == crypt($pass, $hashStoredInDatabase);
     }
 
+    /**
+     * Database functions to abstract access to MySQL over PDO. This should be considered to be moved
+     * into a separate class.
+     * @return null|PDO
+     */
     function dbConnect () {
         global $sqlDatabaseConnectionInfo;
 
@@ -230,6 +242,35 @@
     }
 
     /**
+     * Given a MySQL date string return a human readable date string.
+     * @param $date
+     * @return bool|string
+     */
+    function mysqlDateToHumanDate($date) {
+        if ( ! empty($date)) {
+            $defaultUserDateFormat = 'D j-M Y g:i A';
+            return date($defaultUserDateFormat, strtotime($date));
+        } else {
+            return 'unknown';
+        }
+    }
+
+    /**
+     * Convert php Date or a date string to MySQL date
+     * @param $phpDate
+     * @return bool|string
+     */
+    function dateToMysqlDate ($phpDate) {
+        if (is_null($phpDate)) {
+            return date('Y-m-d H:i:s', time()); // no date given, use now
+        } elseif (is_string($phpDate)) {
+            return date('Y-m-d H:i:s', strtotime($phpDate));
+        } else {
+            return date('Y-m-d H:i:s', $phpDate);
+        }
+    }
+
+    /**
      * @function: checkEmailAddress: process a possible track back request when a page loads.
      * @param {string} email address to validate
      * @return bool true if possibly valid
@@ -262,20 +303,6 @@
     }
 
     /**
-     * Given a MySQL date string return a human readable date string.
-     * @param $date
-     * @return bool|string
-     */
-    function mySqlDateToHumanDate($date) {
-        if ( ! empty($date)) {
-            $defaultUserDateFormat = 'D j-M Y g:i A';
-            return date($defaultUserDateFormat, strtotime($date));
-        } else {
-            return 'unknown';
-        }
-    }
-
-    /**
      * processTrackBack: process a possible track back request when a page loads.
      * @param e: the event we are tracking, such as "Clicked Logo". While these are arbitrary, we should try to use
      *     the same value for the same event across all pages. Where are these id's documented?
@@ -302,6 +329,67 @@
             }
             $enginesis->newsletterTrackingRecord($userId, $newsletterId, $event, '', $referrer);
         }
+    }
+
+    /**
+     * @method serverName
+     * @purpose: determine the full domain name of the server we are currently running on.
+     * @return: {string} server host name only, e.g. www.enginesis.com.
+     */
+    function serverName () {
+        if (strpos($_SERVER['HTTP_HOST'], ':' ) !== false) {
+            $host_name = isset($_SERVER['HTTP_X_FORWARDED_HOST'] ) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['HTTP_HOST'];
+            $server = substr($host_name, 0, strpos($host_name, ':' ) );
+        } else {
+            $server = isset($_SERVER['HTTP_X_FORWARDED_HOST'] ) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['HTTP_HOST'];
+        }
+        return $server;
+    }
+
+    /**
+     * Return the domain name and TLD only (remove server name, protocol, anything else) e.g. this function
+     * converts http://www.games.com into games.com or http://www.games-q.com into games-q.com
+     * @param null $serverName
+     * @return null|string
+     */
+    function serverTail ($serverName = null) {
+        if (strlen($serverName) == 0) {
+            $serverName = serverName();
+        }
+        if ($serverName != 'localhost') {
+            $urlParts = explode('.', $serverName);
+            $numParts = count($urlParts);
+            if ($numParts > 1) {
+                $tld = '.' . $urlParts[$numParts - 1];
+                $domain = $urlParts[$numParts - 2];
+            } else {
+                $domain = $urlParts[0];
+                $tld = '';
+            }
+            if (strpos($domain, '://') > 0) {
+                $domain = substr($domain, strpos($domain, '://') + 3);
+            }
+        }
+        $serverName = $domain . $tld;
+        return $serverName;
+    }
+
+    /**
+     * @method serverStage
+     * @purpose Parse the given host name to determine which stage we are currently running on. Return just
+     *   the -l, -d, -q, -x part, or '' for live.
+     * @param $hostName string - host name or domain name to parase. If null we try the current serverName().
+     * @return string: server host name only, e.g. www.enginesis.com.
+     */
+    function serverStage ($hostName = null) {
+        $targetPlatform = ''; // assume live until we prove otherwise
+        if (strlen($hostName) == 0) {
+            $hostName = serverName();
+        }
+        if (preg_match('/-[dlqx]\./i', $hostName, $matchedStage)) {
+            $targetPlatform = substr($matchedStage[0], 0, 2);
+        }
+        return $targetPlatform;
     }
 
     /**
@@ -356,10 +444,11 @@
      * @param $domain
      */
     function setVarynUserCookie ($userInfo, $domain) {
-        // $userInfo Object ( [user_id] => 10239 [site_id] => 106 [user_name] => Varyn [real_name] => Varyn [site_user_id] => [dob] => 2004-02-16 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-02-16 20:47:45 [date_updated] => [source_site_id] => 106 [last_login] => 2016-02-20 22:27:38 [login_count] => 34 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 1 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [access_level] => 10 [role_name] => [user_rank] => 10001 [session_id] => cecfe3b4b5dac00d464eff98ba5c75c3 [cr] => d2a1bae6ef968501b648ccf253451a1a [authtok] => Dk39dEasNBgO79Mp0gjXnvGYBEPP06d5Pd KmpdvCnVEehliQpl5eezAdVfc9t9xsE7RDp5i9rPDjj73TXxaW1XOrVjWHwZsnQ0q/GsHtWl4tDGgS/lTMA== )
+        // $userInfo Object ( [user_id] => 10239 [site_id] => 106 [user_name] => Varyn [real_name] => Varyn [site_user_id] => [network_id] => 1 [dob] => 2004-02-16 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-02-16 20:47:45 [date_updated] => [source_site_id] => 106 [last_login] => 2016-02-20 22:27:38 [login_count] => 34 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 1 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [access_level] => 10 [role_name] => [user_rank] => 10001 [session_id] => cecfe3b4b5dac00d464eff98ba5c75c3 [cr] => d2a1bae6ef968501b648ccf253451a1a [authtok] => Dk39dEasNBgO79Mp0gjXnvGYBEPP06d5Pd KmpdvCnVEehliQpl5eezAdVfc9t9xsE7RDp5i9rPDjj73TXxaW1XOrVjWHwZsnQ0q/GsHtWl4tDGgS/lTMA== )
         $userInfoJSON = json_encode($userInfo);
         $_COOKIE[VARYN_SESSION_COOKIE] = $userInfoJSON;
         setcookie(VARYN_SESSION_COOKIE, $userInfoJSON, time() + (SESSION_DAYSTAMP_HOURS * 60 * 60), '/', $domain);
+        debugLog('setVarynUserCookie ' . $userInfoJSON);
     }
 
     function getVarynUserCookie () {
@@ -394,7 +483,6 @@
     $stage = $enginesis->getServerStage();
     setErrorReporting($stage != ''); // turn on errors for all stages except LIVE TODO: Remove from above when we are going live.
     $isLoggedIn = $enginesis->isLoggedInUser();
-    $sqlDatabaseConnectionInfo = null;
-    setDatabaseConnectionInfo($stage);
+    $sqlDatabaseConnectionInfo = getDatabaseConnectionInfo($stage);
     setMailHostsTable($stage);
     processTrackBack();
