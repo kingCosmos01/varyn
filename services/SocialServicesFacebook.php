@@ -7,7 +7,7 @@
 
 require 'lib/vendor/facebook/autoload.php';
 
-define ('FACEBOOK_SESSION_KEY', 'eng_fb_session');
+define ('FACEBOOK_SESSION_KEY', 'engfbsession');
 
 
 class SocialServicesFacebook extends SocialServices
@@ -196,5 +196,19 @@ class SocialServicesFacebook extends SocialServices
     public function deleteApp () {
         // TODO:
         return false;
+    }
+
+    private function fakeUser() {
+        return (object) array(
+            'user_name' => 'FakeFbUser',
+            'full_name' => 'Fake Fb User',
+            'user_id' => 726468316,
+            'email_address' => 'info@varyn.com',
+            'network_id' => EnginesisNetworks::Facebook,
+            'site_user_id' => '726468316',
+            'dob' => null,
+            'gender' => 'U',
+            'avatarURL' => 'https://graph.facebook.com/726468316/picture?type=square&width=120&height=120'
+        );
     }
 }
