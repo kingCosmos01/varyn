@@ -5,15 +5,15 @@
      * Date: 2/13/16
      */
 
-    require_once('errors.php');
-    define('SESSION_COOKIE', 'engsession');
-    define('REFRESH_COOKIE', 'engrefreshtoken');
-    define('SESSION_USERINFO', 'engsession_user');
-    define('SESSION_DAYSTAMP_HOURS', 48);
-    define('SESSION_USERID_CACHE', 'engsession_uid');
-    if ( ! defined('ENGINESIS_VERSION')) {
-        define('ENGINESIS_VERSION', '2.3.32');
-    }
+if ( ! defined('ENGINESIS_VERSION')) {
+    define('ENGINESIS_VERSION', '2.3.37');
+}
+require_once('errors.php');
+define('SESSION_COOKIE', 'engsession');
+define('REFRESH_COOKIE', 'engrefreshtoken');
+define('SESSION_USERINFO', 'engsession_user');
+define('SESSION_DAYSTAMP_HOURS', 48);
+define('SESSION_USERID_CACHE', 'engsession_uid');
 
     abstract class EnginesisNetworks {
         const Enginesis = 1;
@@ -70,13 +70,16 @@
         /**
          * @method constructor
          * @purpose: Set up the Enginesis environment so it is able to easily make service requests with the server.
+         * @param $siteId {int} Site id to represent.
+         * @param $enginesisServer {string} which server you want to connect with. Leave empty to match current stage.
+         * @param $developerKey {string} Your developer key.
          * TODO: set m_debugFunction as a function to call whena debug statment is called
          * TODO: validate the developer key on site_id.
          */
         public function __construct ($siteId, $enginesisServer, $developerKey) {
             $this->m_server = $this->serverName();
             $this->m_stage = $this->serverStage($this->m_server);
-            $this->m_lastError = EnginesisErrors::NO_ERROR;
+            $this->m_lastError = Enginesis::noError();
             $this->m_siteId = $siteId;
             $this->m_userId = 0;
             $this->m_userName = '';
@@ -126,11 +129,21 @@
         private function reset () {
             $this->m_server = $this->serverName();
             $this->m_stage = $this->serverStage($this->m_server);
-            $this->m_lastError = null;
+            $this->m_lastError = Enginesis::noError();
             $this->m_userId = 0;
             $this->m_isLoggedIn = false;
             $this->m_syncId = 0;
             $this->m_serviceProtocol = $this->getServiceProtocol();
+        }
+
+        /**
+         * Helper method to convert an Enginesis server response to a result set or null if we cannot find the results.
+         * Sometimes the results are provided as an array of rows, sometimes it is one row, depending on API.
+         * @param $serverResponse
+         * @return null|array
+         */
+        private function resultsFromServerResponse($serverResponse) {
+            return ($serverResponse != null && isset($serverResponse[0])) ? $serverResponse[0] : null;
         }
 
         /**
@@ -206,7 +219,7 @@
          * @return bool
          */
         public function isValidGender ($gender) {
-            $acceptableGenders = array('M', 'Male', 'F', 'Female', 'N', 'Neutral');
+            $acceptableGenders = array('M', 'Male', 'F', 'Female', 'U', 'Undefined');
             return in_array($gender, $acceptableGenders);
         }
 
@@ -306,6 +319,7 @@
         public function getRefreshedUserInfo() {
             return $this->m_refreshedUserInfo;
         }
+
         /**
          * @method serverName
          * @purpose: determine the full domain name of the server we are currently running on.
@@ -314,7 +328,7 @@
         private function serverName () {
             if (strpos($_SERVER['HTTP_HOST'], ':' ) !== false) {
                 $host_name = isset($_SERVER['HTTP_X_FORWARDED_HOST'] ) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['HTTP_HOST'];
-                $server = substr($host_name, 0, strpos( $host_name, ':' ) );
+                $server = substr($host_name, 0, strpos($host_name, ':' ) );
             } else {
                 $server = isset($_SERVER['HTTP_X_FORWARDED_HOST'] ) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['HTTP_HOST'];
             }
@@ -377,14 +391,8 @@
             if (strlen($hostName) == 0) {
                 $hostName = $this->serverName();
             }
-            if (strpos($hostName, '-l.') >= 2) {
-                $targetPlatform = '-l';
-            } elseif (strpos($hostName, '-d.') >= 2) {
-                $targetPlatform = '-d';
-            } elseif (strpos($hostName, '-q.') >= 2) {
-                $targetPlatform = '-q';
-            } elseif (strpos($hostName, '-x.') >= 2) {
-                $targetPlatform = '-x';
+            if (preg_match('/-[dlqx]\./i', $hostName, $matchedStage)) {
+                $targetPlatform = substr($matchedStage[0], 0, 2);
             }
             return $targetPlatform;
         }
@@ -426,6 +434,14 @@
         }
 
         /**
+         * Help function to create  "no-error" error.
+         * @return object Returns a successful error code.
+         */
+        private static function noError () {
+            return array('success' => '1', 'message' => '', 'extended_info' => '');
+        }
+
+        /**
          * If the API call returned an error this function sets the lastError object. If there was no error then
          * lastError is null.
          * @param $enginesisResponse A response object from an Enginesis API call.
@@ -441,7 +457,7 @@
                 if ($results == null) {
                     $this->m_lastError = array('success' => $success, 'message' => $statusMessage, 'extended_info' => $extendedInfo);
                 } else {
-                    $this->m_lastError = null;
+                    $this->m_lastError = Enginesis::noError();
                 }
             }
             return $results;
@@ -456,7 +472,7 @@
         private function setLastError ($errorCode, $errorMessage) {
             $success = $errorCode == '';
             if ($success) {
-                $this->m_lastError = null;
+                $this->m_lastError = Enginesis::noError();
             } else {
                 $this->m_lastError = array('success' => $success, 'message' => $errorCode, 'extended_info' => $errorMessage);
             }
@@ -565,7 +581,7 @@
                     if ( ! empty($refreshToken)) {
                         $userInfo = $this->sessionRefresh($refreshToken);
                         if ($userInfo == null) {
-                            $errorCode = $this->m_lastError;
+                            $errorCode = $this->m_lastError['message'];
                             $status = EnginesisRefreshStatus::expired;
                         } else {
                             $status = EnginesisRefreshStatus::refreshed;
@@ -582,7 +598,7 @@
                 if ( ! empty($refreshToken)) {
                     $userInfo = $this->sessionRefresh($refreshToken);
                     if ($userInfo == null) {
-                        $errorCode = $this->m_lastError;
+                        $errorCode = $this->m_lastError['message'];
                         $status = EnginesisRefreshStatus::invalid;
                     } else {
                         $status = EnginesisRefreshStatus::refreshed;
@@ -816,6 +832,7 @@
             $this->m_userName = '';
             $this->m_userId = 0;
             $this->m_siteUserId = '';
+            $this->m_networkId = 1;
             $this->m_userAccessLevel = 0;
             $this->m_isLoggedIn = false;
             $rc = '';
@@ -1127,11 +1144,12 @@
         public function sessionRefresh ($refreshToken) {
             $service = 'SessionRefresh';
             $userInfo = null;
-            $this->m_lastError = EnginesisErrors::NO_ERROR;
+            $this->m_lastError = Enginesis::noError();
             if (empty($refreshToken)) {
                 $refreshToken = $this->sessionGetRefreshToken();
                 if (empty($refreshToken)) {
-                    $this->m_lastError = EnginesisErrors::INVALID_TOKEN;
+                    $errorCode = EnginesisErrors::INVALID_TOKEN;
+                    $this->setLastError($errorCode, errorToLocalString($errorCode));
                     return $userInfo;
                 }
             }
@@ -1163,10 +1181,17 @@
                 'user_name' => $userName,
                 'password' => $password
             );
+            if ( ! isset($saveSession)) {
+                $saveSession = true;
+            }
             $enginesisResponse = $this->callServerAPI($service, $parameters);
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             if ($results != null && isset($results->row)) {
                 $userInfo = $this->sessionRestoreFromResponse($results);
+            }
+            if ($saveSession) {
+                // TODO: Save session info in a cookie so that it is available on the next page load
+                // setcookie(REFRESH_COOKIE, null, time() - 86400, '/', $this->sessionCookieDomain());
             }
             return $userInfo;
         }
@@ -1187,7 +1212,7 @@
             $real_name = isset($parameters['real_name']) ? $parameters['real_name'] : '';
             $user_name = isset($parameters['user_name']) ? $parameters['user_name'] : '';
             $email_address = isset($parameters['email_address']) ? $parameters['email_address'] : '';
-            $gender = isset($parameters['gender']) ? $parameters['gender'] : 'F';
+            $gender = isset($parameters['gender']) ? $parameters['gender'] : 'U';
             $dob = isset($parameters['dob']) ? $parameters['dob'] : '';
             $scope = isset($parameters['scope']) ? $parameters['scope'] : '';
             $enginesisResponse = $this->callServerAPI('UserLoginCoreg', array('site_user_id' => $site_user_id, 'user_name' => $user_name, 'real_name' => $real_name, 'email_address' => $email_address, 'gender' => $gender, 'dob' => $dob, 'network_id' => $network_id, 'scope' => $scope));
@@ -1323,7 +1348,7 @@
                 'zipcode' => $this->arrayValueOrDefault($parameters, 'zipcode', ''),
                 'country_code' => $this->arrayValueOrDefault($parameters, 'country_code', 'US'),
                 'tagline' => $this->arrayValueOrDefault($parameters, 'tagline', ''),
-                'gender' => $this->arrayValueOrDefault($parameters, 'gender', 'F'),
+                'gender' => $this->arrayValueOrDefault($parameters, 'gender', 'U'),
                 'mobile_number' => $this->arrayValueOrDefault($parameters, 'mobile_number', ''),
                 'im_id' => $this->arrayValueOrDefault($parameters, 'im_id', ''),
                 'img_url' => $this->arrayValueOrDefault($parameters, 'img_url', ''),
@@ -1390,7 +1415,7 @@
                 'zipcode' => $this->arrayValueOrDefault($parameters, 'zipcode', ''),
                 'country_code' => $this->arrayValueOrDefault($parameters, 'country_code', 'US'),
                 'tagline' => $this->arrayValueOrDefault($parameters, 'tagline', ''),
-                'gender' => $this->arrayValueOrDefault($parameters, 'gender', 'F'),
+                'gender' => $this->arrayValueOrDefault($parameters, 'gender', 'U'),
                 'mobile_number' => $this->arrayValueOrDefault($parameters, 'mobile_number', ''),
                 'im_id' => $this->arrayValueOrDefault($parameters, 'im_id', ''),
                 'img_url' => $this->arrayValueOrDefault($parameters, 'img_url', ''),
@@ -1710,9 +1735,10 @@
          * then there could be more attributes that are intended to be visible only by that user (not public info).
          * @param int $userId optional user id to get info on.
          * @param string $siteUserId optional site user id to get info on.
+         * @param int $networkId network owning site user id.
          * @return object the attributes of the requested user, null if no such user or error.
          */
-        public function registeredUserGet ($userId = 0, $siteUserId = '') {
+        public function registeredUserGet ($userId = 0, $siteUserId = '', $networkId = 1) {
             $user = null;
             $parameters = array();
             if ($userId != 0) {
@@ -1723,6 +1749,7 @@
             }
             if ($siteUserId != '') {
                 $parameters['site_user_id'] = $siteUserId;
+                $parameters['network_id'] = $networkId;
             }
             $enginesisResponse = $this->callServerAPI('RegisteredUserGet', $parameters);
             $results = $this->setLastErrorFromResponse($enginesisResponse);
@@ -1738,9 +1765,10 @@
          * then there could be more attributes that are intended to be visible only by that user (not public info).
          * @param int $userId optional user id to get info on.
          * @param string $siteUserId optional site user id to get info on.
+         * @param int $networkId network owning site user id.
          * @return object the attributes of the requested user, null if no such user or error.
          */
-        public function registeredUserGetEx ($userId = 0, $siteUserId = '')
+        public function registeredUserGetEx ($userId = 0, $siteUserId = '', $networkId = 1)
         {
             $user = null;
             $parameters = array();
@@ -1752,6 +1780,7 @@
             }
             if ($siteUserId != '') {
                 $parameters['site_user_id'] = $siteUserId;
+                $parameters['network_id'] = $networkId;
             }
             $enginesisResponse = $this->callServerAPI('RegisteredUserGetEx', $parameters);
             $results = $this->setLastErrorFromResponse($enginesisResponse);
@@ -1950,5 +1979,66 @@
                 $response = null;
             }
             return $response;
+        }
+
+        public function userFavoriteGamesList() {
+            $service = 'UserFavoriteGamesList';
+            $parameters = array();
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            return $this->resultsFromServerResponse($results);
+        }
+
+        public function userFavoriteGamesAssign($gameId) {
+            $service = 'UserFavoriteGamesAssign';
+            $parameters = array(
+                'game_id' => $gameId
+            );
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            return $this->resultsFromServerResponse($results);
+        }
+
+        public function userFavoriteGamesAssignList($gameIdList) {
+            $service = 'UserFavoriteGamesAssignList';
+            $parameters = array(
+                'game_id_list' => $gameIdList,
+                'delimiter' => ','
+            );
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            return $this->resultsFromServerResponse($results);
+        }
+
+        public function userFavoriteGamesDelete($gameId) {
+            $service = 'UserFavoriteGamesDelete';
+            $parameters = array(
+                'game_id' => $gameId
+            );
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            return $this->resultsFromServerResponse($results);
+        }
+
+        public function userFavoriteGamesDeleteList($gameIdList) {
+            $service = 'UserFavoriteGamesDeleteList';
+            $parameters = array(
+                'game_id_list' => $gameIdList,
+                'delimiter' => ','
+            );
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            return $this->resultsFromServerResponse($results);
+        }
+
+        public function userFavoriteGamesMove($gameId, $sortOrder) {
+            $service = 'UserFavoriteGamesMove';
+            $parameters = array(
+                'game_id' => $gameId,
+                'sort_order' => $sortOrder
+            );
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            return $this->resultsFromServerResponse($results);
         }
     }
