@@ -175,7 +175,7 @@
       });
 
       if (debug) {
-          head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.min.js', '/common/ie10-viewport-bug-workaround.js', '//platform.twitter.com/widgets.js', 'https://apis.google.com/js/platform.js', '/common/enginesis.js', '/common/ShareHelper.js', '/common/commonUtilities.js', '/common/ssoFacebook.js', '/common/ssoGooglePlus.js', '/common/ssoTwitter.js', '/common/varyn.js', '/common/varynProfilePage.js');
+          head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.min.js', '/common/ie10-viewport-bug-workaround.js', '//platform.twitter.com/widgets.js', 'https://apis.google.com/js/platform.js', '/common/enginesis.js', '/common/ShareHelper.js', '/common/commonUtilities.js', '/common/ssoFacebook.js', '/common/ssoGooglePlus.js', '/common/ssoTwitter.js', '/common/varyn.js', '/common/varynIndexPage.js');
       } else {
           head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.min.js', '/common/ie10-viewport-bug-workaround.js', '//platform.twitter.com/widgets.js', 'https://apis.google.com/js/platform.js', '/common/enginesis.js', '/common/ShareHelper.js', '/common/varyn.min.js');
       }
