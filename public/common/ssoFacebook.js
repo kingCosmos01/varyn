@@ -304,10 +304,23 @@
         return false;
     };
 
+    /**
+     * Cause the user to fully logout from Facebook such that no cookies or local data persist.
+     * @param callBackWhenComplete
+     */
+    ssoFacebook.logout = function (callBackWhenComplete) {
+    };
 
-    /* ----------------------------------------------------------------------------------
-     * Setup for AMD, node, or standalone reference the commonUtilities object.
-     * ----------------------------------------------------------------------------------*/
+    /**
+     * Disconnect the user from Facebook which should invoke a full user delete.
+     * @param callBackWhenComplete
+     */
+    ssoFacebook.disconnect = function (callBackWhenComplete) {
+    };
+
+        /* ----------------------------------------------------------------------------------
+         * Setup for AMD, node, or standalone reference the commonUtilities object.
+         * ----------------------------------------------------------------------------------*/
 
     if (typeof define === 'function' && define.amd) {
         define(function () { return ssoFacebook; });

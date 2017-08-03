@@ -770,6 +770,7 @@ var varyn = function (parameters) {
         registerSSO: function (registrationParameters, networkId) {
             if (registrationParameters != undefined && registrationParameters != null) {
                 unconfirmedNetworkId = networkId;
+                this.trackEvent('login-complete', 'sso', this.networkIdToString(networkId));
                 enginesisSession.userLoginCoreg(registrationParameters, networkId, null);
             }
         },
@@ -818,24 +819,48 @@ var varyn = function (parameters) {
         },
 
         /**
+         * Convert a networkId integer into its representative string.
+         * @param networkId
+         * @returns {string|null}
+         */
+        networkIdToString: function(networkId) {
+            var result = null;
+            switch (networkId) {
+                case enginesis.supportedNetworks.Enginesis:
+                    result = 'Enginesis';
+                    break;
+                case enginesis.supportedNetworks.Facebook:
+                    result = 'Facebook';
+                    break;
+                case enginesis.supportedNetworks.Google:
+                    result = 'Google';
+                    break;
+                case enginesis.supportedNetworks.Twitter:
+                    result = 'Twitter';
+                    break;
+            }
+            return result;
+        },
+
+        /**
          * Trigger the SDK load for the given network.
          * @param networkId
          */
         loadSupportedNetwork: function(networkId) {
             switch (networkId) {
-                case 1: // Enginesis is always loaded
+                case enginesis.supportedNetworks.Enginesis: // Enginesis is always loaded
                     break;
-                case 2: // Facebook
+                case enginesis.supportedNetworks.Facebook:
                     if (ssoFacebook) {
                         ssoFacebook.load(null);
                     }
                     break;
-                case 7: // Google
+                case enginesis.supportedNetworks.Google:
                     if (ssoGooglePlus) {
                         ssoGooglePlus.load(null);
                     }
                     break;
-                case 11: // Twitter
+                case enginesis.supportedNetworks.Twitter:
                     if (ssoTwitter) {
                         ssoTwitter.load(null);
                     }
@@ -909,24 +934,24 @@ var varyn = function (parameters) {
         checkLoggedInSSO: function (networkId) {
             return new Promise(function(resolvePromise, rejectPromise) {
                 switch (networkId) {
-                    case 1:
+                    case enginesis.supportedNetworks.Enginesis:
                         if (enginesisSession.isUserLoggedIn()) {
                             resolvePromise(enginesis.getLoggedInUserInfo());
                         } else {
                             rejectPromise(null);
                         }
                         break;
-                    case 2: // Facebook
+                    case enginesis.supportedNetworks.Facebook:
                         if (ssoFacebook) {
                             ssoFacebook.loadThenLogin(null).then(resolvePromise, rejectPromise);
                         }
                         break;
-                    case 7: // Google
+                    case enginesis.supportedNetworks.Google:
                         if (ssoGooglePlus) {
                             ssoGooglePlus.loadThenLogin(null).then(resolvePromise, rejectPromise);
                         }
                         break;
-                    case 11: // Twitter
+                    case enginesis.supportedNetworks.Twitter:
                         if (ssoTwitter) {
                             ssoTwitter.loadThenLogin(null).then(resolvePromise, rejectPromise);
                         }
@@ -954,10 +979,10 @@ var varyn = function (parameters) {
 
         ssoStatusCallback: function (networkId, callbackInfo) {
             switch (networkId) {
-                case 2: // Facebook
+                case enginesis.supportedNetworks.Facebook:
                     FB.getLoginStatus(varynApp.facebookStatusChangeCallback);
                     break;
-                case 7: // Google
+                case enginesis.supportedNetworks.Google:
                     if (callbackInfo != null) {
                         if (callbackInfo.isSignedIn.get()) {
                             console.log('Gplus user is signed in');
@@ -966,7 +991,7 @@ var varyn = function (parameters) {
                         }
                     }
                     break;
-                case 11: // Twitter
+                case enginesis.supportedNetworks.Twitter:
                     break;
                 default:
                     console.log("varynApp.checkLoginStateSSO unsupported network " + networkId);
@@ -1362,6 +1387,7 @@ var varyn = function (parameters) {
             console.log('enginesisSession.getRefreshToken: ' + enginesisSession.getRefreshToken());
             console.log('enginesisSession.getGameImageURL: ' + enginesisSession.getGameImageURL('MatchMaster3000', 0, 0, null));
             console.log('enginesisSession.getDateNow: ' + enginesisSession.getDateNow());
+            console.log('varyn.networkIdToString: ' + varynApp.networkIdToString(11));
         }
     }
 };

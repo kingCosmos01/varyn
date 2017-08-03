@@ -1471,6 +1471,7 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
 
             $userInfo = array(
                 'site_user_id' => '',
+                'network_id' => 1,
             );
             $enginesisResponse = $this->callServerAPI($service, $userInfo);
             $results = $this->setLastErrorFromResponse($enginesisResponse);

@@ -6,25 +6,30 @@
  * forgot password.
  *
  * Valid actions are:
- *   login:
- *   logout:
- *   signup:
- *   popupregister:
- *   register:
- *   update:
- *   securityupdate:
- *   view:
+ *   login: login a user with name/password from a login form.
+ *   logout: logout a user who is currently logged in, clearing all cookies and local data.
+ *   signup: show the new user registration form.
+ *   popupregister: validate the quick sign-up registration form and create a new account or report errors.
+ *   register: validate the full registration form and create a new account or report errors.
+ *   update: change profile data for the current logged in user.
+ *   forgotpassword: A user submitted the Forgot Password form, initiate the forgot password flow.
+ *   resetpassword: The current logged in user requested a Password Reset, initiate the forgot password flow.
+ *   resendconfirm: A user needs the registration confirmation form resent (lost it or it expired.)
+ *   regconfirm: Handle a redirect from regconfirm.php so we can display the error message.
+ *   view: show the public profile of a specified user.
  */
     require_once('../services/common.php');
     require_once('../services/SocialServices.php');
+    require_once('../services/strings.php');
 
-    $debug = (int) strtolower(getPostOrRequestVar('debug', 0));
-    $page = 'profile';
     $search = getPostOrRequestVar('q', null);
     if ($search != null) {
         header('location:/allgames.php?q=' . $search);
         exit;
     }
+    $stringTable = new EnginesisStringTable($siteId, $languageCode);
+    $debug = (int) strtolower(getPostOrRequestVar('debug', 0));
+    $page = 'profile';
     processTrackBack();
     $showSubscribe = getPostOrRequestVar('s', '0');
 
@@ -71,7 +76,7 @@
                 if ($userInfo == null) {
                     $error = $enginesis->getLastError();
                     if ($error != null) {
-                        $errorMessage = '<p class="error-text">Your account could not be logged in at this time. ' . errorToLocalString($error['message']) . '</p>';
+                        $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::CANNOT_LOG_IN) . ' ' . errorToLocalString($error['message']) . '</p>';
                     }
                 } else {
                     $isLoggedIn = true;
@@ -110,10 +115,10 @@
 //        echo("<h3>No User is logged in</h3>");
     }
     $action = strtolower(getPostOrRequestVar('action', ''));
-    if ($action == 'login') {
+    if ($action == 'login') { // User issued a login request we expect user-name and password
         $userName = getPostVar('login_form_username');
         $password = getPostVar('login_form_password');
-        $rememberMe = getPostVar('rememberme');
+        $rememberMe = valueToBoolean(getPostVar('rememberme', false));
         $thisFieldMustBeEmpty = getPostVar('login_form_email', null);
         $hackerToken = getPostVar('all-clear', ''); // this field must contain the token
         if ($userName == '' && $password == '') {
@@ -125,9 +130,9 @@
             $error = $enginesis->getLastError();
             if ($error != null) {
                 $linkToResendToken = createResendConfirmEmailLink($error['message'], null, $userName, null, null);
-                $errorMessage = '<p class="error-text">Your account could not be logged in at this time. ' . errorToLocalString($error['message']) . ' ' . $linkToResendToken . '</p>';
+                $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::LOGIN_SYSTEM_FAILURE) . ' ' . errorToLocalString($error['message']) . ' ' . $linkToResendToken . '</p>';
             } else {
-                $errorMessage = '<p class="error-text">Your user name and password did not match.</p>';
+                $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::NAME_PASSWORD_MISMATCH) . '</p>';
             }
             $inputFocusId = 'login_form_username';
         } else {
@@ -138,10 +143,10 @@
             setVarynUserCookie($userInfo, $enginesis->getServerName());
             $userInfoJSON = getVarynUserCookie();
         }
-    } elseif ($action == 'signup') {
+    } elseif ($action == 'signup') { // user requested to sign up, show the registration form
         $showRegistrationForm = true;
         $inputFocusId = 'register_form_email';
-    } elseif ($action == 'popupregister') {
+    } elseif ($action == 'popupregister') { // user completed the short registration form
         $userName = getPostVar("register-username", '');
         $password = getPostVar("register-password", '');
         $email = getPostVar("register-email", '');
@@ -154,6 +159,7 @@
         $dateOfBirth = date('Y-m-d', $date12YearsAgo);
         $gender = 'U';
         $agreement = getPostVar("register-agreement", 0);
+        $rememberMe = valueToBoolean(getPostVar('rememberme', false));
         $parameters = array(
             'user_name' => $userName,
             'password' => $password,
@@ -170,11 +176,11 @@
             $userInfo = $enginesis->userRegistration($parameters);
             $error = $enginesis->getLastError();
             if ($error != null) {
-                $errorMessage = '<p class="error-text">Registration not accepted. ' . errorToLocalString($error['message']) . '</p>';
+                $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . errorToLocalString($error['message']) . '</p>';
                 $inputFocusId = 'register-email';
                 $showRegistrationForm = true;
             } else {
-                $errorMessage = '<p class="error-text">Your registration has been accepted, but to complete your registration you must accept the email confirmation. Please check your email and use the link provided to complete your registration.</p>';
+                $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ACCEPTED) . '</p>';
                 $inputFocusId = 'login_form_username';
             }
         } else {
@@ -182,7 +188,7 @@
             $inputFocusId = 'register-email';
         }
         $action = 'register';
-    } elseif ($action == 'register') {
+    } elseif ($action == 'register') { // user completed the full page registration form
         $userName = getPostVar("register_form_username", '');
         $password = getPostVar("register_form_password", '');
         $email = getPostVar("register_form_email", '');
@@ -194,6 +200,7 @@
         $agreement = getPostVar("register_form_agreement", 0);
         $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
         $hackerToken = getPostVar("all-clear", '');
+        $rememberMe = valueToBoolean(getPostVar('rememberme', false));
         $parameters = array(
             'user_name' => $userName,
             'password' => $password,
@@ -210,11 +217,11 @@
             $userInfo = $enginesis->userRegistration($parameters);
             $error = $enginesis->getLastError();
             if ($error != null) {
-                $errorMessage = '<p class="error-text">Registration not accepted. ' . errorToLocalString($error['message']) . '</p>';
+                $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . errorToLocalString($error['message']) . '</p>';
                 $inputFocusId = 'register_form_email';
                 $showRegistrationForm = true;
             } else {
-                $errorMessage = '<p class="error-text">Your registration has been accepted, but to complete your registration you must accept the email confirmation. Please check your email and use the link provided to complete your registration.</p>';
+                $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ACCEPTED) . '</p>';
                 $inputFocusId = 'login_form_username';
             }
         } else {
@@ -222,18 +229,19 @@
             $inputFocusId = 'register_form_email';
             $showRegistrationForm = true;
         }
-    } elseif ($action == 'update') {
+    } elseif ($action == 'update') { // user requested an update of their profile information
         if ( ! $isLoggedIn) {
-            $errorMessage = "<p class=\"error-text\">You must be logged in to use this feature.</p>";
+            $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::MUST_BE_LOGGED_IN) . '</p>';
         } else {
             $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
             $hackerToken = getPostVar("all-clear", '');
             if ($thisFieldMustBeEmpty == null && $hackerToken == '') {
+                // fill in the form with the users current information.
                 // Call Enginesis to get a fresh view of the user's data in case it was changed in some other process.
                 $userInfo = $enginesis->registeredUserGetEx($userId);
                 if ($userInfo == null) {
                     // TODO: Need to handle any errors
-                    $errorMessage = "<p class=\"error-text\">There was a system error retrieving your information. " . $enginesis->getLastErrorDescription() . "</p>";
+                    $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::SYSTEM_ERROR) . ' ' . $enginesis->getLastErrorDescription() . '</p>';
                 } else {
                     // [user_id] => 10241 [site_id] => 106 [user_name] => varyn2 [real_name] => varyn2 [site_user_id] => [dob] => 2004-04-10 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-04-10 20:07:55 [date_updated] => [source_site_id] => 106 [last_login] => 2016-04-16 14:09:27 [login_count] => 24 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 2 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [friend_count] => 0 [comment_count] => 0 [notification_count] => 0 ) ) [outparams] => Array ( ) [status] => stdClass Object ( [success] => 1 [message] => ) [passthru] => stdClass Object ( [fn] => RegisteredUserGetEx [site_id] => 106 [logged_in_user_id] => 10241 [get_user_id] => NULL [site_user_id] => NULL [language_code] => en [state_seq] => 1 ) ) ) stdClass Object ( [user_id] => 10241 [site_id] => 106 [user_name] => varyn2 [real_name] => varyn2 [site_user_id] => [dob] => 2004-04-10 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-04-10 20:07:55 [date_updated] => [source_site_id] => 106 [last_login] => 2016-04-16 14:09:27 [login_count] => 24 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 2 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [friend_count] => 0 [comment_count] => 0 [notification_count] => 0
                     $showRegistrationForm = true;
@@ -248,15 +256,23 @@
                     $dateOfBirth = $userInfo->dob;
                     $cellphone = $userInfo->mobile_number;
                     $gender = $userInfo->gender;
+                    $securityInfo = $enginesis->registeredUserSecurityGet();
+                    if ($securityInfo != null) {
+                        $securityQuestion = $securityInfo->security_question;
+                        $securityAnswer = $securityInfo->security_answer;
+                    } else {
+                        // TODO: error handle
+                        echo("<h4>registeredUserSecurityGet fails:</h4>");
+                        var_dump($enginesis->getLastError());
+                    }
                 }
             } else {
+                // User submitted update form. Validate the hacker stuff is ok
                 // TODO: determine if no changes made and only submit based on changes
                 // TODO: security fields updated?
-                // TODO: new password?
-
-                // Validate the hacker stuff is ok
                 if ( ! ($thisFieldMustBeEmpty == '' && validateInputFormHackerToken($hackerToken))) {
-                    $errorMessage = "<p class=\"error-text\">Registration info is incomplete, please check your entry.</p>";
+                    $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REG_INFO_INCOMPLETE, null) . '</p>';
+                    var_dump(array($thisFieldMustBeEmpty, $hackerToken, validateInputFormHackerToken($hackerToken)));
                     $inputFocusId = 'register_form_email';
                 } else {
                     $userRegistrationDataChanged = true; // TODO: set for when we want to optimize these updates and only save when something changed.
@@ -291,9 +307,43 @@
                         $invalidFields = $enginesis->userRegistrationValidation($userId, $parameters);
                         if ($invalidFields == null) {
                             $updateResult = $enginesis->registeredUserUpdate($parameters);
-                            // TODO: Handle Error
-                            // TODO: update $userInfo with the changed fields and save it
-                            // TODO: if username changed, refresh token
+                            echo("<h4>registeredUserUpdate response:</h4>");
+                            var_dump($updateResult); // this is {user_id: 9999} if successful
+                            if ($updateResult) {
+                                // TODO: Check for, handle Error
+                                // TODO: update $userInfo with the changed fields and save it
+                                // TODO: refresh tokens
+                                // TODO: Same effort as login, can we just reuse that same code?
+                                $refreshToken = $enginesis->sessionGetRefreshToken();
+                                if (empty($refreshToken)) {
+                                    // TODO: If there is no refresh token, we cannot refresh the local auth token. Maybe best to log user out and force a login.
+                                    echo("<h4>sessionGetRefreshToken no token?</h4>");
+                                    var_dump($refreshToken);
+                                } else {
+                                    $userInfo = $enginesis->sessionRefresh($refreshToken);
+                                    echo("<h4>sessionRefresh response:</h4>");
+                                    var_dump($refreshToken);
+                                    var_dump($userInfo);
+                                    // TODO: sessionRefresh result must be identical to userLogin result
+                                    // TODO: REMEMBER to also update Varyn JS local storage as well from JavaScript
+                                    if ($userInfo) {
+                                        $authToken = $userInfo->authtok;
+                                        $userId = $userInfo->user_id;
+                                        setVarynUserCookie($userInfo, $enginesis->getServerName());
+                                        $userInfoJSON = getVarynUserCookie();
+                                    } else {
+                                        // TODO: using the refresh token failed, either it expired or there is a system error.
+                                        echo("<h4>sessionRefresh error with service:</h4>");
+                                        $lastError = $enginesis->getLastError();
+                                        var_dump($lastError);
+                                    }
+                                }
+                            } else {
+                                echo("<h4>registeredUserUpdate error with service:</h4>");
+                                $lastError = $enginesis->getLastError();
+                                print_r($parameters);
+                                var_dump($lastError);
+                            }
                         } else {
                             // TODO: handle invalid fields by showing UI
                             $showRegistrationForm = true;
@@ -307,11 +357,12 @@
                         $securityQuestionId = 1;
                         $securityQuestion = getPostVar("register_form_question", '');
                         $securityAnswer = getPostVar("register_form_answer", '');
-                        $cellphone = getPostVar("register_form_phone", '');
-                        if (strlen($securityQuestion) > 3 and strlen($securityAnswer) > 2) {
+                        if (isValidSecurityQuestion($securityQuestion, $securityAnswer)) {
                             $invalidFields = $enginesis->registeredUserSecurityValidation($userId, $cellphone, $securityQuestionId, $securityQuestion, $securityAnswer);
                             if ($invalidFields == null) {
                                 $updateResult = $enginesis->registeredUserSecurityUpdate($cellphone, $securityQuestionId, $securityQuestion, $securityAnswer);
+                                echo("<h4>registeredUserSecurityUpdate response:</h4>");
+                                var_dump($updateResult);
                                 // TODO: Handle Error
                                 // TODO: update $userInfo with the changed fields and save it
                             } else {
@@ -321,9 +372,12 @@
                                 echo("<h4>registeredUserSecurityUpdate failed:</h4>");
                                 print_r($invalidFields);
                             }
+                        } else {
+
                         }
                     }
                     if ($inputFocusId == '') {
+                        $errorMessage = '<p class="success-text">' . $stringTable->lookup(EnginesisUIStrings::REG_INFO_UPDATED, null) . '</p>';
                         // TODO: if the password changed then start the reset password process.
                         $newPassword = getPostVar("register_form_new_password", '');
                         if ($newPassword != '') {
@@ -335,14 +389,7 @@
                 }
             }
         }
-    } elseif ($action == 'securityupdate') {
-        // TODO: security update form: password, security question. User must be logged in.
-        if ( ! $isLoggedIn) {
-            $errorMessage = "<p class=\"error-text\">You must be logged in to use this feature.</p>";
-        } else {
-            // TODO: Process security question
-        }
-    } elseif ($action == 'forgotpassword') {
+    } elseif ($action == 'forgotpassword') { // user completed the Forgot Password form, initiate a forgot password flow.
         $userName = getPostVar("forgotpassword_username", '');
         $email = getPostVar("forgotpassword_email", '');
         $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
@@ -379,7 +426,7 @@
             }
             $inputFocusId = 'profile_forgot_password';
         }
-    } elseif ($action == 'resetpassword') {
+    } elseif ($action == 'resetpassword') { // user requested a Password Reset, initiate a forgot password flow.
         $result = $enginesis->userResetPassword();
         if ($result) {
             $errorMessage = '<p class="info-text">Email has been sent with instructions to complete your account password reset.</p>';
@@ -406,7 +453,7 @@
             }
             $inputFocusId = 'profile_forgot_password';
         }
-    } elseif ($action == 'resendconfirm') {
+    } elseif ($action == 'resendconfirm') { // User did not confirm registration or it expired, issue a new registration confirmation request.
         $userName = getPostOrRequestVar('u');
         // TODO: 1. verify user-name is in waiting for confirm state. 2. call RegisteredUserResetSecondaryPassword
         $_user_id = getPostOrRequestVar('u', 0);
@@ -415,7 +462,7 @@
         $_token = getPostOrRequestVar('t', '');
         $result = $enginesis->RegisteredUserResetSecondaryPassword($userName, $email);
         $redirectedStatusMessage = 'Your registration confirmation email has been resent. Please check your email.';
-    } elseif ($action == 'logout') {
+    } elseif ($action == 'logout') { // User requested Logout.
         $result = $enginesis->userLogout();
         clearVarynUserCookie($enginesis->getServerName());
         $isLogout = 'true'; // to communicate to varyn.js
@@ -427,7 +474,7 @@
         $authToken = '';
         $refreshToken = '';
         $userInfoJSON = '';
-    } elseif ($action == 'view') {
+    } elseif ($action == 'view') { // Request to View the profile of a specified user.
         $viewUserId = getPostOrRequestVar('id', '');
         if ($viewUserId == '') {
             $viewUserId = getPostOrRequestVar('user', '');
@@ -435,6 +482,12 @@
         if ($viewUserId != '') {
             $otherUserInfo = $enginesis->userGet($viewUserId);
         }
+    } elseif ($action == 'test') { // Run some tests
+        $debug = 1;
+        $testInfo = array();
+        $testInfo[] = 'add items to this array to display test results';
+        $testInfo[] = $stringTable->lookup(EnginesisUIStrings::MISSING_STRING, array('key' => 'user_id'));
+        $testInfo[] = $stringTable->lookup(EnginesisUIStrings::REG_INFO_UPDATED, array('key' => 'user_id'));
     } else {
         if ($action == 'regconfirm') {
             // redirect from regconfirm.php so we can display the error message
@@ -501,6 +554,11 @@
         } else {
             return '';
         }
+    }
+
+    function isValidSecurityQuestion($securityQuestion, $securityAnswer) {
+        $isValid = strlen(trim($securityQuestion)) > 3 && strlen(trim($securityAnswer)) > 2;
+        return $isValid;
     }
  ?>
 <!DOCTYPE html>
@@ -580,6 +638,10 @@
         if ($otherUserInfo != null) {
             echo("<h4>View user:</h4>");
             print_r($otherUserInfo);
+        }
+        if (isset($testInfo)) {
+            echo("<h4>Test info:</h4>");
+            var_dump($testInfo);
         }
     }
     if ($otherUserInfo == null && $isLoggedIn && ! $showRegistrationForm) {
@@ -769,7 +831,7 @@
         $hackerVerification = makeInputFormHackerToken();
 ?>
         <h2>Profile</h2>
-        <p>You are not logged in. You must login to see your profile, earn coins, appear on leader boards, and participate in our community.</p>
+        <p>You are not logged in. Login to see your profile, earn coins, appear on leader boards, and participate in our community.</p>
         <div class="row">
             <div class="panel col-md-6 profile-login">
                 <form id="login" method="POST" action="profile.php">
@@ -855,7 +917,7 @@
                 facebookAppId: '<?php echo($socialServiceKeys[2]['app_id']);?>',
                 googleAppId: '<?php echo($socialServiceKeys[7]['app_id']);?>',
                 twitterAppId: '<?php echo($socialServiceKeys[11]['app_id']);?>',
-                authToken: '<?php echo($authToken);?>',
+                authToken: '<?php echo($authToken);?>'
             },
             profilePageParameters = {
                 errorFieldId: '<?php echo($errorFieldId);?>',

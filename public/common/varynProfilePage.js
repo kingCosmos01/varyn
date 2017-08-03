@@ -130,10 +130,15 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
         },
 
         onPageLoadSetFocus: function () {
-            if (inputFocusId != "") {
-                document.getElementById(inputFocusId).focus();
+            var element;
+
+            if (inputFocusId != '') {
+                element = document.getElementById(inputFocusId);
+                if (element != null) {
+                    element.focus();
+                }
             }
-            if (errorFieldId != "") {
+            if (errorFieldId != '') {
                 $('#' + errorFieldId).removeClass("popup-form-input").addClass("popup-form-input-error");
             }
         },
@@ -327,6 +332,7 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
          * @returns {boolean}
          */
         loginFacebook: function () {
+            varynApp.trackEvent('login', 'sso', 'facebook');
             ssoFacebook.login(varynApp.registerSSO);
             return false;
         },
@@ -338,6 +344,7 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
          * @returns {boolean}
          */
         loginGoogle: function () {
+            varynApp.trackEvent('login', 'sso', 'google');
             ssoGooglePlus.login(varynApp.registerSSO);
             return false;
         },
@@ -349,6 +356,7 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
          * @returns {boolean}
          */
         loginTwitter: function () {
+            varynApp.trackEvent('login', 'sso', 'twitter');
             ssoTwitter.login();
             return false;
         }

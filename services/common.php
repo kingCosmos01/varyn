@@ -91,6 +91,23 @@
     }
 
     /**
+     * Convert a value to its boolean representation.
+     * @param $variable - any type will be coerced to a boolean value.
+     * @return boolean
+     */
+    function valueToBoolean($variable) {
+        if (is_string($variable)) {
+            $variable = strtoupper($variable);
+            $result =  $variable == '1' || $variable == 'Y' || $variable == 'T' || $variable == 'YES' || $variable == 'TRUE' || $variable == 'CHECKED';
+        } elseif (is_numeric($variable)) {
+            $result = ! ! $variable;
+        } else {
+            $result = $variable != null;
+        }
+        return $result;
+    }
+
+    /**
      * Return a variable that was posted from a form, or in the REQUEST object (GET or COOKIES), or a default if not found.
      * This way POST is the primary concern but if not found will fallback to the other methods.
      * @param $varName
@@ -469,12 +486,32 @@
         setcookie(VARYN_SESSION_COOKIE, null, time() - 86400, '/', $domain);
     }
 
+    /**
+     * Search $text for tokens in the form %token% and replace them with their respective parameter value.
+     * Example:
+     *    $updatedText = ReplaceTokenArgs ( "This %food% is a %meat% %food%.", array("food" => "sandwich", "meat" => "turkey" )
+     * will return "This sandwich is a turkey sandwich."
+     * @param $text
+     * @param $paramsArray
+     * @return string replaced text
+     */
+    function tokenReplace ($text, $paramsArray) {
+        foreach ($paramsArray as $token => $value) {
+            $token = "%$token%";
+            if (stripos($text, $token) !== false ) {
+                $text = str_replace($token, $value, $text);
+            }
+        }
+        return $text;
+    }
+
     // "Global" PHP variables available to all scripts. Use ROOTPATH when you need the full file path to the root of the website (not web path).
     if ( ! defined('ROOTPATH') ) {
         define('ROOTPATH', $_SERVER['DOCUMENT_ROOT']);
     }
     $page = '';
     $siteId = 106;
+    $languageCode = 'en';
     if ( ! isset($userId)) {
         $userId = 0;
     }

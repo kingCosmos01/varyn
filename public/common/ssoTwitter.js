@@ -174,6 +174,20 @@
         document.location = '/procs/oauth.php?action=login&provider=twitter';
     };
 
+    /**
+     * Cause the user to fully logout from Twitter such that no cookies or local data persist.
+     * @param callBackWhenComplete
+     */
+    ssoTwitter.logout = function (callBackWhenComplete) {
+    };
+
+    /**
+     * Disconnect the user from Twitter which should invoke a full user delete.
+     * @param callBackWhenComplete
+     */
+    ssoTwitter.disconnect = function (callBackWhenComplete) {
+    };
+
 
     /* ----------------------------------------------------------------------------------
      * Setup for AMD, node, or standalone reference the commonUtilities object.
