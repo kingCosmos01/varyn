@@ -29,7 +29,7 @@
     'use strict';
 
     var enginesis = {
-        VERSION: '2.3.37',
+        VERSION: '2.3.39',
         debugging: true,
         disabled: false, // use this flag to turn off communicating with the server
         errorLevel: 15,  // bitmask: 1=info, 2=warning, 4=error, 8=severe

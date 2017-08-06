@@ -6,7 +6,7 @@
      */
 
 if ( ! defined('ENGINESIS_VERSION')) {
-    define('ENGINESIS_VERSION', '2.3.37');
+    define('ENGINESIS_VERSION', '2.3.39');
 }
 require_once('errors.php');
 define('SESSION_COOKIE', 'engsession');
