@@ -78,7 +78,22 @@
             $message = 'From ' . basename($caller['file']) . ':' . $caller['line'];
         }
         echo("<h3>$message</h3>");
+        echo '<pre>';
         var_dump($variable);
+        echo '</pre>';
+    }
+
+    /**
+     * Debug a variable by returning it as a string.
+     * @param $variable
+     * @return string
+     */
+    function debugToString($variable) {
+        ob_start();
+        var_dump($variable);
+        $content = ob_get_contents();
+        ob_end_clean();
+        return $content;
     }
 
     /**
@@ -486,6 +501,19 @@
         setcookie(VARYN_SESSION_COOKIE, null, time() - 86400, '/', $domain);
     }
 
+    /**
+     * Helper function to determine if the current session is valid. What we are looking for:
+     *   1. User id and token exist
+     *   2. user id matches token
+     *   3. not expired
+     * @param $userId
+     * @param $token
+     * @return bool
+     */
+    function verifySessionIsValid($userId, $token) {
+        // TODO: We need to write the code for this!
+        return true;
+    }
     /**
      * Search $text for tokens in the form %token% and replace them with their respective parameter value.
      * Example:

@@ -23,7 +23,15 @@
         const REGISTRATION_ACCEPTED        = 'REGISTRATION_ACCEPTED';
         const REG_INFO_UPDATED             = 'REG_INFO_UPDATED';
         const MUST_BE_LOGGED_IN            = 'MUST_BE_LOGGED_IN';
+        const PROFILE_PAGE_SALUTATION      = 'PROFILE_PAGE_SALUTATION';
         const SYSTEM_ERROR                 = 'SYSTEM_ERROR';
+        const REFRESH_TOKEN_ERROR          = 'REFRESH_TOKEN_ERROR';
+        const REGISTRATION_ERRORS_FIELDS   = 'REGISTRATION_ERRORS_FIELDS';
+        const SECURITY_ERRORS_FIELDS       = 'SECURITY_ERRORS_FIELDS';
+        const WELCOME_MESSAGE              = 'WELCOME_MESSAGE';
+        const REG_RESET_PASSWORD           = 'REG_RESET_PASSWORD';
+        const REG_COMPLETE_RESET_MESSAGE   = 'REG_COMPLETE_RESET_MESSAGE';
+        const REDIRECT_CONFIRM_MESSAGE     = 'REDIRECT_CONFIRM_MESSAGE';
     }
 
     class EnginesisStringTable
