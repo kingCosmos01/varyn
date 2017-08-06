@@ -88,6 +88,7 @@
 
         // Is it a Twitter oauth callback?
 
+        $isDenied = getPostOrRequestVar('denied', '');
         $oauthToken = getPostOrRequestVar('oauth_token', '');
         $oauthVerifier = getPostOrRequestVar('oauth_verifier', '');
         if (strlen($oauthToken) > 0 && strlen($oauthVerifier) > 0 && isValidReferrer($referrer)) {
@@ -96,6 +97,9 @@
             $provider = 'twitter';
             $action = 'login';
             $oauthState = 'callback';
+        } elseif ($isDenied != '') {
+            debugLog('Twitter denied login with ' . $isDenied);
+            header('Location: /profile.php');
         }
     }
     debugX('action ' . $action);
