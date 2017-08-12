@@ -13,13 +13,15 @@
         const INVALID_PARAM = 'INVALID_PARAM';
         const INVALID_LOGIN = 'INVALID_LOGIN';
         const INVALID_USER_ID = 'INVALID_USER_ID';
+        const INVALID_USER_NAME = 'INVALID_USER_NAME';
+        const NAME_IN_USE = 'NAME_IN_USE';
+        const EMAIL_IN_USE = 'EMAIL_IN_USE';
         const SERVER_DID_NOT_REPLY = 'SERVER_DID_NOT_REPLY';
         const SERVER_RESPONSE_NOT_VALID = 'SERVER_RESPONSE_NOT_VALID';
         const SERVER_SYSTEM_ERROR = 'SERVER_SYSTEM_ERROR';
         const SYSTEM_ERROR = 'SYSTEM_ERROR';
         const INVALID_SECONDARY_PASSWORD = 'INVALID_SECONDARY_PASSWORD';
         const PASSWORD_EXPIRED = 'PASSWORD_EXPIRED';
-        const NAME_IN_USE = 'NAME_IN_USE';
         const REGISTRATION_NOT_CONFIRMED = 'REGISTRATION_NOT_CONFIRMED';
         const INVALID_TOKEN = 'INVALID_TOKEN';
         const TOKEN_EXPIRED = 'TOKEN_EXPIRED';
@@ -32,6 +34,7 @@
         EnginesisErrors::INVALID_PARAM => 'A required parameter is missing or not valid in this context.',
         EnginesisErrors::INVALID_USER_ID => 'There is no user registered with the provided information.',
         EnginesisErrors::NAME_IN_USE => 'The user name is already in use. Please choose another user name.',
+        EnginesisErrors::EMAIL_IN_USE => 'The email address is already in use. Please choose a different email address.',
         EnginesisErrors::REGISTRATION_NOT_CONFIRMED => 'Registration has not been confirmed.',
         EnginesisErrors::INVALID_LOGIN => 'Your credentials do not match.',
         EnginesisErrors::INVALID_SECONDARY_PASSWORD => 'Your confirmation token is not valid or it has expired.',

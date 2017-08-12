@@ -1028,6 +1028,19 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
         }
 
         /**
+         * Determine if the error code is an error or a non-error state. We need this because it holds a
+         * variety of different states, either null or '' to indicate no error.
+         * @param $lastErrorCode {object} either an error object or null.
+         * @return boolean: true if the error provided is an error, false if it is not.
+         */
+        public function isError ($lastErrorCode) {
+            if (! isset($lastErrorCode) || $lastErrorCode == null) {
+                $lastErrorCode = $this->m_lastError;
+            }
+            return $lastErrorCode != null && $this->m_lastError['message'] != '';
+        }
+
+        /**
          * @return object: the last error, null if the most recent operation succeeded.
          */
         public function getLastErrorCode () {
@@ -1393,6 +1406,8 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
                     $this->sessionSave($results->row->authtok, $userInfoResult->user_id, $userInfoResult->user_name, $userInfoResult->site_user_id, $userInfoResult->access_level, EnginesisNetworks::Enginesis);
                     $this->sessionUserInfoSave($userInfoResult);
                 }
+            } else {
+                $userInfoResult = null;
             }
             return $userInfoResult;
         }

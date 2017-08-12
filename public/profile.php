@@ -45,6 +45,7 @@
     $socialServices = null;
     $otherUserInfo = null;
     $userInfoJSON = ''; // a JSON representation of the $userInfo object
+    $userInfo = null;
     $authToken = '';
     $refreshToken = '';
     $isLogout = 'false';
@@ -172,9 +173,30 @@
         if ($invalidFields == null) {
             $userInfo = $enginesis->userRegistration($parameters);
             $error = $enginesis->getLastError();
-            if ($error != null) {
-                $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . errorToLocalString($error['message']) . '</p>';
-                $inputFocusId = 'register-email';
+            if ($enginesis->isError($error)) {
+                $errorCode = $error['message'];
+                switch ($errorCode) {
+                    case EnginesisErrors::NAME_IN_USE:
+                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NAME_IN_USE);
+                        $inputFocusId = 'register_form_username';
+                        $errorFieldId = 'register_form_username';
+                        break;
+                    case EnginesisErrors::EMAIL_IN_USE:
+                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_EMAIL_IN_USE);
+                        $inputFocusId = 'register_form_email';
+                        $errorFieldId = 'register_form_email';
+                        break;
+                    case EnginesisErrors::INVALID_USER_NAME:
+                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_INVALID);
+                        $inputFocusId = 'register_form_username';
+                        $errorFieldId = 'register_form_username';
+                        break;
+                    default:
+                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERROR, array('error' => $errorCode));
+                        $inputFocusId = 'register_form_email';
+                        break;
+                }
+                $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . $errorInfo . '</p>';
                 $showRegistrationForm = true;
             } else {
                 $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ACCEPTED) . '</p>';
@@ -214,9 +236,30 @@
         if ($invalidFields == null) {
             $userInfo = $enginesis->userRegistration($parameters);
             $error = $enginesis->getLastError();
-            if ($error != null) {
-                $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . errorToLocalString($error['message']) . '</p>';
-                $inputFocusId = 'register_form_email';
+            if ($enginesis->isError($error)) {
+                $errorCode = $error['message'];
+                switch ($errorCode) {
+                    case EnginesisErrors::NAME_IN_USE:
+                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NAME_IN_USE);
+                        $inputFocusId = 'register_form_username';
+                        $errorFieldId = 'register_form_username';
+                        break;
+                    case EnginesisErrors::EMAIL_IN_USE:
+                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_EMAIL_IN_USE);
+                        $inputFocusId = 'register_form_email';
+                        $errorFieldId = 'register_form_email';
+                        break;
+                    case EnginesisErrors::INVALID_USER_NAME:
+                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_INVALID);
+                        $inputFocusId = 'register_form_username';
+                        $errorFieldId = 'register_form_username';
+                        break;
+                    default:
+                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERROR, array('error' => $errorCode));
+                        $inputFocusId = 'register_form_email';
+                        break;
+                }
+                $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . $errorInfo . '</p>';
                 $showRegistrationForm = true;
             } else {
                 $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ACCEPTED) . '</p>';
@@ -280,7 +323,7 @@
                     if ($userRegistrationDataChanged) {
                         $userName = getPostVar("register_form_username", '');
                         $email = getPostVar("register_form_email", '');
-                        $fullname = getPostVar("register-fullname", '');
+                        $fullname = getPostVar("register_form_fullname", '');
                         $location = getPostVar("register_form_location", '');
                         $tagline = getPostVar("register_form_tagline", '');
                         $dateOfBirth = getPostVar("register_form_dob", '');
@@ -307,26 +350,53 @@
                         if ($invalidFields == null) {
                             $updateResult = $enginesis->registeredUserUpdate($parameters); // this is {user_id: 9999} if successful and the session should be updated.
                             if ($updateResult) {
-                                // TODO: Check for, handle Error
-                                // TODO: Refresh tokens after user update. Same effort as login, can we just reuse that same code?
-                                $refreshToken = $enginesis->sessionGetRefreshToken();
-                                if (empty($refreshToken)) {
-                                    // If there is no refresh token, we cannot refresh the local auth token. Maybe best to log user out and force a login.
-                                    $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REFRESH_TOKEN_ERROR, null) . '</p>';
-                                    debugLog("profile.php sessionGetRefreshToken but no token after user update");
+                                $error = $enginesis->getLastError();
+                                if ($enginesis->isError($error)) {
+                                    $errorCode = $error['message'];
+                                    switch ($errorCode) {
+                                        case EnginesisErrors::NAME_IN_USE:
+                                            $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NAME_IN_USE);
+                                            $inputFocusId = 'register_form_username';
+                                            $errorFieldId = 'register_form_username';
+                                            break;
+                                        case EnginesisErrors::EMAIL_IN_USE:
+                                            $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_EMAIL_IN_USE);
+                                            $inputFocusId = 'register_form_email';
+                                            $errorFieldId = 'register_form_email';
+                                            break;
+                                        case EnginesisErrors::INVALID_USER_NAME:
+                                            $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_INVALID);
+                                            $inputFocusId = 'register_form_username';
+                                            $errorFieldId = 'register_form_username';
+                                            break;
+                                        default:
+                                            $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERROR, array('error' => $errorCode));
+                                            $inputFocusId = 'register_form_email';
+                                            break;
+                                    }
+                                    $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . $errorInfo . '</p>';
+                                    $showRegistrationForm = true;
                                 } else {
-                                    $userInfo = $enginesis->sessionRefresh($refreshToken);
-                                    // TODO: sessionRefresh result must be identical to userLogin result
-                                    // TODO: REMEMBER to also update Varyn JS local storage as well from JavaScript
-                                    if ($userInfo) {
-                                        $authToken = $userInfo->authtok;
-                                        $userId = $userInfo->user_id;
-                                        setVarynUserCookie($userInfo, $enginesis->getServerName());
-                                        $userInfoJSON = getVarynUserCookie();
+                                    // TODO: Refresh tokens after user update. Same effort as login, can we just reuse that same code?
+                                    $refreshToken = $enginesis->sessionGetRefreshToken();
+                                    if (empty($refreshToken)) {
+                                        // If there is no refresh token, we cannot refresh the local auth token. Maybe best to log user out and force a login.
+                                        $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REFRESH_TOKEN_ERROR, null) . '</p>';
+                                        debugLog("profile.php sessionGetRefreshToken but no token after user update");
                                     } else {
-                                        // TODO: using the refresh token failed, either it expired or there is a system error.
-                                        $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REG_INFO_INCOMPLETE, null) . '</p>';
-                                        debugLog("profile.php sessionRefresh error with user update service: " . debugToString($enginesis->getLastError()));
+                                        $userInfo = $enginesis->sessionRefresh($refreshToken);
+                                        // TODO: sessionRefresh result must be identical to userLogin result
+                                        // TODO: REMEMBER to also update Varyn JS local storage as well from JavaScript
+                                        if ($userInfo) {
+                                            $authToken = $userInfo->authtok;
+                                            $userId = $userInfo->user_id;
+                                            setVarynUserCookie($userInfo, $enginesis->getServerName());
+                                            $userInfoJSON = getVarynUserCookie();
+                                        } else {
+                                            // TODO: using the refresh token failed, either it expired or there is a system error.
+                                            $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REG_INFO_INCOMPLETE, null) . '</p>';
+                                            debugLog("profile.php sessionRefresh error with user update service: " . debugToString($enginesis->getLastError()));
+                                        }
                                     }
                                 }
                             } else {
@@ -335,7 +405,7 @@
                                 debugLog("profile.php registeredUserUpdate error from service: " . debugToString($parameters) . ' ' . debugToString($lastError));
                             }
                         } else {
-                            // TODO: handle invalid fields by showing UI
+                            // TODO: handle invalid fields by showing UI, set focus to first field in error
                             $showRegistrationForm = true;
                             $inputFocusId = 'register_form_email';
                             $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, array('fields' => implode(', ', $invalidFields))) . '</p>';
@@ -773,7 +843,7 @@
 <?php
         }
 ?>
-                            <div class="form-group"><label for="register_form_fullname">Full name:</label><input type="text" name="register-fullname" class="popup-form-input fullname" id="register_form_fullname" placeholder="Your full name" autocomplete="name" autocorrect="off" maxlength="50" value="<?php echo($fullname);?>" autocomplete="on" autocorrect="off"/></div>
+                            <div class="form-group"><label for="register_form_fullname">Full name:</label><input type="text" name="register_form_fullname" class="popup-form-input fullname" id="register_form_fullname" placeholder="Your full name" autocomplete="name" autocorrect="off" maxlength="50" value="<?php echo($fullname);?>" autocomplete="on" autocorrect="off"/></div>
                             <div class="form-group"><label for="register_form_gender">You are:</label><label><input type="radio" name="register_form_gender" value="M" <?php echo($gender == 'M' ? 'checked' : '');?>/>&nbsp;&nbsp;Male</label><label><input type="radio" name="register_form_gender" value="F" <?php echo($gender == 'F' ? 'checked' : '');?>/>&nbsp;&nbsp;Female</label><label><input type="radio" name="register_form_gender" value="U" <?php echo($gender == 'U' ? 'checked' : '');?>/>&nbsp;&nbsp;Undefined</label></div>
                             <div class="form-group"><label for="register_form_dob">Date of birth:</label><input type="date" name="register_form_dob" class="popup-form-input required dob" id="register_form_dob" placeholder="Birthdate" autocomplete="bday" value="<?php echo($dateOfBirth);?>"/></div>
 <?php
@@ -793,6 +863,9 @@
 ?>
                             <input type="hidden" name="action" value="<?php echo($registrationOrUpdate);?>" /><input type="text" name="emailaddress" class="popup-form-address-input" /><input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
                         </div>
+<?php
+    if ($isLoggedIn) {
+?>
                         <div role="tabpanel" class="tab-pane fade" id="extendedInfo">
                             <p>Manage info about you to share with others:</p>
                             <img class="avatarThumbnail" src="<?php echo($enginesis->avatarURL(0, $userInfo->user_id));?>"/>
@@ -809,6 +882,9 @@
                             <div class="form-group"><label for="register_form_answer">Your answer:</label><input type="text" name="register_form_answer" class="form-control" id="register_form_answer" placeholder="Security answer" autocomplete="on" maxlength="80" value="<?php echo($securityAnswer);?>"/></div>
                             <div class="form-group"><label for="register_form_phone">Mobile number:</label><input type="tel" name="register_form_phone" class="form-control cellphone" id="register_form_phone" placeholder="Mobile number" autocorrect="off" autocomplete="tel" maxlength="20" value="<?php echo($cellphone);?>"/></div>
                         </div>
+<?php
+    }
+?>
                     </div>
                 </form>
             </div>

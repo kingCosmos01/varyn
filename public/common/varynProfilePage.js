@@ -5,8 +5,8 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
     "use strict";
 
     var enginesisSession = varynApp.getEnginesisSession(),
-        errorFieldId = "",
-        inputFocusId = "",
+        errorFieldId = '',
+        inputFocusId = '',
         varynProfilePageReference = this;
 
     /**
@@ -188,8 +188,7 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
                 password = $("input[name=register_form_password]").val(),
                 email = $("input[name=register_form_email]").val(),
                 dob = $("input[name=register_form_dob]").val(),
-                agreement = $("input[name=register_form_agreement]").prop('checked'),
-                captcha = $("input[name=register_form_captcha]").val(),
+                agreement = $("input[name=register_form_agreement]").val() > 1,
                 errorMessage = "",
                 errorField = "";
 
@@ -216,10 +215,6 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             if (errorField == "" && ! agreement) {
                 errorMessage = "You must agree with the terms of service or you cannot register.";
                 errorField = "register_form_agreement";
-            }
-            if (errorField == "" && captcha.trim().length < 3) {
-                errorMessage = "Please answer the human test. Can you try again?";
-                errorField = "register_form_captcha";
             }
             if (errorMessage != "") {
                 varynApp.showErrorMessage(errorMessage, errorField);
