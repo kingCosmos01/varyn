@@ -10,7 +10,7 @@
 
     abstract class EnginesisErrors {
         const NO_ERROR = '';
-        const INVALID_PARAM = 'INVALID_PARAM';
+        const INVALID_PARAMETER = 'INVALID_PARAMETER';
         const INVALID_LOGIN = 'INVALID_LOGIN';
         const INVALID_USER_ID = 'INVALID_USER_ID';
         const INVALID_USER_NAME = 'INVALID_USER_NAME';
@@ -27,11 +27,12 @@
         const TOKEN_EXPIRED = 'TOKEN_EXPIRED';
     }
 
+    // TODO: This should be automatically generated from the data in Enginesis.error_messages
     $errorCodeTable = array (
         EnginesisErrors::SERVER_DID_NOT_REPLY => 'The service did not respond to our request. Please check your network connection.',
         EnginesisErrors::SERVER_RESPONSE_NOT_VALID => 'The service responded with an unexpected response. Please check your network connection and the operation of the service.',
         EnginesisErrors::SERVER_SYSTEM_ERROR => 'The service responded with an unexpected error. Please check your network connection and the operation of the service.',
-        EnginesisErrors::INVALID_PARAM => 'A required parameter is missing or not valid in this context.',
+        EnginesisErrors::INVALID_PARAMETER => 'A required parameter is missing or not valid in this context.',
         EnginesisErrors::INVALID_USER_ID => 'There is no user registered with the provided information.',
         EnginesisErrors::NAME_IN_USE => 'The user name is already in use. Please choose another user name.',
         EnginesisErrors::EMAIL_IN_USE => 'The email address is already in use. Please choose a different email address.',

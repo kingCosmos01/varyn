@@ -6,9 +6,9 @@
      */
 
 if ( ! defined('ENGINESIS_VERSION')) {
-    define('ENGINESIS_VERSION', '2.3.39');
+    define('ENGINESIS_VERSION', '2.3.42');
 }
-require_once('errors.php');
+require_once('EnginesisErrors.php');
 define('SESSION_COOKIE', 'engsession');
 define('REFRESH_COOKIE', 'engrefreshtoken');
 define('SESSION_USERINFO', 'engsession_user');
@@ -1066,7 +1066,7 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
          */
         public function getResponseStatus ($enginesisResponse, & $success, & $statusMessage, & $extendedInfo) {
             $success = false;
-            $statusMessage = EnginesisErrors::INVALID_PARAM;
+            $statusMessage = EnginesisErrors::INVALID_PARAMEETER;
             $extendedInfo = '';
             $resultSet = null;
             if ($enginesisResponse != null) {

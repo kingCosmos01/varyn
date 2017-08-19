@@ -19,7 +19,7 @@
         _callbackWhenLoaded = null,
         _userInfo = {
             userName: '',
-            fullName: '',
+            realName: '',
             userId: '',      // Enginesis user id
             networkId: 0,
             siteUserId: '',  // Facebook user id
@@ -161,7 +161,7 @@
 
     /**
      * Return the complete user info object, of null if no user is logged in.
-     * @returns {{userName: string, fullName: string, userId: string, networkId: number, siteUserId: string, dob: null, gender: string, avatarURL: string}}
+     * @returns {{userName: string, realName: string, userId: string, networkId: number, siteUserId: string, dob: null, gender: string, avatarURL: string}}
      */
     ssoFacebook.userInfo = function () {
         return _userInfo;
@@ -210,7 +210,7 @@
                             _userInfo = {
                                 networkId: _networkId,
                                 userName: response.name,
-                                fullName: '',
+                                realName: '',
                                 email: '',
                                 siteUserId: response.id,
                                 gender: 'U',
@@ -267,10 +267,10 @@
                     var registrationParameters = {
                         networkId: 2,
                         userName: '',
-                        fullName: response.name,
+                        realName: response.name,
                         email: response.email,
                         siteUserId: response.id,
-                        gender: enginesisSession.validGender(response.gender),
+                        gender: enginesis.validGender(response.gender),
                         dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(13)),
                         scope: _scope
                     };
@@ -295,10 +295,10 @@
         var registrationParameters = {
             networkId: 2,
             userName: '',
-            fullName: response.name,
+            realName: response.name,
             email: response.email,
             siteUserId: response.id,
-            gender: enginesisSession.validGender(response.gender),
+            gender: enginesis.validGender(response.gender),
             dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(13)),
             scope: _scope
         };
