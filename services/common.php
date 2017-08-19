@@ -72,15 +72,18 @@
      * @param $variable
      * @param null $message
      */
-    function debugVar($variable, $message = null) {
+    function debugVar($variable, $message = null, $show = true) {
         if ( ! isset($message) || $message == null) {
             $caller = debug_backtrace()[0];
             $message = 'From ' . basename($caller['file']) . ':' . $caller['line'];
         }
-        echo("<h3>$message</h3>");
-        echo '<pre>';
-        var_dump($variable);
-        echo '</pre>';
+        if ($show) {
+            echo("<h3>$message</h3>");
+            echo '<pre>';
+            var_dump($variable);
+            echo '</pre>';
+        }
+        debugLog($message . ' || ' . var_export($variable, true));
     }
 
     /**
@@ -89,11 +92,7 @@
      * @return string
      */
     function debugToString($variable) {
-        ob_start();
-        var_dump($variable);
-        $content = ob_get_contents();
-        ob_end_clean();
-        return $content;
+        return var_export($variable, true);
     }
 
     /**

@@ -241,6 +241,7 @@
      * @param facebookResponse {object} defined over at Facebook SDK
      */
     ssoFacebook.statusChangeCallback = function (facebookResponse) {
+        var sso = this;
         if (facebookResponse.status === 'connected') {
             // Logged in to Facebook and authorized Varyn.
             _facebookToken = facebookResponse.authResponse.accessToken;
@@ -250,7 +251,7 @@
                 // if we get here, the user has approved our app AND they are logged in.
                 // We need to check this state IF a user is not currently logged in, this would indicate they should be logged in
                 // automatically with Facebook
-                this.debugLog('Successful Facebook login for: ' + response.name + ' (' + response.id + ')');
+                sso.debugLog('Successful Facebook login for: ' + response.name + ' (' + response.id + ')');
                 // this.loginSSO(); ???
             });
         }
@@ -258,7 +259,9 @@
 
     ssoFacebook.login = function (callBackWhenComplete) {
         // start the user login process.
+        var sso = this;
         FB.login(function(response) {
+            var status = response.status; // TODO: if we get "unknown" then redirect to Facebook login ? 
             if (response.authResponse) {
                 FB.api('/me', 'get', {fields: 'id,name,email,gender'}, function(response) {
                     var registrationParameters = {
@@ -271,12 +274,12 @@
                         dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(13)),
                         scope: _scope
                     };
-                    this.debugLog('User login complete for ' + response.name);
+                    sso.debugLog('User login complete for ' + response.name);
                     callBackWhenComplete(registrationParameters);
                 });
             } else {
                 // TODO: I'm not sure what we do here, should we message the UI? "Login was not successful, do you want to try again?"
-                this.debugLog('User cancelled login or did not fully authorize.');
+                sso.debugLog('User cancelled login or did not fully authorize.');
                 callBackWhenComplete(null);
             }
         }, {scope: _scope, return_scopes: true});

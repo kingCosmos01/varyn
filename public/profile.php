@@ -918,7 +918,7 @@
                 <h4>Not a member?</h4>
                 <input type="button" class="btn btn-primary btn-varyn" id="profile_register_now" value="Sign up with Email" onclick="profilePage.showRegistrationPopup(true);" title="Sign up with your email address" /><br/>
                 <h4>Or</h4>
-                <input type="button" class="btn btn-primary btn-facebook" id="facebook-connect-button" value="Login with facebook" title="Login with your Facebook account" />
+                <input type="button" class="btn btn-primary btn-facebook" id="facebook-connect-button" value="Login with Facebook" title="Login with your Facebook account" />
                 <input type="button" class="btn btn-primary btn-gapi-signin" id="gapi-signin-button" value="" title="Sign in with your Google+ account" />
                 <input type="button" class="btn btn-primary btn-twitter-signin" id="twitter-signin-button" value="Sign in with Twitter" title="Sign in with your Twitter account" />
             </div>
