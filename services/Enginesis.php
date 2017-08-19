@@ -1066,7 +1066,7 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
          */
         public function getResponseStatus ($enginesisResponse, & $success, & $statusMessage, & $extendedInfo) {
             $success = false;
-            $statusMessage = EnginesisErrors::INVALID_PARAMEETER;
+            $statusMessage = EnginesisErrors::INVALID_PARAMETER;
             $extendedInfo = '';
             $resultSet = null;
             if ($enginesisResponse != null) {
