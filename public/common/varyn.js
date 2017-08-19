@@ -764,13 +764,17 @@ var varyn = function (parameters) {
         /**
          * Single sign-on registration. In this case, the user id comes from a 3rd party network and we need to map that
          * to an new Enginesis user_id. Additional processing/error checking must be handled in the Enginesis callback.
+         * This is used in a callback function that has no this context.
          * @param {object} registrationParameters is a KV object. The keys must match the Enginesis UserLoginCoreg API
          * @param {int} networkId is the network identifier, see Enginesis documentation
          */
         registerSSO: function (registrationParameters, networkId) {
             if (registrationParameters != undefined && registrationParameters != null) {
+                if (networkId === undefined || networkId === null && registrationParameters.networkId !== undefined) {
+                    networkId = registrationParameters.networkId;
+                }
                 unconfirmedNetworkId = networkId;
-                this.trackEvent('login-complete', 'sso', this.networkIdToString(networkId));
+                varynApp.trackEvent('login-complete', 'sso', varynApp.networkIdToString(networkId));
                 enginesisSession.userLoginCoreg(registrationParameters, networkId, null);
             }
         },
@@ -1414,5 +1418,5 @@ function getDocumentSize (container) {
         result.gameHeight = enginesisSession.gameHeight;
         result.gameAspectRatio = enginesisSession.gameAspectRatio;
     }
-    return result;  
+    return result;
 }

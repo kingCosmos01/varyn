@@ -19,7 +19,7 @@
         _callbackWhenLoaded = null,
         _userInfo = {
             userName: '',
-            fullName: '',
+            realName: '',
             userId: '',      // Enginesis user id
             networkId: 0,
             siteUserId: '',  // Facebook user id
@@ -161,7 +161,7 @@
 
     /**
      * Return the complete user info object, of null if no user is logged in.
-     * @returns {{userName: string, fullName: string, userId: string, networkId: number, siteUserId: string, dob: null, gender: string, avatarURL: string}}
+     * @returns {{userName: string, realName: string, userId: string, networkId: number, siteUserId: string, dob: null, gender: string, avatarURL: string}}
      */
     ssoFacebook.userInfo = function () {
         return _userInfo;
@@ -210,7 +210,7 @@
                             _userInfo = {
                                 networkId: _networkId,
                                 userName: response.name,
-                                fullName: '',
+                                realName: '',
                                 email: '',
                                 siteUserId: response.id,
                                 gender: 'U',
@@ -241,6 +241,7 @@
      * @param facebookResponse {object} defined over at Facebook SDK
      */
     ssoFacebook.statusChangeCallback = function (facebookResponse) {
+        var that = this;
         if (facebookResponse.status === 'connected') {
             // Logged in to Facebook and authorized Varyn.
             _facebookToken = facebookResponse.authResponse.accessToken;
@@ -250,7 +251,7 @@
                 // if we get here, the user has approved our app AND they are logged in.
                 // We need to check this state IF a user is not currently logged in, this would indicate they should be logged in
                 // automatically with Facebook
-                this.debugLog('Successful Facebook login for: ' + response.name + ' (' + response.id + ')');
+                that.debugLog('Successful Facebook login for: ' + response.name + ' (' + response.id + ')');
                 // this.loginSSO(); ???
             });
         }
@@ -258,25 +259,26 @@
 
     ssoFacebook.login = function (callBackWhenComplete) {
         // start the user login process.
+        var that = this;
         FB.login(function(response) {
             if (response.authResponse) {
                 FB.api('/me', 'get', {fields: 'id,name,email,gender'}, function(response) {
                     var registrationParameters = {
                         networkId: 2,
                         userName: '',
-                        fullName: response.name,
+                        realName: response.name,
                         email: response.email,
                         siteUserId: response.id,
-                        gender: enginesisSession.validGender(response.gender),
+                        gender: enginesis.validGender(response.gender),
                         dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(13)),
                         scope: _scope
                     };
-                    this.debugLog('User login complete for ' + response.name);
+                    that.debugLog('User login complete for ' + response.name);
                     callBackWhenComplete(registrationParameters);
                 });
             } else {
                 // TODO: I'm not sure what we do here, should we message the UI? "Login was not successful, do you want to try again?"
-                this.debugLog('User cancelled login or did not fully authorize.');
+                that.debugLog('User cancelled login or did not fully authorize.');
                 callBackWhenComplete(null);
             }
         }, {scope: _scope, return_scopes: true});
@@ -292,10 +294,10 @@
         var registrationParameters = {
             networkId: 2,
             userName: '',
-            fullName: response.name,
+            realName: response.name,
             email: response.email,
             siteUserId: response.id,
-            gender: enginesisSession.validGender(response.gender),
+            gender: enginesis.validGender(response.gender),
             dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(13)),
             scope: _scope
         };

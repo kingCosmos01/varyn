@@ -18,7 +18,7 @@
         _token = null,
         _userInfo = {
             userName: '',
-            fullName: '',
+            realName: '',
             userId: '',
             networkId: 0,
             siteUserId: '',
@@ -128,7 +128,7 @@
 
     /**
      * Return the complete user info object, of null if no user is logged in.
-     * @returns {{userName: string, fullName: string, userId: string, networkId: number, siteUserId: string, dob: null, gender: string, avatarURL: string}}
+     * @returns {{userName: string, realName: string, userId: string, networkId: number, siteUserId: string, dob: null, gender: string, avatarURL: string}}
      */
     ssoTwitter.userInfo = function () {
         return _userInfo;

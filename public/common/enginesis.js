@@ -769,6 +769,10 @@
         return new Date().toISOString().slice(0, 19).replace('T', ' ');
     };
 
+    enginesis.validGender = function(gender) {
+        return validGender(gender);
+    };
+
     /**
      * Call Enginesis SessionBegin which is used to start any conversation with the server. Must call before beginning a game.
      * @param gameKey

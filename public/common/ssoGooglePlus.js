@@ -20,7 +20,7 @@
         _userInfo = {
             networkId: 0,
             userName: '',
-            fullName: '',
+            realName: '',
             userId: '',
             siteUserId: '',
             gender: 'U',
@@ -112,7 +112,7 @@
                     var registrationParameters = {
                         networkId: 7,
                         userName: gplusProfile.getName(),
-                        fullName: gplusProfile.getGivenName(),
+                        realName: gplusProfile.getGivenName(),
                         emails: gplusProfile.getEmail(),
                         siteUserId: gplusProfile.getId(),
                         gender: 'U',
@@ -209,7 +209,7 @@
 
     /**
      * Return the complete user info object, of null if no user is logged in.
-     * @returns {{userName: string, fullName: string, userId: string, networkId: number, siteUserId: string, dob: null, gender: string, avatarURL: string}}
+     * @returns {{userName: string, realName: string, userId: string, networkId: number, siteUserId: string, dob: null, gender: string, avatarURL: string}}
      */
     ssoGooglePlus.userInfo = function () {
         return _userInfo;
@@ -297,7 +297,7 @@
         var registrationParameters = {
             networkId: 7,
             userName: 'Fake Google User',
-            fullName: response.name,
+            realName: response.name,
             email: response.email,
             siteUserId: response.id,
             gender: enginesisSession.validGender(response.gender),
