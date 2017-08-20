@@ -7,6 +7,7 @@
  */
     require_once('../../services/common.php');
     require_once('../../services/TwitterOAuth.php');
+    require_once('../../services/strings.php');
     setErrorReporting(true);
     define('TOKEN_STORE_KEY', 'varyn-sso-token-store');
 
@@ -140,13 +141,22 @@
                                             exit(0);
                                         } else {
                                             debugX("Invalid token received from $provider : $oauthToken / $oauthTokenSecret");
+                                            $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
                                         }
                                     } else {
                                         debugX('oauth_callback_confirmed is ' . $requestToken['oauth_callback_confirmed'] . ', thats an error!');
+                                        $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
                                     }
                                 }
                             } catch (Exception $exception) {
                                 debugX('init Caught exception ' . $exception->getmessage());
+                                $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
+                                // init Caught exception
+                                //<?xml version="1.0" encoding="UTF-8">
+                                //<hash>
+                                //   <error>This client application's callback url has been locked</error>
+                                //   <request>/oauth/request_token</request>
+                                //</hash>
                             }
                         } elseif ($oauthState == 'callback') {
                             try {
@@ -160,7 +170,8 @@
                                     $priorOauthSecret = $tokens->oauth_token_secret;
                                 } else {
                                     debugX("Cannot restore prior tokens so this is an invalid request.");
-                                    var_dump(tokens);
+                                    $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
+                                    var_dump($tokens);
                                     exit(0);
                                 }
                                 if ($oauthToken == $priorOauthToken && isset($priorOauthSecret)) {
@@ -193,6 +204,7 @@
                                                 $error = $enginesis->getLastError();
                                                 if ($error != null) {
                                                     $errorMessage = '<p class="error-text">Your account could not be logged in at this time. ' . errorToLocalString($error['message']) . '</p>';
+                                                    $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
                                                 }
                                             } else {
                                                 $isLoggedIn = true;
@@ -207,15 +219,19 @@
                                             }
                                         } else {
                                             debugX("Invalid token received from $provider : $oauthToken / $oauthTokenSecret");
+                                            $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
                                         }
                                     } else {
                                         debugX("Received HTTP error " . $twitterOAuth->getLastHttpCode() . " from Twitter!");
+                                        $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
                                     }
                                 } else {
                                     debugX("Invalid request prior session was not properly stored. Start over.");
+                                    $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
                                 }
                             } catch (Exception $exception) {
                                 debugX('callback Caught exception ' . $exception->getmessage());
+                                $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
                             }
                         }
                     }
@@ -226,8 +242,12 @@
             break;
         default:
             debugX("Invalid, unmatched, or unexpected connection from $referrer");
+            $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
             break;
     }
     if ($errorCode != null) {
-
+        $errorCode = '?code=' . $errorCode;
+    } else {
+        $errorCode = '';
     }
+    header('Location: /profile.php' . $errorCode);

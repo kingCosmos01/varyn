@@ -36,6 +36,8 @@
         const REG_RESET_PASSWORD           = 'REG_RESET_PASSWORD';
         const REG_COMPLETE_RESET_MESSAGE   = 'REG_COMPLETE_RESET_MESSAGE';
         const REDIRECT_CONFIRM_MESSAGE     = 'REDIRECT_CONFIRM_MESSAGE';
+        const LOGOUT_COMPLETE              = 'LOGOUT_COMPLETE';
+        const SSO_EXCEPTION                = 'SSO_EXCEPTION';
     }
 
     class EnginesisStringTable

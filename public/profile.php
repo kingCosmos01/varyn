@@ -528,6 +528,7 @@
         $authToken = '';
         $refreshToken = '';
         $userInfoJSON = '';
+        $errorMessage = '<p class="info-text">' . $stringTable->lookup(EnginesisUIStrings::LOGOUT_COMPLETE, null) . '</p>';
     } elseif ($action == 'view') { // Request to View the profile of a specified user.
         $viewUserId = getPostOrRequestVar('id', '');
         if ($viewUserId == '') {
@@ -563,6 +564,11 @@
                 $confirmation_token = getPostOrRequestVar('t', '');
                 $linkToResendToken = createResendConfirmEmailLink($code, $user_user_id, $userName, '', $confirmation_token);
                 $redirectedStatusMessage = errorToLocalString($code);
+            }
+        } else {
+            $errorCode = getPostOrRequestVar('code', null);
+            if ($errorCode != null) {
+                $errorMessage = '<p class="info-text">' . $stringTable->lookup($errorCode, null) . '</p>';
             }
         }
         $viewUserId = getPostOrRequestVar('id', '');

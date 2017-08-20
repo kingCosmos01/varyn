@@ -21,5 +21,7 @@
         EnginesisUIStrings::REG_RESET_PASSWORD => 'Email has been sent to the owner of this account. Please follow the instructions in that message to reset the account password.',
         EnginesisUIStrings::REG_COMPLETE_RESET_MESSAGE => 'Email has been sent with instructions to complete your account password reset.',
         EnginesisUIStrings::REFRESH_TOKEN_ERROR => 'There was an unexpected system error refreshing your session. Please login again.',
+        EnginesisUIStrings::SSO_EXCEPTION => 'An system error occurred while logging you in. The administrator has been notified and will review the issue.',
+        EnginesisUIStrings::LOGOUT_COMPLETE => 'You have been logged out.',
         EnginesisUIStrings::SYSTEM_ERROR => 'There was a system error retrieving your information.'
     );
