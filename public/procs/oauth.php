@@ -112,7 +112,13 @@
                     $network_id = 11;
                     $twitterConsumerKey = $socialServiceKeys[$network_id]['app_id'];
                     $twitterConsumerSecret = $socialServiceKeys[$network_id]['app_secret'];
-                    $oauthCallback = 'http://www.varyn-l.com/procs/oauth.php';
+                    $stage = serverStage();
+                    if ($stage == '') {
+                        $protocol = 'https';
+                    } else {
+                        $protocol = 'http';
+                    }
+                    $oauthCallback = $protocol . '://varyn' . $stage . '.com/procs/oauth.php';
                     $twitterOAuth = new TwitterOAuth($twitterConsumerKey, $twitterConsumerSecret);
                     if ($twitterOAuth != null) {
                         if ($oauthState == 'init') {
