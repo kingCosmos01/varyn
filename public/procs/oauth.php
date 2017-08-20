@@ -51,7 +51,7 @@
     function saveTokens($tokens) {
         $tokenString = json_encode($tokens);
         if (strlen($tokenString) > 4095) {
-            debugX("Trying to save a cookie > 4095");
+            debugX("Trying to save a cookie > 4095: " . $tokenString);
         }
         setcookie(TOKEN_STORE_KEY, $tokenString, time() + (48 * 60 * 60), '/');
         $_COOKIE[TOKEN_STORE_KEY] = $tokenString;
