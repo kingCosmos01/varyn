@@ -855,17 +855,17 @@ var varyn = function (parameters) {
                 case enginesis.supportedNetworks.Enginesis: // Enginesis is always loaded
                     break;
                 case enginesis.supportedNetworks.Facebook:
-                    if (ssoFacebook) {
+                    if (typeof ssoFacebook !== 'undefined') {
                         ssoFacebook.load(null);
                     }
                     break;
                 case enginesis.supportedNetworks.Google:
-                    if (ssoGooglePlus) {
+                    if (typeof ssoGooglePlus !== 'undefined') {
                         ssoGooglePlus.load(null);
                     }
                     break;
                 case enginesis.supportedNetworks.Twitter:
-                    if (ssoTwitter) {
+                    if (typeof ssoTwitter !== 'undefined') {
                         ssoTwitter.load(null);
                     }
                     break;
