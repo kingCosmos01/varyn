@@ -1,6 +1,7 @@
 <?php
 /**
  * OAuth services come here for the redirect URI when an oauth is requested from any of our supported SSO networks.
+ * This page always redirects to profile.php. If there is an error it sends &network=X&error=E
  * Author: jf
  * Date: 5/22/2017
  *
@@ -22,10 +23,9 @@
             $debug = false;
         }
         if ($debug) {
-            echo("<h3>Debug: $message</h3>\n");
-        } else {
-            debugLog('oauth.php: ' . $message);
+            echo("<h3>oauth.php Debug: $message</h3>\n");
         }
+        debugLog('oauth.php: ' . $message);
     }
 
     /**
@@ -50,6 +50,9 @@
      */
     function saveTokens($tokens) {
         $tokenString = json_encode($tokens);
+        if (strlen($tokenString) > 4095) {
+            debugX("Trying to save a cookie > 4095");
+        }
         setcookie(TOKEN_STORE_KEY, $tokenString, time() + (48 * 60 * 60), '/');
         $_COOKIE[TOKEN_STORE_KEY] = $tokenString;
     }
@@ -70,12 +73,13 @@
     // TODO: What if refreshing tokens?
 
     if ($enginesis->isLoggedInUser()) {
+        debugX("called but a user is already logged in?");
         header('Location: /profile.php');
         exit(0);
     }
     $debug = (int) getPostOrRequestVar('debug', 0);
-    $errorMessage = '';
     $errorCode = null;
+    $network_id = 0;
     if (isset($_SERVER['HTTP_REFERER'])) {
         $referrer = $_SERVER['HTTP_REFERER'];
     } else {
@@ -99,11 +103,11 @@
             $action = 'login';
             $oauthState = 'callback';
         } elseif ($isDenied != '') {
-            debugLog('Twitter denied login with ' . $isDenied);
+            debugX('Twitter denied login with ' . $isDenied);
             header('Location: /profile.php');
         }
     }
-    debugX('action ' . $action);
+    debugX('action ' . $action . ', provider ' . $provider);
     switch ($action) {
         case 'login':
             debugX('provider ' . $provider);
@@ -128,7 +132,7 @@
                                     $oauthTokenSecret = 'sUIJloJq6ePJrF3MKeJ0rmq87vSHWsuH';
                                     $requestToken = ['oauth_token' => $oauthToken, 'oauth_token_secret' => 'sUIJloJq6ePJrF3MKeJ0rmq87vSHWsuH', 'oauth_callback_confirmed' => true];
                                     saveTokens(['oauth_token' => $oauthToken, 'oauth_token_secret' => $oauthTokenSecret]);
-                                    $url = $oauthCallback . '?oauth_token=' . $oauthToken . '&oauth_verifier=' . $oauthTokenSecret . '&debug=1';
+                                    $url = $oauthCallback . '?oauth_token=' . $oauthToken . '&oauth_verifier=' . $oauthTokenSecret . '&debug=' . ($debug ? '1' : '0');
                                     header('Location: ' . $url);
                                     exit(0);
                                 } else {
@@ -177,8 +181,7 @@
                                 } else {
                                     debugX("Cannot restore prior tokens so this is an invalid request.");
                                     $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
-                                    var_dump($tokens);
-                                    exit(0);
+                                    debugX('tokens: ' . var_export($tokens, true));
                                 }
                                 if ($oauthToken == $priorOauthToken && isset($priorOauthSecret)) {
                                     $twitterOAuth->setOauthToken($oauthToken, $priorOauthSecret);
@@ -190,10 +193,9 @@
                                         $oauthTokenSecret = $accessToken['oauth_token_secret'];
                                         if (strlen($oauthToken) > 0 && strlen($oauthTokenSecret) > 0) {
                                             $twitterOAuth->setOauthToken($oauthToken, $oauthTokenSecret);
-                                            debugX("User properly logged in with $provider : $oauthToken / $oauthTokenSecret");
-                                            // let's get the user's info
                                             $twitterUserInfo = $twitterOAuth->getUser();
                                             $rememberMe = true;
+                                            debugX("User " . $twitterUserInfo->screen_name . " properly logged in with $provider : $oauthToken / $oauthTokenSecret");
                                             $userInfoSSO = array(
                                                 'user_name' => $twitterUserInfo->screen_name,
                                                 'real_name' => $twitterUserInfo->name,
@@ -209,8 +211,7 @@
                                             if ($userInfo == null) {
                                                 $error = $enginesis->getLastError();
                                                 if ($error != null) {
-                                                    $errorMessage = '<p class="error-text">Your account could not be logged in at this time. ' . errorToLocalString($error['message']) . '</p>';
-                                                    $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
+                                                    $errorCode = $error['message'];
                                                 }
                                             } else {
                                                 $isLoggedIn = true;
@@ -252,7 +253,7 @@
             break;
     }
     if ($errorCode != null) {
-        $errorCode = '?code=' . $errorCode;
+        $errorCode = '?code=' . $errorCode . '&network=' . $network_id;
     } else {
         $errorCode = '';
     }
