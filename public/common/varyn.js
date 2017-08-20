@@ -1389,7 +1389,7 @@ var varyn = function (parameters) {
         runUnitTests: function() {
             console.log('enginesisSession.versionGet: ' + enginesisSession.versionGet());
             console.log('enginesisSession.getRefreshToken: ' + enginesisSession.getRefreshToken());
-            console.log('enginesisSession.getGameImageURL: ' + enginesisSession.getGameImageURL('MatchMaster3000', 0, 0, null));
+            console.log('enginesisSession.getGameImageURL: ' + enginesisSession.getGameImageURL({gameName: 'MatchMaster3000', width: 0, height: 0, format: null}));
             console.log('enginesisSession.getDateNow: ' + enginesisSession.getDateNow());
             console.log('varyn.networkIdToString: ' + varynApp.networkIdToString(11));
         }
@@ -1399,16 +1399,18 @@ var varyn = function (parameters) {
 /**
  * Determine full extent of the window available to the application
  * Extra Warning: this function must be global (on window object) because we will refer to it globally later.
- * @param container {object} DOM element that extends the full width and height of the page (use body unless you have a
- * full size div container.)
+ * @param container {string} id of DOM element that extends the full width and height of the page (use body unless you have a
+ * full size div container.) container = "gameContainer";
  * @returns {object} {fullWidth, fullHeight}
  */
-// container = "gameContainer";
 function getDocumentSize (container) {
     var gameContainerDiv = document.getElementById(container),
         result = {fullWidth: document.documentElement.clientWidth, fullHeight: document.documentElement.clientHeight},
         enginesisSession = varyn.getEnginesisSession();
 
+    if (gameContainerDiv == null) {
+        gameContainerDiv = document.body;
+    }
     if (gameContainerDiv != null) {
         result.containerWidth = gameContainerDiv.clientWidth;
         result.containerHeight = gameContainerDiv.clientHeight;
