@@ -654,6 +654,10 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon-120x120.png" sizes="120x120"/>
     <link rel="apple-touch-icon" href="/apple-touch-icon-152x152.png" sizes="152x152"/>
     <link rel="shortcut icon" href="/favicon-196x196.png">
+    <meta name="mswebdialog-title" content="Varyn">
+    <meta name="mswebdialog-logo" content="/favicon-96x96.png">
+    <meta name="mswebdialog-header-color" content="#690606">
+    <meta name="mswebdialog-newwindowurl" content="*">
     <meta property="fb:app_id" content="" />
     <meta property="fb:admins" content="726468316" />
     <meta property="og:title" content="Varyn: Great games you can play anytime, anywhere">
