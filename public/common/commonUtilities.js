@@ -562,14 +562,15 @@
      * @param expiration {object} When the cookie should expire.
      * @param path {string} Cookie URL path.
      * @param domain {string} Cookie domain.
-     * @param isSecure {bool} Set cookie secure flag.
+     * @param isSecure {boolean} Set cookie secure flag.
      * @return {boolean} true if set, false if error.
      */
     commonUtilities.cookieSet = function (key, value, expiration, path, domain, isSecure) {
+        var expires = "";
+
         if ( ! key || /^(?:expires|max\-age|path|domain|secure)$/i.test(key)) {
             return false;
         } else {
-            var expires = "";
             if (expiration) {
               switch (expiration.constructor) {
                 case Number:

@@ -1,13 +1,12 @@
 /**
- * Page specific functionality on the Varyn Profile page.
+ * Page specific functionality on the Varyn Profile page. This mostly handles user login and user profile edit.
  */
 var varynProfilePage = function (varynApp, siteConfiguration) {
     "use strict";
 
     var enginesisSession = varynApp.getEnginesisSession(),
         errorFieldId = '',
-        inputFocusId = '',
-        varynProfilePageReference = this;
+        inputFocusId = '';
 
     /**
      * Setup the security input fields only the first time the tab is visited
@@ -92,10 +91,43 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             if (document.getElementById('twitter-signin-button')) {
                 document.getElementById('twitter-signin-button').addEventListener('click', this.loginTwitter.bind(this));
             }
+            ssoGooglePlus.setLoginCallback(varynApp.registerSSO.bind(varynApp)); // Google button is attached in ssoGooglePlus.init()
+            if (varynApp.isLogout()) {
+                this.enableLoginButtons(false);
+            }
             this.setupUserNameChangeHandler();
             enginesisSession.gameListListGames(siteConfiguration.gameListIdTop, this.enginesisCallBack);
             this.onPageLoadSetFocus();
             window.onunload = this.updateCleanup.bind(this);
+        },
+
+        /**
+         * Use this function to enable/disable all the login buttons. Useful to block or unblock the buttons
+         * as a group while some process that takes time is working or completes.
+         * @param enableFlag
+         * @returns {*}
+         */
+        enableLoginButtons: function(enableFlag) {
+            if (typeof enableFlag === 'undefined' || enableFlag === null) {
+                enableFlag = true;
+            }
+            var isDisabled = ! enableFlag;
+            if (document.getElementById('profile_register_now')) {
+                document.getElementById('profile_register_now').disabled = isDisabled;
+            }
+            if (document.getElementById('login-button')) {
+                document.getElementById('login-button').disabled = isDisabled;
+            }
+            if (document.getElementById('facebook-connect-button')) {
+                document.getElementById('facebook-connect-button').disabled = isDisabled;
+            }
+            if (document.getElementById('twitter-signin-button')) {
+                document.getElementById('twitter-signin-button').disabled = isDisabled;
+            }
+            if (document.getElementById('gapi-signin-button')) {
+                document.getElementById('gapi-signin-button').disabled = isDisabled;
+            }
+            return enableFlag;
         },
 
         setupUserNameChangeHandler: function () {
@@ -265,6 +297,10 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             window.location.href = "/profile.php?action=logout";
         },
 
+        logoutComplete: function() {
+            this.enableLoginButtons(true);
+        },
+
         cancelUpdate: function (event) {
             this.updateCleanup();
             window.location.href = "/profile.php?action=cancel";
@@ -328,20 +364,8 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
          */
         loginFacebook: function () {
             varynApp.trackEvent('login', 'sso', 'facebook');
-            ssoFacebook.login(varynApp.registerSSO);
-            return false;
-        },
-
-        /**
-         * When you request a Google login (e.g. click the Sign in with Google button) we use Google's SDK to
-         * determine if we have a logged in user. If the user is logged in we need to refresh the page so the
-         * Enginesis/PHP code can pick it up. If the user does not complete a login then do nothing.
-         * @returns {boolean}
-         */
-        loginGoogle: function () {
-            varynApp.trackEvent('login', 'sso', 'google');
-            ssoGooglePlus.login(varynApp.registerSSO);
-            return false;
+            ssoFacebook.login(varynApp.registerSSO.bind(varynApp));
+            return true;
         },
 
         /**
@@ -353,7 +377,7 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
         loginTwitter: function () {
             varynApp.trackEvent('login', 'sso', 'twitter');
             ssoTwitter.login();
-            return false;
+            return true;
         }
     }
 };

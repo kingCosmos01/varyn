@@ -1,6 +1,7 @@
 /**
  * Single Sign On for Twitter
  * Twitter login is mostly done with PHP, then if the twitter token is attained we can use that in JavaScript.
+ * Login is completed in /procs/oauth.php.
  */
 
 (function ssoTwitter (global) {
@@ -58,8 +59,9 @@
      * @returns {boolean}
      */
     ssoTwitter.init = function () {
+        _loading = false;
         _loaded = true;
-        this.debugLog('init');
+        this.debugLog('init complete');
         return _initialized;
     };
 
@@ -74,7 +76,8 @@
      */
     ssoTwitter.load = function (parameters) {
         _loaded = false;
-        this.debugLog('load');
+        _loading = true;
+        this.debugLog('loading');
         this.setParameters(parameters);
     };
 
@@ -91,12 +94,10 @@
      */
     ssoTwitter.loadThenLogin = function (parameters) {
         var ssoTwitterInstance = this;
-        this.debugLog('load-then-login');
         return new Promise(function(resolve) {
             if (ssoTwitterInstance.isReady()) {
                 ssoTwitterInstance.getLoginStatus().then(resolve, resolve);
             } else {
-                // _callbackWhenLoaded = resolve;
                 ssoTwitterInstance.load(parameters);
             }
         });

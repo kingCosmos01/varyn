@@ -9,25 +9,21 @@
         _networkId = 7,
         _siteUserId = '',
         _applicationId = '1065156255426-al1fbn6kk4enqfq1f9drn8q1111optvt.apps.googleusercontent.com',
-        _scope = 'email',
+        _scope = 'email profile',
         _initialized = false,
         _loading = false,
         _loaded = false,
+        _loginPending = false,
         _tokenExpiration = null,
         _token = null,
         _callbackWhenLoaded = null,
+        _callbackWhenLoggedIn = null,
+        _callbackWhenLoggedOut = null,
         _gplusAuth = {},
-        _userInfo = {
-            networkId: 0,
-            userName: '',
-            realName: '',
-            userId: '',
-            siteUserId: '',
-            gender: 'U',
-            dob: null,
-            avatarURL: '',
-            scope: _scope
-        };
+        _userInfo = null,
+        _authCookieToken = 'enggapisession',
+        _authCookieCode = 'enggapicode',
+        _loginButtonId = 'gapi-signin-button';
 
     ssoGooglePlus.debugLog = function (message) {
         if (_debug) {
@@ -35,9 +31,29 @@
         }
     };
 
+    ssoGooglePlus.clearUserInfo = function () {
+        _userInfo = {
+            networkId: _networkId,
+            userName: '',
+            realName: '',
+            email: '',
+            userId: '',
+            siteUserId: '',
+            siteUserToken: '',
+            gender: 'U',
+            dob: null,
+            avatarURL: '',
+            scope: _scope
+        };
+    };
+
     /**
      * Initialize the library and prepare it for use.
-     * @param parameters
+     * @param parameters {object} of
+     *    networkId: {integer} Enginesis network id (should be 7!)
+     *    applicationId: {string} gapi client Id for API calls
+     *    loginCallback: {function} who to call when login completes
+     *    logoutCallback: {function} who to call when logout completes
      * @returns {boolean}
      */
     ssoGooglePlus.setParameters = function (parameters) {
@@ -50,8 +66,22 @@
             if (parameters.applicationId) {
                 _applicationId = parameters.applicationId;
             }
+            if (parameters.loginCallback) {
+                _callbackWhenLoggedIn = parameters.loginCallback;
+            }
+            if (parameters.logoutCallback) {
+                _callbackWhenLoggedOut = parameters.logoutCallback;
+            }
         }
         return errors;
+    };
+
+    /**
+     * We need a set a callback to fire when a login completes.
+     * @param loginCallback
+     */
+    ssoGooglePlus.setLoginCallback = function (loginCallback) {
+        _callbackWhenLoggedIn = loginCallback;
     };
 
     /**
@@ -62,6 +92,8 @@
         var googleApi = window.gapi,
             googlePlusInstance = this;
 
+        googlePlusInstance.clearUserInfo();
+        commonUtilities.cookieRemove(_authCookieCode, '/', '');
         if (googleApi) {
             googlePlusInstance.debugLog('init');
             _loading = false;
@@ -69,24 +101,31 @@
             googleApi.load('auth2', function () {
                 googleApi.client.load('plus', 'v1').then(function () {
                     _initialized = true;
-                    googlePlusInstance.debugLog('init complete');
                     _gplusAuth = googleApi.auth2.init({
                             client_id: _applicationId,
                             cookiepolicy: 'single_host_origin',
-                            scope: 'profile email'
+                            scope: _scope
                         });
-                    // setup Google API listeners for state change events
-                    _gplusAuth.isSignedIn.listen(googlePlusInstance.updateSignInState.bind(googlePlusInstance));
-                    _gplusAuth.currentUser.listen(googlePlusInstance.userChanged.bind(googlePlusInstance));
-                    if (_gplusAuth.isSignedIn.get()) {
-                        _gplusAuth.signIn();
+                    if (_callbackWhenLoggedOut != null) {
+                        // a deferred logout was pending handle it now
+                        var callback = _callbackWhenLoggedOut;
+                        _callbackWhenLoggedOut = null;
+                        googlePlusInstance.logout(callback);
                     } else {
-                        googlePlusInstance.attachGoogleLoginButton();
-                        if (_callbackWhenLoaded != null) {
-                            var callback = _callbackWhenLoaded;
-                            _callbackWhenLoaded = null;
-                            googlePlusInstance.debugLog('calling callback for no logged in user');
-                            callback(Error('User is not logged in with Google.'));
+                        // setup Google API listeners for state change events
+                        _gplusAuth.isSignedIn.listen(googlePlusInstance.updateSignInState.bind(googlePlusInstance));
+                        _gplusAuth.currentUser.listen(googlePlusInstance.userChanged.bind(googlePlusInstance));
+                        if (_gplusAuth.isSignedIn.get()) {
+                            googlePlusInstance.debugLog('init complete calling sign in');
+                            _gplusAuth.signIn();
+                        } else {
+                            googlePlusInstance.attachGoogleLoginButton();
+                            googlePlusInstance.debugLog('init complete not signed in');
+                            if (_callbackWhenLoaded != null) {
+                                var callback = _callbackWhenLoaded;
+                                _callbackWhenLoaded = null;
+                                callback(Error('User is not logged in with Google.'));
+                            }
                         }
                     }
                 });
@@ -100,27 +139,42 @@
      * attach Google's click handler.
      */
     ssoGooglePlus.attachGoogleLoginButton = function () {
-        var buttonId = 'gapi-signin-button',
-            googlePlusInstance = this;
+        var googlePlusInstance = this;
+        var buttonElement = document.getElementById(_loginButtonId);
 
-        if (document.getElementById(buttonId)) {
+        if (buttonElement != null) {
             // No logged in user: attach the login click handler only if the current page offers the button.
-            _gplusAuth.attachClickHandler(buttonId, {},
+            _gplusAuth.attachClickHandler(buttonElement, {},
                 function (googleUser) {
                     var gplusProfile = googleUser.getBasicProfile();
                     googlePlusInstance.debugLog('Signed in: ' + gplusProfile.getName());
-                    var registrationParameters = {
-                        networkId: 7,
+                    _loginPending = true;
+                    _userInfo = {
+                        networkId: _networkId,
                         userName: gplusProfile.getName(),
-                        realName: gplusProfile.getGivenName(),
-                        emails: gplusProfile.getEmail(),
-                        siteUserId: gplusProfile.getId(),
+                        realName: gplusProfile.getGivenName() + ' ' + gplusProfile.getFamilyName(),
+                        email: gplusProfile.getEmail(),
+                        siteUserId: gplusProfile.getId(), // TODO: wrong, need authtoken.get-token-id
                         gender: 'U',
                         dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(13)),
-                        avatarURL: '',
-                        scope: ''
+                        avatarURL: gplusProfile.getImageUrl(),
+                        scope: _scope
                     };
-                    varynApp.registerSSO(registrationParameters, registrationParameters.networkId);
+                    _gplusAuth.grantOfflineAccess({
+                        scope: _scope
+                    }).then(function(response) {
+                        var authCode = response.code;
+                        var timeNow = new Date();
+                        var cookieExpireMinutes = 30;
+                        timeNow.setTime(timeNow.getTime() + (cookieExpireMinutes * 60 * 1000));
+                        // TODO: Need to get this code up to the server so drop a cookie for the server to pick up
+                        commonUtilities.cookieSet(_authCookieCode, authCode, timeNow.toUTCString(), '/', '', false);
+                        _loginPending = false;
+                        if (_callbackWhenLoggedIn != null) {
+                            googlePlusInstance.debugLog('calling callback for logged in user ' + _userInfo.userName);
+                            _callbackWhenLoggedIn(_userInfo, _networkId);
+                        }
+                    });
                 }, function (error) {
                     googlePlusInstance.debugLog('error: ' + (JSON.stringify(error, undefined, 2)));
                 });
@@ -247,7 +301,8 @@
     ssoGooglePlus.getLoginStatus = function (loginStatus) {
         return new Promise(function(resolve, reject) {
             if (_gplusAuth.isSignedIn.get()) {
-                resolve(userInfo);
+                ssoGooglePlus.debugLog('user is signed in resolving getLoginStatus');
+                resolve(_userInfo);
             } else {
                 reject(Error('User is not logged in with Google.'));
             }
@@ -257,55 +312,67 @@
     /**
      * Event triggered when a user changes.
      */
-    ssoGooglePlus.userChanged = function (user) {
-        this.debugLog('GPlus user change event');
+    ssoGooglePlus.userChanged = function (currentGoogleUser) {
+        this.debugLog('user change event');
     };
 
     /**
      * Event listener when the user's sign in state changes.
      */
     ssoGooglePlus.updateSignInState = function () {
-        this.debugLog('GPlus update sign in state change');
-        var googleAuthInstance;
-        if (_gplusAuth.isSignedIn.get()) {
-            googleAuthInstance = gapi.auth2.getAuthInstance();
-            this.debugLog('user is signed in as ' + JSON.stringify(googleAuthInstance));
+        var googleAuthInstance = gapi.auth2.getAuthInstance();
+        if (googleAuthInstance != null) {
+            if (_gplusAuth.isSignedIn.get()) {
+                this.debugLog('update sign in state change for a login');
+                if ( ! _loginPending && _callbackWhenLoggedOut == null) {
+                    var currentGoogleUser = googleAuthInstance.currentUser.get(),
+                        basicProfile = currentGoogleUser.getBasicProfile(),
+                        authResponse = currentGoogleUser.getAuthResponse();
+                    _userInfo = {
+                        networkId: _networkId,
+                        userName: basicProfile.getName(),
+                        realName: basicProfile.getGivenName() + ' ' + basicProfile.getFamilyName(),
+                        email: basicProfile.getEmail(),
+                        siteUserId: basicProfile.getId(),
+                        siteUserIdToken: authResponse.id_token,
+                        gender: 'U',
+                        dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(13)),
+                        avatarURL: basicProfile.getImageUrl(),
+                        scope: _scope
+                    };
+                    if (_callbackWhenLoggedIn != null) {
+                        ssoGooglePlus.debugLog('calling callback for logged in user ' + _userInfo.userName);
+                        _callbackWhenLoggedIn(_userInfo);
+                    } else {
+                        ssoGooglePlus.debugLog('no callback for logged in user ' + _userInfo.userName);
+                    }
+                } else {
+                    ssoGooglePlus.debugLog('A login or logout is currently pending so ignoring login state change');
+                }
+            } else {
+                this.debugLog('update sign in state change for a signout');
+                // TODO: perform signout, this was in response to a logout() call and the server replied.
+            }
         } else {
-            googleAuthInstance = gapi.auth2.getAuthInstance();
-            this.debugLog('user is signed out: ' + JSON.stringify(googleAuthInstance));
+            this.debugLog('error cannot determine current user auth instance');
         }
     };
 
     ssoGooglePlus.onGapiSuccess = function (googleUser) {
-        this.debugLog('success');
+        this.debugLog('onGapiSuccess');
 
     };
 
     ssoGooglePlus.onGapiFailure = function (error) {
-        this.debugLog('failed');
-
+        this.debugLog('onGapiFailure');
     };
 
+    /**
+     * Log the user in with Google + API. This currently doesn't do anything
+     * because with Google we are using the attachGoogleLoginButton method.
+     * @param callBackWhenComplete
+     */
     ssoGooglePlus.login = function (callBackWhenComplete) {
-        // start the user login process.
-        var response = {
-            name: 'Google user',
-            email: 'user@gmail.com',
-            id: '12312312312312',
-            gender: 'U'
-        };
-        var registrationParameters = {
-            networkId: 7,
-            userName: 'Fake Google User',
-            realName: response.name,
-            email: response.email,
-            siteUserId: response.id,
-            gender: enginesisSession.validGender(response.gender),
-            dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(13)),
-            scope: _scope
-        };
-        this.debugLog('login ? ' + JSON.stringify(registrationParameters));
-        callBackWhenComplete(registrationParameters);
     };
 
     /**
@@ -313,6 +380,28 @@
      * @param callBackWhenComplete
      */
     ssoGooglePlus.logout = function (callBackWhenComplete) {
+        if (typeof gapi !== 'undefined' && typeof gapi.auth2 !== 'undefined') {
+            var googleAuthInstance = gapi.auth2.getAuthInstance();
+            if (googleAuthInstance != null) {
+                googleAuthInstance.signOut().then(function () {
+                    ssoGooglePlus.debugLog(' user logout complete');
+                    ssoGooglePlus.clearUserInfo();
+                    if (typeof callBackWhenComplete !== 'undefined' && callBackWhenComplete != null) {
+                        callBackWhenComplete();
+                    }
+                });
+            } else {
+                this.debugLog('logout failed because auth2 module not initialized');
+                if (typeof callBackWhenComplete !== 'undefined' && callBackWhenComplete != null) {
+                    _callbackWhenLoggedOut = callBackWhenComplete;
+                }
+            }
+        } else {
+            this.debugLog('logout failed because auth2 module not loaded');
+            if (typeof callBackWhenComplete !== 'undefined' && callBackWhenComplete != null) {
+                _callbackWhenLoggedOut = callBackWhenComplete;
+            }
+        }
     };
 
     /**
@@ -345,6 +434,5 @@
  * Google forces this as a global function to callback after the SDK loads.
  */
 function ssoGooglePlusInit () {
-    console.log('ssoGooglePlus loaded, we are in ssoGooglePlusInit, calling init');
     ssoGooglePlus.init();
 }

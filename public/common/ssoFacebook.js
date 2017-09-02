@@ -1,5 +1,7 @@
 /**
- * Single Sign On for Facebook
+ * Single Sign On for Facebook.
+ * When this module loads, we immediately check if we have a logged in user.
+ * If yes,
  */
 
 (function ssoFacebook (global) {
@@ -23,9 +25,11 @@
             userId: '',      // Enginesis user id
             networkId: 0,
             siteUserId: '',  // Facebook user id
+            siteUserToken: '',
             dob: null,
             gender: 'U',
-            avatarURL: ''
+            avatarURL: '',
+            email: ''
         };
 
     ssoFacebook.debugLog = function (message) {
@@ -53,7 +57,8 @@
     };
 
     /**
-     * Initialize the library and prepare it for use. This is called from the Facebook load callback.
+     * Initialize the library and prepare it for use. This is called from the Facebook load callback. When loaded
+     * we immediately check to see if we already have a logged in user.
      * @returns {boolean}
      */
     ssoFacebook.init = function () {
@@ -128,7 +133,7 @@
                 ssoFacebookInstance.debugLog('Facebook SDK is ready');
                 ssoFacebookInstance.getLoginStatus().then(resolve, resolve);
             } else {
-                ssoFacebookInstance.debugLog('Facebook SDK must be loaded');
+                ssoFacebookInstance.debugLog('Facebook SDK is not loaded');
                 _callbackWhenLoaded = resolve;
                 ssoFacebookInstance.load(parameters);
             }
@@ -194,7 +199,9 @@
 
     /**
      * Determine if we have a logged in user according to Facebook's SDK. This function returns a Promise, that
-     * will resolve once the status can be determined, since usually this requires a network call and some delay to figure it out.
+     * will resolve once the status can be determined, since usually this requires a network call and some delay
+     * to figure it out.
+     * @returns {Promise} Resolve function is called with the _userInfo object. Reject is called if no user is logged in.
      */
     ssoFacebook.getLoginStatus = function () {
         var ssoFacebookInstance = this;
@@ -206,15 +213,16 @@
                         _facebookToken = facebookResponse.authResponse.accessToken;
                         _facebookTokenExpiration = facebookResponse.authResponse.expiredIn;
                         _siteUserId = facebookResponse.authResponse.userID;
-                        FB.api('/me', function (response) {
+                        FB.api('/me', 'get', {fields: 'id,name,email,gender'}, function (response) {
                             _userInfo = {
                                 networkId: _networkId,
                                 userName: response.name,
-                                realName: '',
-                                email: '',
+                                realName: response.name,
+                                email: response.email || '',
                                 siteUserId: response.id,
-                                gender: 'U',
-                                dob: null,
+                                siteUserToken: response.id,
+                                gender: enginesis.validGender(response.gender),
+                                dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(14)),
                                 avatarURL: 'https://graph.facebook.com/' + response.id + '/picture?type=square',
                                 scope: _scope
                             };
@@ -247,11 +255,23 @@
             _facebookToken = facebookResponse.authResponse.accessToken;
             _facebookTokenExpiration = facebookResponse.authResponse.expiredIn;
             _siteUserId = facebookResponse.authResponse.userID;
-            FB.api('/me', function (response) {
+            FB.api('/me', 'get', {fields: 'id,name,email,gender'}, function (response) {
                 // if we get here, the user has approved our app AND they are logged in.
                 // We need to check this state IF a user is not currently logged in, this would indicate they should be logged in
                 // automatically with Facebook
                 sso.debugLog('Successful Facebook login for: ' + response.name + ' (' + response.id + ')');
+                _userInfo = {
+                    networkId: _networkId,
+                    userName: response.name,
+                    realName: response.name,
+                    email: response.email || '',
+                    siteUserId: response.id,
+                    siteUserToken: response.id,
+                    gender: enginesis.validGender(response.gender),
+                    dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(14)),
+                    avatarURL: 'https://graph.facebook.com/' + response.id + '/picture?type=square',
+                    scope: _scope
+                };
                 // this.loginSSO(); ???
             });
         }
@@ -265,13 +285,15 @@
             if (response.authResponse) {
                 FB.api('/me', 'get', {fields: 'id,name,email,gender'}, function(response) {
                     var registrationParameters = {
-                        networkId: 2,
-                        userName: '',
+                        networkId: _networkId,
+                        userName: response.name,
                         realName: response.name,
                         email: response.email,
                         siteUserId: response.id,
+                        siteUserToken: response.id,
                         gender: enginesis.validGender(response.gender),
-                        dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(13)),
+                        dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(14)),
+                        avatarURL: 'https://graph.facebook.com/' + response.id + '/picture?type=square',
                         scope: _scope
                     };
                     sso.debugLog('User login complete for ' + response.name);
@@ -283,28 +305,6 @@
                 callBackWhenComplete(null);
             }
         }, {scope: _scope, return_scopes: true});
-    };
-
-    /**
-     * Using this function to fake a login-response from the network service only so we can test our code.
-     * TODO: Remove this code before going live!
-     * @returns {boolean}
-     */
-    ssoFacebook.loginFacebookFake = function (callBackWhenComplete) {
-        var response = {id: "726468316", name: "John Foster", email: "jfoster@acm.org", gender: "male"};
-        var registrationParameters = {
-            networkId: 2,
-            userName: '',
-            realName: response.name,
-            email: response.email,
-            siteUserId: response.id,
-            gender: enginesis.validGender(response.gender),
-            dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(13)),
-            scope: _scope
-        };
-        this.debugLog('loginFacebookFake ' + response.name);
-        callBackWhenComplete(registrationParameters);
-        return false;
     };
 
     /**

@@ -90,9 +90,13 @@
                     setVarynUserCookie($userInfo, $enginesis->getServerName());
                     $userInfoJSON = getVarynUserCookie();
                 }
-            // } else {
-                // echo("<p>Facebook $networkId SSO returned no user</p>");
+            } else {
+                debugLog("Connection for network $networkId SSO returned no logged in user");
+                echo("<p>Connection for network $networkId SSO returned no logged in user</p>");
+                exit(0);
             }
+        } else {
+            debugLog("Could not create SSO for network $networkId");
         }
     } elseif ($isLoggedIn) {
         // if we have the Enginesis login cookie then we should also verify the user's login with any SSO is still valid.
@@ -929,7 +933,7 @@
                 <input type="button" class="btn btn-primary btn-varyn" id="profile_register_now" value="Sign up with Email" onclick="profilePage.showRegistrationPopup(true);" title="Sign up with your email address" /><br/>
                 <h4>Or</h4>
                 <input type="button" class="btn btn-primary btn-facebook" id="facebook-connect-button" value="Login with Facebook" title="Login with your Facebook account" />
-                <input type="button" class="btn btn-primary btn-gapi-signin" id="gapi-signin-button" value="" title="Sign in with your Google+ account" />
+                <input type="button" class="btn btn-primary btn-gapi-signin" id="gapi-signin-button" value="Sign in with Google" title="Sign in with your Google+ account" />
                 <input type="button" class="btn btn-primary btn-twitter-signin" id="twitter-signin-button" value="Sign in with Twitter" title="Sign in with your Twitter account" />
             </div>
         </div>
@@ -972,7 +976,7 @@
 <?php
     include_once('common/footer.php');
     if (empty($refreshToken)) {
-        $refreshTokenJavaScript = '';
+        $refreshTokenJavaScript = "\n";
     } else {
         $refreshTokenJavaScript = "\n        varynApp.saveRefreshToken('$refreshToken');\n";
     }
@@ -1004,7 +1008,7 @@
             };
         varynApp = varyn(siteConfiguration);
         profilePage = varynApp.initApp(varynProfilePage, profilePageParameters);<?php echo($refreshTokenJavaScript);?>
-        varynApp.runUnitTests();
+        // varynApp.runUnitTests();
     });
     if (debug) {
         head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.min.js', '/common/ie10-viewport-bug-workaround.js', '//platform.twitter.com/widgets.js', 'https://apis.google.com/js/platform.js', '/common/enginesis.js', '/common/ShareHelper.js', '/common/commonUtilities.js', '/common/ssoFacebook.js', '/common/ssoGooglePlus.js', '/common/ssoTwitter.js', '/common/varyn.js', '/common/varynProfilePage.js');

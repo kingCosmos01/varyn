@@ -36,7 +36,8 @@ var varyn = function (parameters) {
         waitingForUserNameReply = false,
         domImage,
         enginesisSession = window.enginesis,
-        pageViewParameters = null;
+        pageViewParameters = null,
+        _isLogout = false;
 
     /**
      * Network id is set by the Enginesis server based on what type of user login was performed.
@@ -103,9 +104,9 @@ var varyn = function (parameters) {
                     languageCode: this.parseLanguageCode(siteConfiguration.languageCode),
                     callBackFunction: this.enginesisCallBack.bind(this)
                },
-               isLogout = pageViewParameterObject.isLogout,
                pageViewTemplate = null;
 
+            _isLogout = pageViewParameterObject.isLogout;
             currentPage = this.getCurrentPage();
             pageViewParameters = pageViewParameterObject;
             // document.domain = siteConfiguration.serverHostDomain;
@@ -118,10 +119,15 @@ var varyn = function (parameters) {
                 pageViewTemplate = pageView(varynApp, siteConfiguration);
                 pageViewTemplate.pageLoaded(pageViewParameters);
             }
-            if (isLogout) {
-                this.logout();
+            if (_isLogout) {
+                this.logout().then(function() {
+                    if (typeof pageViewTemplate.logoutComplete !== 'undefined') {
+                        pageViewTemplate.logoutComplete();
+                    }
+                });
+            } else {
+                this.checkIsUserLoggedIn();
             }
-            this.checkIsUserLoggedIn();
             return pageViewTemplate;
         },
 
@@ -179,6 +185,10 @@ var varyn = function (parameters) {
 
         getSiteConfiguration: function () {
             return siteConfiguration;
+        },
+
+        isLogout: function() {
+            return _isLogout;
         },
 
         parseLanguageCode: function (languageCode) {
@@ -769,13 +779,20 @@ var varyn = function (parameters) {
          * @param {int} networkId is the network identifier, see Enginesis documentation
          */
         registerSSO: function (registrationParameters, networkId) {
-            if (registrationParameters != undefined && registrationParameters != null) {
+            if (! _isLogout && registrationParameters != undefined && registrationParameters != null) {
                 if (networkId === undefined || networkId === null && registrationParameters.networkId !== undefined) {
                     networkId = registrationParameters.networkId;
                 }
                 unconfirmedNetworkId = networkId;
                 varynApp.trackEvent('login-complete', 'sso', varynApp.networkIdToString(networkId));
                 enginesisSession.userLoginCoreg(registrationParameters, networkId, null);
+            } else if (_isLogout) {
+                var forceSignout = true;
+                if (forceSignout) {
+                    ssoGooglePlus.logout(function() {
+                        console.log("Google user is logged out");
+                    });
+                }
             }
         },
 
@@ -793,17 +810,7 @@ var varyn = function (parameters) {
                 // if Enginesis has no session we could iterate each service to see if we have a logged in user, but
                 // for now we will just assume we don't and ask the user to login.
                 // this.checkLoggedInSSO(-1).then(this.loginSSOSucceeded, this.loginSSOFailed);
-                var supportedNetworks = enginesisSession.supportedSSONetworks(),
-                    supportedNetworksIdList = [],
-                    supportedNetworksIndex = 0;
-
-                // build a list of networks we are going to check. TODO: Could order this list based on preference.
-                for (var network in supportedNetworks) {
-                    if (supportedNetworks.hasOwnProperty(network) && network != 'Enginesis') {
-                        supportedNetworksIdList.push(supportedNetworks[network]);
-                        this.loadSupportedNetwork(supportedNetworks[network]);
-                    }
-                }
+                var supportedNetworksIdList = this.loadAllSupportedNetworks();
                 if (supportedNetworksIdList.length > 0) {
                     // Decided not to do this as it's a lot of trouble waiting around for all these SDKs to check
                     // if someone is logged in, and we should be caching that info in the Varyn and Enginesis SSO state.
@@ -815,11 +822,52 @@ var varyn = function (parameters) {
         },
 
         /**
-         * Clear any cached user info and forget this user.
+         * Load all SSO networks handlers.
+         * @returns {Array} - array of the network-id's that were loaded.
+         */
+        loadAllSupportedNetworks: function() {
+            var supportedNetworks = enginesisSession.supportedSSONetworks(),
+                supportedNetworksIdList = [];
+
+            // build a list of networks we are going to check. TODO: Could order this list based on preference.
+            for (var network in supportedNetworks) {
+                if (supportedNetworks.hasOwnProperty(network) && network != 'Enginesis') {
+                    supportedNetworksIdList.push(supportedNetworks[network]);
+                    this.loadSupportedNetwork(supportedNetworks[network]);
+                }
+            }
+            return supportedNetworksIdList;
+        },
+
+        /**
+         * Clear any cached user info and forget this user. Also logout from connected network. Resolves the
+         * Promise once the logout is complete since it may take a while over the network.
          */
         logout: function () {
-            clearSavedUserInfo();
-            enginesis.clearRefreshToken();
+            var thatVarynApp = this;
+            var forceSignout = false; // TODO: Using this for testing when we must for a user to log out
+            var networkId = enginesis.networkId; // this should be the network-id the user logged in with
+
+            return new Promise(function(resolvePromise, rejectPromise) {
+                clearSavedUserInfo();
+                enginesis.clearRefreshToken();
+
+                // TODO: To force google logout 1. load SDK, 2. wait for load complete 3. logoutSSO.
+                if (forceSignout) {
+                    ssoGooglePlus.load({
+                        networkId: enginesis.supportedNetworks.Google,
+                        logoutCallback: function () {
+                            thatVarynApp.checkIsUserLoggedIn();
+                            resolvePromise();
+                        }
+                    });
+                } else {
+                    thatVarynApp.logoutSSO(networkId, function () {
+                        thatVarynApp.checkIsUserLoggedIn();
+                        resolvePromise();
+                    });
+                }
+            });
         },
 
         /**
@@ -975,9 +1023,48 @@ var varyn = function (parameters) {
          * @param {int} networkId is the network identifier, see Enginesis documentation
          */
         loginSSO: function (registrationParameters, networkId) {
-            if (registrationParameters != undefined && registrationParameters != null) {
+            if (! _isLogout && registrationParameters != undefined && registrationParameters != null) {
                 unconfirmedNetworkId = networkId;
                 enginesisSession.userLoginCoreg(registrationParameters, networkId, null);
+            } else if (_isLogout) {
+                var forceSignout = true;
+                if (forceSignout) {
+                    ssoGooglePlus.logout(function() {
+                        console.log("Google user is logged out");
+                    });
+                }
+            }
+        },
+
+        /**
+         * Trigger the SDK load for the given network.
+         * @param networkId
+         * @param callMeWhenComplete - function to call once logged out. Can be null.
+         */
+        logoutSSO: function(networkId, callMeWhenComplete) {
+            switch (networkId) {
+                case enginesis.supportedNetworks.Enginesis: // Enginesis is always loaded
+                    if (typeof callMeWhenComplete !== 'undefined' && callMeWhenComplete != null) {
+                        callMeWhenComplete();
+                    }
+                    break;
+                case enginesis.supportedNetworks.Facebook:
+                    if (typeof ssoFacebook !== 'undefined') {
+                        ssoFacebook.logout(callMeWhenComplete);
+                    }
+                    break;
+                case enginesis.supportedNetworks.Google:
+                    if (typeof ssoGooglePlus !== 'undefined') {
+                        ssoGooglePlus.logout(callMeWhenComplete);
+                    }
+                    break;
+                case enginesis.supportedNetworks.Twitter:
+                    if (typeof ssoTwitter !== 'undefined') {
+                        ssoTwitter.logout(callMeWhenComplete);
+                    }
+                    break;
+                default:
+                    break;
             }
         },
 
@@ -1036,9 +1123,12 @@ var varyn = function (parameters) {
          * can ask the server to test if the user name is already in use.
          */
         setupRegisterUserNameOnChangeHandler: function () {
-            $('#register-username').on('change', this.onChangeRegisterUserName.bind(this));
-            $('#register-username').on('input', this.onChangeRegisterUserName.bind(this));
-            $('#register-username').on('propertychange', this.onChangeRegisterUserName.bind(this));
+            var userNameElement = document.getElementById('register-username');
+            if (userNameElement != null) {
+                userNameElement.addEventListener('change', this.onChangeRegisterUserName.bind(this));
+                userNameElement.addEventListener('input', this.onChangeRegisterUserName.bind(this));
+                userNameElement.addEventListener('propertychange', this.onChangeRegisterUserName.bind(this));
+            }
         },
 
         /**
@@ -1358,7 +1448,7 @@ var varyn = function (parameters) {
                         }
                         if (userInfo) {
                             // TODO: User is now logged in, refresh the page and the page refresh should be able to pick up the logged in state.
-                            document.location.href = "/profile.php?network_id=" + getNetworkId();
+                            // document.location.href = "/profile.php?network_id=" + getNetworkId();
                         } else {
                             // TODO: User is not logged in, we should display an error message.
                             varynApp.showInfoMessagePopup("Login", "There was a system issue while trying to login or register your account: " + errorMessage, 0);
@@ -1387,11 +1477,13 @@ var varyn = function (parameters) {
          * A develop/debug function to run through Unit tests. Do not include this in a production deployment.
          */
         runUnitTests: function() {
+            console.log('==== Starting Varyn.js Unit Tests ====');
             console.log('enginesisSession.versionGet: ' + enginesisSession.versionGet());
             console.log('enginesisSession.getRefreshToken: ' + enginesisSession.getRefreshToken());
             console.log('enginesisSession.getGameImageURL: ' + enginesisSession.getGameImageURL({gameName: 'MatchMaster3000', width: 0, height: 0, format: null}));
             console.log('enginesisSession.getDateNow: ' + enginesisSession.getDateNow());
             console.log('varyn.networkIdToString: ' + varynApp.networkIdToString(11));
+            console.log('==== Completed Varyn.js Unit Tests ====');
         }
     }
 };

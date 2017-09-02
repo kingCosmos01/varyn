@@ -9,6 +9,7 @@
 require_once 'Enginesis.php';
 require_once 'SocialServicesFacebook.php';
 require_once 'SocialServicesTwitter.php';
+require_once 'SocialServicesGoogle.php';
 
 
 class SocialServices
@@ -32,6 +33,9 @@ class SocialServices
                 break;
             case EnginesisNetworks::Facebook:
                 return new SocialServicesFacebook($networkId);
+                break;
+            case EnginesisNetworks::Google:
+                return new SocialServicesGoogle($networkId);
                 break;
             case EnginesisNetworks::Twitter:
                 return new SocialServicesTwitter($networkId);

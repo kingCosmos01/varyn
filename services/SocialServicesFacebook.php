@@ -5,7 +5,7 @@
  * @date: 5/10/2016
  */
 
-require 'lib/vendor/facebook/autoload.php';
+require_once 'lib/vendor/facebook/autoload.php';
 
 define ('FACEBOOK_SESSION_KEY', 'engfbsession');
 
@@ -42,9 +42,13 @@ class SocialServicesFacebook extends SocialServices
     public function connectSSO () {
         $userInfo = null;
         if ($this->fb) {
-            $this->login();
             if ($this->isLoggedIn) {
                 $userInfo = $this->currentUserInfo();
+            } else {
+                $this->login();
+                if ($this->isLoggedIn) {
+                    $userInfo = $this->currentUserInfo();
+                }
             }
         }
         return $userInfo;
@@ -155,7 +159,16 @@ class SocialServicesFacebook extends SocialServices
             if ($user != null && isset($user['id'])) {
                 // Convert Facebook's $user into Enginesis $userInfo
                 $this->m_site_user_id = $user['id'];
-                $userInfo = array('network_id' => EnginesisNetworks::Facebook, 'site_user_id' => $this->m_site_user_id, 'real_name' => $user['name'], 'user_name' => '', 'email_address' => $user['email'], 'gender' => strtoupper($user['gender'][0]), 'dob' => '', 'scope' => '', 'agreement' => '1');
+                $userInfo = array(
+                    'network_id' => EnginesisNetworks::Facebook,
+                    'site_user_id' => $this->m_site_user_id,
+                    'real_name' => $user['name'],
+                    'user_name' => $user['name'],
+                    'email_address' => $user['email'],
+                    'gender' => strtoupper($user['gender'][0]),
+                    'dob' => '',
+                    'scope' => '',
+                    'agreement' => '1');
             } else {
                 $this->setLastError('INVALID_PARAM', 'User is not properly logged in via Facebook SDK');
                 $userInfo = null;

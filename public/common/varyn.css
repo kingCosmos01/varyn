@@ -599,17 +599,22 @@ footer {
 }
 
 .btn-gapi-signin {
-    background-color: #4285F4;
-    background-image: url(/images/btn_google_signin.png);
+    font-family: 'Roboto', sans-serif;
+    background-color: #ffffff;
+    background-image: url(/images/google_button_logo.png);
     background-repeat: no-repeat;
-    color: #ffffff;
+    background-position: 10px, left;
+    background-size: 22px 22px;
+    color: #444444;
     padding: 0;
     margin: 0;
     height: 50px;
+    white-space: nowrap;
 }
 
 .btn-gapi-signin:hover {
-    background-color: #415cc0;
+    background-color: #d1e0ff;
+    color: #444444;
 }
 
 .btn-facebook {

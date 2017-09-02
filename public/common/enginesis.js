@@ -137,11 +137,11 @@
     function requestComplete (enginesisResponseData, overRideCallBackFunction) {
         var enginesisResponseObject;
 
-        debugLog("Enginesis CORS request complete " + enginesisResponseData);
         try {
             enginesisResponseObject = JSON.parse(enginesisResponseData);
         } catch (exception) {
             enginesisResponseObject = {results:{status:{success:0,message:"Error: " + exception.message,extended_info:enginesisResponseData.toString()},passthru:{fn:"unknown",state_seq:"0"}}};
+            debugLog("Enginesis requestComplete exception " + JSON.stringify(enginesisResponseObject));
         }
         enginesisResponseObject.fn = enginesisResponseObject.results.passthru.fn;
         if (overRideCallBackFunction != null) {
