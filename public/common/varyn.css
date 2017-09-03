@@ -606,7 +606,7 @@ footer {
     background-position: 10px, left;
     background-size: 22px 22px;
     color: #444444;
-    padding: 0;
+    padding: 0 0 0 12px;
     margin: 0;
     height: 50px;
     white-space: nowrap;

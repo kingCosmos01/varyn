@@ -360,7 +360,6 @@
 
     ssoGooglePlus.onGapiSuccess = function (googleUser) {
         this.debugLog('onGapiSuccess');
-
     };
 
     ssoGooglePlus.onGapiFailure = function (error) {
