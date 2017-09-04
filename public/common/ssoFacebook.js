@@ -230,7 +230,7 @@
                             // We need to check this state IF a user is not currently logged in, this would indicate they should be logged in
                             // automatically with Facebook
                             ssoFacebookInstance.debugLog('Successful Facebook login for: ' + response.name + ' (' + response.id + ')');
-                            resolve(userInfo);
+                            resolve(_userInfo);
                         });
                     } else {
                         ssoFacebookInstance.debugLog('no one logged in with Facebook status: ' + facebookResponse.status);
@@ -281,7 +281,7 @@
         // start the user login process.
         var sso = this;
         FB.login(function(response) {
-            var status = response.status; // TODO: if we get "unknown" then redirect to Facebook login ? 
+            var status = response.status; // TODO: if we get "unknown" then redirect to Facebook login ?
             if (response.authResponse) {
                 FB.api('/me', 'get', {fields: 'id,name,email,gender'}, function(response) {
                     var registrationParameters = {
