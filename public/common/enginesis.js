@@ -1244,35 +1244,54 @@
     /**
      * Enginesis co-registration accepts validated login from another network and creates a new user or logs in
      * a matching user. site-user-id, user-name, and network-id are mandatory. Everything else is optional.
-     * @param registrationParameters {object} registration data values
+     * @param registrationParameters {object} registration data values. We accept
+     *   siteUserId
+     *   userName
+     *   realName
+     *   emailAddress
+     *   agreement
+     *   gender
+     *   dob
+     *   avatarURL
+     *   idToken
+     *   scope
      * @param networkId {int} we must know which network this registration comes from.
      * @param overRideCallBackFunction {function} called when server replies.
      */
     enginesis.userLoginCoreg = function (registrationParameters, networkId, overRideCallBackFunction) {
-        if (registrationParameters.siteUserId === undefined || registrationParameters.siteUserId.length == 0) {
+        if (typeof registrationParameters.siteUserId === 'undefined' || registrationParameters.siteUserId.length == 0) {
             return false;
         }
-        if ((registrationParameters.userName === undefined || registrationParameters.userName.length == 0) && (registrationParameters.realName === undefined || registrationParameters.realName.length == 0)) {
+        if ((typeof registrationParameters.userName === 'undefined' || registrationParameters.userName.length == 0) && (typeof registrationParameters.realName === 'undefined' || registrationParameters.realName.length == 0)) {
             return false; // Must provide either userName, realName, or both
         }
-        if (registrationParameters.userName === undefined) {
+        if (typeof registrationParameters.userName === 'undefined') {
             registrationParameters.userName = '';
         }
-        if (registrationParameters.realName === undefined) {
+        if (typeof registrationParameters.realName === 'undefined') {
             registrationParameters.realName = '';
         }
-        if (registrationParameters.gender === undefined || registrationParameters.gender.length == 0) {
-            registrationParameters.gender = 'F';
+        if (typeof registrationParameters.gender === 'undefined' || registrationParameters.gender.length == 0) {
+            registrationParameters.gender = 'U';
         } else if (registrationParameters.gender != 'M' && registrationParameters.gender != 'F' && registrationParameters.gender != 'U') {
             registrationParameters.gender = 'U';
         }
-        if (registrationParameters.emailAddress === undefined) {
+        if (typeof registrationParameters.emailAddress === 'undefined') {
             registrationParameters.emailAddress = '';
         }
-        if (registrationParameters.scope === undefined) {
+        if (typeof registrationParameters.scope === 'undefined') {
             registrationParameters.scope = '';
         }
-        if (registrationParameters.dob === undefined || registrationParameters.dob.length == 0) {
+        if (typeof registrationParameters.agreement === 'undefined') {
+            registrationParameters.agreement = '0';
+        }
+        if (typeof registrationParameters.idToken === 'undefined') {
+            registrationParameters.idToken = '';
+        }
+        if (typeof registrationParameters.avatarURL === 'undefined') {
+            registrationParameters.avatarURL = '';
+        }
+        if (typeof registrationParameters.dob === 'undefined' || registrationParameters.dob.length == 0) {
             registrationParameters.dob = new Date();
             registrationParameters.dob = registrationParameters.dob.toISOString().slice(0, 9);
         } else if (registrationParameters.dob instanceof Date) {
@@ -1288,7 +1307,10 @@
             gender: registrationParameters.gender,
             dob: registrationParameters.dob,
             network_id: networkId,
-            scope: registrationParameters.scope
+            scope: registrationParameters.scope,
+            agreement: registrationParameters.agreement,
+            avatarURL: registrationParameters.avatarURL,
+            id_token: registrationParameters.idToken
         },
         overRideCallBackFunction);
     };

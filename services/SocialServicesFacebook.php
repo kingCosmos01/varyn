@@ -167,8 +167,10 @@ class SocialServicesFacebook extends SocialServices
                     'email_address' => $user['email'],
                     'gender' => strtoupper($user['gender'][0]),
                     'dob' => '',
+                    'agreement' => '1',
                     'scope' => '',
-                    'agreement' => '1');
+                    'avatar_url' => 'https://graph.facebook.com/' . $user['id'] . '/picture?type=square&width=120&height=120',
+                    'id_token' => '');
             } else {
                 $this->setLastError('INVALID_PARAM', 'User is not properly logged in via Facebook SDK');
                 $userInfo = null;
@@ -213,15 +215,17 @@ class SocialServicesFacebook extends SocialServices
 
     private function fakeUser() {
         return (object) array(
-            'user_name' => 'FakeFbUser',
-            'full_name' => 'Fake Fb User',
-            'user_id' => 726468316,
-            'email_address' => 'info@varyn.com',
             'network_id' => EnginesisNetworks::Facebook,
             'site_user_id' => '726468316',
+            'user_name' => 'FakeFbUser',
+            'real_name' => 'Fake Fb User',
+            'email_address' => 'info@varyn.com',
             'dob' => null,
             'gender' => 'U',
-            'avatarURL' => 'https://graph.facebook.com/726468316/picture?type=square&width=120&height=120'
+            'agreement' => '1',
+            'scope' => 'email',
+            'avatar_url' => 'https://graph.facebook.com/726468316/picture?type=square&width=120&height=120',
+            'id_token' => ''
         );
     }
 }
