@@ -1309,7 +1309,7 @@
             network_id: networkId,
             scope: registrationParameters.scope,
             agreement: registrationParameters.agreement,
-            avatarURL: registrationParameters.avatarURL,
+            avatar_url: registrationParameters.avatarURL,
             id_token: registrationParameters.idToken
         },
         overRideCallBackFunction);
