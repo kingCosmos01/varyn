@@ -735,7 +735,7 @@
         }?>
         <div class="row">
             <div class="col-sm-3 text-center">
-                <img class="avatarThumbnail center-block" src="<?php echo($enginesis->avatarURL(0, $userInfo->user_id)); ?>"/>
+                <img class="avatarThumbnail center-block" src="<?php echo($enginesis->avatarURL(1, $userInfo->user_id)); ?>"/>
                 <p><?php echo($userInfo->real_name); ?></p>
                 <p>
                     <input type="button" id="profile_edit" onclick="profilePage.startUpdate();" value="Edit" class="btn btn-info"/> <input type="button" id="profile_logout" onclick="profilePage.logout();" value="Logout" class="btn btn-default"/>
