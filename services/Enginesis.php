@@ -1213,22 +1213,25 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
          * For Co-registration/SSO, we take information provided by the hosting network and either setup a new user or update
          * an existing user. The unique key is $site_user_id and that plus one of $real_name or $user_name are required.
          * @param $parameters {object} array of key values of user information. Keys site_user_id, network_id, and one
-         *   of real_name or user_name are required. dob, gender, scope, email_address are optional.
+         *   of real_name or user_name are required. email_address, dob, gender, scope, avatar_url, id_token are optional.
          * @param $saveSession {boolean} true to save this session for next page refresh.
          * @return {object} an $userInfo object. Same result as UserLogin.
          */
         public function userLoginCoreg ($parameters, $saveSession) {
             $userInfo = null;
             // Convert parameters or use logical defaults
-            $site_user_id = $parameters['site_user_id'];
             $network_id = $parameters['network_id'];
+            $site_user_id = $parameters['site_user_id'];
             $real_name = isset($parameters['real_name']) ? $parameters['real_name'] : '';
             $user_name = isset($parameters['user_name']) ? $parameters['user_name'] : '';
             $email_address = isset($parameters['email_address']) ? $parameters['email_address'] : '';
             $gender = isset($parameters['gender']) ? $parameters['gender'] : 'U';
             $dob = isset($parameters['dob']) ? $parameters['dob'] : '';
+            $agreement = isset($parameters['agreement']) ? $parameters['agreement'] : '0';
             $scope = isset($parameters['scope']) ? $parameters['scope'] : '';
-            $enginesisResponse = $this->callServerAPI('UserLoginCoreg', array('site_user_id' => $site_user_id, 'user_name' => $user_name, 'real_name' => $real_name, 'email_address' => $email_address, 'gender' => $gender, 'dob' => $dob, 'network_id' => $network_id, 'scope' => $scope));
+            $avatar_url = isset($parameters['avatar_url']) ? $parameters['avatar_url'] : '';
+            $id_token = isset($parameters['id_token']) ? $parameters['id_token'] : '';
+            $enginesisResponse = $this->callServerAPI('UserLoginCoreg', array('site_user_id' => $site_user_id, 'user_name' => $user_name, 'real_name' => $real_name, 'email_address' => $email_address, 'gender' => $gender, 'dob' => $dob, 'network_id' => $network_id, 'scope' => $scope, 'agreement' => $agreement, 'avatar_url' => $avatar_url, 'id_token' => $id_token));
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             if ($results != null) {
                 $userInfo = $this->sessionRestoreFromResponse($results);

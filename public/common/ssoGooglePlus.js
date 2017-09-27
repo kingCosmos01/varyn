@@ -135,6 +135,32 @@
     };
 
     /**
+     * To complete a Google Plus login we need to set a cookie with some information then refresh the profile page
+     * so the backend server code can pick up the cookie and complete the login.
+     * TODO: Maybe better to call /procs/oauth.php with google specific parameters so we can do this without a cookie and page refresh
+     * @param authCode - Google's id-token
+     */
+    ssoGooglePlus.setLoginCookie = function (googleUser, authCode) {
+        var timeNow = new Date();
+        var cookieExpireMinutes = 30;
+        timeNow.setTime(timeNow.getTime() + (cookieExpireMinutes * 60 * 1000));
+        commonUtilities.cookieSet(_authCookieCode, authCode, timeNow.toUTCString(), '/', '', false);
+        //var url = '/procs/oauth.php';
+        //var parameters = {
+        //    provider: 'gapi',
+        //    action: 'login',
+        //    idtoken: authCode
+        //};
+        //post(url, parameters).then(function(response) {
+        //    if (response.success) {
+        //        login_complete();
+        //    } else {
+        //        login_failed();
+        //    }
+        //});
+    };
+
+    /**
      * If we don't have a logged in user and the current page is showing a Sign in with Google button then
      * attach Google's click handler.
      */
@@ -143,38 +169,42 @@
         var buttonElement = document.getElementById(_loginButtonId);
 
         if (buttonElement != null) {
-            // No logged in user: attach the login click handler only if the current page offers the button.
             _gplusAuth.attachClickHandler(buttonElement, {},
-                function (googleUser) {
-                    var gplusProfile = googleUser.getBasicProfile();
-                    googlePlusInstance.debugLog('Signed in: ' + gplusProfile.getName());
+                function (currentGoogleUser) {
+                    var basicProfile = currentGoogleUser.getBasicProfile(),
+                        authResponse = currentGoogleUser.getAuthResponse();
                     _loginPending = true;
+                    googlePlusInstance.debugLog('Signed in: ' + basicProfile.getName());
                     _userInfo = {
                         networkId: _networkId,
-                        userName: gplusProfile.getName(),
-                        realName: gplusProfile.getGivenName() + ' ' + gplusProfile.getFamilyName(),
-                        email: gplusProfile.getEmail(),
-                        siteUserId: gplusProfile.getId(), // TODO: wrong, need authtoken.get-token-id
+                        userName: basicProfile.getName(),
+                        realName: basicProfile.getGivenName() + ' ' + basicProfile.getFamilyName(),
+                        email: basicProfile.getEmail(),
+                        siteUserId: basicProfile.getId(),
+                        siteUserIdToken: authResponse.id_token,
                         gender: 'U',
                         dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(13)),
-                        avatarURL: gplusProfile.getImageUrl(),
+                        avatarURL: basicProfile.getImageUrl(),
                         scope: _scope
                     };
-                    _gplusAuth.grantOfflineAccess({
-                        scope: _scope
-                    }).then(function(response) {
-                        var authCode = response.code;
-                        var timeNow = new Date();
-                        var cookieExpireMinutes = 30;
-                        timeNow.setTime(timeNow.getTime() + (cookieExpireMinutes * 60 * 1000));
-                        // TODO: Need to get this code up to the server so drop a cookie for the server to pick up
-                        commonUtilities.cookieSet(_authCookieCode, authCode, timeNow.toUTCString(), '/', '', false);
-                        _loginPending = false;
-                        if (_callbackWhenLoggedIn != null) {
-                            googlePlusInstance.debugLog('calling callback for logged in user ' + _userInfo.userName);
-                            _callbackWhenLoggedIn(_userInfo, _networkId);
-                        }
-                    });
+                    googlePlusInstance.setLoginCookie(currentGoogleUser, authResponse.id_token);
+                    if (_callbackWhenLoggedIn != null) {
+                        ssoGooglePlus.debugLog('calling callback for logged in user ' + _userInfo.userName);
+                        _callbackWhenLoggedIn(_userInfo);
+                    } else {
+                        ssoGooglePlus.debugLog('no callback for logged in user ' + _userInfo.userName);
+                    }
+                    // I cant get this code to work, Google crashes if we try to get the grantOfflineAccess so that never works.
+                    //authResponse.grantOfflineAccess({
+                    //    scope: _scope
+                    //}).then(function(response) {
+                    //    googlePlusInstance.setLoginCookie(currentGoogleUser, response.code);
+                    //    _loginPending = false;
+                    //    if (_callbackWhenLoggedIn != null) {
+                    //        googlePlusInstance.debugLog('calling callback for logged in user ' + _userInfo.userName);
+                    //        _callbackWhenLoggedIn(_userInfo, _networkId);
+                    //    }
+                    //});
                 }, function (error) {
                     googlePlusInstance.debugLog('error: ' + (JSON.stringify(error, undefined, 2)));
                 });
@@ -310,10 +340,16 @@
     };
 
     /**
-     * Event triggered when a user changes.
+     * Event triggered when a user changes. Not sure yet what usefulness this has as we have no idea what
+     * changed, and whether that change is something we should be concerned with.
      */
     ssoGooglePlus.userChanged = function (currentGoogleUser) {
-        this.debugLog('user change event');
+        if (currentGoogleUser != null) {
+            var gplusProfile = currentGoogleUser.getBasicProfile();
+            if (gplusProfile != null) {
+                this.debugLog('user change event for ' + gplusProfile.getName());
+            }
+        }
     };
 
     /**
@@ -323,32 +359,38 @@
         var googleAuthInstance = gapi.auth2.getAuthInstance();
         if (googleAuthInstance != null) {
             if (_gplusAuth.isSignedIn.get()) {
-                this.debugLog('update sign in state change for a login');
-                if ( ! _loginPending && _callbackWhenLoggedOut == null) {
-                    var currentGoogleUser = googleAuthInstance.currentUser.get(),
-                        basicProfile = currentGoogleUser.getBasicProfile(),
-                        authResponse = currentGoogleUser.getAuthResponse();
-                    _userInfo = {
-                        networkId: _networkId,
-                        userName: basicProfile.getName(),
-                        realName: basicProfile.getGivenName() + ' ' + basicProfile.getFamilyName(),
-                        email: basicProfile.getEmail(),
-                        siteUserId: basicProfile.getId(),
-                        siteUserIdToken: authResponse.id_token,
-                        gender: 'U',
-                        dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(13)),
-                        avatarURL: basicProfile.getImageUrl(),
-                        scope: _scope
-                    };
-                    if (_callbackWhenLoggedIn != null) {
-                        ssoGooglePlus.debugLog('calling callback for logged in user ' + _userInfo.userName);
-                        _callbackWhenLoggedIn(_userInfo);
-                    } else {
-                        ssoGooglePlus.debugLog('no callback for logged in user ' + _userInfo.userName);
-                    }
-                } else {
-                    ssoGooglePlus.debugLog('A login or logout is currently pending so ignoring login state change');
-                }
+                this.debugLog('update sign in state change for a logged in user');
+                // TODO: Not sure yet what to do here. We could check to see if any user info has changed since last time we saw this user.
+                // if ( ! _loginPending && _callbackWhenLoggedOut == null) {
+                    //var currentGoogleUser = googleAuthInstance.currentUser.get(),
+                    //    basicProfile = currentGoogleUser.getBasicProfile(),
+                    //    authResponse = currentGoogleUser.getAuthResponse();
+                    //_userInfo = {
+                    //    networkId: _networkId,
+                    //    userName: basicProfile.getName(),
+                    //    realName: basicProfile.getGivenName() + ' ' + basicProfile.getFamilyName(),
+                    //    email: basicProfile.getEmail(),
+                    //    siteUserId: basicProfile.getId(),
+                    //    siteUserIdToken: authResponse.id_token,
+                    //    gender: 'U',
+                    //    dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(13)),
+                    //    avatarURL: basicProfile.getImageUrl(),
+                    //    scope: _scope
+                    //};
+                    //ssoGooglePlus.setLoginCookie(currentGoogleUser, authResponse.id_token);
+                    //if (_callbackWhenLoggedIn != null) {
+                    //    ssoGooglePlus.debugLog('calling callback for logged in user ' + _userInfo.userName);
+                    //    _callbackWhenLoggedIn(_userInfo);
+                    //} else {
+                    //    ssoGooglePlus.debugLog('no callback for logged in user ' + _userInfo.userName);
+                    //}
+                //} else {
+                //    if (_callbackWhenLoggedOut != null) {
+                //        ssoGooglePlus.debugLog('A logout is currently pending so ignoring login state change');
+                //    } else {
+                //        ssoGooglePlus.debugLog('A login is currently pending so ignoring login state change until offline access is granted');
+                //    }
+                //}
             } else {
                 this.debugLog('update sign in state change for a signout');
                 // TODO: perform signout, this was in response to a logout() call and the server replied.

@@ -1,11 +1,14 @@
 <?php
     /**
      * The Twitter implementation of our SocialServices base class.
+     * TODO: This is not implemented, the implementation for Twitter is in oauth.php (that code should move here)
      * @author: jf
      * @date: 7/14/2017
      */
 
     define ('TWITTER_SESSION_KEY', 'engtwsession');
+//    require_once('../../services/TwitterOAuth.php');
+//    require_once('../../services/strings.php');
 
 
     class SocialServicesTwitter extends SocialServices
@@ -130,32 +133,21 @@
              * ["translator_type"]=> string(4) "none"
              * ["email"]=> string(19) "varyn.dev@gmail.com" }
              */
-            /**
-             *         _userInfo = {
-            userName: '',
-            fullName: '',
-            userId: '',
-            networkId: 0,
-            siteUserId: '',
-            dob: null,
-            gender: 'U',
-            avatarURL: ''
-            };
-             */
             $twitterUserInfo = $this->fakeUser();
-            $userInfo = array('network_id' => EnginesisNetworks::Twitter, 'site_user_id' => $this->m_site_user_id, 'real_name' => $user['name'], 'user_name' => '', 'email_address' => $user['email'], 'gender' => strtoupper($user['gender'][0]), 'dob' => '', 'scope' => '', 'agreement' => '1');
+            // $userInfo = array('network_id' => EnginesisNetworks::Twitter, 'site_user_id' => $this->m_site_user_id, 'real_name' => $user['name'], 'user_name' => '', 'email_address' => $user['email'], 'gender' => strtoupper($user['gender'][0]), 'dob' => '', 'scope' => '', 'agreement' => '1');
             $userInfo = array(
-                'userName' => $twitterUserInfo->screen_name,
-                'fullName' => $twitterUserInfo->name,
-                'userId' => $twitterUserInfo->id,
-                'email' => $twitterUserInfo->email,
-                'networkId' => EnginesisNetworks::Twitter,
-                'siteUserId' => $twitterUserInfo->id_str,
+                'network_id' => EnginesisNetworks::Twitter,
+                'site_user_id' => $twitterUserInfo->id_str,
+                'user_name' => $twitterUserInfo->screen_name,
+                'real_name' => $twitterUserInfo->name,
+                'email_address' => $twitterUserInfo->email,
                 'dob' => null,
                 'gender' => 'U',
-                'avatarURL' => $twitterUserInfo->profile_image_url_https
+                'agreement' => '1',
+                'scope' => '',
+                'avatar_url' => $twitterUserInfo->profile_image_url_https,
+                'id_token' => ''
             );
-
             return $userInfo;
         }
 
@@ -178,14 +170,15 @@
 
         private function fakeUser() {
             return (object) array(
-                'userName' => 'FakeTwUser',
-                'fullName' => 'Fake Tw User',
-                'userId' => 1184539699,
-                'email' => 'info@varyn.com',
-                'networkId' => EnginesisNetworks::Twitter,
-                'siteUserId' => '1184539699',
+                'network_id' => EnginesisNetworks::Twitter,
+                'site_user_id' => '1184539699',
+                'user_name' => 'FakeTwUser',
+                'real_name' => 'Fake Tw User',
+                'email_address' => 'info@varyn.com',
                 'dob' => null,
                 'gender' => 'U',
+                'scope' => '',
+                'agreement' => '1',
                 'avatarURL' => 'https://pbs.twimg.com/profile_images/378800000151596725/701e4e6e6e0e9b957c8fe1b4498805ba_normal.png'
             );
         }

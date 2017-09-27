@@ -582,7 +582,20 @@ function FacebookUserIsLoggedIn ()
                 locale = 'en';
                 countryCode = 'US';
             }
-            Enginesis.UserLoginCoreg(response.name, response.id, gender, dob, city, state, countryCode, locale, Enginesis.NETWORK_ID_FACEBOOK);
+            var loginParameters = {
+                networkId: enginesis.supportedNetworks.Facebook,
+                siteUserId: response.id,
+                userName: response.name,
+                realName: response.name,
+                emailAddress: response.email,
+                agreement: '1',
+                gender: response.gender,
+                dob: null,
+                avatarURL: '',
+                idToken: '',
+                scope: ''
+            };
+            enginesis.userLoginCoreg(loginParameters, enginesis.supportedNetworks.Facebook, null);
         } else {
             loginSuccessfulWithCookie();
         }
@@ -595,7 +608,7 @@ function loginFacebook ()
         if (response.authResponse) {
             FacebookUserIsLoggedIn();
         } else {
-            Enginesis.debugLog('User cancelled login or did not fully authorize.');
+            enginesis.debugLog('User cancelled login or did not fully authorize.');
         }
     });
 }

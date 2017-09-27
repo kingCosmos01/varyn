@@ -197,15 +197,17 @@
                                             $rememberMe = true;
                                             debugX("User " . $twitterUserInfo->screen_name . " properly logged in with $provider : $oauthToken / $oauthTokenSecret");
                                             $userInfoSSO = array(
-                                                'user_name' => $twitterUserInfo->screen_name,
-                                                'real_name' => $twitterUserInfo->name,
-                                                'user_id' => $twitterUserInfo->id,
-                                                'email_address' => $twitterUserInfo->email,
                                                 'network_id' => EnginesisNetworks::Twitter,
                                                 'site_user_id' => $twitterUserInfo->id_str,
-                                                'dob' => dateToMysqlDate(date('Y-m-d H:i:s', strtotime('-13 year'))),
+                                                'user_name' => $twitterUserInfo->screen_name,
+                                                'real_name' => $twitterUserInfo->name,
+                                                'email_address' => $twitterUserInfo->email,
+                                                'dob' => dateToMysqlDate(date('Y-m-d H:i:s', strtotime('-14 year'))),
                                                 'gender' => 'U',
-                                                'avatarURL' => $twitterUserInfo->profile_image_url_https
+                                                'scope' => '',
+                                                'agreement' => '1',
+                                                'avatar_url' => $twitterUserInfo->profile_image_url_https,
+                                                'id_token' => ''
                                             );
                                             $userInfo = $enginesis->userLoginCoreg($userInfoSSO, $rememberMe);
                                             if ($userInfo == null) {
@@ -243,10 +245,19 @@
                         }
                     }
                     break;
+
+                case 'gapi':
+                    $id_token = strtolower(getPostOrRequestVar('idtoken', ''));
+                    if ($id_token != '') {
+                        // use SocialServicesGoogle to register this user's token
+                    }
+                    break;
+
                 default:
                     break;
             }
             break;
+
         default:
             debugX("Invalid, unmatched, or unexpected connection from $referrer");
             $errorCode = EnginesisUIStrings::SSO_EXCEPTION;

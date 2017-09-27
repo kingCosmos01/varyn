@@ -92,8 +92,6 @@
                 }
             } else {
                 debugLog("Connection for network $networkId SSO returned no logged in user");
-                echo("<p>Connection for network $networkId SSO returned no logged in user</p>");
-                exit(0);
             }
         } else {
             debugLog("Could not create SSO for network $networkId");
@@ -569,7 +567,7 @@
                 $linkToResendToken = createResendConfirmEmailLink($code, $user_user_id, $userName, '', $confirmation_token);
                 $redirectedStatusMessage = errorToLocalString($code);
             }
-        } else {
+        } else { // $action == '' || $action == 'completelogin'
             $errorCode = getPostOrRequestVar('code', null);
             if ($errorCode != null) {
                 $errorMessage = '<p class="info-text">' . $stringTable->lookup($errorCode, null) . '</p>';

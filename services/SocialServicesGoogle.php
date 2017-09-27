@@ -31,6 +31,8 @@
         private $appSecret = '';
         private $appAccessCode = '';
         private $isLoggedIn = false;
+        private $userInfo = null;
+        private $idToken = null;
 
         public function __construct () {
             global $socialServiceKeys; // from serverConfig.
@@ -56,23 +58,69 @@
                 if ($this->isLoggedIn) {
                     $userInfo = $this->currentUserInfo();
                 } else {
-                    echo("<p>GoogleAPI trying login</p>");
                     $this->login();
                     if ($this->isLoggedIn) {
-                        echo("<p>GoogleAPI user is logged in</p>");
                         $userInfo = $this->currentUserInfo();
-                        var_dump($userInfo);
                     } else {
-                        echo("<p>GoogleAPI no user is logged in</p>");
+                        debugLog("SocialServicesGoogle connectSSO but no user is logged in");
+                        $this->setLastError('INVALID_LOGIN', 'No user is logged in with Google.');
                     }
                 }
             } else {
-                echo("<p>GoogleAPI is not loaded</p>");
                 debugLog("GoogleAPI is not loaded");
+                $this->setLastError('INVALID_LOGIN', 'GoogleAPI is not loaded.');
             }
             return $userInfo;
         }
 
+        private function exchangeToken($idToken) {
+            $userInfo = null;
+            if ( ! empty($idToken)) {
+                $payload = $this->googleAPI->verifyIdToken($idToken);
+                if ($payload) {
+                    /*
+                     * TODO: id is verified, user is fully logged in. OK, now what???
+                     array(14) {
+                    ["azp"]=> string(73) "1065156255426-al1fbn6kk4enqfq1f9drn8q1111optvt.apps.googleusercontent.com"
+                    ["aud"]=> string(73) "1065156255426-al1fbn6kk4enqfq1f9drn8q1111optvt.apps.googleusercontent.com"
+                    ["sub"]=> string(21) "112965556851421305464"
+                    ["email"]=> string(16) "jlf990@gmail.com"
+                    ["email_verified"]=> bool(true)
+                    ["at_hash"]=> string(22) "BmZKhofpJKcS-alNcHQuSw"
+                    ["iss"]=> string(19) "accounts.google.com"
+                    ["iat"]=> int(1504567895)
+                    ["exp"]=> int(1504571495)
+                    ["name"]=> string(11) "John Foster"
+                    ["picture"]=> string(98) "https://lh6.googleusercontent.com/-HaxvOzElL0A/AAAAAAAAAAI/AAAAAAAAAFA/zK7jsxGMwic/s96-c/photo.jpg"
+                    ["given_name"]=> string(4) "John"
+                    ["family_name"]=> string(6) "Foster"
+                    ["locale"]=> string(2) "en" }
+                     */
+                    $userInfo = array(
+                        'network_id' => EnginesisNetworks::Google,
+                        'site_user_id' => $payload['sub'],
+                        'real_name' => $payload['name'] . ' ' . $payload['family_name'],
+                        'user_name' => $payload['name'],
+                        'email_address' => $payload['email'],
+                        'gender' => 'U',
+                        'dob' => '',
+                        'agreement' => '1',
+                        'scope' => '',
+                        'avatar_url' => $payload['picture'],
+                        'id_token' => $idToken);
+                    $expireDate = $payload['exp'];
+                    $this->clearError();
+                    $this->isLoggedIn = true;
+                    $this->m_site_user_id = $userInfo['site_user_id'];
+                    $this->m_accessToken = $this->googleAPI->getAccessToken();
+                    $this->idToken = $idToken;
+                } else {
+                    debugLog("GoogleAPI token is not valid.");
+                    $this->setLastError('INVALID_TOKEN', 'GoogleAPI token is not valid.');
+                }
+            }
+            return $userInfo;
+        }
         /**
          * For Google, the login is performed client-side with JavaScript and if that succeeds the client
          * drops a cookie with Google's authorization code. We take the code server side and exchange it for the
@@ -80,16 +128,14 @@
          */
         public function login () {
             $this->readGoogleCodeCookie();
-            if ( ! empty($this->appAccessCode)) {
-                echo("<p>SSO tryng exchange</p>");
-                // exchange the auth code for access and refresh tokens
-                $creds = $this->googleAPI->fetchAccessTokenWithAuthCode($this->appAccessCode);
-                var_dump($creds);
+            $idToken = $this->appAccessCode;
+            if ( ! empty($idToken)) {
+                $this->userInfo = $this->exchangeToken($idToken);
             } elseif ( ! empty($this->m_accessToken)) {
-                echo("<p>SSO reusing token</p>");
-
+                debugLog("SocialServicesGoogle reusing token");
             } else {
-                echo("<p>SSO no cookie dropped so cannot log the user in from server</p>");
+                debugLog("SocialServicesGoogle no cookie dropped so cannot log the user in from server");
+                $this->setLastError('INVALID_LOGIN', 'Token not provided.');
             }
             return $this->isLoggedIn;
         }
@@ -119,11 +165,20 @@
 
         /**
          * Return a $userInfo object representing the current logged in user.
-         * Facebook: [items:protected] => Array ( [id] => 726468316 [name] => John Foster [email] => jfoster@acm.org [gender] => male
          * Enginesis: array('user_name' => $userName, 'email_address' => $email, 'real_name' => $realName, 'gender' => $gender, 'agreement' => $agreement);
          */
         public function currentUserInfo () {
-            $userInfo = null;
+            $userInfo = $this->userInfo;
+            if ($userInfo == null) {
+                if ( ! empty($this->idToken)) {
+                    $this->userInfo = $this->exchangeToken($this->idToken);
+                } elseif ( ! empty($this->m_site_user_id)) {
+                    $idToken = $this->getNetworkUserDataToken(EnginesisNetworks::Google, $this->m_site_user_id);
+                    if ( ! empty($idToken)) {
+                        $this->userInfo = $this->exchangeToken($this->idToken);
+                    }
+                }
+            }
             return $userInfo;
         }
 
@@ -164,30 +219,37 @@
          * Read and clear the login access code set by the client during the initial login process.
          */
         private function readGoogleCodeCookie () {
+            $clearCookie = true;
             if (isset($_SESSION[GOOGLEAPI_COOKIE_KEY])) {
                 $this->appAccessCode = (string) $_SESSION[GOOGLEAPI_COOKIE_KEY];
-                $_SESSION[GOOGLEAPI_COOKIE_KEY] = null;
-                unset($_SESSION[GOOGLEAPI_COOKIE_KEY]);
+                if ($clearCookie) {
+                    $_SESSION[GOOGLEAPI_COOKIE_KEY] = null;
+                    unset($_SESSION[GOOGLEAPI_COOKIE_KEY]);
+                }
             } elseif (isset($_COOKIE[GOOGLEAPI_COOKIE_KEY])) {
                 $this->appAccessCode = (string)$_COOKIE[GOOGLEAPI_COOKIE_KEY];
-                $_COOKIE[GOOGLEAPI_COOKIE_KEY] = null;
-                unset($_COOKIE[GOOGLEAPI_COOKIE_KEY]);
-                setcookie(GOOGLEAPI_COOKIE_KEY, null, -1, '/');
+                if ($clearCookie) {
+                    $_COOKIE[GOOGLEAPI_COOKIE_KEY] = null;
+                    unset($_COOKIE[GOOGLEAPI_COOKIE_KEY]);
+                    setcookie(GOOGLEAPI_COOKIE_KEY, null, -1, '/');
+                }
             }
             return $this->appAccessCode;
         }
 
         private function fakeUser() {
             return (object) array(
-                'user_name' => 'FakeGoogleUser',
-                'full_name' => 'Fake Google User',
-                'user_id' => 726468316,
-                'email_address' => 'info@varyn.com',
                 'network_id' => EnginesisNetworks::Google,
                 'site_user_id' => '726468316',
+                'user_name' => 'FakeGoogleUser',
+                'real_name' => 'Fake Google User',
+                'email_address' => 'info@varyn.com',
                 'dob' => null,
                 'gender' => 'U',
-                'avatarURL' => ''
+                'agreement' => '1',
+                'scope' => 'profile email',
+                'avatar_url' => '',
+                'id_token' => ''
             );
         }
     }

@@ -1447,8 +1447,8 @@ var varyn = function (parameters) {
                             }
                         }
                         if (userInfo) {
-                            // TODO: User is now logged in, refresh the page and the page refresh should be able to pick up the logged in state.
-                            // document.location.href = "/profile.php?network_id=" + getNetworkId();
+                            // User is now logged in, refresh the page and the page refresh should be able to pick up the logged in state.
+                            document.location.href = "/profile.php?action=completelogin&network_id=" + getNetworkId();
                         } else {
                             // TODO: User is not logged in, we should display an error message.
                             varynApp.showInfoMessagePopup("Login", "There was a system issue while trying to login or register your account: " + errorMessage, 0);
