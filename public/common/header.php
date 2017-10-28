@@ -183,11 +183,16 @@
 <?php
     }
     if ($isLoggedIn) {
-        $userLoggedInMenuItem = '<span class="glyphicon glyphicon-user"></span> Profile'; // TODO: show Avatar, User-name, Reputation swatch
+        $notificationCount = 0;
+        $userNotifications = $notificationCount > 0 ? '&nbsp;<span class="badge badge-pill badge-success badge-nav">' . $notificationCount . '</span>' : '';
+        $userLoggedInMenuItem = '<span class="glyphicon glyphicon-user badge-nav"></span> Profile' . $userNotifications; // TODO: show Avatar, User-name, Reputation swatch
     } else {
-        $userLoggedInMenuItem = '<span class="glyphicon glyphicon-user"></span> Login';
+        $userLoggedInMenuItem = '<span class="glyphicon glyphicon-user badge-nav"></span> Login';
     }
-
+    $newGameCount = 0;
+    $newGamesPill = $newGameCount > 0 ? '&nbsp;<span class="badge badge-pill badge-success badge-nav">' . $newGameCount . '</span>' : '';
+    $newBlogPosts = 0;
+    $newBlogPill = $newBlogPosts > 0 ? '&nbsp;<span class="badge badge-pill badge-success badge-nav">' . $newBlogPosts . '</span>' : '';
 ?>
 <div class="navbar-wrapper" id="varyn-navbar">
     <div class="container">
@@ -205,8 +210,8 @@
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
                         <li role="presentation"<?php if ($page == 'home') { echo(' class="active"'); } ?>><a href="/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
-                        <li role="presentation"<?php if ($page == 'allgames') { echo(' class="active"'); } ?>><a href="/allgames.php"><span class="glyphicon glyphicon-king"></span> All Games</a></li>
-                        <li role="presentation"<?php if ($page == 'blog') { echo(' class="active"'); } ?>><a href="/blog"><span class="glyphicon glyphicon-list"></span> Blog</a></li>
+                        <li role="presentation"<?php if ($page == 'allgames') { echo(' class="active"'); } ?>><a href="/allgames.php"><span class="glyphicon glyphicon-king"></span> All Games<?php echo($newGamesPill);?></a></li>
+                        <li role="presentation"<?php if ($page == 'blog') { echo(' class="active"'); } ?>><a href="/blog"><span class="glyphicon glyphicon-list"></span> Blog<?php echo($newBlogPill);?></a></li>
                         <li role="presentation"<?php if ($page == 'profile') { echo(' class="active"'); } ?>><a href="/profile.php"><?php echo($userLoggedInMenuItem);?></a></li>
                     </ul>
                     <form class="navbar-form navbar-right" role="search" method="GET" action="/allgames.php">

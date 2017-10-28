@@ -1,7 +1,7 @@
 <?php
 // Generate blog page meta headers based on the conference and topic we are currently viewing.
-$title = 'Varyn | It\'s all about the games!';
-$description = 'Varyn makes games using technology that performs on the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between desktop, tablet, and smart-phone.';
+$title = $blog->getTopicTitle($topicId);
+$description = $blog->getTopicAbstract($topicId);
 ?>
 <!DOCTYPE html>
 <html lang="en">

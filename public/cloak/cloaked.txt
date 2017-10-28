@@ -1,3 +1,0 @@
-default,http://www.varyn.com
-test,http://www.varyn-l.com/services/MyProfile.php?id=1
-all,http://www.varyn-l.com/services/AllGames.php

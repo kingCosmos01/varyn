@@ -32,7 +32,7 @@
             </div>
             <div class="legalcopy"><br />
                 <p class="copyright small text-center">Third-party trademarks are used solely for distributing the games herein and no license or affiliation is implied. All copyrights are held by the respective owners.</p>
-                <p class="copyright small text-center">Copyright &copy; 2016 <a href="//www.varyn.com">Varyn, Inc.</a>.  All rights reserved.</p>
+                <p class="copyright small text-center">Copyright &copy; 2017 <a href="//www.varyn.com">Varyn, Inc.</a>.  All rights reserved.</p>
             </div>
         </div>
     </div>

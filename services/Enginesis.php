@@ -234,6 +234,29 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
         }
 
         /**
+         * In order to provide some flexibility with dates, our API will accept a PHP date, a Unix timestamp,
+         * or a date string. This function will try to figure our what date was provided and convert what ever
+         * it is into a valid MySQL date string.
+         * @param $date mixed One of PHP Date, integer, a string, or null.
+         * @return string a valid MySQL date
+         */
+        public function mySQLDate($date = null) {
+            $mysqlFormat = 'Y-m-d H:i:s';
+            if ($date == null) {
+                $dateStr = null;
+            } elseif (is_object($date)) {
+                $dateStr = $date->format($mysqlFormat);
+            } elseif (is_integer($date)) {
+                $dateStr = date($mysqlFormat, $date);
+            } elseif (strtolower($date) == 'now') {
+                $dateStr = date($mysqlFormat);
+            } else {
+                $dateStr = date($mysqlFormat, strtotime($date));
+            }
+            return $dateStr;
+        }
+
+        /**
          * Determine the site-id.
          * @return int
          */
@@ -992,11 +1015,15 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
                 curl_setopt($ch, CURLOPT_URL, $this->m_serviceEndPoint);
                 curl_setopt($ch, CURLOPT_HEADER, 0);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($ch, CURLOPT_TIMEOUT, 120);
+                curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+                curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
                 curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 600);
                 curl_setopt($ch, CURLOPT_REFERER, $this->m_server);
                 curl_setopt($ch, CURLOPT_USERAGENT, 'Enginesis PHP SDK');
                 curl_setopt($ch, CURLOPT_POST, 1);
+                if (serverStage() == '-l') {
+                    curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4 );
+                }
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $this->encodeURLParams($parameters));
                 $contents = curl_exec($ch);
                 curl_close($ch);
@@ -2059,5 +2086,49 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             $enginesisResponse = $this->callServerAPI($service, $parameters);
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             return $this->resultsFromServerResponse($results);
+        }
+
+        // =============================================================================================================
+        // Conference API
+        // =============================================================================================================
+        public function conferenceGet($conferenceId) {
+            $service = 'ConferenceGet';
+            if ( ! is_integer($conferenceId)) {
+                $visibleId = $conferenceId;
+            } else {
+                $visibleId = '';
+            }
+            $parameters = array(
+                'conference_id' => $conferenceId,
+                'visible_id' => $visibleId
+            );
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            return $this->resultsFromServerResponse($results);
+        }
+
+        public function conferenceTopicGet($conferenceId, $topicId) {
+            $service = 'ConferenceTopicGet';
+            $parameters = array(
+                'conference_id' => $conferenceId,
+                'topic_id' => $topicId
+            );
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            return $this->resultsFromServerResponse($results);
+        }
+
+        public function conferenceTopicList($conferenceId, $tags, $startDate, $endDate, $startItem, $numItems) {
+            $service = 'ConferenceTopicList';
+            $parameters = array(
+                'conference_id' => $conferenceId,
+                'tags' => $tags,
+                'start_date' => $this->mySQLDate($startDate),
+                'end_date' => $this->mySQLDate($endDate),
+                'start_item' => $startItem,
+                'num_items' => $numItems
+            );
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            return $this->setLastErrorFromResponse($enginesisResponse);
         }
     }
