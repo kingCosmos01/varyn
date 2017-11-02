@@ -2091,10 +2091,15 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
         // =============================================================================================================
         // Conference API
         // =============================================================================================================
+        public function conferenceAssetRootPath($conferenceId) {
+            return $this->getServiceRoot() . 'sites/' . $this->m_siteId . '/conf/' . $conferenceId . '/';
+        }
+
         public function conferenceGet($conferenceId) {
             $service = 'ConferenceGet';
             if ( ! is_integer($conferenceId)) {
                 $visibleId = $conferenceId;
+                $conferenceId = 0;
             } else {
                 $visibleId = '';
             }
@@ -2109,9 +2114,16 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
 
         public function conferenceTopicGet($conferenceId, $topicId) {
             $service = 'ConferenceTopicGet';
+            if ( ! is_integer($conferenceId)) {
+                $visibleId = $conferenceId;
+                $conferenceId = 0;
+            } else {
+                $visibleId = '';
+            }
             $parameters = array(
                 'conference_id' => $conferenceId,
-                'topic_id' => $topicId
+                'visible_id' => $visibleId,
+                'conference_topic_id' => $topicId
             );
             $enginesisResponse = $this->callServerAPI($service, $parameters);
             $results = $this->setLastErrorFromResponse($enginesisResponse);
@@ -2120,8 +2132,15 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
 
         public function conferenceTopicList($conferenceId, $tags, $startDate, $endDate, $startItem, $numItems) {
             $service = 'ConferenceTopicList';
+            if ( ! is_integer($conferenceId)) {
+                $visibleId = $conferenceId;
+                $conferenceId = 0;
+            } else {
+                $visibleId = '';
+            }
             $parameters = array(
                 'conference_id' => $conferenceId,
+                'visible_id' => $visibleId,
                 'tags' => $tags,
                 'start_date' => $this->mySQLDate($startDate),
                 'end_date' => $this->mySQLDate($endDate),

@@ -8,6 +8,7 @@ class EnginesisBlog
 {
     private $siteId;
     private $conferenceId;
+    private $conferenceInternalId;
     private $enginesisSession;
     private $conferenceData;
     private $conferenceTopicData;
@@ -41,10 +42,10 @@ class EnginesisBlog
     }
 
     public function getAssetRootPath($conferenceId = null) {
-        if ($conferenceId == null) {
-            $conferenceId = $this->conferenceId;
+        if ($conferenceId != null && $conferenceId != $this->conferenceId) {
+            $this->setConference($conferenceId);
         }
-        $path = 'http://enginesis-l.com/sites/' . $this->siteId . '/conf/' . $conferenceId . '/';
+        $path = $this->enginesisSession->conferenceAssetRootPath($this->conferenceInternalId);
         return $path;
     }
 
@@ -207,12 +208,17 @@ class EnginesisBlog
     private function loadConference() {
         if ($this->conferenceId != null && $this->enginesisSession != null) {
             $this->conferenceData = $this->enginesisSession->conferenceGet($this->conferenceId);
+            // TODO: Handle error
+            if ($this->conferenceData != null && isset($this->conferenceData->conference_id)) {
+                $this->conferenceInternalId = $this->conferenceData->conference_id;
+            }
         }
     }
 
     private function loadConferenceTopic($topicId) {
         if ($this->conferenceId != null && $this->enginesisSession != null && ! empty($topicId)) {
             $this->conferenceTopicData = $this->enginesisSession->conferenceTopicGet($this->conferenceId, $topicId);
+            // TODO: Handle error
         }
     }
 
