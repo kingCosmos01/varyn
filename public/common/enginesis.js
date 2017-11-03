@@ -1562,6 +1562,46 @@
         anonymousUserSave();
     };
 
+    // ===========================================================================================================
+    // Conference services
+    // ===========================================================================================================
+    enginesis.conferenceAssetRootPath = function(conferenceId) {
+        return '//' + enginesis.serverHost + '/sites/' + siteId + '/conf/' + conferenceId + '/';
+    };
+
+    enginesis.conferenceGet = function(conferenceId, overRideCallBackFunction) {
+        var visibleId;
+        if (parseInt(conferenceId, 10) > 0) {
+            visibleId = '';
+        } else {
+            visibleId = conferenceId;
+            conferenceId = 0;
+        }
+        return sendRequest("ConferenceGet", {conference_id: conferenceId, visible_id: visibleId}, overRideCallBackFunction);
+    };
+
+    enginesis.conferenceTopicGet = function(conferenceId, conferenceTopicId, overRideCallBackFunction) {
+        var visibleId;
+        if (parseInt(conferenceId, 10) > 0) {
+            visibleId = '';
+        } else {
+            visibleId = conferenceId;
+            conferenceId = 0;
+        }
+        return sendRequest("ConferenceTopicGet", {conference_id: conferenceId, visible_id: visibleId, conference_topic_id: conferenceTopicId}, overRideCallBackFunction);
+    };
+
+    enginesis.conferenceTopicList = function(conferenceId, tags, startDate, endDate, startItem, numItems, overRideCallBackFunction) {
+        var visibleId;
+        if (parseInt(conferenceId, 10) > 0) {
+            visibleId = '';
+        } else {
+            visibleId = conferenceId;
+            conferenceId = 0;
+        }
+        return sendRequest("ConferenceTopicList", {conference_id: conferenceId, visible_id: visibleId, tags: tags, start_date: startDate, end_date: endDate, start_item: startItem, num_items: numItems}, overRideCallBackFunction);
+    };
+
 
     /* ----------------------------------------------------------------------------------
      * Setup for AMD, node, or standalone reference the commonUtilities object.
