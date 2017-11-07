@@ -799,7 +799,7 @@ include_once(VIEWS_ROOT . 'header.php');
         if ( ! $isLoggedIn) {
 ?>
                             <div class="validation-slider-area" style="max-width: 380px;">
-                                <label for="register_form_agreement">I agree to the <a href="/tos.php" target="_popup">Terms of Use</a><span class="required-field">*</span></label><br/>
+                                <label for="register_form_agreement">I agree to the <a href="/tos/" target="_popup">Terms of Use</a><span class="required-field">*</span></label><br/>
                                 <span><small>No</small>&nbsp;&nbsp;<input type="range" name="register_form_agreement" class="validation-slider" id="register_form_agreement" placeholder="Slide this all the way left to agree" tabindex="13" min="0" max="2" />&nbsp;&nbsp;<small>Yes</small></span>
                             </div>
                             <div class="form-group"><input type="submit" value="Register" name="popupregister" id="registerButton" class="btn btn-success"/><span id="rememberme-container"><input type="checkbox" tabindex="4" checked="checked" name="rememberme" id="rememberme"><label for="rememberme">Remember Me</label></span></div>

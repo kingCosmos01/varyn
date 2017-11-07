@@ -13,7 +13,7 @@ include_once(VIEWS_ROOT . 'header.php');
         <div class="row">
             <div id="Missing" class="col-sm-8">
                 <h2>Not Found Here</h2>
-                <p>The content you are looking for is not at this location. The link may be incorrectly entered or the content you are looking for was moved to a new location.</p>
+                <p class="text-danger">The content you are looking for is not at this location. The link may be incorrectly entered or the content you are looking for was moved to a new location.</p>
                 <p>Please check it, or use our search field, or use one of our other links to find the content you are looking for.</p>
                 <p><strong>But wait!</strong> While you are here, why not try one of these awesome games:</p>
             </div><!-- /.Missing -->

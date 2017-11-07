@@ -40,6 +40,10 @@
     background-color: #690606;
 }
 
+.text-light {
+    color: #e4e4e4;
+}
+
 body {
     padding-top: 72px;
     color: #1d1d1d;
@@ -1206,6 +1210,19 @@ input[type=range].validation-slider:focus::-ms-fill-upper {
 
 .post-content .help-block {
     margin-bottom: 0;
+}
+
+.post-content .post-info {
+    margin-bottom: 0;
+    color: #5e5e5e;
+    border-bottom: 1px solid rgba(54, 126, 189, 0.2);
+}
+
+.post-content .post-footer {
+    margin-bottom: 0;
+    color: #000fb3;
+    text-align: right;
+    border-top: 1px solid rgba(54, 126, 189, 0.2);
 }
 
 .hljs {

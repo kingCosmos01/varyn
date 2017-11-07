@@ -31,7 +31,7 @@ function validateMessageParameters ($name, $email, $message) {
 include_once(VIEWS_ROOT . 'header.php');
 if ($send == 'send') {
     if (validateMessageParameters($name, $email, $message) == '') {
-        require_once('../services/EnginesisMailer.php');
+        require_once('../../services/EnginesisMailer.php');
         $message = "The following message was submitted on the contact form on Varyn.com\n\n$message";
         $enginesisMailer = new EnginesisMailer($email, 'support@varyn.com', 'Contact form from varyn.com', $message);
         $enginesisMailer->setServerStage($enginesis->getServerStage());

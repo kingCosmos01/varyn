@@ -1,73 +1,14 @@
 <?php
-    require_once('../services/common.php');
-    $page = 'styles';
-    $search = getPostOrRequestVar('q', null);
-    if ($search != null) {
-        header('location:/allgames/?q=' . $search);
-        exit;
-    }
-    $showSubscribe = getPostOrRequestVar('s', '0');
+require_once('../services/common.php');
+$page = 'styles';
+$search = getPostOrRequestVar('q', null);
+if ($search != null) {
+    header('location:/allgames/?q=' . $search);
+    exit;
+}
+$showSubscribe = getPostOrRequestVar('s', '0');
+include_once(VIEWS_ROOT . 'header.php');
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Varyn: Great games you can play anytime, anywhere</title>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta http-equiv="Access-Control-Allow-Origin" content="*">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta http-equiv="cache-control" content="max-age=0" />
-    <meta http-equiv="cache-control" content="no-cache" />
-    <meta http-equiv="expires" content="0" />
-    <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
-    <meta http-equiv="pragma" content="no-cache" />
-    <meta name="format-detection" content="telephone=no" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="description" content="Varyn makes games using technology that performs on the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between desktop, tablet, and smart-phone.">
-    <meta name="author" content="Varyn">
-    <link href="/common/hljs.css" rel="stylesheet">
-    <link href="/common/bootstrap.min.css" rel="stylesheet">
-    <link href="/common/carousel.css" rel="stylesheet">
-    <link href="/common/varyn.css" rel="stylesheet">
-    <link rel="icon" href="/favicon.ico">
-    <link rel="icon" type="image/png" href="/favicon-48x48.png" sizes="48x48"/>
-    <link rel="icon" type="image/png" href="/favicon-196x196.png" sizes="196x196">
-    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
-    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
-    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
-    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
-    <link rel="apple-touch-icon" href="/apple-touch-icon-60x60.png" sizes="60x60"/>
-    <link rel="apple-touch-icon" href="/apple-touch-icon-72x72.png" sizes="72x72"/>
-    <link rel="apple-touch-icon" href="/apple-touch-icon-76x76.png"/>
-    <link rel="apple-touch-icon" href="/apple-touch-icon-76x76.png" sizes="76x76"/>
-    <link rel="apple-touch-icon" href="/apple-touch-icon-114x114.png" sizes="114x114"/>
-    <link rel="apple-touch-icon" href="/apple-touch-icon-120x120.png" sizes="120x120"/>
-    <link rel="apple-touch-icon" href="/apple-touch-icon-152x152.png" sizes="152x152"/>
-    <link rel="shortcut icon" href="/favicon-196x196.png">
-    <meta property="fb:app_id" content="" />
-    <meta property="fb:admins" content="726468316" />
-    <meta property="og:title" content="Varyn: Great games you can play anytime, anywhere">
-    <meta property="og:url" content="http://www.varyn.com">
-    <meta property="og:site_name" content="Varyn">
-    <meta property="og:description" content="Varyn makes games using technology that performs on the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between desktop, tablet, and smart-phone.">
-    <meta property="og:image" content="http://www.varyn.com/images/1200x900.png"/>
-    <meta property="og:image" content="http://www.varyn.com/images/1024.png"/>
-    <meta property="og:image" content="http://www.varyn.com/images/1200x600.png"/>
-    <meta property="og:image" content="http://www.varyn.com/images/600x600.png"/>
-    <meta property="og:image" content="http://www.varyn.com/images/2048x1536.png"/>
-    <meta property="og:type" content="game"/>
-    <meta name="twitter:card" content="photo"/>
-    <meta name="twitter:site" content="@varyndev"/>
-    <meta name="twitter:creator" content="@varyndev"/>
-    <meta name="twitter:title" content="Varyn: Great games you can play anytime, anywhere"/>
-    <meta name="twitter:image:src" content="http://www.varyn.com/images/600x600.png"/>
-    <meta name="twitter:domain" content="varyn.com"/>
-    <script src="/common/head.min.js"></script>
-</head>
-<body>
-<?php include_once('common/header.php'); ?>
 <div class="container marketing">
     <div class="jumbotron">
         <h1>Varyn's Style Guide</h1>
@@ -154,7 +95,20 @@
         </p>
     </div>
     <div class="panel panel-default div-padded">
+        <h2>Colors</h2>
+        <p>Standard text font color</p>
+        <p class="text-success">Success text font color <code>text-success</code></p>
+        <p class="success-text">Success text font color <code>success-text</code></p>
+        <p class="text-danger">Danger/alert text font color <code>text-danger</code></p>
+        <p class="text-info">Informational text font color <code>text-info</code></p>
+        <p class="varyn-red">Varyn-red text font color <code>varyn-red</code></p>
+        <div class="varyn-red-background">
+            <p class="text-light">Varyn red background with light text on top. <code>varyn-red-background text-light</code></p>
+        </div>
+    </div>
+    <div class="panel panel-default div-padded">
         <h2>Images</h2>
+        <p>This is how images are done.</p>
     </div>
     <div class="panel panel-default div-padded">
         <h2>Tables</h2>
@@ -163,35 +117,41 @@
             <thead>
             <tr>
                 <th>#</th>
-                <th>First Name</th>
-                <th>Last Name</th>
+                <th>Character</th>
+                <th>Favorite game</th>
                 <th>Username</th>
             </tr>
             </thead>
             <tbody>
             <tr>
                 <th scope="row">1</th>
-                <td>Mark</td>
-                <td>Otto</td>
-                <td>@mdo</td>
+                <td>Mario</td>
+                <td>Mushrooms</td>
+                <td>@mario</td>
             </tr>
             <tr>
                 <th scope="row">2</th>
-                <td>Jacob</td>
-                <td>Thornton</td>
-                <td>@fat</td>
+                <td>Sonic</td>
+                <td>Gold</td>
+                <td>@sonic</td>
             </tr>
             <tr>
                 <th scope="row">3</th>
-                <td>Larry</td>
-                <td>the Bird</td>
-                <td>@twitter</td>
+                <td>Snake</td>
+                <td>Mice</td>
+                <td>@snake</td>
             </tr>
             <tr>
                 <th scope="row">4</th>
-                <td>Pete</td>
-                <td>the Pistol</td>
-                <td>@tpistolpete</td>
+                <td>Rachet</td>
+                <td>Bolts</td>
+                <td>@rachet</td>
+            </tr>
+            <tr>
+                <th scope="row">5</th>
+                <td>Pacman</td>
+                <td>Pills</td>
+                <td>@pacman</td>
             </tr>
             </tbody>
         </table>
@@ -225,7 +185,7 @@
             </div>
             <div class="checkbox">
                 <label>
-                    <input type="checkbox"> I agree to the <a href="/tos.php">terms</a>
+                    <input type="checkbox"> I agree to the <a href="/tos/">terms</a>
                 </label>
             </div>
             <button type="submit" class="btn btn-default">Submit</button>
@@ -236,18 +196,18 @@
         <div class="container-fluid post-item bg-info">
             <div class="col-md-1 post-left-column">
                 <img class="avatarThumbnail" src="images/avatar_tmp.jpg" />
-                <div class="post-actions"><span class="glyphicon glyphicon-empty-star"></span></div>
+                <div class="post-actions"><span class="glyphicon glyphicon-star-empty"></span><span class="glyphicon glyphicon-star-empty"></span><span class="glyphicon glyphicon-star-empty"></span><span class="glyphicon glyphicon-star varyn-red"></span><span class="glyphicon glyphicon-star varyn-red"></span></div>
             </div>
             <div class="col-md-11 post-content">
-                <div class="help-block"><strong>Dark Matters</strong> &bull; <span class="post-date">14-Jan-2016 4:48 PM</span></div>
+                <div class="post-info"><strong>Dark Matters</strong> &bull; <span class="post-date">14-Jan-2016 4:48 PM</span></div>
                 <h2>This is the title of the article</h2>
                 <p>This area holds the abstract or summary of the article. We will allow for up to 4 lines of text here. This area holds the abstract or summary of the article. We will allow for up to 4 lines of text here. This area holds the abstract or summary of the article. We will allow for up to 4 lines of text here. This area holds the abstract or summary of the article. We will allow for up to 4 lines of text here. <a href="#">Read more...</a></p>
-                <div class="help-block">This area for Actions - Full Article, Reply, Ratings, Likes, etc.</div>
+                <div class="post-footer">This area for Actions - Full Article, Reply, Ratings, Likes, etc.</div>
             </div>
         </div>
     </div>
 </div><!-- /.container -->
-<?php include_once('common/footer.php'); ?>
+<?php include_once(VIEWS_ROOT . 'footer.php'); ?>
 <script type="text/javascript">
 
     /**
