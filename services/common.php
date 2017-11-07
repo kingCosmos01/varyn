@@ -12,114 +12,117 @@
  *   $isLoggedIn = true if the user is logged in
  *
  */
-    session_start();
-    require_once('serverConfig.php');
-    require_once('Enginesis.php');
-    date_default_timezone_set('America/New_York');
-    setErrorReporting(true);
-    define('VARYN_VERSION', '2.1.3');
-    define('LOGFILE_PREFIX', 'varyn_php_');
-    define('VARYN_SESSION_COOKIE', 'varynuser');
-    if (isset($_SERVER['DOCUMENT_ROOT']) && strlen($_SERVER['DOCUMENT_ROOT']) > 0) {
-        $varynServerRootPath = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . '../';
+session_start();
+require_once('serverConfig.php');
+require_once('Enginesis.php');
+date_default_timezone_set('America/New_York');
+setErrorReporting(true);
+define('VARYN_VERSION', '2.1.3');
+define('LOGFILE_PREFIX', 'varyn_php_');
+define('VARYN_SESSION_COOKIE', 'varynuser');
+if (isset($_SERVER['DOCUMENT_ROOT']) && strlen($_SERVER['DOCUMENT_ROOT']) > 0) {
+    $varynServerRootPath = $_SERVER['DOCUMENT_ROOT'] . '/../';
+} else {
+    $varynServerRootPath = '../';
+}
+define('SERVER_ROOT', $varynServerRootPath);
+define('SERVER_DATA_PATH', $varynServerRootPath . 'data/');
+define('SERVICE_ROOT', $varynServerRootPath . 'services/');
+define('VIEWS_ROOT', $varynServerRootPath . 'services/views/');
+
+/**
+ * @description
+ *   Turn on or off all error reporting. Typically we want this on for development, off for production.
+ * @param {bool} true to turn on error reporting, false to turn it off.
+ * @return {bool} just echos back the flag.
+ */
+function setErrorReporting ($reportingFlag) {
+    if ($reportingFlag) {
+        ini_set('error_reporting', E_ALL);
+        ini_set('display_errors', 1);
+        ini_set('html_errors', 'On');
+        error_reporting(E_ALL);
     } else {
-        $varynServerRootPath = '..' . DIRECTORY_SEPARATOR;
+        ini_set('error_reporting', E_ERROR);
+        ini_set('display_errors', 0);
+        ini_set('html_errors', 'Off');
+        error_reporting(E_ERROR);
     }
-    define('SERVER_DATA_PATH', $varynServerRootPath . 'data' . DIRECTORY_SEPARATOR);
+    return $reportingFlag;
+}
 
-    /**
-     * @description
-     *   Turn on or off all error reporting. Typically we want this on for development, off for production.
-     * @param {bool} true to turn on error reporting, false to turn it off.
-     * @return {bool} just echos back the flag.
-     */
-    function setErrorReporting ($reportingFlag) {
-        if ($reportingFlag) {
-            ini_set('error_reporting', E_ALL);
-            ini_set('display_errors', 1);
-            ini_set('html_errors', 'On');
-            error_reporting(E_ALL);
+/**
+ * Write a debug log message to the server log.
+ * @param $msg string The message to log.
+ */
+function debugLog ($msg) {
+    $filename = SERVER_DATA_PATH . LOGFILE_PREFIX . date('ymd') . '.log';
+    try {
+        $logfile = fopen($filename, 'a');
+        if ($logfile) {
+            fwrite($logfile, "$msg\r\n");
+            fclose($logfile);
         } else {
-            ini_set('error_reporting', E_ERROR);
-            ini_set('display_errors', 0);
-            ini_set('html_errors', 'Off');
-            error_reporting(E_ERROR);
+            error_log("Varyn debugLog file system error on $filename: $msg\n");
         }
-        return $reportingFlag;
+    } catch (Exception $e) {
+        error_log("Varyn debugLog: $msg\n");
     }
+}
 
-    /**
-     * Write a debug log message to the server log.
-     * @param $msg string The message to log.
-     */
-    function debugLog ($msg) {
-        $filename = SERVER_DATA_PATH . LOGFILE_PREFIX . date('ymd') . '.log';
-        try {
-            $logfile = fopen($filename, 'a');
-            if ($logfile) {
-                fwrite($logfile, "$msg\r\n");
-                fclose($logfile);
-            } else {
-                error_log("Varyn debugLog file system error on $filename: $msg\n");
-            }
-        } catch (Exception $e) {
-            error_log("Varyn debugLog: $msg\n");
-        }
+/**
+ * Debug a variable by echoing information to the output stream.
+ * @param $variable
+ * @param null $message
+ */
+function debugVar($variable, $message = null, $show = true) {
+    if ( ! isset($message) || $message == null) {
+        $caller = debug_backtrace()[0];
+        $message = 'From ' . basename($caller['file']) . ':' . $caller['line'];
     }
+    if ($show) {
+        echo("<h3>$message</h3>");
+        echo '<pre>';
+        var_dump($variable);
+        echo '</pre>';
+    }
+    debugLog($message . ' || ' . var_export($variable, true));
+}
 
-    /**
-     * Debug a variable by echoing information to the output stream.
-     * @param $variable
-     * @param null $message
-     */
-    function debugVar($variable, $message = null, $show = true) {
-        if ( ! isset($message) || $message == null) {
-            $caller = debug_backtrace()[0];
-            $message = 'From ' . basename($caller['file']) . ':' . $caller['line'];
-        }
-        if ($show) {
-            echo("<h3>$message</h3>");
-            echo '<pre>';
-            var_dump($variable);
-            echo '</pre>';
-        }
-        debugLog($message . ' || ' . var_export($variable, true));
-    }
+/**
+ * Debug a variable by returning it as a string.
+ * @param $variable
+ * @return string
+ */
+function debugToString($variable) {
+    return var_export($variable, true);
+}
 
-    /**
-     * Debug a variable by returning it as a string.
-     * @param $variable
-     * @return string
-     */
-    function debugToString($variable) {
-        return var_export($variable, true);
-    }
+/**
+ * Convert a boolean value to a string.
+ * @param $variable
+ * @return string
+ */
+function boolToString($variable) {
+    return $variable ? 'true' : 'false';
+}
 
-    /**
-     * Convert a boolean value to a string.
-     * @param $variable
-     * @return string
-     */
-    function boolToString($variable) {
-        return $variable ? 'true' : 'false';
+/**
+ * Convert a value to its boolean representation.
+ * @param $variable - any type will be coerced to a boolean value.
+ * @return boolean
+ */
+function valueToBoolean($variable) {
+    if (is_string($variable)) {
+        $variable = strtoupper($variable);
+        $result =  $variable == '1' || $variable == 'Y' || $variable == 'T' || $variable == 'YES' || $variable == 'TRUE' || $variable == 'CHECKED';
+    } elseif (is_numeric($variable)) {
+        $result = ! ! $variable;
+    } else {
+        $result = $variable != null;
     }
-
-    /**
-     * Convert a value to its boolean representation.
-     * @param $variable - any type will be coerced to a boolean value.
-     * @return boolean
-     */
-    function valueToBoolean($variable) {
-        if (is_string($variable)) {
-            $variable = strtoupper($variable);
-            $result =  $variable == '1' || $variable == 'Y' || $variable == 'T' || $variable == 'YES' || $variable == 'TRUE' || $variable == 'CHECKED';
-        } elseif (is_numeric($variable)) {
-            $result = ! ! $variable;
-        } else {
-            $result = $variable != null;
-        }
-        return $result;
-    }
+    return $result;
+}
 
     /**
      * Return a variable that was posted from a form, or in the REQUEST object (GET or COOKIES), or a default if not found.

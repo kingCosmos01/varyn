@@ -3,7 +3,7 @@
     $page = 'styles';
     $search = getPostOrRequestVar('q', null);
     if ($search != null) {
-        header('location:/allgames.php?q=' . $search);
+        header('location:/allgames/?q=' . $search);
         exit;
     }
     $showSubscribe = getPostOrRequestVar('s', '0');

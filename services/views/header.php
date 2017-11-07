@@ -1,12 +1,93 @@
 <?php
-    $pagesDoNotHaveRegistrationForms = array('resetpass', 'forgotpass', 'requestConfirm');
-    if ( ! isset($isLoggedIn)) {
-        $isLoggedIn = false;
-    }
-    if ( ! isset($page)) {
-        $page = 'home';
-    }
+$pagesDoNotHaveRegistrationForms = array('resetpass', 'forgotpass', 'requestConfirm');
+if ( ! isset($isLoggedIn)) {
+    $isLoggedIn = false;
+}
+if (empty($page)) {
+    $page = 'home';
+}
+if (empty($pageTitle)) {
+    $pageTitle = 'Varyn: Great games you can play anytime, anywhere';
+}
+if (empty($pageDescription)) {
+    $pageDescription = 'Varyn makes games using technology that performs on the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between desktop, tablet, and smart-phone.';
+}
+if (empty($pageFavIcon)) {
+    $pageFavIcon = '/favicon.ico';
+}
+if (empty($pageIcon)) {
+    $pageIcon = '/favicon-196x196.png';
+}
+if (empty($pageOGLink)) {
+    $pageOGLink = '//www.varyn.com';
+}
+if (empty($pageSocialImage1)) {
+    $pageSocialImage1 = '//www.varyn.com/images/1200x900.png';
+}
+if (empty($pageSocialImage2)) {
+    $pageSocialImage2 = '//www.varyn.com/images/VarynIcon1080.jpg';
+}
 ?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title><?php echo($pageTitle);?></title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta http-equiv="cache-control" content="max-age=0" />
+    <meta http-equiv="cache-control" content="no-cache" />
+    <meta http-equiv="expires" content="0" />
+    <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
+    <meta http-equiv="pragma" content="no-cache" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="description" content="<?php echo($pageDescription);?>">
+    <meta name="author" content="Varyn">
+    <meta name="google-signin-client_id" content="<?php echo($socialServiceKeys[7]['app_id']);?>">
+    <link href="/common/bootstrap.min.css" rel="stylesheet">
+    <link href="/common/carousel.css" rel="stylesheet">
+    <link href="/common/varyn.css" rel="stylesheet">
+    <link rel="icon" href="<?php echo($pageFavIcon);?>">
+    <link rel="icon" type="image/png" href="/favicon-48x48.png" sizes="48x48"/>
+    <link rel="icon" type="image/png" href="/favicon-196x196.png" sizes="196x196">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/apple-touch-icon-60x60.png" sizes="60x60"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-72x72.png" sizes="72x72"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-76x76.png"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-76x76.png" sizes="76x76"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-114x114.png" sizes="114x114"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-120x120.png" sizes="120x120"/>
+    <link rel="apple-touch-icon" href="/apple-touch-icon-152x152.png" sizes="152x152"/>
+    <link rel="shortcut icon" href="<?php echo($pageIcon);?>">
+    <meta property="fb:app_id" content="<?php echo($socialServiceKeys[2]['app_id']);?>" />
+    <meta property="fb:admins" content="<?php echo($socialServiceKeys[2]['admins']);?>" />
+    <meta property="og:title" content="<?php echo($pageTitle);?>">
+    <meta property="og:url" content="//www.varyn.com">
+    <meta property="og:site_name" content="Varyn">
+    <meta property="og:description" content="<?php echo($pageDescription);?>">
+    <meta property="og:image" content="<?php echo($pageSocialImage1);?>"/>
+    <meta property="og:image" content="<?php echo($pageSocialImage2);?>"/>
+    <meta property="og:image" content="//www.varyn.com/images/1200x600.png"/>
+    <meta property="og:image" content="//www.varyn.com/images/VarynIcon640.jpg"/>
+    <meta property="og:image" content="//www.varyn.com/images/2048x1536.png"/>
+    <meta property="og:type" content="website"/>
+    <meta name="twitter:card" content="summary_large_image"/>
+    <meta name="twitter:domain" content="varyn.com"/>
+    <meta name="twitter:site" content="@varyndev"/>
+    <meta name="twitter:url" content="//www.varyn.com">
+    <meta name="twitter:creator" content="@varyndev"/>
+    <meta name="twitter:title" content="<?php echo($pageTitle);?>"/>
+    <meta name="twitter:image" content="<?php echo($pageSocialImage1);?>"/>
+    <script src="/common/head.min.js"></script>
+</head>
+<body>
 <div class="modal fade topmost" id="modal-message" tabindex="-1" role="dialog" aria-labelledby="modalMessageLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content modal-content-varyn">
@@ -34,7 +115,7 @@
                 <h3 class="modal-title" id="modalSubscribeLabel"><span class="varyn-shield-icon"></span> Subscribe</h3>
             </div>
             <div class="modal-body">
-                <p>Sign up for our email updates and we will let you know when we have new games, prizes, interesting things to say. We will not abuse this privilege. <a href="/privacy.php" class="text-muted small" title="Review our privacy policy" alt="Review our privacy policy">Review our privacy policy.</a></p>
+                <p>Sign up for our email updates and we will let you know when we have new games, prizes, interesting things to say. We will not abuse this privilege. <a href="/privacy/" class="text-muted small" title="Review our privacy policy" alt="Review our privacy policy">Review our privacy policy.</a></p>
                 <form id="subscribe-form">
                     <div class="form-group leader-1 trailer-1 left-2 right-2">
                         <label for="subscribe-email">Email address</label>
@@ -63,7 +144,7 @@
                 <h3 class="modal-title" id="modalLoginLabel"><span class="varyn-shield-icon"></span> Member Login</h3>
             </div>
             <div class="modal-body">
-                <form id="login-form" method="POST" action="profile.php" onsubmit="return varynApp.popupLoginClicked();">
+                <form id="login-form" method="POST" action="/profile/" onsubmit="return varynApp.popupLoginClicked();">
                     <div class="leader-1 trailer-1 left-2 right-2">
                         <div class="form-group">
                             <label for="login_username">User name:</label>
@@ -103,7 +184,7 @@
             </div>
             <div class="modal-body">
                 <p>Sign up now to track your progress, earn rewards, and compete with friends!</p>
-                <form id="registration-form" method="POST" action="profile.php" onsubmit="return varynApp.popupRegistrationClicked();">
+                <form id="registration-form" method="POST" action="/profile/" onsubmit="return varynApp.popupRegistrationClicked();">
                     <div class="leader-1 trailer-1 left-1 right-1">
                         <div class="form-group">
                             <label for="register-email">Email:</label>
@@ -119,7 +200,7 @@
                         </div>
                         <div class="form-group">
                             <div class="validation-slider-area">
-                                <label for="register-agreement">I agree to the <a href="/tos.php" target="_popup">Terms of Use</a></label><br/>
+                                <label for="register-agreement">I agree to the <a href="/tos/" target="_popup">Terms of Use</a></label><br/>
                                 <span><small>No</small>&nbsp;&nbsp;<input type="range" name="register-agreement" class="validation-slider" id="register-agreement" placeholder="Slide this all the way left to agree" tabindex="13" min="0" max="2" />&nbsp;&nbsp;<small>Yes</small></span>
                             </div>
                         </div>
@@ -153,7 +234,7 @@
             </div>
             <div class="modal-body">
                 <p>Please identify your account. We will send email to the address set on the account to allow you to reset your password.</p>
-                <form id="forgot-password-form" method="POST" action="profile.php" onsubmit="return varynApp.popupForgotPasswordClicked();">
+                <form id="forgot-password-form" method="POST" action="/profile/" onsubmit="return varynApp.popupForgotPasswordClicked();">
                     <div class="leader-1 trailer-1 left-2 right-2">
                         <div class="form-group">
                             <label for="forgotpassword_username">User name:</label>
@@ -210,11 +291,11 @@
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
                         <li role="presentation"<?php if ($page == 'home') { echo(' class="active"'); } ?>><a href="/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
-                        <li role="presentation"<?php if ($page == 'allgames') { echo(' class="active"'); } ?>><a href="/allgames.php"><span class="glyphicon glyphicon-king"></span> All Games<?php echo($newGamesPill);?></a></li>
-                        <li role="presentation"<?php if ($page == 'blog') { echo(' class="active"'); } ?>><a href="/blog"><span class="glyphicon glyphicon-list"></span> Blog<?php echo($newBlogPill);?></a></li>
-                        <li role="presentation"<?php if ($page == 'profile') { echo(' class="active"'); } ?>><a href="/profile.php"><?php echo($userLoggedInMenuItem);?></a></li>
+                        <li role="presentation"<?php if ($page == 'allgames') { echo(' class="active"'); } ?>><a href="/allgames/"><span class="glyphicon glyphicon-king"></span> All Games<?php echo($newGamesPill);?></a></li>
+                        <li role="presentation"<?php if ($page == 'blog') { echo(' class="active"'); } ?>><a href="/blog/"><span class="glyphicon glyphicon-list"></span> Blog<?php echo($newBlogPill);?></a></li>
+                        <li role="presentation"<?php if ($page == 'profile') { echo(' class="active"'); } ?>><a href="/profile/"><?php echo($userLoggedInMenuItem);?></a></li>
                     </ul>
-                    <form class="navbar-form navbar-right" role="search" method="GET" action="/allgames.php">
+                    <form class="navbar-form navbar-right" role="search" method="GET" action="/allgames/">
                         <div class="form-group">
                             <input type="text" class="form-control" placeholder="Search" name="q">
                         </div>

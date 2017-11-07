@@ -1,15 +1,16 @@
 <?php
 require_once('../../services/common.php');
-require_once('../../services/blog.php');
-$page = 'blog';
 $search = getPostOrRequestVar('q', null);
 if ($search != null) {
-    header('location:/allgames.php?q=' . $search);
+    header('location:/allgames/?q=' . $search);
     exit;
 }
+require_once('../../services/blog.php');
 $showSubscribe = getPostOrRequestVar('s', '0');
-require_once('conf-page-header.php');
-include_once('../common/header.php');
+$page = 'blog';
+$pageTitle = $blog->getTopicTitle($topicId);
+$pageDescription = $blog->getTopicAbstract($topicId);
+include_once(VIEWS_ROOT . 'header.php');
 
 $topicId = getPostOrRequestVar('tid', 0);
 // Get 3 most recent topics
@@ -62,7 +63,7 @@ $blog->setConferenceTopic($topicId);
         </div>
     </div>
     <?php
-    include_once('../common/footer.php');
+    include_once(VIEWS_ROOT . 'footer.php');
     ?>
     <script type="text/javascript">
 

@@ -1,44 +1,9 @@
 <?php
-    require_once('../../services/common.php');
-    $page = 'home';
- ?>
-<!DOCTYPE html>
-<head>
-    <title>Varyn Games | What's Hot</title>
-    <meta name="title" content="Varyn Games What's Hot" />
-    <meta name="description" content="Varyn Games the Best Place to Play Games Online and On the Go!" />
-    <link rel="icon" type="image/png" href="/images/logosmall.png" />
-    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-    <link rel="image_src" href="/images/VarynCardLogo.png" />
-    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <META NAME="Description" CONTENT="Varyn"/>
-    <META NAME="Keywords" CONTENT="Varyn"/>
-    <META NAME="Author" content="Varyn"/>
-    <META NAME="Copyright" content="Copyright © 2013 Varyn. All rights reserved."/>
-    <meta name="google-site-verification" content="" />
-    <meta property="og:title" content="Varyn Games More Games" />
-    <meta property="og:description" content="Varyn Games the Best Place to Play Games Online and On the Go!" />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="http://www.varyn.com" />
-    <meta property="og:image" content="http://www.varyn.com/images/share_img_0.jpg" />
-    <meta property="og:image" content="http://www.varyn.com/images/share_img_1.jpg" />
-    <meta property="og:image" content="http://www.varyn.com/images/share_img_2.jpg" />
-    <meta property="og:site_name" content="Varyn" />
-    <meta property="og:type" content="website" />
-    <meta property="fb:admins" content="726468316" />
-    <meta property="fb:app_id" content="" />
-    <script type="text/javascript" src="/common/head.min.js"></script>
-    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.2.1/jquery.mobile-1.2.1.min.css" />
-    <link rel="stylesheet" href="/common/main.css" type="text/css" media="screen" />
-    <link rel="stylesheet" href="/common/nivo-slider.css" type="text/css" media="screen" />
-    <link rel="stylesheet" href="/common/themes/dark/default.css" type="text/css" media="screen" />
-</head>
-<body>
-<div id="page_container">
-    <?php
-    include_once('../common/header.php');
-    ?>
+require_once('../../services/common.php');
+$page = 'home';
+$pageTitle = "What are the hot games at Varyn.com";
+include_once(VIEWS_ROOT . 'header.php');
+?>
     <div id="top_promo">
         <h2>What's Hot</h2>
         <p>Here we will place featured content we curated from throughout the web, whether it is ours or not,
@@ -199,8 +164,8 @@
         </div>
     </div>
 <?php
-    include_once('../common/footer.php');
- ?>
-</div><!-- page_container -->
+include_once(VIEWS_ROOT . 'footer.php');
+?>
+</div>
 </body>
 </html>
