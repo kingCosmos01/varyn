@@ -127,7 +127,7 @@ include_once(VIEWS_ROOT . 'header.php');
                         <h2 id="company-name-videos">Videos</h2>
                         <div>
                             <h2 id="company-name-videos">Sumo Volleyball</h2>
-                            <p>Sumo Volleyball was a game we acquired at MTV and then turned into several branded games. <a href="https://www.youtube.com/watch?v=919x4FClpVA" title="Sumo Volleyball Trailer on Youtube"> Here is a trailer of someone who is quite good at the game. It brings back such great memories!</a></p>
+                            <p>Sumo Volleyball was a game we acquired at MTV and then turned into several branded games for our properties MTV, VH1, Comedy Central, and Addicting Games. <a href="https://www.youtube.com/watch?v=919x4FClpVA" title="Sumo Volleyball Trailer on Youtube"> Here is a trailer of someone who is quite good at the game. It brings back such great memories!</a></p>
                             <div class="iframe-container">
                                 <iframe src="//www.youtube.com/embed/919x4FClpVA" frameborder="0" allowfullscreen=""></iframe>
                             </div>

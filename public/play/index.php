@@ -1,13 +1,12 @@
 <?php
 require_once('../../services/common.php');
-$page = 'play';
 $search = getPostOrRequestVar('q', null);
 if ($search != null) {
     header('location:/allgames/?q=' . $search);
     exit;
 }
+$page = 'play';
 $showSubscribe = getPostOrRequestVar('s', '0');
-$gameId = '';
 $gameId = getPostOrRequestVar(['id', 'gameid', 'game_id', 'gameId', 'gameName', 'g'], '');
 if ($gameId == '') {
     header("Location: /allgames/");
