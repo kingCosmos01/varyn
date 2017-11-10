@@ -354,7 +354,7 @@ var varyn = function (parameters) {
             if (errorMessage == "") {
                 errorContent.innerHTML = '<p>&nbsp;</p>';
             } else if (errorContent != null) {
-                errorContent.innerHTML = '<p class="error-text">' + errorMessage + '</p>';
+                errorContent.innerHTML = '<p class="text-error">' + errorMessage + '</p>';
             }
             if (errorFieldElement != null) {
                 $(errorFieldElement).removeClass("popup-form-input").addClass("popup-form-input-error");

@@ -44,6 +44,35 @@
     color: #e4e4e4;
 }
 
+.copyright {
+    color: #0088cc;
+    margin-top: 1em;
+}
+
+.text-error {
+    color: #ac2925;
+}
+
+.text-danger {
+    color: #ac2925;
+}
+
+.text-success {
+    color: #2bac38;
+}
+
+.text-info {
+    color: #0088cc;
+}
+
+.text-small {
+    font-size: 12px;
+}
+
+.text-large {
+    font-size: 22px;
+}
+
 body {
     padding-top: 72px;
     color: #1d1d1d;
@@ -355,28 +384,6 @@ footer {
 
 #footer-nav span {
     padding-left: 2em;
-}
-
-.copyright {
-    color: #0088cc;
-    margin-top: 1em;
-}
-
-.error-text {
-    color: #ac2925;
-}
-
-.success-text {
-    color: #2bac38;
-}
-
-.info-text {
-    color: #0088cc;
-}
-
-.info-text-small {
-    color: #0088cc;
-    font-size: 12px;
 }
 
 .social {

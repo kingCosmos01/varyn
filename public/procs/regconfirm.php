@@ -17,7 +17,7 @@ processTrackBack();
 $user_id = getPostOrRequestVar('u', 0);
 $site_id = getPostOrRequestVar('s', 0);
 $token = getPostOrRequestVar('t', '');
-$redirectTo = '/profile.php?action=regconfirm&code=';
+$redirectTo = '/profile/?action=regconfirm&code=';
 $errorCode = '';
 
 if ($site_id > 0 && $user_id > 0 && $token != '') {

@@ -82,7 +82,7 @@ if ($networkId > 1) {
             if ($userInfo == null) {
                 $error = $enginesis->getLastError();
                 if ($error != null) {
-                    $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::CANNOT_LOG_IN) . ' ' . errorToLocalString($error['message']) . '</p>';
+                    $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::CANNOT_LOG_IN) . ' ' . errorToLocalString($error['message']) . '</p>';
                 }
             } else {
                 $isLoggedIn = true;
@@ -132,9 +132,9 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
         $error = $enginesis->getLastError();
         if ($error != null) {
             $linkToResendToken = createResendConfirmEmailLink($error['message'], null, $userName, null, null);
-            $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::LOGIN_SYSTEM_FAILURE) . ' ' . errorToLocalString($error['message']) . ' ' . $linkToResendToken . '</p>';
+            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::LOGIN_SYSTEM_FAILURE) . ' ' . errorToLocalString($error['message']) . ' ' . $linkToResendToken . '</p>';
         } else {
-            $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::NAME_PASSWORD_MISMATCH) . '</p>';
+            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::NAME_PASSWORD_MISMATCH) . '</p>';
         }
         $inputFocusId = 'login_form_username';
     } else {
@@ -200,15 +200,15 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
                     $inputFocusId = 'register_form_email';
                     break;
             }
-            $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . $errorInfo . '</p>';
+            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . $errorInfo . '</p>';
             $showRegistrationForm = true;
         } else {
-            $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ACCEPTED) . '</p>';
+            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ACCEPTED) . '</p>';
             $inputFocusId = 'login_form_username';
         }
     } else {
         // TODO: handle invalid fields by showing UI
-        $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, array('fields' => implode(', ', $invalidFields))) . '</p>';
+        $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, array('fields' => implode(', ', $invalidFields))) . '</p>';
         $inputFocusId = 'register-email';
     }
     $action = 'register';
@@ -263,21 +263,21 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
                     $inputFocusId = 'register_form_email';
                     break;
             }
-            $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . $errorInfo . '</p>';
+            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . $errorInfo . '</p>';
             $showRegistrationForm = true;
         } else {
-            $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ACCEPTED) . '</p>';
+            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ACCEPTED) . '</p>';
             $inputFocusId = 'login_form_username';
         }
     } else {
         // TODO: handle invalid fields by showing UI, but try to set the focus on the first field in error.
-        $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, array('fields' => implode(', ', $invalidFields))) . '</p>';
+        $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, array('fields' => implode(', ', $invalidFields))) . '</p>';
         $inputFocusId = 'register_form_email';
         $showRegistrationForm = true;
     }
 } elseif ($action == 'update') { // user requested an update of their profile information
     if ( ! $isLoggedIn || empty($userId)) {
-        $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::MUST_BE_LOGGED_IN) . '</p>';
+        $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::MUST_BE_LOGGED_IN) . '</p>';
         debugLog("profile.php got into user edit without a valid logged in user.");
     } else {
         $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
@@ -288,7 +288,7 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
             $userInfo = $enginesis->registeredUserGetEx($userId);
             if ($userInfo == null) {
                 // TODO: Need to handle any errors by looking at the error code returned from the server, showing a proper error message, and putting focus in the relevant field
-                $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::SYSTEM_ERROR) . ' ' . $enginesis->getLastErrorDescription() . '</p>';
+                $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::SYSTEM_ERROR) . ' ' . $enginesis->getLastErrorDescription() . '</p>';
             } else {
                 // [user_id] => 10241 [site_id] => 106 [user_name] => varyn2 [real_name] => varyn2 [site_user_id] => [dob] => 2004-04-10 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-04-10 20:07:55 [date_updated] => [source_site_id] => 106 [last_login] => 2016-04-16 14:09:27 [login_count] => 24 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 2 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [friend_count] => 0 [comment_count] => 0 [notification_count] => 0 ) ) [outparams] => Array ( ) [status] => stdClass Object ( [success] => 1 [message] => ) [passthru] => stdClass Object ( [fn] => RegisteredUserGetEx [site_id] => 106 [logged_in_user_id] => 10241 [get_user_id] => NULL [site_user_id] => NULL [language_code] => en [state_seq] => 1 ) ) ) stdClass Object ( [user_id] => 10241 [site_id] => 106 [user_name] => varyn2 [real_name] => varyn2 [site_user_id] => [dob] => 2004-04-10 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-04-10 20:07:55 [date_updated] => [source_site_id] => 106 [last_login] => 2016-04-16 14:09:27 [login_count] => 24 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 2 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [friend_count] => 0 [comment_count] => 0 [notification_count] => 0
                 $showRegistrationForm = true;
@@ -309,7 +309,7 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
                     $securityAnswer = $securityInfo->security_answer;
                 } else {
                     // TODO: error handle if the API fails. This is probably a soft error as the user update was ok.
-                    $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::SYSTEM_ERROR) . ' ' . $enginesis->getLastErrorDescription() . '</p>';
+                    $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::SYSTEM_ERROR) . ' ' . $enginesis->getLastErrorDescription() . '</p>';
                 }
             }
         } else {
@@ -317,7 +317,7 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
             // TODO: determine if no changes made and only submit based on changes
             // TODO: security fields updated?
             if ( ! ($thisFieldMustBeEmpty == '' && validateInputFormHackerToken($hackerToken))) {
-                $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REG_INFO_INCOMPLETE, null) . '</p>';
+                $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REG_INFO_INCOMPLETE, null) . '</p>';
                 debugLog("profile.php error in user update fails hacker test: " . implode(',', array($thisFieldMustBeEmpty, $hackerToken, validateInputFormHackerToken($hackerToken))));
                 $inputFocusId = 'register_form_email';
             } else {
@@ -378,14 +378,14 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
                                         $inputFocusId = 'register_form_email';
                                         break;
                                 }
-                                $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . $errorInfo . '</p>';
+                                $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . $errorInfo . '</p>';
                                 $showRegistrationForm = true;
                             } else {
                                 // TODO: Refresh tokens after user update. Same effort as login, can we just reuse that same code?
                                 $refreshToken = $enginesis->sessionGetRefreshToken();
                                 if (empty($refreshToken)) {
                                     // If there is no refresh token, we cannot refresh the local auth token. Maybe best to log user out and force a login.
-                                    $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REFRESH_TOKEN_ERROR, null) . '</p>';
+                                    $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REFRESH_TOKEN_ERROR, null) . '</p>';
                                     debugLog("profile.php sessionGetRefreshToken but no token after user update");
                                 } else {
                                     $userInfo = $enginesis->sessionRefresh($refreshToken);
@@ -398,21 +398,21 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
                                         $userInfoJSON = getVarynUserCookie();
                                     } else {
                                         // TODO: using the refresh token failed, either it expired or there is a system error.
-                                        $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REG_INFO_INCOMPLETE, null) . '</p>';
+                                        $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REG_INFO_INCOMPLETE, null) . '</p>';
                                         debugLog("profile.php sessionRefresh error with user update service: " . debugToString($enginesis->getLastError()));
                                     }
                                 }
                             }
                         } else {
                             $lastError = $enginesis->getLastError();
-                            $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REG_INFO_INCOMPLETE, null) . '</p>';
+                            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REG_INFO_INCOMPLETE, null) . '</p>';
                             debugLog("profile.php registeredUserUpdate error from service: " . debugToString($parameters) . ' ' . debugToString($lastError));
                         }
                     } else {
                         // TODO: handle invalid fields by showing UI, set focus to first field in error
                         $showRegistrationForm = true;
                         $inputFocusId = 'register_form_email';
-                        $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, array('fields' => implode(', ', $invalidFields))) . '</p>';
+                        $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, array('fields' => implode(', ', $invalidFields))) . '</p>';
                     }
                 }
                 if ($inputFocusId == '' && $userSecurityDataChanged) {
@@ -428,16 +428,16 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
                             // handle invalid fields by showing UI
                             $showRegistrationForm = true;
                             $inputFocusId = 'register_form_email';
-                            $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, array('fields' => implode(', ', $invalidFields))) . '</p>';
+                            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, array('fields' => implode(', ', $invalidFields))) . '</p>';
                         }
                     } else {
                         $showRegistrationForm = true;
                         $inputFocusId = 'register_form_email';
-                        $errorMessage = '<p class="error-text">' . $stringTable->lookup(EnginesisUIStrings::SECURITY_ERRORS_FIELDS, null) . '</p>';
+                        $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::SECURITY_ERRORS_FIELDS, null) . '</p>';
                     }
                 }
                 if ($inputFocusId == '') {
-                    $errorMessage = '<p class="success-text">' . $stringTable->lookup(EnginesisUIStrings::REG_INFO_UPDATED, null) . '</p>';
+                    $errorMessage = '<p class="text-success">' . $stringTable->lookup(EnginesisUIStrings::REG_INFO_UPDATED, null) . '</p>';
                     // If the password changed then start the reset password process.
                     $newPassword = getPostVar("register_form_new_password", '');
                     if ($newPassword != '') {
@@ -455,7 +455,7 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
     $result = $enginesis->userForgotPassword($userName, $email);
     if ($result != null) {
         if (isset($result->user_id) && $result->user_id > 0) {
-            $errorMessage = '<p class="info-text">' . $stringTable->lookup(EnginesisUIStrings::REG_RESET_PASSWORD, null) . '</p>';
+            $errorMessage = '<p class="text-info">' . $stringTable->lookup(EnginesisUIStrings::REG_RESET_PASSWORD, null) . '</p>';
             $inputFocusId = 'login_form_username';
         } else {
             $result = null;
@@ -465,7 +465,7 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
         $error = $enginesis->getLastError();
         $errorCode = $error['message'];
         if ($errorCode == 'SYSTEM_ERROR') {
-            $errorMessage = '<p class="error-text">' . errorToLocalString($errorCode) . '</p>';
+            $errorMessage = '<p class="text-error">' . errorToLocalString($errorCode) . '</p>';
         } else {
             $info = '';
             if ( ! empty($userName) && ! empty($email)) {
@@ -480,20 +480,20 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
             }
             $info = htmlentities($info);
             $info .= $info == '' ? '' : '. ';
-            $errorMessage = '<p class="error-text">' . errorToLocalString($errorCode) . '<br/>' . $info . 'Please check your entry.</p>';
+            $errorMessage = '<p class="text-error">' . errorToLocalString($errorCode) . '<br/>' . $info . 'Please check your entry.</p>';
         }
         $inputFocusId = 'profile_forgot_password';
     }
 } elseif ($action == 'resetpassword') { // user requested a Password Reset, initiate a forgot password flow.
     $result = $enginesis->userResetPassword();
     if ($result) {
-        $errorMessage = '<p class="info-text">' . $stringTable->lookup(EnginesisUIStrings::REG_COMPLETE_RESET_MESSAGE, null) . '</p>';
+        $errorMessage = '<p class="text-info">' . $stringTable->lookup(EnginesisUIStrings::REG_COMPLETE_RESET_MESSAGE, null) . '</p>';
         $inputFocusId = 'login_form_username';
     } else {
         $error = $enginesis->getLastError();
         $errorCode = $error['message'];
         if ($errorCode == 'SYSTEM_ERROR') {
-            $errorMessage = '<p class="error-text">' . errorToLocalString($errorCode) . '</p>';
+            $errorMessage = '<p class="text-error">' . errorToLocalString($errorCode) . '</p>';
         } else {
             $info = '';
             if ( ! empty($userName) && ! empty($email)) {
@@ -507,7 +507,7 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
                 }
             }
             $info .= $info == '' ? '' : '. ';
-            $errorMessage = '<p class="error-text">' . errorToLocalString($errorCode) . '<br/>' . $info . '. Please check your entry.</p>';
+            $errorMessage = '<p class="text-error">' . errorToLocalString($errorCode) . '<br/>' . $info . '. Please check your entry.</p>';
         }
         $inputFocusId = 'profile_forgot_password';
     }
@@ -532,7 +532,7 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
     $authToken = '';
     $refreshToken = '';
     $userInfoJSON = '';
-    $errorMessage = '<p class="info-text">' . $stringTable->lookup(EnginesisUIStrings::LOGOUT_COMPLETE, null) . '</p>';
+    $errorMessage = '<p class="text-info">' . $stringTable->lookup(EnginesisUIStrings::LOGOUT_COMPLETE, null) . '</p>';
 } elseif ($action == 'view') { // Request to View the profile of a specified user.
     $viewUserId = getPostOrRequestVar('id', '');
     if ($viewUserId == '') {
@@ -572,7 +572,7 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
     } else { // $action == '' || $action == 'completelogin'
         $errorCode = getPostOrRequestVar('code', null);
         if ($errorCode != null) {
-            $errorMessage = '<p class="info-text">' . $stringTable->lookup($errorCode, null) . '</p>';
+            $errorMessage = '<p class="text-info">' . $stringTable->lookup($errorCode, null) . '</p>';
         }
     }
     $viewUserId = getPostOrRequestVar('id', '');
@@ -664,7 +664,7 @@ include_once(VIEWS_ROOT . 'header.php');
         } elseif (is_array($errorMessage) && count($errorMessage) > 0) {
             echo('<div id="errorContent" class="errorContent">');
             for($i = 0; $i < count($errorMessage); $i ++) {
-                echo('<p class="error-text">' . $errorMessage[$i] . '</p>');
+                echo('<p class="text-error">' . $errorMessage[$i] . '</p>');
             }
             echo('</div>');
         }?>

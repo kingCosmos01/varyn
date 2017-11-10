@@ -199,7 +199,7 @@ class EnginesisBlog
     public function getCurrentPromo() {
         $link = '/play/?gameid=1083';
         $title = 'Play Match Master 3000 Now!';
-        $image = '//enginesis.varyn-l.com/games/MatchMaster3000/images/300x225.png';
+        $image = '//enginesis.varyn.com/games/MatchMaster3000/images/300x225.png';
         $description = 'You think you have a good memory? See how many levels you can master in our memory challenge to take the Match Master Crown!';
         $html = '<div id="conf-promo" class="conf-promo"><a href="' . $link . '" title="' . $title . '"><img class="thumbnail-img" src="' . $image . '" alt="' . $title . '"></a><p>' . $description . '</p></div>';
         return $html;

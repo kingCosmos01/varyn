@@ -81,6 +81,9 @@ include_once(VIEWS_ROOT . 'header.php');
             <dd>A description list is perfect for defining terms.</dd>
         </dl>
         </p>
+    </div>
+    <div class="panel panel-default div-padded">
+        <h2>Typography &amp; Colors</h2>
         <p>
             Montserrat - ABC - xyz - 1234567890
         </p>
@@ -93,18 +96,19 @@ include_once(VIEWS_ROOT . 'header.php');
         <p class="entry-content-info">
             AftaSansItalic - ABC - xyz - 1234567890
         </p>
-    </div>
-    <div class="panel panel-default div-padded">
-        <h2>Colors</h2>
         <p>Standard text font color</p>
         <p class="text-success">Success text font color <code>text-success</code></p>
-        <p class="success-text">Success text font color <code>success-text</code></p>
+        <p class="text-error">Danger/alert text font color <code>text-error</code></p>
         <p class="text-danger">Danger/alert text font color <code>text-danger</code></p>
         <p class="text-info">Informational text font color <code>text-info</code></p>
+        <p class="text-light">Informational or regular text light color <code>text-light</code></p>
+        <p class="text-small">Informational or regular text smaller size <code>text-small</code></p>
+        <p class="text-large">Informational or regular text larger size <code>text-large</code></p>
         <p class="varyn-red">Varyn-red text font color <code>varyn-red</code></p>
         <div class="varyn-red-background">
             <p class="text-light">Varyn red background with light text on top. <code>varyn-red-background text-light</code></p>
         </div>
+        <p class="copyright text-small">Copyright, footnote, subtext style <code>copyright</code></p>
     </div>
     <div class="panel panel-default div-padded">
         <h2>Images</h2>

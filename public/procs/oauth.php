@@ -74,7 +74,7 @@
 
     if ($enginesis->isLoggedInUser()) {
         debugX("called but a user is already logged in?");
-        header('Location: /profile.php');
+        header('Location: /profile/');
         exit(0);
     }
     $debug = (int) getPostOrRequestVar('debug', 0);
@@ -104,7 +104,7 @@
             $oauthState = 'callback';
         } elseif ($isDenied != '') {
             debugX('Twitter denied login with ' . $isDenied);
-            header('Location: /profile.php');
+            header('Location: /profile/');
         }
     }
     debugX('action ' . $action . ', provider ' . $provider);
@@ -222,7 +222,7 @@
                                                 $userId = $userInfo->user_id;
                                                 setVarynUserCookie($userInfo, $enginesis->getServerName());
                                                 if ( ! $debug) {
-                                                    header('Location: /profile.php');
+                                                    header('Location: /profile/');
                                                 }
                                                 exit(0);
                                             }
@@ -268,4 +268,4 @@
     } else {
         $errorCode = '';
     }
-    header('Location: /profile.php' . $errorCode);
+    header('Location: /profile/' . $errorCode);
