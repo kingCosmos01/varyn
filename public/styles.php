@@ -102,6 +102,9 @@ include_once(VIEWS_ROOT . 'header.php');
         <p class="text-danger">Danger/alert text font color <code>text-danger</code></p>
         <p class="text-info">Informational text font color <code>text-info</code></p>
         <p class="text-light">Informational or regular text light color <code>text-light</code></p>
+        <p class="text-alt-light">Alternate or special text light color for use on dark background <code>text-alt-light</code></p>
+        <p class="text-dark">Informational or regular text dark color for use on light background <code>text-dark</code></p>
+        <p class="text-alt-dark">Alternate or special text dark color for use on light background <code>text-alt-dark</code></p>
         <p class="text-small">Informational or regular text smaller size <code>text-small</code></p>
         <p class="text-large">Informational or regular text larger size <code>text-large</code></p>
         <p class="varyn-red">Varyn-red text font color <code>varyn-red</code></p>
@@ -109,6 +112,24 @@ include_once(VIEWS_ROOT . 'header.php');
             <p class="text-light">Varyn red background with light text on top. <code>varyn-red-background text-light</code></p>
         </div>
         <p class="copyright text-small">Copyright, footnote, subtext style <code>copyright</code></p>
+        <div class="row card-container">
+            <div class="col-sm-3 card card-light">
+                <h4>Light card</h4>
+                <p>Normal color scheme to use for regular content.</p>
+            </div>
+            <div class="col-sm-3 card card-dark">
+                <h4>Dark card</h4>
+                <p>"Varyn-red" dark color to use to make something stand out.</p>
+            </div>
+            <div class="col-sm-3 card card-alt-light">
+                <h4>Alternate light card</h4>
+                <p>Normal alternative color scheme to use for regular content but to separate it from regular flow.</p>
+            </div>
+            <div class="col-sm-3 card card-alt-dark">
+                <h4>Alternate dark card</h4>
+                <p>Alternate dark color to use to make something stand out above the rest.</p>
+            </div>
+        </div>
     </div>
     <div class="panel panel-default div-padded">
         <h2>Images</h2>
@@ -200,7 +221,7 @@ include_once(VIEWS_ROOT . 'header.php');
         <div class="container-fluid post-item bg-info">
             <div class="col-md-1 post-left-column">
                 <img class="avatarThumbnail" src="images/avatar_tmp.jpg" />
-                <div class="post-actions"><span class="glyphicon glyphicon-star-empty"></span><span class="glyphicon glyphicon-star-empty"></span><span class="glyphicon glyphicon-star-empty"></span><span class="glyphicon glyphicon-star varyn-red"></span><span class="glyphicon glyphicon-star varyn-red"></span></div>
+                <div class="post-actions"><span class="glyphicon glyphicon-star-empty"></span><span class="glyphicon glyphicon-star-empty"></span><span class="glyphicon glyphicon-star varyn-red"></span><span class="glyphicon glyphicon-star varyn-red"></span></div>
             </div>
             <div class="col-md-11 post-content">
                 <div class="post-info"><strong>Dark Matters</strong> &bull; <span class="post-date">14-Jan-2016 4:48 PM</span></div>

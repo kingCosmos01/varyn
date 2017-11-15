@@ -40,8 +40,20 @@
     background-color: #690606;
 }
 
+.text-normal {
+    color: #1d1d1d;
+}
+
 .text-light {
     color: #e4e4e4;
+}
+
+.text-alt-dark {
+    color: #2e0000;
+}
+
+.text-alt-light {
+    color: #aec9ff;
 }
 
 .copyright {
@@ -63,6 +75,38 @@
 
 .text-info {
     color: #0088cc;
+}
+
+.card-container {
+    display: flex;
+    width: 100%;
+}
+
+.card {
+    display: table-cell;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
+    margin: 0.25em;
+}
+
+.card-light {
+    color: #1d1d1d;
+    background-color: #e4e4e4;
+}
+
+.card-alt-light {
+    color: #2e0000;
+    background-color: #fdd4de;
+}
+
+.card-dark {
+    color: #e4e4e4;
+    background-color: #690606;
+}
+
+.card-alt-dark {
+    color: #aec9ff;
+    background-color: #2f185e;
 }
 
 .text-small {
