@@ -91,7 +91,7 @@
 
 .card-light {
     color: #1d1d1d;
-    background-color: #e4e4e4;
+    background-color: #d9edf7;
 }
 
 .card-alt-light {
@@ -105,8 +105,12 @@
 }
 
 .card-alt-dark {
-    color: #aec9ff;
+    color: #c9d1ff;
     background-color: #2f185e;
+}
+
+.text-micro {
+    font-size: 10px;
 }
 
 .text-small {

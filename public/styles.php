@@ -16,6 +16,9 @@ include_once(VIEWS_ROOT . 'header.php');
         <p>
             <a class="btn btn-lg btn-primary" href="http://getbootstrap.com/css/" role="button">View Bootstrap docs &raquo;</a>
         </p>
+        <span class="entry-content text-micro">
+            All ideas and designs included here and on this website are copyright &copy; 2017 Varyn, Inc.
+        </span>
     </div>
     <div class="panel panel-default div-padded">
         <h2>Modal Popups</h2>
@@ -26,8 +29,7 @@ include_once(VIEWS_ROOT . 'header.php');
         <button type="button" class="btn btn-success btn-lg" data-toggle="modal" data-target="#modal-forgot-password">Forgot Password</button>
     </div>
     <div class="panel panel-default div-padded">
-        <p>Headers</p>
-        <h1>Style Guide H1</h1>
+        <h1>Headers, such as this H1</h1>
         <h2>Style Guide H2</h2>
         <h3>Style Guide H3</h3>
         <h4>Style Guide H4</h4>

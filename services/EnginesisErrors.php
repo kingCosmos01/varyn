@@ -14,6 +14,7 @@ abstract class EnginesisErrors {
     const NOT_IMPLEMENTED = 'NOT_IMPLEMENTED';
 
     const EMAIL_IN_USE = 'EMAIL_IN_USE';
+    const INVALID_ID = 'INVALID_ID';
     const INVALID_LOGIN = 'INVALID_LOGIN';
     const INVALID_PARAMETER = 'INVALID_PARAMETER';
     const INVALID_SECONDARY_PASSWORD = 'INVALID_SECONDARY_PASSWORD';
@@ -33,6 +34,7 @@ abstract class EnginesisErrors {
 // TODO: This should be automatically generated from the data in Enginesis.error_messages and be indexed by $language_code
 $errorCodeTable = array (
     EnginesisErrors::EMAIL_IN_USE => 'The email address is already in use. Please choose a different email address.',
+    EnginesisErrors::INVALID_ID => 'The identifier specified is not valid or does not identify an object of this type.',
     EnginesisErrors::INVALID_LOGIN => 'Your credentials do not match.',
     EnginesisErrors::INVALID_PARAMETER => 'A required parameter is missing or not valid in this context.',
     EnginesisErrors::INVALID_SECONDARY_PASSWORD => 'Your confirmation token is not valid or it has expired.',
