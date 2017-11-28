@@ -111,7 +111,7 @@
     }
 
     /**
-     * Verify we only deal with valid genders. Valie genders are M, F, and U.
+     * Verify we only deal with valid genders. Valid genders are M, F, and U.
      * @param gender {string} any string.
      * @returns {string|*} a single character, one of [M|F|U]
      * TODO: Consider language code.
@@ -1070,10 +1070,12 @@
     };
 
     enginesis.promotionItemList = function (promotionId, queryDate, overRideCallBackFunction) {
+        // promotionId is required. queryDate can be null or a valid date
         return sendRequest("PromotionItemList", {promotion_id: promotionId, query_date: queryDate}, overRideCallBackFunction);
     };
 
     enginesis.promotionList = function (promotionId, queryDate, showItems, overRideCallBackFunction) {
+        // promotionId is required. queryDate can be null or a valid date. showItems if true/false, default is false
         return sendRequest("PromotionItemList", {promotion_id: promotionId, query_date: queryDate, show_items: showItems}, overRideCallBackFunction);
     };
 

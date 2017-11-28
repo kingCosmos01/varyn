@@ -21,7 +21,7 @@ include_once(VIEWS_ROOT . 'header.php');
                   <li data-target="#PromoCarousel" data-slide-to="1"></li>
                   <li data-target="#PromoCarousel" data-slide-to="2"></li>
               </ol>
-              <div class="carousel-inner" role="listbox">
+              <div id="PromoCarouselInner" class="carousel-inner" role="listbox">
                 <div class="item active">
                   <div class="sliderContainer" style="background:url(/images/promos/VarynPromoHome.jpg) center center; background-size:cover;">
                     <div class="carousel-caption">

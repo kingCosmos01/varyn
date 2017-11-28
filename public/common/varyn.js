@@ -22,6 +22,7 @@ var varyn = function (parameters) {
             gameListIdTop: parameters.gameListIdTop || 4,
             gameListIdNew: parameters.gameListIdNew || 5,
             homePagePromoId: parameters.homePagePromoId || 3,
+            blogPagePromoId: parameters.blogPagePromoId || 4,
             gameListState: 1,
             userInfo: parameters.userInfo,
             authToken: parameters.authToken,
@@ -1259,57 +1260,8 @@ var varyn = function (parameters) {
             return innerHtml;
         },
 
-        /**
-         * makePromoModule will generate the HTML for a single standard promo module for the carousel.
-         * @param isActive
-         * @param backgroundImg
-         * @param titleText
-         * @param altText
-         * @param promoText
-         * @param link
-         * @param callToActionText
-         * @returns {string}
-         */
-        makePromoModule: function (isActive, backgroundImg, titleText, altText, promoText, link, callToActionText) {
-            var innerHtml,
-                isActiveItem;
-
-            if (isActive) {
-                isActiveItem = " active";
-            } else {
-                isActiveItem = "";
-            }
-            innerHtml = "<div class=\"carousel-inner\" role=\"listbox\"><div class=\"item" + isActiveItem + "\">";
-            innerHtml += "<img src=\"" + backgroundImg + +"\" alt=\"" + altText + "\">";
-            innerHtml += "<div class=\"container\"><div class=\"carousel-caption\"><h1>" + titleText + "</h1>";
-            innerHtml += "<p>" + promoText + "</p>";
-            innerHtml += "<p><a class=\"btn btn-lg btn-primary\" href=\"" + link + "\" role=\"button\">" + callToActionText + "</a></p>";
-            innerHtml += "</div></div></div>"
-            return innerHtml;
-        },
-
-        /**
-         * makePromoIndicators generates the HTML for all promo indicators used in the carousel.
-         * @param numberOfPromos
-         * @param activeIndicator
-         * @returns {string}
-         */
-        makePromoIndicators: function (numberOfPromos, activeIndicator) {
-            var innerHtml = "<ol class=\"carousel-indicators\">",
-                activeClass,
-                i;
-
-            if (activeIndicator === undefined || activeIndicator == null || activeIndicator < 0 || activeIndicator >= numberOfPromos) {
-                activeIndicator = 0;
-            }
-            for (i = 0; i < numberOfPromos; i ++) {
-                if (i == activeIndicator) {
-                    activeClass = " class=\"active\""
-                }
-                innerHtml += "<li data-target=\"#PromoCarousel\" data-slide-to=\"" + i + "\"" + activeClass + "></li>";
-            }
-            innerHtml += "</ol>";
-            return innerHtml;
+        isURL: function (string) {
+            return string.startsWith("/") || string.startsWith("http://") || string.startsWith("https://");
         },
 
         /**
@@ -1377,22 +1329,6 @@ var varyn = function (parameters) {
         },
 
         /**
-         *
-         * @param results
-         */
-        promotionItemListResponse: function (results) {
-            // results is an array of promoted items
-            var i;
-            if (results != null && results.length > 0) {
-                for (i = 0; i < results.length; i ++) {
-
-                }
-            } else {
-                // no promotions!
-            }
-        },
-
-        /**
          * Callback to handle responses from Enginesis.
          * @param enginesisResponse
          */
@@ -1413,12 +1349,6 @@ var varyn = function (parameters) {
                 switch (enginesisResponse.fn) {
                     case "NewsletterAddressAssign":
                         this.handleNewsletterServerResponse(succeeded, errorMessage);
-                        break;
-
-                    case "PromotionItemList":
-                        if (succeeded == 1) {
-                            this.promotionItemListResponse(results.result);
-                        }
                         break;
 
                     case "GameListListGames":
@@ -1463,6 +1393,17 @@ var varyn = function (parameters) {
                                 errorMessage += ' ' + results.status.extended_info;
                             }
                             varynApp.showInfoMessagePopup("Change Password", "There was a system issue while trying to reset your password: " + errorMessage, 0);
+                        }
+                        break;
+
+                    case "PromotionItemList":
+                        if (succeeded == 1) {
+                            varynApp.showHomePagePromotionModule(results.result);
+                        } else {
+                            if (results.status.extended_info != undefined) {
+                                errorMessage += ' ' + results.status.extended_info;
+                            }
+                            varynApp.showInfoMessagePopup("System error", "There was a system issue while trying to load the home page: " + errorMessage, 0);
                         }
                         break;
 
