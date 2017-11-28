@@ -1260,6 +1260,11 @@ var varyn = function (parameters) {
             return innerHtml;
         },
 
+        /**
+         * Determine if a string looks like a certain type of URL.
+         * @param string
+         * @returns bool true if it meets our criteria: //, http://, or https://.
+         */
         isURL: function (string) {
             return string.startsWith("/") || string.startsWith("http://") || string.startsWith("https://");
         },

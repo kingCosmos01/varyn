@@ -17,29 +17,44 @@ var varynIndexPage = function (varynApp, siteConfiguration) {
         },
 
         showHomePagePromotionModule: function(enginesisResponse) {
-            var innerHTML;
+            var promoModuleHTML;
+            var promoIndicatorHTML;
             var domElement;
+            var numberOfPromos;
+            var promotionItem;
+            var i;
 
             domElement = document.getElementById("PromoCarousel");
-            if (domElement != null) {
-
+            if (domElement != null && enginesisResponse != null && enginesisResponse.length > 0) {
+                numberOfPromos = enginesisResponse.length;
+                promoIndicatorHTML = this.makePromoIndicators(numberOfPromos, 0);
+                promoModuleHTML = "<div id=\"PromoCarouselInner\" class=\"carousel-inner\" role=\"listbox\">";
+                for (i = 0; i < numberOfPromos; i ++) {
+                    promotionItem = enginesisResponse[i];
+                    promoModuleHTML += this.makePromoModule(i == 0, promotionItem);
+                }
+                promoModuleHTML += "</div><a class=\"left carousel-control\" href=\"#PromoCarousel\" role=\"button\" data-slide=\"prev\"><span class=\"glyphicon glyphicon-chevron-left\"></span><span class=\"sr-only\">Previous</span></a><a class=\"right carousel-control\" href=\"#PromoCarousel\" role=\"button\" data-slide=\"next\"><span class=\"glyphicon glyphicon-chevron-right\"></span><span class=\"sr-only\">Next</span></a>";
+                domElement.innerHTML = promoIndicatorHTML + promoModuleHTML;
+            } else if (domElement != null) {
+                domElement.innerText = "There are no promotions today.";
             }
         },
 
         /**
          * makePromoModule will generate the HTML for a single standard promo module for the carousel.
          * @param isActive bool the active module. The first module should be active.
-         * @param backgroundImg
-         * @param titleText
-         * @param altText
-         * @param promoText
-         * @param link
-         * @param callToActionText
-         * @returns {string}
+         * @param promotionItem {object} all the details of a promotion item.
+         * @returns {string} the HTML.
          */
-        makePromoModule: function (isActive, backgroundImg, titleText, altText, promoText, link, callToActionText) {
+        makePromoModule: function (isActive, promotionItem) {
             var innerHtml,
-                isActiveItem;
+                isActiveItem,
+                backgroundImg = promotionItem.promotion_item_img,
+                altText = promotionItem.promotion_item_title,
+                titleText = promotionItem.promotion_item_title,
+                promoText = promotionItem.promotion_item_description,
+                link = promotionItem.promotion_item_link,
+                callToActionText = promotionItem.promotion_item_link_title;
 
             if (isActive) {
                 isActiveItem = " active";
@@ -50,13 +65,25 @@ var varynIndexPage = function (varynApp, siteConfiguration) {
             innerHtml += "<div class=\"sliderContainer\" style=\"background:url(" + backgroundImg + ") center center; background-size:cover;\">";
             innerHtml += "<div class=\"carousel-caption\"><h3>" + titleText + "</h3>";
             innerHtml += "<p class=\"sliderCaption\">" + promoText + "</p>";
-            if (this.isURL(link)) {
+            if (varynApp.isURL(link)) {
+                // if it is a real link then put it inside a button
                 innerHtml += "<p><a class=\"btn btn-md btn-primary\" href=\"" + link + "\" role=\"button\">" + callToActionText + "</a></p>";
             } else {
-                innerHtml += "<p>" + callToActionText + "</p>";
+                // if it is not a link then take it and try to figure out what it is really trying to say
+                innerHtml += "<p>" + this.makeCallToActionButton(link, callToActionText) + "</p>";
             }
             innerHtml += "</div></div></div>";
             return innerHtml;
+        },
+
+        makeCallToActionButton: function(link, callToActionText) {
+            var innerHTML;
+            if (link.indexOf("showSubscribePopup") >= 0) {
+                innerHTML = "<button type=\"button\" class=\"btn btn-md btn-danger\" data-toggle=\"modal\" data-target=\"#modal-subscribe\" onclick=\"" + link + "\">" + callToActionText + "</button>";
+            } else {
+                innerHTML = "<p><a class=\"btn btn-md btn-primary\" href=\"" + link + "\" role=\"button\">" + callToActionText + "</a></p>";
+            }
+            return innerHTML;
         },
 
         /**
@@ -74,9 +101,7 @@ var varynIndexPage = function (varynApp, siteConfiguration) {
                 activeIndicator = 0;
             }
             for (i = 0; i < numberOfPromos; i ++) {
-                if (i == activeIndicator) {
-                    activeClass = " class=\"active\""
-                }
+                activeClass = (i == activeIndicator) ? " class=\"active\"" : "";
                 innerHtml += "<li data-target=\"#PromoCarousel\" data-slide-to=\"" + i + "\"" + activeClass + "></li>";
             }
             innerHtml += "</ol>";
@@ -101,7 +126,7 @@ var varynIndexPage = function (varynApp, siteConfiguration) {
                 switch (enginesisResponse.fn) {
                     case "PromotionItemList":
                         if (succeeded == 1) {
-                            this.showHomePagePromotionModule(results.result.row);
+                            this.showHomePagePromotionModule(results.result);
                         }
                         break;
                     case "GameListListGames":

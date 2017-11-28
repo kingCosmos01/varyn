@@ -18,8 +18,6 @@ include_once(VIEWS_ROOT . 'header.php');
             <div id="PromoCarousel" class="carousel slide carousel-fade col-sm-8" data-ride="carousel">
               <ol class="carousel-indicators">
                   <li data-target="#PromoCarousel" data-slide-to="0" class="active"></li>
-                  <li data-target="#PromoCarousel" data-slide-to="1"></li>
-                  <li data-target="#PromoCarousel" data-slide-to="2"></li>
               </ol>
               <div id="PromoCarouselInner" class="carousel-inner" role="listbox">
                 <div class="item active">
@@ -28,24 +26,6 @@ include_once(VIEWS_ROOT . 'header.php');
                       <h3>Welcome to Varyn!</h3>
                       <p class="sliderCaption">We have games for all ages and the most popular platforms. Follow us for updates.</p>
                       <p><button type="button" class="btn btn-md btn-danger" data-toggle="modal" data-target="#modal-subscribe" onclick="varynApp.showSubscribePopup(true);">Sign up now</button></p>
-                    </div>
-                  </div>
-                </div>
-                <div class="item">
-                  <div class="sliderContainer" style="background:url(/images/promos/MatchMasterPromoHome.jpg) center center; background-size:cover;">
-                    <div class="carousel-caption">
-                      <h3>Match Master 3000</h3>
-                      <p class="sliderCaption">A match game like no other: 8 different play patterns organized into a quest for the Match Master crown.</p>
-                      <p><a class="btn btn-md btn-danger" href="/play.php?gameid=MatchMaster3000" role="button">Play Now &gt;</a></p>
-                    </div>
-                  </div>
-                </div>
-                <div class="item">
-                  <div class="sliderContainer" style="background:url(/images/promos/TopChefPromoHome.jpg) center center; background-size:cover;">
-                    <div class="carousel-caption">
-                      <h3>Top Chef Memory Challenge</h3>
-                      <p class="sliderCaption">A Top Chef knows the recipe for success. Test your skills in the ultimate memory challenge.</p>
-                      <p><a class="btn btn-md btn-danger" href="//www.bravotv.com/media/games/top-chef-memory-challenge/index.html" role="button">Play Now &gt;</a></p>
                     </div>
                   </div>
                 </div>
