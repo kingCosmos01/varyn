@@ -1,8 +1,8 @@
 <?php
     /**
      * Enginesis service object for PHP. Support for each Enginesis API and additional helper functions.
-     * User: jf
-     * Date: 2/13/16
+     * @author: jf
+     * @date: 2/13/16
      */
 
 if ( ! defined('ENGINESIS_VERSION')) {
@@ -348,21 +348,25 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
          * @purpose: determine the full domain name of the server we are currently running on.
          * @return: {string} server host name only, e.g. www.enginesis.com.
          */
-        private function serverName () {
-            if (strpos($_SERVER['HTTP_HOST'], ':' ) !== false) {
-                $host_name = isset($_SERVER['HTTP_X_FORWARDED_HOST'] ) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['HTTP_HOST'];
-                $server = substr($host_name, 0, strpos($host_name, ':' ) );
+        private function serverName() {
+            if (isset($_SERVER['HTTP_HOST'])) {
+                if (strpos($_SERVER['HTTP_HOST'], ':') !== false) {
+                    $host_name = isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['HTTP_HOST'];
+                    $server = substr($host_name, 0, strpos($host_name, ':'));
+                } else {
+                    $server = isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['HTTP_HOST'];
+                }
             } else {
-                $server = isset($_SERVER['HTTP_X_FORWARDED_HOST'] ) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : $_SERVER['HTTP_HOST'];
+                $server = gethostname();
             }
             return $server;
         }
 
-        public function getServerName () {
+        public function getServerName() {
             return $this->m_server;
         }
 
-        public function getServiceRoot () {
+        public function getServiceRoot() {
             return $this->m_serviceRoot;
         }
 
@@ -2086,6 +2090,39 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             $enginesisResponse = $this->callServerAPI($service, $parameters);
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             return $this->resultsFromServerResponse($results);
+        }
+
+        // =============================================================================================================
+        // Promotion API
+        // =============================================================================================================
+
+        public function promotionList($promotionId, $queryDate = null, $showItems = false) {
+            $service = 'PromotionList';
+            if ($queryDate != null) {
+                $queryDate = $this->mySQLDate($queryDate);
+            }
+            $parameters = array(
+                'promotion_id' => $promotionId,
+                'query_date' => $queryDate,
+                'show_items' => $showItems ? '1' : '0'
+            );
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            return $this->resultsFromServerResponse($results);
+        }
+
+        public function promotionItemList($promotionId, $queryDate = null) {
+            $service = 'PromotionItemList';
+            if ($queryDate != null) {
+                $queryDate = $this->mySQLDate($queryDate);
+            }
+            $parameters = array(
+                'promotion_id' => $promotionId,
+                'query_date' => $queryDate
+            );
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $results = $this->setLastErrorFromResponse($enginesisResponse);
+            return $results;
         }
 
         // =============================================================================================================

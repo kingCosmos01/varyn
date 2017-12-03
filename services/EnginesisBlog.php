@@ -12,18 +12,26 @@ class EnginesisBlog
     private $enginesisSession;
     private $conferenceData;
     private $conferenceTopicData;
+    private $promotionId;
+    private $promotionData;
 
 
     public function __construct ($siteId, $conferenceId = null, $enginesisSession = null) {
         $this->siteId = $siteId;
         $this->setEnginesisSession($enginesisSession);
         $this->setConference($conferenceId);
+        $this->promotionId = null;
+        $this->promotionData = null;
     }
 
     public function setConference($conferenceId) {
         $this->conferenceId = $conferenceId;
         $this->loadConference();
         $this->conferenceTopicData = null;
+    }
+
+    public function setPromotionId($promotionId) {
+        $this->promotionId = $promotionId;
     }
 
     public function setConferenceTopic($topicId) {
@@ -194,13 +202,37 @@ class EnginesisBlog
 
     /**
      * Get an item we are promoting along side the blog and generate an HTML div for it.
-     * @return string
+     * @param $promotionId int identifies the promotion to use.
+     * @return string html div tag
      */
-    public function getCurrentPromo() {
-        $link = '/play/?gameid=1083';
-        $title = 'Play Match Master 3000 Now!';
-        $image = '//enginesis.varyn.com/games/MatchMaster3000/images/300x225.png';
-        $description = 'You think you have a good memory? See how many levels you can master in our memory challenge to take the Match Master Crown!';
+    public function getCurrentPromo($promotionId = null) {
+        if (empty($promotionId)) {
+            $promotionId = $this->promotionId;
+        }
+        $queryDate = $this->enginesisSession->mySqlDate('now');
+        $this->promotionData = $this->enginesisSession->promotionItemList($promotionId, $queryDate);
+        if (is_array($this->promotionData) && count($this->promotionData) > 0) {
+            if (count($this->promotionData) > 1) {
+                $promotionItemIndex = rand(0, count($this->promotionData) - 1);
+            } else {
+                $promotionItemIndex = 0;
+            }
+            $promotionItem = $this->promotionData[$promotionItemIndex];
+            $link = $promotionItem->promotion_item_link;
+            $title = $promotionItem->promotion_item_title;
+            $image = $promotionItem->promotion_item_img;
+            $description = $promotionItem->promotion_item_description;
+        } elseif (is_object($this->promotionData)) {
+            $link = $this->promotionData->promotion_item_link;
+            $title = $this->promotionData->promotion_item_title;
+            $image = $this->promotionData->promotion_item_img;
+            $description = $this->promotionData->promotion_item_description;
+        } else {
+            $link = '/play/?gameid=1083';
+            $title = 'Play Match Master 3000 Now!';
+            $image = '//enginesis.varyn.com/games/MatchMaster3000/images/300x225.png';
+            $description = 'You think you have a good memory? See how many levels you can master in our memory challenge to take the Match Master Crown!';
+        }
         $html = '<div id="conf-promo" class="conf-promo"><a href="' . $link . '" title="' . $title . '"><img class="thumbnail-img" src="' . $image . '" alt="' . $title . '"></a><p>' . $description . '</p></div>';
         return $html;
     }

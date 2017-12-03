@@ -633,11 +633,19 @@
      * @param: {boolean} useHTTPSFlag should be either true to force https or false to force http, or undefined to leave it as is
      * @returns: {boolean} the current state of the useHTTPS flag.
      */
-    enginesis.useHTTPS = function (useHTTPSFlag) {
+    enginesis.setHTTPS = function (useHTTPSFlag) {
         if (useHTTPSFlag !== undefined) {
             enginesis.useHTTPS = useHTTPSFlag ? true : false; // force implicit boolean conversion of flag in case we get some value other than true/false
         }
         return enginesis.useHTTPS;
+    };
+
+    enginesis.isHTTPS = function() {
+        return enginesis.useHTTPS;
+    };
+
+    enginesis.getProtocol = function() {
+        return getProtocol();
     };
 
     /**
@@ -884,6 +892,33 @@
             game_data: gameData,
             name_tag: nameTag,
             add_to_gallery: addToGallery ? 1 : 0,
+            last_score: lastScore
+        }, overRideCallBackFunction);
+    };
+
+    /**
+     * Send to Friend is the classic share a game service. It uses GameDataCreate service but optimized to a game share
+     * instead of a game play.
+     * @param fromAddress
+     * @param fromName
+     * @param toAddress
+     * @param userMessage
+     * @param lastScore
+     * @param overRideCallBackFunction
+     * @returns {boolean}
+     */
+    enginesis.sendToFriend = function(fromAddress, fromName, toAddress, userMessage, lastScore, overRideCallBackFunction) {
+        return sendRequest("GameDataCreate", {
+            referrer: "Enginesis",
+            from_address: fromAddress,
+            from_name: fromName,
+            to_address: toAddress,
+            to_name: "User",
+            user_msg: userMessage,
+            user_files: "",
+            game_data: "",
+            name_tag: "",
+            add_to_gallery: 0,
             last_score: lastScore
         }, overRideCallBackFunction);
     };
@@ -1466,13 +1501,21 @@
     /**
      * Set the user email address and save the user data.
      * @param emailAddress
+     * @param ifChanged bool if true, only change the email if it changed. If false, only change the email if never set.
      */
-    enginesis.anonymousUserSetSubscriberEmail = function(emailAddress) {
+    enginesis.anonymousUserSetSubscriberEmail = function(emailAddress, ifChanged) {
+        var priorValue;
         if (enginesis.anonymousUser == null) {
             anonymousUserLoad();
         }
-        enginesis.anonymousUser.subscriberEmail = emailAddress;
-        anonymousUserSave();
+        if (typeof ifChanged === "undefined") {
+            ifChanged = true;
+        }
+        priorValue = enginesis.anonymousUser.subscriberEmail;
+        if ((ifChanged && emailAddress != priorValue) || ( ! ifChanged && isEmpty(priorValue))) {
+            enginesis.anonymousUser.subscriberEmail = emailAddress;
+            anonymousUserSave();
+        }
     };
 
     /**
@@ -1489,13 +1532,21 @@
     /**
      * Set the user name and save the user data.
      * @param userName
+     * @param ifChanged bool if true, only change the name if it changed. If false, only change the name if never set.
      */
-    enginesis.anonymousUserSetUserName = function(userName) {
+    enginesis.anonymousUserSetUserName = function(userName, ifChanged) {
+        var priorValue;
         if (enginesis.anonymousUser == null) {
             anonymousUserLoad();
         }
-        enginesis.anonymousUser.userName = userName;
-        anonymousUserSave();
+        if (typeof ifChanged === "undefined") {
+            ifChanged = true;
+        }
+        priorValue = enginesis.anonymousUser.userName;
+        if ((ifChanged && userName != priorValue) || ( ! ifChanged && isEmpty(priorValue))) {
+            enginesis.anonymousUser.userName = userName;
+            anonymousUserSave();
+        }
     };
 
     /**

@@ -149,6 +149,41 @@ var varynIndexPage = function (varynApp, siteConfiguration) {
                 }
             }
         }
-
     };
 };
+
+var varynApp;
+var debug = true;
+var manifest = [
+    "/common/modernizr.js",
+    "/common/jquery.min.js",
+    "/common/bootstrap.min.js",
+    "/common/ie10-viewport-bug-workaround.js",
+    "//platform.twitter.com/widgets.js",
+    "https://apis.google.com/js/platform.js"
+];
+
+if (debug) {
+    manifest.concat([
+        "/common/enginesis.js",
+        "/common/ShareHelper.js",
+        "/common/commonUtilities.js",
+        "/common/ssoFacebook.js",
+        "/common/ssoGooglePlus.js",
+        "/common/ssoTwitter.js",
+        "/common/varyn.js",
+        "/common/varynIndexPage.js"
+    ]);
+} else {
+    manifest.concat([
+        "/common/enginesis.min.js",
+        "/common/ShareHelper.js",
+        "/common/varyn.min.js"
+    ]);
+}
+
+head.ready(function() {
+    varynApp = varyn(siteConfiguration);
+    varynApp.initApp(varynIndexPage, pageParameters);
+});
+head.js(manifest);

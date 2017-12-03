@@ -112,7 +112,7 @@ var varyn = function (parameters) {
             pageViewParameters = pageViewParameterObject;
             // document.domain = siteConfiguration.serverHostDomain;
             this.setKeyboardListeners();
-            enginesisSession.init(enginesisParameters);
+            enginesis.init(enginesisParameters);
             if (pageViewParameters != null && pageViewParameters.showSubscribe !== undefined && pageViewParameters.showSubscribe == '1') {
                 varynApp.showSubscribePopup();
             }
