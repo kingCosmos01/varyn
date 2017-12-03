@@ -26,7 +26,7 @@ if (is_numeric($gameId)) {
 } elseif ( ! empty($gameId)) {
     $gameInfo = $enginesis->gameGetByName($gameId);
 } else {
-    header("Location: /allgames.php");
+    header("Location: /allgames/");
     exit(0);
 }
 if ($gameInfo != null) {
@@ -43,6 +43,8 @@ if ($gameInfo != null) {
     $pageDescription = $gameInfo->short_desc;
     $gameContainerHTML = setGameContainer($gameInfo, $enginesis->getServiceRoot(), $siteId, $gameId);
 } else {
+    // TODO: It may be better to go to /allgames/ with a search string ?q=$gameId but with an error message "Game not found"
+    // header("Location: /allgames/?q=$gameId");
     header("Location: /missing.php");
     exit(0);
 }
