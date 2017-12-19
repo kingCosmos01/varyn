@@ -16,6 +16,20 @@ var varynIndexPage = function (varynApp, siteConfiguration) {
             enginesisSession.promotionItemList(siteConfiguration.homePagePromoId, enginesisSession.getDateNow(), this.enginesisCallBack.bind(this));
         },
 
+        createAssetURL: function(assetId, promotionId) {
+            var assetURL;
+            if (assetId != null && assetId.length > 1) {
+                if (assetId.startsWith("/") || assetId.toLowerCase().startsWith("https:") || assetId.toLowerCase().startsWith("http:")) {
+                    assetURL = assetId;
+                } else {
+                    assetURL = "//" + enginesisSession.serverBaseUrlGet() + "/sites/" + enginesisSession.siteIdGet() + "/promo/" + promotionId + "/" + assetId;
+                }
+            } else {
+                assetURL = "";
+            }
+            return assetURL;
+        },
+
         showHomePagePromotionModule: function(enginesisResponse) {
             var promoModuleHTML;
             var promoIndicatorHTML;
@@ -49,7 +63,7 @@ var varynIndexPage = function (varynApp, siteConfiguration) {
         makePromoModule: function (isActive, promotionItem) {
             var innerHtml,
                 isActiveItem,
-                backgroundImg = promotionItem.promotion_item_img,
+                backgroundImg = this.createAssetURL(promotionItem.promotion_item_img, promotionItem.promotion_id),
                 altText = promotionItem.promotion_item_title,
                 titleText = promotionItem.promotion_item_title,
                 promoText = promotionItem.promotion_item_description,
@@ -164,26 +178,24 @@ var manifest = [
 ];
 
 if (debug) {
-    manifest.concat([
+    manifest = manifest.concat([
         "/common/enginesis.js",
         "/common/ShareHelper.js",
         "/common/commonUtilities.js",
         "/common/ssoFacebook.js",
         "/common/ssoGooglePlus.js",
         "/common/ssoTwitter.js",
-        "/common/varyn.js",
-        "/common/varynIndexPage.js"
+        "/common/varyn.js"
     ]);
 } else {
-    manifest.concat([
+    manifest = manifest.concat([
         "/common/enginesis.min.js",
         "/common/ShareHelper.js",
         "/common/varyn.min.js"
     ]);
 }
 
-head.ready(function() {
+head.load(manifest, function() {
     varynApp = varyn(siteConfiguration);
     varynApp.initApp(varynIndexPage, pageParameters);
 });
-head.js(manifest);

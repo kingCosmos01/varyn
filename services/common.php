@@ -157,6 +157,19 @@ function getPostOrRequestVar ($varName, $defaultValue = NULL) {
     return $value;
 }
 
+function startsWith($haystack, $needle) {
+    if (is_array($needle)) {
+        for ($i = 0; $i < count($needle); $i ++) {
+            if (startsWith($haystack, $needle[$i])) {
+                return true;
+            }
+        }
+        return false;
+    } else {
+        return (substr($haystack, 0, strlen($needle)) === $needle);
+    }
+}
+
     /**
      * Return a variable that was posted from a form, or a default if not found.
      * @param $varName

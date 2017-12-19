@@ -294,7 +294,7 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
         },
 
         logout: function () {
-            window.location.href = "/profile.php?action=logout";
+            window.location.href = "/profile/?action=logout";
         },
 
         logoutComplete: function() {
@@ -303,14 +303,14 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
 
         cancelUpdate: function (event) {
             this.updateCleanup();
-            window.location.href = "/profile.php?action=cancel";
+            window.location.href = "/profile/?action=cancel";
             event.preventDefault();
             return false;
         },
 
         startUpdate: function () {
             this.updateCleanup();
-            window.location.href = "/profile.php?action=update";
+            window.location.href = "/profile/?action=update";
         },
 
         updateCleanup: function () {

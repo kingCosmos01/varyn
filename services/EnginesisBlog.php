@@ -200,6 +200,21 @@ class EnginesisBlog
         return $html;
     }
 
+    public function promotionAssetURL($promotionItem) {
+        $assetId = $promotionItem->promotion_item_thumb_img;
+        if (strlen($assetId) < 1) {
+            $assetId = $promotionItem->promotion_item_img;
+        }
+        if (startsWith($assetId, '/') || startsWith($assetId, 'http')) {
+            $url = $assetId;
+        } elseif (strlen($assetId) > 0) {
+            $url = '//' . $this->enginesisSession->getServerName() . '/sites/' . $this->siteId . '/promo/' . $promotionItem->promotion_id . '/' . $assetId;
+        } else {
+            $url = '';
+        }
+        return $url;
+    }
+
     /**
      * Get an item we are promoting along side the blog and generate an HTML div for it.
      * @param $promotionId int identifies the promotion to use.
@@ -220,7 +235,7 @@ class EnginesisBlog
             $promotionItem = $this->promotionData[$promotionItemIndex];
             $link = $promotionItem->promotion_item_link;
             $title = $promotionItem->promotion_item_title;
-            $image = $promotionItem->promotion_item_img;
+            $image = $this->promotionAssetURL($promotionItem);
             $description = $promotionItem->promotion_item_description;
         } elseif (is_object($this->promotionData)) {
             $link = $this->promotionData->promotion_item_link;

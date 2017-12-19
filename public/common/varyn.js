@@ -1309,7 +1309,7 @@ var varyn = function (parameters) {
                         continue; // only show HTML5 or embed games on touch devices
                     }
                     countOfGamesShown ++;
-                    itemHtml = this.makeGameModule(gameItem.game_id, gameItem.title, gameItem.short_desc, baseURL + gameItem.game_name + "/images/300x225.png", "/play.php?gameid=" + gameItem.game_id);
+                    itemHtml = this.makeGameModule(gameItem.game_id, gameItem.title, gameItem.short_desc, baseURL + gameItem.game_name + "/images/300x225.png", "/play/?id=" + gameItem.game_id);
                     newDiv = document.createElement('div');
                     newDiv.className = "col-sm-6 col-md-4";
                     newDiv.innerHTML = itemHtml;
@@ -1383,7 +1383,7 @@ var varyn = function (parameters) {
                         }
                         if (userInfo) {
                             // User is now logged in, refresh the page and the page refresh should be able to pick up the logged in state.
-                            document.location.href = "/profile.php?action=completelogin&network_id=" + getNetworkId();
+                            document.location.href = "/profile/?action=completelogin&network_id=" + getNetworkId();
                         } else {
                             // TODO: User is not logged in, we should display an error message.
                             varynApp.showInfoMessagePopup("Login", "There was a system issue while trying to login or register your account: " + errorMessage, 0);

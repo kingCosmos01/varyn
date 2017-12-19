@@ -85,7 +85,7 @@ if (empty($pageSocialImage2)) {
     <meta name="twitter:creator" content="@varyndev"/>
     <meta name="twitter:title" content="<?php echo($pageTitle);?>"/>
     <meta name="twitter:image" content="<?php echo($pageSocialImage1);?>"/>
-    <script src="/common/head.min.js"></script>
+    <script src="/common/head.load.min.js"></script>
 </head>
 <body>
 <div class="modal fade topmost" id="modal-message" tabindex="-1" role="dialog" aria-labelledby="modalMessageLabel">

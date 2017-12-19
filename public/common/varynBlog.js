@@ -73,36 +73,35 @@ var varynBlogPage = function (varynApp, siteConfiguration) {
     };
 };
 
-var debug = true;
 var varynApp;
+var debug = true;
 var manifest = [
     "/common/modernizr.js",
     "/common/jquery.min.js",
     "/common/bootstrap.min.js",
     "/common/ie10-viewport-bug-workaround.js",
-//    "//platform.twitter.com/widgets.js",
-//    "https://apis.google.com/js/platform.js"
+    "//platform.twitter.com/widgets.js",
+    "https://apis.google.com/js/platform.js"
 ];
-
 if (debug) {
-    manifest.push("/common/varyn.js");
-    manifest.push("/common/ShareHelper.js");
-    manifest.push("/common/ssoFacebook.js");
-    manifest.push("/common/ssoGooglePlus.js");
-    manifest.push("/common/ssoTwitter.js");
-    manifest.push("/common/enginesis.js");
-    manifest.push("/common/commonUtilities.js");
-
-    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/varyn.js", "/common/ShareHelper.js", "/common/ssoFacebook.js", "/common/ssoGooglePlus.js", "/common/ssoTwitter.js", "/common/enginesis.js", "/common/commonUtilities.js");
+    manifest = manifest.concat([
+        "/common/enginesis.js",
+        "/common/ShareHelper.js",
+        "/common/commonUtilities.js",
+        "/common/ssoFacebook.js",
+        "/common/ssoGooglePlus.js",
+        "/common/ssoTwitter.js",
+        "/common/varyn.js"
+    ]);
 } else {
-    manifest.push("/common/enginesis.min.js");
-    manifest.push("/common/ShareHelper.js");
-    manifest.push("/common/varyn.min.js");
-
-    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.min.js", "/common/ShareHelper.js", "/common/varyn.min.js");
+    manifest = manifest.concat([
+        "/common/enginesis.min.js",
+        "/common/ShareHelper.js",
+        "/common/varyn.min.js"
+    ]);
 }
 
-head.ready(function() {
+head.load(manifest, function() {
     varynApp = varyn(siteConfiguration);
     varynApp.initApp(varynBlogPage, pageParameters);
 });
