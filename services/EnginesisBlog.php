@@ -208,7 +208,7 @@ class EnginesisBlog
         if (startsWith($assetId, '/') || startsWith($assetId, 'http')) {
             $url = $assetId;
         } elseif (strlen($assetId) > 0) {
-            $url = '//' . $this->enginesisSession->getServerName() . '/sites/' . $this->siteId . '/promo/' . $promotionItem->promotion_id . '/' . $assetId;
+            $url = $this->enginesisSession->getServiceRoot() . 'sites/' . $this->siteId . '/promo/' . $promotionItem->promotion_id . '/' . $assetId;
         } else {
             $url = '';
         }
