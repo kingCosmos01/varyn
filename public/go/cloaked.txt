@@ -1,3 +1,3 @@
 default,/
-test,/profile.php
-all,/allgames.php
+test,/profile/
+all,/games/

@@ -291,11 +291,11 @@ if (empty($pageSocialImage2)) {
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
                         <li role="presentation"<?php if ($page == 'home') { echo(' class="active"'); } ?>><a href="/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
-                        <li role="presentation"<?php if ($page == 'allgames') { echo(' class="active"'); } ?>><a href="/allgames/"><span class="glyphicon glyphicon-king"></span> All Games<?php echo($newGamesPill);?></a></li>
+                        <li role="presentation"<?php if ($page == 'games') { echo(' class="active"'); } ?>><a href="/games/"><span class="glyphicon glyphicon-king"></span> Games<?php echo($newGamesPill);?></a></li>
                         <li role="presentation"<?php if ($page == 'blog') { echo(' class="active"'); } ?>><a href="/blog/"><span class="glyphicon glyphicon-list"></span> Blog<?php echo($newBlogPill);?></a></li>
                         <li role="presentation"<?php if ($page == 'profile') { echo(' class="active"'); } ?>><a href="/profile/"><?php echo($userLoggedInMenuItem);?></a></li>
                     </ul>
-                    <form class="navbar-form navbar-right" role="search" method="GET" action="/allgames/">
+                    <form class="navbar-form navbar-right" role="search" method="GET" action="/games/">
                         <div class="form-group">
                             <input type="text" class="form-control" placeholder="Search" name="q">
                         </div>

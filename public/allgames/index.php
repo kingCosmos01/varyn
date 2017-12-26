@@ -1,6 +1,6 @@
 <?php
 require_once('../../services/common.php');
-$page = 'allgames';
+$page = 'games';
 $search = getPostOrRequestVar('q', '');
 $showSubscribe = getPostOrRequestVar('s', '0');
 include_once(VIEWS_ROOT . 'header.php');

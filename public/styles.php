@@ -3,7 +3,7 @@ require_once('../services/common.php');
 $page = 'styles';
 $search = getPostOrRequestVar('q', null);
 if ($search != null) {
-    header('location:/allgames/?q=' . $search);
+    header('location:/games/?q=' . $search);
     exit;
 }
 $showSubscribe = getPostOrRequestVar('s', '0');

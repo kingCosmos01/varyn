@@ -24,7 +24,7 @@
             <div class="nav navbar-inline">
                 <ul>
                     <li><a href="/">Home</a></li>
-                    <li><a href="/allgames/">All Games</a></li>
+                    <li><a href="/games/">Games</a></li>
                     <li><a href="/coupons/">Coupons &amp; Offers</a></li>
                     <li><a href="/blog/">Blog</a></li>
                     <li><a href="/about/">About</a></li>

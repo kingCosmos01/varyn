@@ -2,14 +2,14 @@
 require_once('../../services/common.php');
 $search = getPostOrRequestVar('q', null);
 if ($search != null) {
-    header('location:/allgames/?q=' . $search);
+    header('location:/games/?q=' . $search);
     exit;
 }
 $page = 'play';
 $showSubscribe = getPostOrRequestVar('s', '0');
 $gameId = getPostOrRequestVar(['id', 'gameid', 'game_id', 'gameId', 'gameName', 'g'], '');
 if ($gameId == '') {
-    header("Location: /allgames/");
+    header("Location: /games/");
 }
 $gameWidth = 1024;
 $gameHeight = 768;
@@ -26,7 +26,7 @@ if (is_numeric($gameId)) {
 } elseif ( ! empty($gameId)) {
     $gameInfo = $enginesis->gameGetByName($gameId);
 } else {
-    header("Location: /allgames/");
+    header("Location: /games/");
     exit(0);
 }
 if ($gameInfo != null) {
@@ -43,8 +43,8 @@ if ($gameInfo != null) {
     $pageDescription = $gameInfo->short_desc;
     $gameContainerHTML = setGameContainer($gameInfo, $enginesis->getServiceRoot(), $siteId, $gameId);
 } else {
-    // TODO: It may be better to go to /allgames/ with a search string ?q=$gameId but with an error message "Game not found"
-    // header("Location: /allgames/?q=$gameId");
+    // TODO: It may be better to go to /games/ with a search string ?q=$gameId but with an error message "Game not found"
+    // header("Location: /games/?q=$gameId");
     header("Location: /missing.php");
     exit(0);
 }

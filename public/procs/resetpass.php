@@ -13,7 +13,7 @@
     $page = 'resetpass';
     $search = getPostOrRequestVar('q', null);
     if ($search != null) {
-        header('location:/allgames/?q=' . $search);
+        header('location:/games/?q=' . $search);
         exit;
     }
     processTrackBack();
