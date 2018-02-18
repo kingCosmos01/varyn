@@ -3,61 +3,55 @@
   xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
   xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
   <url>
-    <loc>http://www.varyn.com/index.php</loc>	<lastmod>2014-01-13</lastmod>	<changefreq>weekly</changefreq>	<priority>1.0</priority>
+    <loc>http://www.varyn.com/index.php</loc>
+	<lastmod>2018-01-13</lastmod>
+	<changefreq>weekly</changefreq>
+	<priority>1.0</priority>
     <image:image>
        <image:loc>http://www.varyn.com/images/VarynCardLogo_md.png</image:loc>
     </image:image>
   </url>
   <url>
-    <loc>http://www.varyn.com/play.php</loc>	<lastmod>2014-01-13</lastmod>	<changefreq>weekly</changefreq>	<priority>1.0</priority>
+    <loc>http://www.varyn.com/play/</loc>
+	<lastmod>2018-01-13</lastmod>
+	<changefreq>weekly</changefreq>
+	<priority>1.0</priority>
     <image:image>
        <image:loc>http://www.varyn.com/images/VarynCardLogo_md.png</image:loc>
     </image:image>
   </url>
   <url>
-    <loc>http://www.varyn.com/About.php</loc>	<lastmod>2014-01-13</lastmod>	<changefreq>weekly</changefreq>	<priority>1.0</priority>
+    <loc>http://www.varyn.com/about/</loc>
+	<lastmod>2018-01-13</lastmod>
+	<changefreq>weekly</changefreq>
+	<priority>1.0</priority>
     <image:image>
        <image:loc>http://www.varyn.com/images/VarynCardLogo_md.png</image:loc>
     </image:image>
   </url>
   <url>
-    <loc>http://www.varyn.com/services/AllGames.php</loc>	<lastmod>2014-01-13</lastmod>	<changefreq>weekly</changefreq>	<priority>0.8</priority>
+    <loc>http://www.varyn.com/allgames/</loc>
+	<lastmod>2018-01-13</lastmod>
+	<changefreq>weekly</changefreq>
+	<priority>0.8</priority>
     <image:image>
        <image:loc>http://www.varyn.com/images/VarynCardLogo_md.png</image:loc>
     </image:image>
   </url>
   <url>
-    <loc>http://www.varyn.com/services/Community.php</loc>	<lastmod>2014-01-13</lastmod>	<changefreq>weekly</changefreq>	<priority>0.8</priority>
+    <loc>http://www.varyn.com/profile/</loc>
+	<lastmod>2018-01-13</lastmod>
+	<changefreq>weekly</changefreq>
+	<priority>0.8</priority>
     <image:image>
        <image:loc>http://www.varyn.com/images/VarynCardLogo_md.png</image:loc>
     </image:image>
   </url>
   <url>
-    <loc>http://www.varyn.com/services/Featured.php</loc>	<lastmod>2014-01-13</lastmod>	<changefreq>weekly</changefreq>	<priority>0.8</priority>
-    <image:image>
-       <image:loc>http://www.varyn.com/images/VarynCardLogo_md.png</image:loc>
-    </image:image>
-  </url>
-  <url>
-    <loc>http://www.varyn.com/services/MyProfile.php</loc>	<lastmod>2014-01-13</lastmod>	<changefreq>weekly</changefreq>	<priority>0.8</priority>
-    <image:image>
-       <image:loc>http://www.varyn.com/images/VarynCardLogo_md.png</image:loc>
-    </image:image>
-  </url>
-  <url>
-    <loc>http://www.varyn.com/services/Support.php</loc>	<lastmod>2014-01-13</lastmod>	<changefreq>weekly</changefreq>	<priority>0.5</priority>
-    <image:image>
-       <image:loc>http://www.varyn.com/images/VarynCardLogo_md.png</image:loc>
-    </image:image>
-  </url>
-  <url>
-    <loc>http://www.varyn.com/services/FAQ.php</loc>	<lastmod>2014-01-13</lastmod>	<changefreq>weekly</changefreq>	<priority>0.5</priority>
-    <image:image>
-       <image:loc>http://www.varyn.com/images/VarynCardLogo_md.png</image:loc>
-    </image:image>
-  </url>
-  <url>
-    <loc>http://www.varyn.com/blog/index.php</loc>	<lastmod>2014-01-13</lastmod>	<changefreq>weekly</changefreq>	<priority>0.8</priority>
+    <loc>http://www.varyn.com/blog/</loc>
+	<lastmod>2018-01-13</lastmod>
+	<changefreq>weekly</changefreq>
+	<priority>0.8</priority>
     <image:image>
        <image:loc>http://www.varyn.com/images/VarynCardLogo_md.png</image:loc>
     </image:image>
