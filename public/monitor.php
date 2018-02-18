@@ -11,30 +11,10 @@ if ($info) {
 require_once('../services/common.php');
 
 $pageok = false;
-$whichDatabase = 'enginesis';
-$sqlDB = &$sqlDBs[$whichDatabase];
-$host = $sqlDB['host'];
+$version = VARYN_VERSION;
 
-$DBConn = dbConnect($whichDatabase);
-if ($DBConn) {
-    $req = dbQuery($DBConn, 'SELECT count(*) from wp_users', array());
-    if ($req) {
-        $row = dbFetch($req);
-        if ($row) {
-            $pageok = true;
-        } else {
-            echo("Error in $whichDatabase data " . dbError($DBConn));
-        }
-    } else {
-        echo("Error in $whichDatabase schema " . dbError($DBConn));
-    }
-    $DBConn = null;
-} else {
-    echo("Error connecting to database");
-    if ($info) {
-        echo("<p>DB=$whichDatabase; H=$host U=" . $sqlDB['user'] . "</p>\n");
-    }
-}
-if ($pageok) {
+if (strlen($version) > 0) {
     echo "PAGEOK";
+} else {
+    echo "TEST_FAILED";
 }
