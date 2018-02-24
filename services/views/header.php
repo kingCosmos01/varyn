@@ -7,10 +7,10 @@ if (empty($page)) {
     $page = 'home';
 }
 if (empty($pageTitle)) {
-    $pageTitle = 'Varyn: Great games you can play anytime, anywhere';
+    $pageTitle = 'Varyn: Fun games you can play anytime, anywhere';
 }
 if (empty($pageDescription)) {
-    $pageDescription = 'Varyn makes games using technology that performs on the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between desktop, tablet, and smart-phone.';
+    $pageDescription = 'Varyn makes fun games using technology that performs on the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between desktop, tablet, and smart-phone.';
 }
 if (empty($pageFavIcon)) {
     $pageFavIcon = '/favicon.ico';
@@ -48,6 +48,7 @@ if (empty($pageSocialImage2)) {
     <meta name="description" content="<?php echo($pageDescription);?>">
     <meta name="author" content="Varyn">
     <meta name="google-signin-client_id" content="<?php echo($socialServiceKeys[7]['app_id']);?>">
+    <link rel="manifest" href="/manifest.json">
     <link href="/common/bootstrap.min.css" rel="stylesheet">
     <link href="/common/carousel.css" rel="stylesheet">
     <link href="/common/varyn.css" rel="stylesheet">
