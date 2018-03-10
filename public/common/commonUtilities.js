@@ -27,12 +27,12 @@
      * @param robustCheck - true for the more robust but un-performant test
      * @returns {boolean} - true if supported.
      */
-    function browserStorageAvailable (storageType, robustCheck) {
+    function hasLocalStorage (storageType, robustCheck) {
         var hasSupport = false,
             storage,
             testKey;
 
-        if (storageType === undefined || storageType == null || storageType == '') {
+        if (typeof storageType === "undefined" || storageType == null || storageType == '') {
             storageType = 'localStorage';
         }
         try {
@@ -644,35 +644,19 @@
      * ----------------------------------------------------------------------------------*/
 
     /**
-     * Determine if we have sessionStorage available.
-     * @returns {boolean}
-     */
-    commonUtilities.haveSessionStorage = function () {
-        return browserStorageAvailable('sessionStorage', true);
-    };
-
-    /**
-     * Determine if we have localStorage available.
-     * @returns {boolean}
-     */
-    commonUtilities.haveLocalStorage = function () {
-        return browserStorageAvailable('localStorage', true);
-    };
-
-    /**
      * Look up an item's value in a local or session storage and return it. If it is
      * stored as JSON then we parse it and return an object.
      *
      * @param key {string} the key to look up and return its respective value from the storage object indicated. The expectation
      * is you previously saved it with commonUtilities.storageSave(key, value);
-     * @param storageObject {object} use either localStorage, sessionStorage, or null will default to 'localStorage'
+     * @param storageObject {object|null} use either localStorage, sessionStorage, or null will default to 'localStorage'
      * @returns {string|*}
      */
     commonUtilities.storageGet = function (key, storageObject) {
         var itemValueRaw,
             itemValueParsed;
 
-        if (storageObject === undefined || storageObject == null) {
+        if (typeof storageObject === "undefined" || storageObject == null) {
             storageObject = global.localStorage;
         }
         itemValueRaw = storageObject.getItem(key);
@@ -698,7 +682,7 @@
             itemValueRaw,
             saved = false;
 
-        if (browserStorageAvailable('localStorage', false) && key != null) {
+        if (hasLocalStorage() && key != null) {
             try {
                 storageObject = global.localStorage;
                 if (object != null) {
@@ -729,7 +713,7 @@
             storageObject,
             object = null;
 
-        if (browserStorageAvailable('localStorage', false) && key != null) {
+        if (hasLocalStorage() && key != null) {
             try {
                 storageObject = global.localStorage;
                 maybeJsonData = storageObject[key];
@@ -754,7 +738,7 @@
     commonUtilities.removeObjectWithKey = function (key) {
         var removed = false;
 
-        if (browserStorageAvailable('localStorage', false) && key != null) {
+        if (hasLocalStorage() && key != null) {
             try {
                 global.localStorage.removeItem(key);
                 removed = true;
