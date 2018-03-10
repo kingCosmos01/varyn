@@ -1756,7 +1756,7 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
                 $enginesisResponse = $this->callServerAPI('UserGetByName', array('user_name' => $userId));
             }
             $results = $this->setLastErrorFromResponse($enginesisResponse);
-            if ($results != null && isset($results[0])) {
+            if ($results != null && is_array($results)) {
                 $user = $results[0];
             }
             return $user;
