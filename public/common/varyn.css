@@ -129,6 +129,14 @@ body {
     line-height: 1.55em;
 }
 
+.indent-1 {
+    padding-left: 1rem;
+}
+
+.indent-2 {
+    padding-left: 2rem;
+}
+
 iframe {
     position: absolute;
     top: 0;

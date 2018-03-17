@@ -15,20 +15,37 @@ include_once(VIEWS_ROOT . 'header.php');
     <div class="panel panel-primary panel-padded panel-gutter-2">
         <h1>Terms of Use</h1>
         <h4>Acceptance of Terms</h4>
-        <p>Welcome to the web site (the "Site") of Varyn, Inc. ("Varyn"). On this web site, Varyn makes available to you a wide range of information, software, products, downloads, documents, communications, files, text, graphics, publications, content, and services. The Terms of Use are subject to change. This document was last updated on 15-Nov-2014.
+        <p class="indent-2">Welcome to the web site (the "Site") of Varyn, Inc. ("Varyn"). On this web site, Varyn makes available to you a wide range of information, software, products, downloads, documents, communications, files, text, graphics, publications, content, and services. The Terms of Use are subject to change. This document was last updated on 15-Nov-2014.
             PLEASE READ THE TERMS OF USE CAREFULLY BEFORE USING THIS WEBSITE. By accessing and using this web site in any way, including, without limitation, browsing the web site, using any information, using any content, using any services, downloading any materials, and/or placing an order for products or services, you agree to and are bound by the terms of use described in this document ("Terms of Use"). IF YOU DO NOT AGREE TO ALL OF THE TERMS AND CONDITIONS CONTAINED IN THE TERMS OF USE, DO NOT USE THIS WEBSITE IN ANY MANNER. The Terms of Use are entered into by and between Varyn and you. If you are using the web site on behalf of your employer, you represent that you are authorized to accept these Terms of Use on your employer's behalf. Varyn reserves the right, at Varyn's sole discretion, to change, modify, update, add, or remove portions of the Terms of Use at any time without notice to you. Please check these Terms of Use for changes. Your continued use of this web site following the posting of changes to the Terms of Use will mean you accept those changes.</p>
         <h4>Use of Materials Limitations</h4>
-        <p>All materials contained in the web site are the copyrighted property of Varyn, its subsidiaries, affiliated companies and/or third-party licensors. All trademarks, service marks, and trade names are proprietary to Varyn, or its subsidiaries or affiliated companies and/or third-part licensors.
+        <p class="indent-2">All materials contained in the web site are the copyrighted property of Varyn, its subsidiaries, affiliated companies and/or third-party licensors. All trademarks, service marks, and trade names are proprietary to Varyn, or its subsidiaries or affiliated companies and/or third-part licensors.
             Unless otherwise specified, the materials and services on this web site are for your personal and non-commercial use, and you may not modify, copy, distribute, transmit, display, perform, reproduce, publish, license, create derivative works from, transfer, or sell any information, software, products or services obtained from the web site without the written permission from Varyn.</p>
         <h4>Privacy Policy</h4>
-        <p>Varyn's Privacy Policy can be found at <a href="/privacy.php">www.varyn.com/privacy.php</a>.</p>
+        <p class="indent-2">Review Varyn's <a href="/privacy/">privacy policy</a> to understand how we safeguard your personal data and use of this site. By using this website and its services, you agree to our privacy policy.</p>
+        <h4>Code of Conduct</h4>
+        <p class="indent-2">Varyn is committed to making participation in this website a harassment-free experience for everyone, regardless of level of experience, gender, gender identity and expression, sexual orientation, disability, personal appearance, body size, race, ethnicity, age, religion, or nationality. We expect all participants to do the same.</p>
+        <p class="indent-2">We do not tolerate the following behavior:</p>
+        <div class="indent-2">
+            <ul>
+                <li>Trolling or insulting/derogatory comments toward any individual or group.</li>
+                <li>The use of sexualized or violent language or imagery.</li>
+                <li>Personal attacks.</li>
+                <li>Public or private harassment.</li>
+                <li>Publishing other's private information, such as physical or electronic addresses, without explicit permission.</li>
+                <li>Other unethical or unprofessional conduct.</li>
+            </ul>
+        </div>
+        <p class="indent-2">Any member caught violating the code of conduct will be expelled from the site and all personal data will be removed.</p>
         <h4>No Unlawful or Prohibited Use</h4>
-        <p>As a condition of your use of the web site, you will not use the web site for any purpose that is unlawful or prohibited by these terms, conditions, and notices. You may not use the Services in any manner that could damage, disable, overburden, or impair any Varyn server, or the network(s) connected to any Varyn server, or interfere with any other party's use and enjoyment of the web site You may not attempt to gain unauthorized access to services, materials, other accounts, computer systems or networks connected to any Varyn server or to the web site, through hacking, password mining or any other means. You may not obtain or attempt to obtain any materials or information through any means not intentionally made available through the web site.</p>
+        <p class="indent-2">As a condition of your use of the web site, you will not use the web site for any purpose that is unlawful or prohibited by these terms, conditions, and notices. You may not use the Services in any manner that could damage, disable, overburden, or impair any Varyn server, or the network(s) connected to any Varyn server, or interfere with any other party's use and enjoyment of the web site You may not attempt to gain unauthorized access to services, materials, other accounts, computer systems or networks connected to any Varyn server or to the web site, through hacking, password mining or any other means. You may not obtain or attempt to obtain any materials or information through any means not intentionally made available through the web site.</p>
+        <h4>Data Rights</h4>
+        <p class="indent-2">By using this site and its services you agree to allow Varyn to record and manage data on your behalf. Varyn will use this data as required to perform its services and as it sees fit to offer, perform, product, manage, and maintain the services available on this website. You agree to allow Varyn to use your data in anyway it sees fit in the operation of these services. The data is yours and you can copy and use your own personal data freely as you wish within the terms of this agbreement and the privacy policy. At any time if you disagree with these terms you may delete your account and all of your personal data will be removed from the site.</p>
+        <p class="indent-2">Varyn will not sell, trade, or offer any personally identifiable or private data to any 3rd party at any time.</p>
         <h4>Copyright and Trademark Information</h4>
-        <p>COPYRIGHT NOTICE: Copyright &copy; 2017 Varyn, Inc., All Rights Reserved.</p>
-        <p>Third-party trademarks are used solely for distributing the games herein and no license or affiliation is implied. All copyrights are held by the respective owners.</p>
+        <p class="indent-2">COPYRIGHT NOTICE: Copyright &copy; 2018 Varyn, Inc., All Rights Reserved.</p>
+        <p class="indent-2">Third-party trademarks are used solely for distributing the games herein and no license or affiliation is implied. All copyrights are held by the respective owners.</p>
     </div>
-</div><!-- /.marketing -->
+</div>
 <?php
 include_once(VIEWS_ROOT . 'footer.php');
 ?>
