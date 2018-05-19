@@ -1226,14 +1226,14 @@ var varyn = function (parameters) {
          */
         makeGameModule: function (gameId, gameName, gameDescription, gameImg, gameLink, isFavorite) {
             var innerHtml,
-                favoriteClass,
+                favoriteImgSrc,
                 title;
 
             title = "Play " + gameName + " Now!";
-            favoriteClass = isFavorite ? "favorite-button-on" : "favorite-button-off";
+            favoriteImgSrc = isFavorite ? "/images/favorite-button-on-196.png" : "/images/favorite-button-off-196.png";
             innerHtml = "<div class=\"gameModule thumbnail\">";
             innerHtml += "<a href=\"" + gameLink + "\" title=\"" + title + "\"><img class=\"thumbnail-img\" src=\"" + gameImg + "\" alt=\"" + gameName + "\"/></a>";
-            innerHtml += "<div class=\"gameModuleInfo\"><a href=\"" + gameLink + "\" class=\"btn btn-md btn-success\" role=\"button\" title=\"" + title + "\" alt=\"" + title + "\">Play Now!</a><img class=\"" + favoriteClass + "\" data-game-id=\"" + gameId + "\" alt=\"Add " + gameName + " to your favorite games\"></div>";
+            innerHtml += "<div class=\"gameModuleInfo\"><a href=\"" + gameLink + "\" class=\"btn btn-md btn-success\" role=\"button\" title=\"" + title + "\" alt=\"" + title + "\">Play Now!</a><img class=\"favorite-button\" src=\"" + favoriteImgSrc + "\" data-game-id=\"" + gameId + "\" alt=\"Add " + gameName + " to your favorite games\"></div>";
             innerHtml += "<div class=\"caption\"><a class=\"gameTitle\" href=\"" + gameLink + "\" title=\"" + title + "\"><h3>" + gameName + "</h3></a><p class=\"gamedescription\">" + gameDescription + "</p>";
             innerHtml += "</div></div>";
             return innerHtml;
