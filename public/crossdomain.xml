@@ -6,7 +6,7 @@
 <allow-access-from domain="*" />
 <allow-access-from domain="*" to-ports="*"/>
 <allow-http-request-headers-from domain="*" headers="*" />
-<allow-access-from domain="*.exponlinegames.com" />
-<allow-access-from domain="*.exponlnegames.com" to-ports="80,443,10000" />
-<allow-http-request-headers-from domain="*.exponlinegames.com" headers="*" />
+<allow-access-from domain="*.enginesis.com" />
+<allow-access-from domain="*.enginesis.com" to-ports="80,443,10000" />
+<allow-http-request-headers-from domain="*.enginesis.com" headers="*" />
 </cross-domain-policy>
