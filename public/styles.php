@@ -233,6 +233,37 @@ include_once(VIEWS_ROOT . 'header.php');
             </div>
         </div>
     </div>
+    <div class="panel panel-default div-padded">
+        <h2>Game Cards &amp; Modules</h2>
+        <div class="row">
+            <div class="col-sm-6 col-md-4">
+                <div class="gameModule thumbnail">
+                    <a href="/play/?id=1070" title="Play Closest To The Pin Now!"><img class="thumbnail-img" src="http://enginesis.varyn-l.com/games/closestToThePin/images/300x225.png" alt="Closest To The Pin"></a>
+                    <div class="gameModuleInfo">
+                        <a href="/play/?id=1070" class="btn btn-md btn-success" role="button" title="Play Closest To The Pin Now!" alt="Play Closest To The Pin Now!">Play Now!</a>
+                        <img id="favorite-button" class="favorite-button-off" data-game-id="1070" alt="Add Closest To The Pin to your favorite games">
+                    </div>
+                    <div class="caption">
+                        <a class="gameTitle" href="/play/?id=1070" title="Play Closest To The Pin Now!"><h3>Closest To The Pin</h3></a>
+                        <p class="gamedescription">Test your golf skills with the 7 iron. The pressure is on you, and you have only one swing. Can you get closest to the pin?</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 col-md-4">
+                <div class="gameModule thumbnail">
+                    <a href="/play/?id=1070" title="Play Closest To The Pin Now!"><img class="thumbnail-img" src="http://enginesis.varyn-l.com/games/closestToThePin/images/300x225.png" alt="Closest To The Pin"></a>
+                    <div class="gameModuleInfo">
+                        <a href="/play/?id=1070" class="btn btn-md btn-success" role="button" title="Play Closest To The Pin Now!" alt="Play Closest To The Pin Now!">Play Now!</a>
+                        <img id="favorite-button" class="favorite-button-on" data-game-id="1070" alt="Remove Closest To The Pin to your favorite games">
+                    </div>
+                    <div class="caption">
+                        <a class="gameTitle" href="/play/?id=1070" title="Play Closest To The Pin Now!"><h3>Closest To The Pin</h3></a>
+                        <p class="gamedescription">Test your golf skills with the 7 iron. The pressure is on you, and you have only one swing. Can you get closest to the pin?</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div><!-- /.container -->
 <?php include_once(VIEWS_ROOT . 'footer.php'); ?>
 <script type="text/javascript">

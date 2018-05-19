@@ -1402,3 +1402,28 @@ input[type=range].validation-slider:focus::-ms-fill-upper {
 .badge-nav {
     margin-top: -1em;
 }
+
+.game-options-container {
+    width: 100%;
+    height: inherit;
+}
+
+.favorite-button-off {
+    display: inline-block;
+    content: url(/images/favorite-button-off-196.png);
+    float: right;
+    margin: 4px;
+    height: 32px;
+    width: auto;
+    cursor: pointer;
+}
+
+.favorite-button-on {
+    display: inline-block;
+    content: url(/images/favorite-button-on-196.png);
+    float: right;
+    margin: 4px;
+    height: 32px;
+    width: auto;
+    cursor: pointer;
+}

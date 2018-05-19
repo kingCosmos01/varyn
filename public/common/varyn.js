@@ -1215,22 +1215,25 @@ var varyn = function (parameters) {
         },
 
         /**
-         * makeGameModule will generate the HTML for a standard game promo module.
-         * @param gameId
-         * @param gameName
-         * @param gameDescription
-         * @param gameImg
-         * @param gameLink
+         * makeGameModule will generate the HTML for a standard game card.
+         * @param gameId {int}
+         * @param gameName {string}
+         * @param gameDescription {string}
+         * @param gameImg {string}
+         * @param gameLink {string}
+         * @param isFavorite {boolean}
          * @returns {string} the HTML
          */
-        makeGameModule: function (gameId, gameName, gameDescription, gameImg, gameLink) {
+        makeGameModule: function (gameId, gameName, gameDescription, gameImg, gameLink, isFavorite) {
             var innerHtml,
+                favoriteClass,
                 title;
 
             title = "Play " + gameName + " Now!";
+            favoriteClass = isFavorite ? "favorite-button-on" : "favorite-button-off";
             innerHtml = "<div class=\"gameModule thumbnail\">";
             innerHtml += "<a href=\"" + gameLink + "\" title=\"" + title + "\"><img class=\"thumbnail-img\" src=\"" + gameImg + "\" alt=\"" + gameName + "\"/></a>";
-            innerHtml += "<div class=\"gameModuleInfo\"><a href=\"" + gameLink + "\" class=\"btn btn-md btn-success\" role=\"button\" title=\"" + title + "\" alt=\"" + title + "\">Play Now!</a></div>";
+            innerHtml += "<div class=\"gameModuleInfo\"><a href=\"" + gameLink + "\" class=\"btn btn-md btn-success\" role=\"button\" title=\"" + title + "\" alt=\"" + title + "\">Play Now!</a><img class=\"" + favoriteClass + "\" data-game-id=\"" + gameId + "\" alt=\"Add " + gameName + " to your favorite games\"></div>";
             innerHtml += "<div class=\"caption\"><a class=\"gameTitle\" href=\"" + gameLink + "\" title=\"" + title + "\"><h3>" + gameName + "</h3></a><p class=\"gamedescription\">" + gameDescription + "</p>";
             innerHtml += "</div></div>";
             return innerHtml;
@@ -1287,7 +1290,8 @@ var varyn = function (parameters) {
                 countOfGamesShown,
                 baseURL = document.location.protocol + "//" + enginesisSession.serverBaseUrlGet() + "/games/",
                 isTouchDevice = enginesisSession.isTouchDevice(),
-                adsDisplayPositions = new Array(3, 21, 41, 60, 80, 100),
+                isFavorite,
+                adsDisplayPositions = [3, 21, 41, 60, 80, 100],
                 numberOfAdSpots;
 
             if (results != null && results.length > 0 && gamesContainer != null) {
@@ -1309,7 +1313,8 @@ var varyn = function (parameters) {
                         continue; // only show HTML5 or embed games on touch devices
                     }
                     countOfGamesShown ++;
-                    itemHtml = this.makeGameModule(gameItem.game_id, gameItem.title, gameItem.short_desc, baseURL + gameItem.game_name + "/images/300x225.png", "/play/?id=" + gameItem.game_id);
+                    isFavorite = false;
+                    itemHtml = this.makeGameModule(gameItem.game_id, gameItem.title, gameItem.short_desc, baseURL + gameItem.game_name + "/images/300x225.png", "/play/?id=" + gameItem.game_id, isFavorite);
                     newDiv = document.createElement('div');
                     newDiv.className = "col-sm-6 col-md-4";
                     newDiv.innerHTML = itemHtml;
