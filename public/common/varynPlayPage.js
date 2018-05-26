@@ -205,7 +205,7 @@ var varynPlayPage = function (varynApp, siteConfiguration) {
                 serverStage = siteConfiguration.serverStage,
                 serverHostDomain = 'varyn' + serverStage + '.com';
 
-            ga('send', 'event', 'game', 'play', gameId, 1);
+            gtag('game', 'request', gameId);
             // document.domain = serverHostDomain;
             enginesisSession.siteListGamesRandom(24, enginesisCallBack);
             enginesisSession.developerGet(pageViewParameters.developerId, enginesisCallBack);

@@ -55,6 +55,6 @@ if ( ! isset($showSubscribe)) {
 </script>
 <?php if (strlen($search) > 0) { ?>
 <script type="text/javascript">
-dataLayer.push({"event": "search", "q": "'<?php echo($search);?>'"});
+gtag({"event": "search", "q": "'<?php echo($search);?>'"});
 </script>
 <?php } ?>

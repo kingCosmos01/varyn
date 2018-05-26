@@ -137,16 +137,15 @@ var varyn = function (parameters) {
          * backend is in case we want to use different ones or even multiple backends.
          * Google hit types are: pageview, screenview, event, transaction, item, social, exception, and timing.
          * @param category - string indicating the category for this event (e.g. 'login').
-         * @param eventId - string indicating the action taken for this event (e.g. 'failed').
+         * @param action - string indicating the action taken for this event (e.g. 'failed').
          * @param eventData - string indicating the data value for this event (e.g. 'userId').
          */
-        trackEvent: function (category, eventId, eventData) {
-            if (typeof ga !== 'undefined' && ga !== null) {
-                ga('send', {
-                    hitType: 'event',
-                    eventCategory: category,
-                    eventAction: eventId,
-                    eventLabel: eventData
+        trackEvent: function (category, action, eventData) {
+            if (typeof gtag === 'function') {
+                gtag({
+                    "category": category,
+                    "action": action,
+                    "data": eventData
                 });
             }
         },

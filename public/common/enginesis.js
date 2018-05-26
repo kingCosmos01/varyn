@@ -958,9 +958,9 @@
      * @returns {boolean}
      */
     enginesis.gameTrackingRecord = function (category, action, label, hitData, overRideCallBackFunction) {
-        if (window.ga != null) {
-            // use Google Analytics if it is there (send, event, category, action, label, value)
-            ga('send', 'event', category, action, label, hitData);
+        if (typeof window.dataLayer !== 'undefined') {
+            // use Google Tag Manager if it is there (send, event, category, action, label, value)
+            windows.dataLayer.push('game', action, hitData);
         }
         return sendRequest("GameTrackingRecord", {hit_type: 'REQUEST', hit_category: category, hit_action: action, hit_label: label, hit_data: hitData}, overRideCallBackFunction);
     };
