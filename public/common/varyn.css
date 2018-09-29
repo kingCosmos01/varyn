@@ -1417,3 +1417,15 @@ input[type=range].validation-slider:focus::-ms-fill-upper {
     width: 32px;
     cursor: pointer;
 }
+
+#label_industry {
+    display: none;
+}
+
+#industry {
+    display: none;
+}
+
+#accept {
+    display: none;
+}

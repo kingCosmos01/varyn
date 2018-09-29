@@ -13,40 +13,66 @@ $send = strtolower(getPostVar('send', ''));
 $name = getPostVar('name', '');
 $email = getPostVar('email', '');
 $message = getPostVar('message', '');
-
-// TODO: the form should provide hidden fields hackcheck and timestamp. Timestamp is set
-// by the server and provides a number we expect in return to check if someone is hacking or
-// botting. hackcheck is a honeypot we expect to be empty so if the we get a value there we
-// know it was not a real user.
-$hackCheck = getPostVar('captcha', '');
-$timestamp = getPostVar('t', 0);
-
+$honeypot = getPostVar('industry', '');
+$timestamp = getPostVar('accept', 0);
 $errorMessage = '';
 $errCode = '';
 $messageSent = false;
+$serverStage = $enginesis->getServerStage();
 
+/**
+ * Validate the info provided by the user and make sure it is something we can accept.
+ * @return {boolean} true if acceptable, otherwise false.
+ */
 function validateMessageParameters ($name, $email, $message) {
-    return '';
+    $isValidName = (strlen($name) > 0) && (strlen($name) < 51);
+    $isValidEmail = checkEmailAddress($email);
+    $isValidMessage = strlen($message) > 0 && strlen($message) < 351;
+    return $isValidName && $isValidEmail && $isValidMessage;
 }
+
+/**
+ * Verify the timestamp is valid and the honeypot is valid.
+ * We expect the honeypot to be empty and the timestamp to be within 4 hours.
+ * @return {boolean} true if acceptable, false if unacceptable.
+ */
+function validateHoneyPot($timestamp, $honeypot) {
+    $timeNow = time();
+    $timeDifference = $timeNow - $timestamp;
+    $isValid = strlen($honeypot) == 0 && $timeDifference < (60*60*4);
+    if (! $isValid) {
+        debugLog('Contact form validateHoneypot fails with length ' . strlen($honeypot) . ' and time diff ' . $timeDifference);
+    }
+    return $isValid;
+}
+
 include_once(VIEWS_ROOT . 'header.php');
 if ($send == 'send') {
-    if (validateMessageParameters($name, $email, $message) == '') {
-        require_once('../../services/EnginesisMailer.php');
-        $message = "The following message was submitted on the contact form on Varyn.com\n\n$message";
-        $enginesisMailer = new EnginesisMailer($email, 'support@varyn.com', 'Contact form from varyn.com', $message);
-        $enginesisMailer->setServerStage($enginesis->getServerStage());
-        $enginesisMailer->setFromName($name);
-        $enginesisMailer->setLogger('debugLog');
-        $errCode = $enginesisMailer->send();
-        if ($errCode != '') {
-            $errorMessage = "There was an issue trying to send your message ($errCode). The issue has been logged with technical support. Please try again later.<br/>" . $enginesisMailer->getExtendedStatusInfo();
-            debugLog("enginesisMailer->send failed ($errCode) on " . $enginesis->getServerStage() . ": " . $enginesisMailer->getExtendedStatusInfo());
+    $message = strip_tags($message);
+    if (validateMessageParameters($name, $email, $message)) {
+        if (validateHoneyPot($timestamp, $honeypot)) {
+            require_once('../../services/EnginesisMailer.php');
+            $message = "The following message was submitted on the contact form on Varyn.com $serverStage\n\n$message";
+            $enginesisMailer = new EnginesisMailer($email, 'support@varyn.com', 'Contact form from varyn.com', $message);
+            $enginesisMailer->setServerStage($serverStage);
+            $enginesisMailer->setFromName($name);
+            $enginesisMailer->setLogger('debugLog');
+            $errCode = $enginesisMailer->send();
+            if ($errCode != '') {
+                $errorMessage = "There was an issue trying to send your message ($errCode). The issue has been logged with technical support. Please try again later.<br/>" . $enginesisMailer->getExtendedStatusInfo();
+                debugLog("enginesisMailer->send failed ($errCode) on " . $serverStage . ": " . $enginesisMailer->getExtendedStatusInfo());
+            }
+            $messageSent = true;
+        } else {
+            $messageSent = true;
+            debugLog("Contact form fails on honeypot/timestamp by hacker " . $email);
         }
-        $messageSent = true;
     } else {
         $errorMessage = "There was an issue with your message: please check your entry and try again.";
+        debugLog("Contact form fails on name/email/message by hacker " . $email);
     }
 }
+$timestamp = time();
 ?>
 <div class="container marketing">
     <h2>Contact Varyn</h2>
@@ -66,15 +92,17 @@ if ($send == 'send') {
                 <?php } else { ?>
                 <form class="form-inline" method="POST">
                     <div class="form-group">
-                        <label for="name">Name:</label><input type="text" name="name" required class="form-control" placeholder="Your name"/><br/>
+                        <label for="name">Name:</label><input type="text" name="name" required class="form-control" placeholder="Your name" maxlength="50"/><br/>
                     </div>
                     <div class="form-group">
-                        <label for="email">Email:</label><input type="email" required name="email" class="form-control" placeholder="Your email address"/><br/>
+                        <label for="email">Email:</label><input type="email" required name="email" class="form-control" placeholder="Your email address" maxlength="80"/><br/>
                     </div>
                     <div id="email-contact-message" class="form-group">
-                        <label for="message">Message:</label><textarea name="message" required class="form-control"></textarea><br/>
+                        <label for="message">Message:</label><textarea name="message" required class="form-control" maxlength="250"></textarea><br/>
                     </div>
                     <div class="form-group" style="float: right;">
+                        <label for="name" id="label_industry">Industry:</label><input type="text" name="industry" id="industry" class="form-control" placeholder="Industry"/><br/>
+                        <input type="text" name="accept" id="accept" placeholder="Do you agree" value="<?php echo($timestamp);?>"/><br/>
                         <br/><input type="submit" class="btn btn-lg btn-primary" name="send" value="Send"/>
                     </div>
                 </form>
