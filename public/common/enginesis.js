@@ -6,9 +6,6 @@
  *  to converse with the server, and provides an overridable callback function to get the server response.
  *  This is also only intended to be a browser-based client library and expects a window object
  *  to be available.
- *
- * git $Header$
- *
  **/
 
 "use strict";
@@ -31,7 +28,7 @@
     "use strict";
 
     var enginesis = {
-        VERSION: "2.3.50",
+        VERSION: "2.4.59",
         debugging: true,
         disabled: false, // use this flag to turn off communicating with the server
         isOnline: true,  // flag to determine if we are currently able to reach Enginesis servers
@@ -365,7 +362,7 @@
         if (typeof userInfo.accessLevel === "undefined" || userInfo.accessLevel == null) {
             userInfo.accessLevel = loggedInUserInfo.accessLevel;
         }
-        return enginesis.md5("siteid=" + userInfo.siteId + "&userid=" + userInfo.userId + "&daystamp=" + userInfo.dayStamp + "&username=" + userInfo.userName + "&siteuserid=" + userInfo.siteUserId + "&accesslevel=" + userInfo.accessLevel + "&key=" + userInfo.siteKey);
+        return enginesis.md5("s=" + userInfo.siteId + "&u=" + userInfo.userId + "&d=" + userInfo.dayStamp + "&n=" + userInfo.userName + "&i=" + userInfo.siteUserId + "&l=" + userInfo.accessLevel + "&k=" + userInfo.siteKey);
     }
 
     /**
@@ -1267,7 +1264,6 @@
     function encryptScoreSubmit(siteId, userId, gameId, score, gameData, timePlayed, sessionId) {
         var result = null;
         var rawScoreString = "site_id=" + siteId.toString() + "&user_id=" + userId.toString() + "&game_id=" + gameId.toString() + "&score=" + score.toString() + "&game_data=" + gameData + "&time_played=" + timePlayed.toString();
-        enginesis.debugLog("encryptScoreSubmit raw " + rawScoreString + " using " + sessionId);
         result = enginesis.blowfish.encryptString(rawScoreString, sessionId);
         return result;
     }
