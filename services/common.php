@@ -395,6 +395,72 @@ function startsWith($haystack, $needle) {
     }
 
     /**
+     * Verify the sever stage we are running on is sufficient to run Enginesis. There are a set of required
+     * modules we need in order for the platform to operate. This function returns an array of either only
+     * the failed tests, or the status of all tests.
+     * @param $includePassedTests boolean set to false to return only failed tests, set to true to return
+     *        both failed tests and passed tests. default is false.
+     * @return array a key value array where the key is the test performed and the value is a boolean
+     *        indicating the test passed (true) or the test failed (false).
+     */
+    function verifyStage($includePassedTests = false) {
+        global $enginesisLogger;
+        $testStatus = [];
+
+        // Test for required PHP version
+        $test = 'php-version';
+        $isValid = version_compare(phpversion(), '7.2.0', '>=');
+        if ( ! $isValid || ($isValid && $includePassedTests)) {
+            $testStatus[$test] = $isValid;
+        }
+
+        // Test for required modules/extensions
+        $requiredExtensions = ['openssl', 'curl', 'json', 'gd', 'PDO', 'pdo_mysql'];
+        $extensions = get_loaded_extensions();
+        foreach($requiredExtensions as $i => $test) {
+            $isValid = in_array($test, $extensions);
+            if ( ! $isValid || ($isValid && $includePassedTests)) {
+                $testStatus[$test] = $isValid;
+            }
+        }
+
+        // Test for required gd support
+        $test = 'gd';
+        $isValid = function_exists('gd_info');
+        if ($isValid) {
+            $gdInfo = gd_info();
+            $test = 'gd-jpg';
+            $isValid = $gdInfo['JPEG Support'];
+            if ( ! $isValid || ($isValid && $includePassedTests)) {
+                $testStatus[$test] = $isValid;
+            }
+            $test = 'gd-png';
+            $isValid = $gdInfo['PNG Support'];
+            if ( ! $isValid || ($isValid && $includePassedTests)) {
+                $testStatus[$test] = $isValid;
+            }
+        } else {
+            $testStatus[$test] = $isValid;
+        }
+
+        // test for required openssl support
+        $test = 'openssl';
+        $isValid = function_exists('openssl_encrypt') && function_exists('openssl_get_cipher_methods');
+        if ( ! $isValid || ($isValid && $includePassedTests)) {
+            $testStatus[$test] = $isValid;
+        }
+
+        // Verify we have the right version of openssl
+        $test = 'openssl-version';
+        $openSSLMinVersion = 9470367;
+        $isValid = OPENSSL_VERSION_NUMBER >= $openSSLMinVersion;
+        if ( ! $isValid || ($isValid && $includePassedTests)) {
+            $testStatus[$test] = $isValid;
+        }
+        return $testStatus;
+    }
+
+    /**
      * @method serverName
      * @purpose: determine the full domain name of the server we are currently running on.
      * @return: {string} server host name only, e.g. www.enginesis.com.
