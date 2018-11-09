@@ -636,6 +636,7 @@ function startsWith($haystack, $needle) {
     }
     $page = '';
     $siteId = 106;
+    $developerKey = '34A9EBE91B578504';
     $languageCode = 'en';
     if ( ! isset($userId)) {
         $userId = 0;
