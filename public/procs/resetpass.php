@@ -60,7 +60,6 @@
             $retypePassword = getPostVar('retypePassword', ''); // for now disable retype. Lot's of UX research says its useless and frustrating.
             $retypePassword = $newPassword;
         }
-        $hashPassword = '';
         $language_code = $enginesis->getLanguageCode();
         $networkId = $enginesis->getNetworkId();
         $redirectTo = '';
