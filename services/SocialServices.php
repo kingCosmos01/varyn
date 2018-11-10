@@ -85,28 +85,6 @@ class SocialServices
         $this->m_lastErrorMessage = $message;
     }
 
-    protected function saveNetworkUserDataToken($userData, $token) {
-        $sql = 'insert into network_user_data set network_id=?, site_user_id=?, id_token=?, scope=? on duplicate key update id_token=?';
-        $parameters = array($userData['network_id'], $userData['site_user_id'], $token, $userData['scope'], $token);
-        $db = dbConnect();
-        $result = dbQuery($db, $sql, $parameters);
-        dbClearResults($result);
-    }
-
-    protected function getNetworkUserDataToken($network_id, $site_user_id) {
-        $token = null;
-        $sql = 'select id_token from network_user_data where network_id=? and site_user_id=?';
-        $parameters = array($network_id, $site_user_id);
-        $db = dbConnect();
-        $result = dbQuery($db, $sql, $parameters);
-        if ($result) {
-            $row = dbFetch($result);
-            $token = $row['id_token'];
-            dbClearResults($result);
-        }
-        return $token;
-    }
-
     /**
      * Perform all necessary steps to log user in and get their basic info.
      * @return {object} User info object
