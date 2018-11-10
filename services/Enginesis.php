@@ -265,6 +265,17 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
         }
 
         /**
+         * Determine the authentication token.
+         * @return string
+         */
+        public function getAuthToken () {
+            if ( ! $this->m_authTokenWasValidated) {
+                $this->restoreUserFromAuthToken();
+            }
+            return $this->m_authToken;
+        }
+
+        /**
          * Determine the user-id.
          * @return int
          */

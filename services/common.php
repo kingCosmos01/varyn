@@ -184,126 +184,6 @@ function startsWith($haystack, $needle) {
         }
     }
 
-    function getDatabaseConnectionInfo ($serverStage) {
-        global $_DB_CONNECTIONS;
-
-        $dbConnectInfo = $_DB_CONNECTIONS[$serverStage];
-        if ($dbConnectInfo != null) {
-            $sqlDatabaseConnectionInfo = array(
-                'host' => $dbConnectInfo['host'],
-                'port' => $dbConnectInfo['port'],
-                'user' => $dbConnectInfo['user'],
-                'password' => $dbConnectInfo['password'],
-                'db' => $dbConnectInfo['db']);
-        } else {
-            $sqlDatabaseConnectionInfo = null;
-        }
-        return $sqlDatabaseConnectionInfo;
-    }
-
-    function setMailHostsTable ($serverStage) {
-        global $_MAIL_HOSTS;
-        if (isset($_MAIL_HOSTS) && isset($_MAIL_HOSTS[$serverStage])) {
-            ini_set('SMTP', $_MAIL_HOSTS[$serverStage]['host']);
-        }
-    }
-
-    /** @function hashPassword
-     * @description
-     *   Call this function to generate a password hash to save in the database instead of the password.
-     *   Generate random salt, can only be used with the exact password match.
-     *   This calls PHP's crypt function with the specific setup for blowfish. mcrypt is a required PHP module.
-     * @param string the user's password
-     * @return string the hashed password.
-     */
-    function hashPassword ($password) {
-        $chars = './ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        $salt = '$2a$10$';
-        for ($i = 0; $i < 22; $i ++) {
-            $salt .= $chars[mt_rand(0, 63)];
-        }
-        return crypt($password, $salt);
-    }
-
-    /** @function verifyHashPassword
-     * @param $pass string the user's password
-     * @param $hashStoredInDatabase string the password we looked up in the database
-     * @return bool true if the password is a match. false if password does not match.
-     */
-    function verifyHashPassword ($pass, $hashStoredInDatabase) {
-        // Test a password and the user's stored hash of that password
-        return $hashStoredInDatabase == crypt($pass, $hashStoredInDatabase);
-    }
-
-    /**
-     * Database functions to abstract access to MySQL over PDO. This should be considered to be moved
-     * into a separate class.
-     * @return null|PDO
-     */
-    function dbConnect () {
-        global $sqlDatabaseConnectionInfo;
-
-        $dbConnection = null;
-        try {
-            $dbConnection = new PDO('mysql:host=' . $sqlDatabaseConnectionInfo['host'] . ';dbname=' . $sqlDatabaseConnectionInfo['db'] . ';port=' . $sqlDatabaseConnectionInfo['port'], $sqlDatabaseConnectionInfo['user'], $sqlDatabaseConnectionInfo['password']);
-            $dbConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_WARNING);
-        } catch(PDOException $e) {
-            echo('Error connecting to server ' . $sqlDatabaseConnectionInfo['host'] . ' ' . $sqlDatabaseConnectionInfo['db'] . ' user=' . $sqlDatabaseConnectionInfo['user'] . ' ' . $e->getMessage());
-        }
-        return $dbConnection;
-    }
-
-    function dbQuery ($db, $sqlCommand, $parametersArray) {
-        if ($parametersArray == null) {
-            $parametersArray = array();
-        }
-        $sql = $db->prepare($sqlCommand);
-        $sql->execute($parametersArray);
-        $sql->setFetchMode(PDO::FETCH_ASSOC);
-        return $sql;
-    }
-
-    function dbExec ($db, $sqlCommand, $parametersArray) {
-        $sql = $db->prepare($sqlCommand);
-        $sql->execute($parametersArray);
-        return $sql;
-    }
-
-    function dbError ($db) {
-        // $db can be either a database handle or a results object
-        $errorCode = null; // no error
-        if ($db != null) {
-            $errorInfo = $db->errorInfo();
-            if ($errorInfo != null && count($errorInfo) > 1 && $errorInfo[1] != 0) {
-                $errorCode = $errorInfo[2];
-            }
-        }
-        return $errorCode;
-    }
-
-    function dbFetch ($result) {
-        return $result->fetch();
-    }
-
-    function dbRowCount ($result) {
-        return $result->rowCount();
-    }
-
-    function dbLastInsertId ($db) {
-        $lastId = 0; // error
-        if ($db != null) {
-            $lastId = $db->lastInsertId();
-        }
-        return $lastId;
-    }
-
-    function dbClearResults ($results) {
-        // Clear any query results still pending on the connection
-        if ($results != null) {
-            $results->closeCursor();
-        }
-    }
-
     /**
      * Given a MySQL date string return a human readable date string.
      * @param $date
@@ -637,14 +517,16 @@ function startsWith($haystack, $needle) {
     $page = '';
     $siteId = 106;
     $languageCode = 'en';
-    if ( ! isset($userId)) {
-        $userId = 0;
-    }
     $webServer = '';
     $enginesis = new Enginesis($siteId, null, $developerKey);
     $stage = $enginesis->getServerStage();
     setErrorReporting($stage != ''); // turn on errors for all stages except LIVE TODO: Remove from above when we are going live.
     $isLoggedIn = $enginesis->isLoggedInUser();
-    $sqlDatabaseConnectionInfo = getDatabaseConnectionInfo($stage);
-    setMailHostsTable($stage);
+    if ($isLoggedIn) {
+        $userId = $enginesis->getUserId();
+        $authToken = $enginesis->getAuthToken();
+    } else {
+        $userId = 0;
+        $authToken = '';
+    }
     processTrackBack();

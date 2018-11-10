@@ -48,6 +48,7 @@ if ( ! isset($showSubscribe)) {
         siteId: <?php echo($siteId);?>,
         developerKey: "<?php echo($developerKey);?>",
         serverStage: "<?php echo($stage);?>",
+        authToken: "<?php echo($authToken);?>",
         languageCode: navigator.language || navigator.userLanguage
     };
     var pageParameters = {
