@@ -446,7 +446,9 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
          */
         public function getServiceProtocol () {
             // return http or https. you should use the result of this and never hard-code http:// into any URLs.
-            if ($this->m_serviceProtocol) {
+            if ($this->m_stage == '-l') {
+                $protocol = 'http';
+            } elseif ($this->m_serviceProtocol) {
                 $protocol = $this->m_serviceProtocol;
             } elseif (isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1) || isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
                 $protocol = 'https';
