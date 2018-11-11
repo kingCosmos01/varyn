@@ -40,16 +40,6 @@ include_once(VIEWS_ROOT . 'header.php');
         var varynApp;
 
         head.ready(function() {
-            var siteConfiguration = {
-                    siteId: <?php echo($siteId);?>,
-                    serverStage: "<?php echo($stage);?>",
-                    languageCode: navigator.language || navigator.userLanguage
-                },
-                pageParameters = {
-                    search: "<?php echo($search);?>",
-                    showSubscribe: "<?php echo($showSubscribe);?>"
-                };
-
             varynApp = varyn(siteConfiguration);
             varynApp.initApp(varynAllGamesPage, pageParameters);
         });
