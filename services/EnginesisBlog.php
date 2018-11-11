@@ -137,44 +137,49 @@ class EnginesisBlog
     }
 
     public function getCurrentTopicListPreview($topicList, $topicSelected = 1, $numberOfTopics = 2, $topicsNotToShow = array()) {
-        if ( ! is_array($topicsNotToShow)) {
-            $topicsNotToShow = [$topicsNotToShow];
-        }
-        if ($numberOfTopics < 1) {
-            $numberOfTopics = count($topicList);
-        }
-        $blogPage = '/blog/?tid=';
         $html = '';
         $header = '<div class="panel panel-primary"><div class="panel-heading"><h4 class="panel-title">Recent topics:</h4></div></div>';
-        $previousTopicId = null;
-        $nextTopicId = null;
-        for ($i = 0; $i < count($topicList) && $numberOfTopics > 0; $i ++) {
-            $topic = $topicList[$i];
-            $topicId = $topic->topic_id;
-            if ($topicId != $topicSelected && ! in_array($topicId, $topicsNotToShow)) {
-                $html .= '<div class="conf-topic-preview"><h4><a href="' . $blogPage . $topicId . '">' . $topic->topic_title . '</a></h4><p>' . substr($topic->abstract, 0, 140) . '</p></div>';
-                $numberOfTopics --;
-            } elseif ($topicId == $topicSelected) {
-                // determine next page and previous page fromt eh current page, but this assumes the current
-                // page is in the topic list.
-                if ($i == 0) {
-                    $previousTopicId = $topicList[count($topicList) - 1]->topic_id;
-                } else {
-                    $previousTopicId = $topicList[$i - 1]->topic_id;
-                }
-                if ($i == (count($topicList) - 1)) {
-                    $nextTopicId = $topicList[0]->topic_id;
-                } else {
-                    $nextTopicId = $topicList[$i + 1]->topic_id;
+        $topicNav = '';
+        if ($topicList != null && count($topicList) > 0) {
+            $countTopicsAvailable = count($topicList);
+            if ( ! is_array($topicsNotToShow)) {
+                $topicsNotToShow = [$topicsNotToShow];
+            }
+            if ($numberOfTopics < 1) {
+                $numberOfTopics = $countTopicsAvailable;
+            }
+            $blogPage = '/blog/?tid=';
+            $previousTopicId = null;
+            $nextTopicId = null;
+            for ($i = 0; $i < $countTopicsAvailable && $numberOfTopics > 0; $i ++) {
+                $topic = $topicList[$i];
+                $topicId = $topic->topic_id;
+                if ($topicId != $topicSelected && ! in_array($topicId, $topicsNotToShow)) {
+                    $html .= '<div class="conf-topic-preview"><h4><a href="' . $blogPage . $topicId . '">' . $topic->topic_title . '</a></h4><p>' . substr($topic->abstract, 0, 140) . '</p></div>';
+                    $numberOfTopics --;
+                } elseif ($topicId == $topicSelected) {
+                    // determine next page and previous page fromt eh current page, but this assumes the current
+                    // page is in the topic list.
+                    if ($i == 0) {
+                        $previousTopicId = $topicList[$countTopicsAvailable - 1]->topic_id;
+                    } else {
+                        $previousTopicId = $topicList[$i - 1]->topic_id;
+                    }
+                    if ($i == ($countTopicsAvailable - 1)) {
+                        $nextTopicId = $topicList[0]->topic_id;
+                    } else {
+                        $nextTopicId = $topicList[$i + 1]->topic_id;
+                    }
                 }
             }
-        }
-        if ($previousTopicId != null && $nextTopicId != null) {
-            $nextButtonAttribute = ' onclick="location.href=\'' . $blogPage . $nextTopicId . '\';"';
-            $previousButtonAttribute = ' onclick="location.href=\'' . $blogPage . $previousTopicId . '\';"';
-            $topicNav = '<div class="text-center"><div class="btn-group" role="group" aria-label="Navigate topics"><button type="button" class="btn btn-secondary" ' . $previousButtonAttribute . '><span class=" glyphicon glyphicon-chevron-left"></span> Previous topic</button><button type="button" class="btn btn-secondary" ' . $nextButtonAttribute . '>Next topic <span class="glyphicon glyphicon-chevron-right"></span></span></button></div></div>';
+            if ($previousTopicId != null && $nextTopicId != null) {
+                $nextButtonAttribute = ' onclick="location.href=\'' . $blogPage . $nextTopicId . '\';"';
+                $previousButtonAttribute = ' onclick="location.href=\'' . $blogPage . $previousTopicId . '\';"';
+                $topicNav = '<div class="text-center"><div class="btn-group" role="group" aria-label="Navigate topics"><button type="button" class="btn btn-secondary" ' . $previousButtonAttribute . '><span class=" glyphicon glyphicon-chevron-left"></span> Previous topic</button><button type="button" class="btn btn-secondary" ' . $nextButtonAttribute . '>Next topic <span class="glyphicon glyphicon-chevron-right"></span></span></button></div></div>';
+            }
         } else {
-            $topicNav = '';
+            $html = '<div class="conf-topic-preview"><p>No topics available.</p></div>';
+
         }
         return $header . $html . $topicNav;
     }

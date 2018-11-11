@@ -1036,6 +1036,7 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
                 curl_setopt($ch, CURLOPT_REFERER, $this->m_server);
                 curl_setopt($ch, CURLOPT_USERAGENT, 'Enginesis PHP SDK');
                 curl_setopt($ch, CURLOPT_POST, 1);
+                curl_setopt($ch, CURLOPT_CAINFO, $_SERVER['DOCUMENT_ROOT'] . "/../private/cacert.pem");
                 if (serverStage() == '-l') {
                     curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4 );
                 }

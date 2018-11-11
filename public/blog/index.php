@@ -51,7 +51,6 @@ $blog->setConferenceTopic($topicId);
     </div>
     <div id="bottomAd" class="row">
         <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-        <!-- Varyn Responsive -->
         <ins class="adsbygoogle"
              style="display:block"
              data-ad-client="ca-pub-9118730651662049"
