@@ -6,8 +6,8 @@
  * Date: Feb-13-2016
  */
 date_default_timezone_set('America/New_York');
-define('LOGFILE_PREFIX', 'varyn_php_');
-define('SITE_SESSION_COOKIE', 'varynuser');
+define('LOGFILE_PREFIX', 'enginesis_php_');
+define('SITE_SESSION_COOKIE', 'enguser');
 define('ENGINESIS_SITE_NAME', 'Enginesis');
 define('ENGINESIS_SITE_ID', 100);
 define('DEBUG_ACTIVE', false);
@@ -22,7 +22,18 @@ define('SESSION_REFRESH_INTERVAL', 'P6M'); // refresh tokens are good for 6 mont
 define('SESSION_AUTHTOKEN', 'authtok');
 define('SESSION_PARAM_CACHE', 'engsession_params');
 
-// From EnginesisNetworks::enum, but this should not depend on that include so the enums are hardcoded.
+// memcache access global table
+$_MEMCACHE_HOSTS = ['-l'  => array('port'=>11215, 'host'=>'www.enginesis-l.com'),
+                    '-d'  => array('port'=>11215, 'host'=>'www.enginesis-d.com'),
+                    '-q'  => array('port'=>11215, 'host'=>'www.enginesis-q.com'),
+                    '-x'  => array('port'=>11215, 'host'=>'www.enginesis-x.com'),
+                    ''    => array('port'=>11215, 'host'=>'www.enginesis.com')
+                   ];
+
+// Define a list of email addresses who will get notifications of internal bug reports
+$admin_notification_list = ['support@puttputtplanet.com'];
+
+// API Keys for the website app
 $socialServiceKeys = [
     2  => ['service' => 'Facebook', 'app_id' => '', 'app_secret' => '', 'admins' =>''],
     7  => ['service' => 'Google', 'app_id' => '', 'app_secret' => '', 'admins' =>''],
