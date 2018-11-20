@@ -1,13 +1,12 @@
 <?php
 // Verify the server is operating correctly
 require_once('../services/common.php');
-require_once('../services/Enginesis.php');
 
 // Verify PHP is properly loaded and we have common.php properly loaded
 $pageok = false;
 $version = defined('VARYN_VERSION') ? VARYN_VERSION : null;
 $pageok = strlen($version) > 0;
-$showInfo = isset($_GET['info']) && $_GET['info'] == 1;
+$showInfo = isset($_GET['info']) && $_GET['info'] == 990;
 
 // Verify we're on a known server stage
 if ($pageok) {
@@ -16,6 +15,8 @@ if ($pageok) {
 }
 
 if ($showInfo) {
+    echo("<h1>" . ENGINESIS_SITE_NAME . ' ' . $serverStage . ' (' . ENGINESIS_SITE_ID . ') version ' . VARYN_VERSION . "</h1>");
+
     phpinfo();
     echo("<p><pre>");
     if (function_exists('gd_info')) {
@@ -63,11 +64,21 @@ if ($showInfo) {
         'PATH_INFO', 
         'ORIG_PATH_INFO'];
 
-    echo '<table cellpadding="10" style="margin: 0 auto;">' ; 
+    echo('<table cellpadding="10" style="margin: 0 auto;">');
     foreach ($indicesServer as $arg) { 
-        echo '<tr><td>' . $arg . '</td><td>' . (isset($_SERVER[$arg]) ? $_SERVER[$arg] : '-') . '</td></tr>' ; 
+        echo('<tr><td>' . $arg . '</td><td>' . (isset($_SERVER[$arg]) ? $_SERVER[$arg] : '-') . '</td></tr>');
     } 
-    echo '</table>' ; 
+    echo('</table>');
+    echo("<br/>\n");
+
+    // Show off a bunch of configuration data to help verify the server is in working order.
+    echo('<table cellpadding="10" style="margin: 0 auto;">');
+    echo('<tr><td>SERVER_ROOT</td><td>' . SERVER_ROOT . '</td></tr>');
+    echo('<tr><td>SERVER_DATA_PATH</td><td>' . SERVER_DATA_PATH . '</td></tr>');
+    echo('<tr><td>SERVER_PRIVATE_PATH</td><td>' . SERVER_PRIVATE_PATH . '</td></tr>');
+    echo('<tr><td>SERVICE_ROOT</td><td>' . SERVICE_ROOT . '</td></tr>');
+    echo('<tr><td>VIEWS_ROOT</td><td>' . VIEWS_ROOT . '</td></tr>');
+    echo('</table>');
     echo("<br/>\n");
 }
 
@@ -91,8 +102,17 @@ if ($pageok) {
     $response = $enginesis->userGet($userId);
     if ($response != null) {
         $pageok = $response->user_id == $userId;
+        if ($showInfo) {
+            echo("<h4>userGet $userId</h4>");
+            echo("<pre><code>");
+            var_dump($response);
+            echo("</code></pre>");
+        }
     } else {
         $pageok = false;
+        if ($showInfo) {
+            echo("<h4>userGet $userId</h4><p>FAILED</p>");
+        }
     }
 }
 

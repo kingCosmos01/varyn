@@ -1,42 +1,44 @@
 <?php
-    /**
-     * Enginesis service object for PHP. Support for each Enginesis API and additional helper functions.
-     * @author: jf
-     * @date: 2/13/16
-     */
+/**
+ * Enginesis service object for PHP clients. Support for each Enginesis API and additional helper functions.
+ * @author: varyn
+ * @date: 2/13/16
+ */
 
 if ( ! defined('ENGINESIS_VERSION')) {
-    define('ENGINESIS_VERSION', '2.3.48');
+    define('ENGINESIS_VERSION', '2.4.59');
 }
 require_once('EnginesisErrors.php');
-define('SESSION_COOKIE', 'engsession');
-define('REFRESH_COOKIE', 'engrefreshtoken');
-define('SESSION_USERINFO', 'engsession_user');
-define('SESSION_DAYSTAMP_HOURS', 48);
-define('SESSION_USERID_CACHE', 'engsession_uid');
+if ( ! defined('SESSION_COOKIE')) {
+    define('SESSION_COOKIE', 'engsession');
+    define('REFRESH_COOKIE', 'engrefreshtoken');
+    define('SESSION_USERINFO', 'engsession_user');
+    define('SESSION_DAYSTAMP_HOURS', 48);
+    define('SESSION_USERID_CACHE', 'engsession_uid');
+}
 
-    abstract class EnginesisNetworks {
-        const Enginesis = 1;
-        const Facebook = 2;
-        const OpenSocial = 3;
-        const Flux = 4;
-        const AddictingGames = 5;
-        const Google = 7;
-        const BeBo = 8;
-        const Friendster = 9;
-        const MySpace = 10;
-        const Twitter = 11;
-        const Hi5 = 11;
-        const AOL = 12;
-    }
+abstract class EnginesisNetworks {
+    const Enginesis = 1;
+    const Facebook = 2;
+    const OpenSocial = 3;
+    const Flux = 4;
+    const AddictingGames = 5;
+    const Google = 7;
+    const BeBo = 8;
+    const Friendster = 9;
+    const MySpace = 10;
+    const Twitter = 11;
+    const Hi5 = 11;
+    const AOL = 12;
+}
 
-    abstract class EnginesisRefreshStatus {
-        const valid = 1;      // authentication token is valid.
-        const refreshed = 2;  // user had a valid refresh token and we used it to get a new authentication token.
-        const expired = 3;    // user had a valid token but it has expired.
-        const invalid = 4;    // had a token but we were not able to validate it.
-        const missing = 9;    // no token to validate, or possibly an invalid token.
-    }
+abstract class EnginesisRefreshStatus {
+    const valid = 1;      // authentication token is valid.
+    const refreshed = 2;  // user had a valid refresh token and we used it to get a new authentication token.
+    const expired = 3;    // user had a valid token but it has expired.
+    const invalid = 4;    // had a token but we were not able to validate it.
+    const missing = 9;    // no token to validate, or possibly an invalid token.
+}
 
     class Enginesis
     {
@@ -66,14 +68,20 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
         private $m_refreshToken;
         private $m_refreshedUserInfo;
         private $m_tokenStatus;
+        private $m_serverPaths = [
+            'DATA'     => '',
+            'PRIVATE'  => '',
+            'PUBLIC'   => '',
+            'SERVICES' => ''
+        ];
 
         /**
+         * Set up the Enginesis environment so it is able to easily make service requests with the server.
          * @method constructor
-         * @purpose: Set up the Enginesis environment so it is able to easily make service requests with the server.
          * @param $siteId {int} Site id to represent.
          * @param $enginesisServer {string} which server you want to connect with. Leave empty to match current stage.
          * @param $developerKey {string} Your developer key.
-         * TODO: set m_debugFunction as a function to call whena debug statment is called
+         * TODO: set m_debugFunction as a function to call when a debug statement is called
          * TODO: validate the developer key on site_id.
          */
         public function __construct ($siteId, $enginesisServer, $developerKey) {
@@ -99,6 +107,7 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             $this->m_authTokenWasValidated = false;
             $this->m_refreshToken = null;
             $this->m_tokenStatus = EnginesisRefreshStatus::missing;
+            $this->setServerPaths();
             if (empty($enginesisServer)) {
                 // Caller doesn't know which stage, converse with the one that matches the stage we are on
                 $enginesisServiceRoot = $this->m_serviceProtocol . '://enginesis' . $this->m_stage . '.com/';
@@ -119,13 +128,16 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
         }
 
         /**
+         * Free any references before destructing the object.
          * @method destructor
-         * @purpose: free any references before destructing the object
          */
         public function __destruct () {
             $this->reset();
         }
 
+        /**
+         * Reset the Enginesis object state to initial conditions.
+         */
         private function reset () {
             $this->m_server = $this->serverName();
             $this->m_stage = $this->serverStage($this->m_server);
@@ -137,6 +149,20 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
         }
 
         /**
+         * Setup the paths we expect to find on the server so we don't need code at
+         * runtime to determine these things.
+         */
+        private function setServerPaths() {
+            $guessRootPath = $_SERVER['DOCUMENT_ROOT'] . '/';
+            $this->m_serverPaths = [
+                'DATA'     => defined(SERVER_DATA_PATH) ? SERVER_DATA_PATH : $guessRootPath . '../data/',
+                'PRIVATE'  => defined(SERVER_PRIVATE_PATH) ? SERVER_PRIVATE_PATH : $guessRootPath . '../private/',
+                'PUBLIC'   => defined(ROOTPATH) ? ROOTPATH : $guessRootPath,
+                'SERVICES' => defined(SERVICE_ROOT) ? SERVICE_ROOT : $guessRootPath . '../services/'
+            ];
+        }
+
+        /**
          * Helper method to convert an Enginesis server response to a result set or null if we cannot find the results.
          * Sometimes the results are provided as an array of rows, sometimes it is one row, depending on API.
          * @param $serverResponse
@@ -144,6 +170,17 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
          */
         private function resultsFromServerResponse($serverResponse) {
             return ($serverResponse != null && isset($serverResponse[0])) ? $serverResponse[0] : null;
+        }
+
+        /**
+         * Create a failed response for cases when we are going to fail locally without transaction
+         * with the server.
+         */
+        private function makeErrorResponse($errorCode, $errorMessage, $parameters) {
+            $service = isset($parameters['fn']) ? $parameters['fn'] : 'UNKNOWN';
+            $stateSequence = isset($parameters['stateSeq']) ? $parameters['stateSeq'] : 0;
+            $contents = '{"results":{"status":{"success":"0","message":"' . $errorCode . '","extended_info":"' . $errorMessage . '"},"passthru":{"fn":"' . $service . '","state_seq":' . $stateSequence . '}}}';
+            return $response;
         }
 
         /**
@@ -355,8 +392,7 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
         }
 
         /**
-         * @method serverName
-         * @purpose: determine the full domain name of the server we are currently running on.
+         * Determine the full domain name of the server we are currently running on.
          * @return: {string} server host name only, e.g. www.enginesis.com.
          */
         private function serverName() {
@@ -418,8 +454,7 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
         }
 
         /**
-         * @method serverStage
-         * @purpose Parse the given host name to determine which stage we are currently running on.
+         * Parse the given host name to determine which stage we are currently running on.
          * @param $hostName string - host name or domain name to parase. If null we try the current serverName().
          * @return string: server host name only, e.g. www.enginesis.com.
          */
@@ -435,25 +470,27 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $targetPlatform;
         }
 
+        /**
+         * Return the server stage this instance is running on (-l, -d, -q, '' for live.)
+         * This is determined at object construction.
+         * @return string
+         */
         public function getServerStage () {
             return $this->m_stage;
         }
 
         /**
-         * @method getServiceProtocol
-         * @purpose Determine if we are runing on http or https.
+         * Determine if we are runing on http or https.
          * @return string: HTTP protocol, either http or https.
          */
         public function getServiceProtocol () {
             // return http or https. you should use the result of this and never hard-code http:// into any URLs.
-            if ($this->m_stage == '-l') {
-                $protocol = 'http';
-            } elseif ($this->m_serviceProtocol) {
+            if ( ! empty($this->m_serviceProtocol)) {
                 $protocol = $this->m_serviceProtocol;
             } elseif (isset($_SERVER['HTTPS']) && ($_SERVER['HTTPS'] == 'on' || $_SERVER['HTTPS'] == 1) || isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https') {
                 $protocol = 'https';
             } else {
-                $protocol = 'http';
+                $protocol = 'https';
             }
             return $protocol;
         }
@@ -661,7 +698,7 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
          * @param $userName
          * @param $accessLevel
          * @param $networkId
-         * @returns string encrypted user authentication token
+         * @return string encrypted user authentication token
          */
         private function authTokenMake ($siteId, $userId, $userName, $siteUserId, $accessLevel, $networkId) {
             if ($this->m_authTokenWasValidated) {
@@ -677,7 +714,7 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
                 $userName = $this->m_userName;
             }
             $decryptedData = 'siteid=' . $siteId . '&userid=' . $userId . '&siteuserid=' . $siteUserId . '&networkid=' . $networkId . '&username=' . $userName . '&accesslevel=' . $accessLevel . '&daystamp=' . $this->sessionDayStamp();
-            return str_replace('+', ' ', base64_encode(mcrypt_encrypt(MCRYPT_BLOWFISH, pack('H*', $this->m_developerKey), $this->blowfishPad($decryptedData), MCRYPT_MODE_ECB, pack('H*', '000000000000000'))));
+            return $this->encryptString($decryptedData, $this->m_developerKey);
         }
 
         /**
@@ -689,9 +726,11 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
          */
         private function authTokenDecrypt ($authenticationToken) {
             $dataArray = null;
-            $tokenData = $this->blowfishUnpad(mcrypt_decrypt(MCRYPT_BLOWFISH, pack('H*', $this->m_developerKey), base64_decode(str_replace(' ', '+', $authenticationToken)), MCRYPT_MODE_ECB, pack('H*', '000000000000000')));
-            if ($tokenData != null && $tokenData != '') {
-                $dataArray = $this->decodeURLParams($tokenData);
+            if (strlen($this->m_developerKey) > 0 && strlen($authenticationToken) > 0) {
+                $tokenData = $this->decryptString($authenticationToken, $this->m_developerKey);
+                if ($tokenData != null && $tokenData != '') {
+                    $dataArray = $this->decodeURLParams($tokenData);
+                }
             }
             return $dataArray;
         }
@@ -722,7 +761,7 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
          * @return string
          */
         private function sessionMakeId() {
-            return md5($this->m_developerKey . '' . $this->sessionDayStamp() . '' . $this->m_userId);
+            return md5($this->m_developerKey . '' . $this->sessionDayStamp() . '' . $this->m_userId . '' . $this->m_gameId);
         }
 
         /**
@@ -876,10 +915,12 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             $this->m_userAccessLevel = 0;
             $this->m_isLoggedIn = false;
             $rc = '';
-            if (setcookie(SESSION_COOKIE, null, time() - 86400, '/', $this->sessionCookieDomain()) === false) {
-                $rc = 'CANNOT_SET_SESSION';
+            if ( ! headers_sent()) {
+                if (setcookie(SESSION_COOKIE, null, time() - 86400, '/', $this->sessionCookieDomain()) === false) {
+                    $rc = 'CANNOT_SET_SESSION';
+                }
+                setcookie(SESSION_USERINFO, null, time() - 86400, '/', $this->sessionCookieDomain());
             }
-            setcookie(SESSION_USERINFO, null, time() - 86400, '/', $this->sessionCookieDomain());
             $_COOKIE[SESSION_COOKIE] = null;
             $_COOKIE[SESSION_USERINFO] = null;
             $GLOBALS[SESSION_USERID_CACHE] = null;
@@ -887,45 +928,106 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $rc;
         }
 
+        /**
+         * When using the Blowfish encryption algorithm, data must be padded to 8 byte blocks.
+         * @param string A byte array to pad.
+         * @return string The input with padding added to the end if necessary.
+         */
         private function blowfishPad ($text) {
             $imod = 8 - (strlen($text) % 8);
-            for ($i = 0; $i < $imod; $i++) {
+            for ($i = 0; $i < $imod; $i ++) {
                 $text .= chr($imod);
             }
             return $text;
         }
 
+        /**
+         * When using the Blowfish encryption algorithm, data must be padded to 8 byte blocks.
+         * This function undoes any padding.
+         * @param string A byte array that may have been padded.
+         * @return string The input with padding removed if necessary.
+         */
         private function blowfishUnpad ($text) {
             $textLen = strlen($text);
             if ($textLen > 0) {
-                $padLen = ord($text[$textLen-1]);
+                $padLen = ord($text[$textLen - 1]);
                 if ($padLen > 0 && $padLen <= 8) {
                     return substr($text, 0, $textLen - $padLen);
-                } else {
-                    return $text;
                 }
             }
-            return null;
+            return $text;
         }
 
+        /**
+         * Encrypt a string of data with a key.
+         * @param $data {string} A clear string of data to encrypt.
+         * @param $key {string} The encryption key.
+         * @return {string} a base-64 representation of the encrypted data.
+         */
+        private function encryptString($data, $key) {
+            $keyLength = strlen($key);
+            if ($keyLength < 16) {
+                $key = str_repeat($key, ceil(16/$keyLength));
+            }
+            return base64URLEncode(openssl_encrypt(blowfishPad($data), 'BF-ECB', $key, OPENSSL_RAW_DATA | OPENSSL_NO_PADDING));
+        }
+
+        /**
+         * Decrypt a string of data that was encrypted with `encryptString()` using the same key.
+         * @param $data {string} An encrypted string of data to decrypt.
+         * @param $key {string} The encryption key.
+         * @return {string} the clear string that was originally encrypted.
+         */
+        private function decryptString($data, $key) {
+            $keyLength = strlen($key);
+            if ($keyLength < 16) {
+                $key = str_repeat($key, ceil(16/$keyLength));
+            }
+            return blowfishUnpad(openssl_decrypt(base64URLDecode($data), 'BF-ECB', $key, OPENSSL_RAW_DATA | OPENSSL_NO_PADDING));
+        }
+
+        /**
+         * Decode a base-64 string. This function also replaces base64 chars that are not URL safe.
+         * @param string A byte array that was base-64 encoded with `base64URLEncode($input)`.
+         * @return string The input string decoded.
+         */
         private function base64URLDecode($input) {
-            // replaces base64 chars that are not URL safe
-            return base64_decode(strtr($input, '-_', '+/'));
+            return base64_decode(strtr($data, ['-' => '+', '_' => '/', '~' => '='])); // '-_~', '+/='));
         }
 
+        /**
+         * Encode a string|byte array into base-64. This function also replaces base64 chars that are not URL safe.
+         * @param string A string or a byte array.
+         * @return string The input string encoded and the unsafe characters are changed to `+` => `-` and `/` => `_`.
+         */
         private function base64URLEncode($input) {
-            // replaces base64 chars that are not URL safe
-            return strtr(base64_encode($input), '+/', '-_');
+            return strtr(base64_encode($data), ['+' => '-', '/' => '_', '=' => '~']); // '+/=', '-_~');
         }
 
         /**
          * User can set their own debug callback function we will call when we have a debug statement.
-         * @param $debugFunction
+         * The function signature is `function debugLog($message)`.
+         * @param function $debugFunction A function reference.
+         * @return function|null The prior function that was set is returned.
          */
         public function setDebugFunction ($debugFunction) {
-
+            $priorFunction = $this->m_debugFunction;
+            $this->m_debugFunction = $debugFunction;
+            return $priorFunction;
         }
 
+        /**
+         * Attempt to call the callback debug function if one was provided.
+         */
+        public function debugLog($message) {
+            if ($this->m_debugFunction != null) {
+                call_user_func($this->m_debugFunction, $message);
+            }
+        }
+
+        /**
+         * Function to help with debugging the object state.
+         */
         public function debugDump () {
             echo("<h3>Enginesis object state</h3>");
             echo("<p>Server: $this->m_server</p>");
@@ -942,6 +1044,11 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             echo("<p>Last error: " . ($this->m_lastError ? implode(', ', $this->m_lastError) : 'null') . "</p>");
         }
 
+        /**
+         * Encode a key/value array into URL parameters. `key=value&key=value&...`.
+         * @param array $data A key/value array.
+         * @return string a URL parameter query string.
+         */
         public function encodeURLParams ($data) {
             $encodedURLParams = '';
             foreach ($data as $key => $value) {
@@ -953,6 +1060,11 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $encodedURLParams;
         }
 
+        /**
+         * Decode a URL parameter query string into a key/value array.
+         * @param string A URL parameter query string.
+         * @return array A key/value array.
+         */
         public function decodeURLParams ($encodedURLParams) {
             $data = array();
             $arrayOfParameters = explode('&', $encodedURLParams);
@@ -968,7 +1080,7 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $data;
         }
 
-        /** @method isLoggedInUser
+        /**
          * Check we have the Enginesis authtoken in engsession cookie and it is valid.
          * @return bool true if the cookie is valid and the user is logged in.
          */
@@ -1014,6 +1126,26 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
         }
 
         /**
+         * Return the name of the page we are currently on.
+         * @return string
+         */
+        private function currentPageName() {
+            if (empty($_SERVER['PHP_SELF'])) {
+                return '';
+            } else {
+                return basename($_SERVER['PHP_SELF'], '.php');
+            }
+        }
+
+        /**
+         * Return the full path of the page we are currently on.
+         * @return string
+         */
+        private function currentPagePath() {
+            return $_SERVER['PHP_SELF'];
+        }
+
+        /**
          * callServerAPI: Make an Enginesis API request over the WWW
          * @param $fn string is the API service to call.
          * @param $paramArray array key => value array of parameters e.g. array('site_id' => 100);
@@ -1023,49 +1155,61 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
         private function callServerAPI ($fn, $paramArray, $debug = false) {
             $parameters = $this->serverParamObjectMake($fn, $paramArray);
             $response = $parameters['response'];
-            if ($debug) {
-                print_r(array('Before callServerAPI', $fn, $this->m_server, $paramArray));
-                echo("<h3>Params for $fn:</h3><p>" . $this->encodeURLParams($parameters) . "</p>");
-            }
-            $ch = curl_init();
+            $setSSLCertificate = false;
+            $isLocalhost = serverStage() == '-l';
+            $url = $this->m_serviceEndPoint;
+            $setSSLCertificate = startsWith(strtolower($url), 'https://');
+            $ch = curl_init($url);
             if ($ch) {
-                curl_setopt($ch, CURLOPT_URL, $this->m_serviceEndPoint);
+                $referrer = serverName() . $this->currentPagePath();
+                curl_setopt($ch, CURLOPT_USERAGENT, 'Enginesis PHP SDK');
+                curl_setopt($ch, CURLOPT_REFERER, $referrer);
                 curl_setopt($ch, CURLOPT_HEADER, 0);
                 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
                 curl_setopt($ch, CURLOPT_TIMEOUT, 20);
                 curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
                 curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 600);
-                curl_setopt($ch, CURLOPT_REFERER, $this->m_server);
-                curl_setopt($ch, CURLOPT_USERAGENT, 'Enginesis PHP SDK');
-                curl_setopt($ch, CURLOPT_POST, 1);
-                curl_setopt($ch, CURLOPT_CAINFO, $_SERVER['DOCUMENT_ROOT'] . "/../private/cacert.pem");
-                if (serverStage() == '-l') {
+                if ($isLocalhost) {
                     curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4 );
                 }
+                if ($setSSLCertificate) {
+                    $certPath = $this->m_serverPaths['PRIVATE'] . 'cacert.pem';
+                    if (file_exists($certPath)) {
+                        curl_setopt($ch, CURLOPT_CAINFO, $certPath);
+                        curl_setopt($ch, CURLOPT_CAPATH, $certPath);
+                    } else {
+                        $this->debugLog("callServerAPI Cant locate private certs $certPath");
+                    }
+                }
+                curl_setopt($ch, CURLOPT_POST, 1);
                 curl_setopt($ch, CURLOPT_POSTFIELDS, $this->encodeURLParams($parameters));
                 $contents = curl_exec($ch);
-                curl_close($ch);
                 $succeeded = strlen($contents) > 0;
-                // TODO: We should verify the response is a valid EnginesisReponse object
                 if ( ! $succeeded) {
-                    $contents = '{"results":{"status":{"success":"0","message":"SYSTEM_ERROR","extended_info":"System error: ' . $this->m_serviceEndPoint . ' replied with no data."},"passthru":{"fn":"' . $fn . '","state_seq":0}}}';
+                    $errorInfo = 'System error: ' . $this->m_serviceEndPoint . ' replied with no data. ' . curl_error($ch);
+                    $this->debugLog($errorInfo);
+                    $contents = $this->makeErrorResponse('SYSTEM_ERROR', $errorInfo, $parameters);
                 }
+                curl_close($ch);
             } else {
-                $contents = '{"results":{"status":{"success":"0","message":"SYSTEM_ERROR","extended_info":"System error: unable to contact ' . $this->m_serviceEndPoint . ' or the server did not respond."},"passthru":{"fn":"' . $fn . '","state_seq":0}}}';
+                $errorInfo = 'System error: unable to contact ' . $this->m_serviceEndPoint . ' or the server did not respond.';
+                $contents = $this->makeErrorResponse('SYSTEM_ERROR', $errorInfo, $parameters);
             }
             if ($debug) {
-                echo("<h3>Response from $fn:</h3><p>$contents</p>");
+                $this->debuLog("callServerAPI response from $fn: $contents");
             }
             if ($response == 'json') {
                 $contentsObject = json_decode($contents);
+                // TODO: We should verify the response is a valid EnginesisReponse object
                 if ($contentsObject == null) {
-                    debugLog("callServerAPI could not parse JSON into an object: $contents");
+                    $this->debugLog("callServerAPI could not parse JSON into an object: $contents");
                 }
             }
             return $contentsObject;
         }
 
         /**
+         * Return the last error that occurred. Usually helpful after a service call.
          * @return object: the last error, null if the most recent operation succeeded.
          */
         public function getLastError () {
@@ -1086,6 +1230,7 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
         }
 
         /**
+         * Return the last error code that occurred. Usually helpful after a service call.
          * @return object: the last error, null if the most recent operation succeeded.
          */
         public function getLastErrorCode () {
@@ -1135,7 +1280,7 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
                         $statusMessage = EnginesisErrors::SERVER_RESPONSE_NOT_VALID;
                     }
                 } else {
-                    $statusMessage = EnginesisErrors::SERVER_SYSTEM_ERROR;
+                    $statusMessage = EnginesisErrors::SERVICE_ERROR;
                 }
             } else {
                 $statusMessage = EnginesisErrors::SERVER_DID_NOT_REPLY;
@@ -1223,10 +1368,8 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
         }
 
         /**
-         * @method userLogin
-         * @description
-         *   Login a user by calling the Enginesis function and wait for the response. If the user is successfully
-         *   logged in then save the session cookie that allows us to converse with the server without logging in each time.
+         * Login a user by calling the Enginesis function and wait for the response. If the user is successfully
+         * logged in then save the session cookie that allows us to converse with the server without logging in each time.
          * @param $userName: string the user's name or email address
          * @param $password: string the user's password
          * @param $saveSession boolean true to save this session in a cookie for the next page load to read back. Typically linked to a Remember Me checkbox.
@@ -1297,8 +1440,7 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $results;
         }
 
-        /* @function userLogout
-         * @description
+        /**
          * Logout the user clearing all internal cookies and data structures.
          * @return bool: true if successful. If false there was an internal error (logout should never really fail.)
          */
@@ -1311,9 +1453,8 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $results != null;
         }
 
-        /* @function userRegistrationValidation
-         * @description
-         *   Determine if user registration parameters are valid. If not, indicate the first parameter that is invalid.
+        /**
+         * Determine if user registration parameters are valid. If not, indicate the first parameter that is invalid.
          * @param $user_id: id of existing user to validate, or 0/null if a new registration.
          * @param $parameters: key/value object of registration data.
          * @return array: keys that we think are unacceptable. null if acceptable.
@@ -1388,9 +1529,8 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return count($errors) > 0 ? $errors : null;
         }
 
-        /* @function userRegistration
-         * @description
-         *   Register a new user by calling the Enginesis function and wait for the response. We must convert and field data
+        /**
+         * Register a new user by calling the Enginesis function and wait for the response. We must convert and field data
          *   from our version to the Enginesis version since we have multiple different ways to collect it.
          * @param $parameters: key/value object of registration data.
          * @return object: null if registration fails, otherwise returns the user info object and logs the user in.
@@ -1460,9 +1600,8 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $userInfoResult;
         }
 
-        /* @function registeredUserUpdate
-         * @description
-         *   Update and existing user's registration information.
+        /**
+         * Update and existing user's registration information.
          * @param $parameters: key/value object of registration data. Only changed keys may be provided.
          * @return object: null if registration fails, otherwise returns the user info object.
          */
@@ -1544,9 +1683,8 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $results;
         }
 
-        /* @function registeredUserSecurityValidation
-         * @description
-         *   Determine if user security parameters are valid. If not, indicate the first parameter that is invalid.
+        /**
+         * Determine if user security parameters are valid. If not, indicate the first parameter that is invalid.
          * @param $user_id int
          * @param $mobile_number string
          * @param $security_question_id int
@@ -1685,9 +1823,8 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $results;
         }
 
-        /* @function userForgotPassword
-         * @description
-         *   Trigger the forgot password procedure. The server will reset the user's password and
+        /**
+         * Trigger the forgot password procedure. The server will reset the user's password and
          *   send an email to the email address on record to follow a link to reset the password.
          * @param $userName: string the user's name
          * @param $email_address: string the user's email address
@@ -1697,7 +1834,7 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             $enginesisResponse = $this->callServerAPI('RegisteredUserForgotPassword', array('user_name' => $userName, 'email_address' => $email_address));
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             if ($results == null) {
-                debugLog('userForgotPassword failed: ' . $this->m_lastError['message'] . ' / ' . $this->m_lastError['extended_info']);
+                $this->debugLog('userForgotPassword failed: ' . $this->m_lastError['message'] . ' / ' . $this->m_lastError['extended_info']);
             } else {
                 if (is_array($results) && count($results) > 0) {
                     $results = $results[0];
@@ -1711,9 +1848,8 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $results;
         }
 
-        /* @function userResetPassword
-         * @description
-         *   Trigger the reset password procedure. The server will reset the user's password and
+        /**
+         * Trigger the reset password procedure. The server will reset the user's password and
          *   send an email to the email address on record to follow a link to reset the password.
          * @return bool: true if the process was started, false if there was an error.
          */
@@ -1721,14 +1857,13 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             $enginesisResponse = $this->callServerAPI('RegisteredUserResetPassword', array());
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             if ($results == null) {
-                debugLog('userResetPassword failed: ' . $this->m_lastError['message'] . ' / ' . $this->m_lastError['extended_info']);
+                $this->debugLog('userResetPassword failed: ' . $this->m_lastError['message'] . ' / ' . $this->m_lastError['extended_info']);
             }
             return $results;
         }
 
-        /* @function userVerifyForgotPassword
-         * @description
-         *   When the user comes back to reset the password.
+        /**
+         * When the user comes back to reset the password.
          * @param $userId: int the user's internal user id.
          * @param $newPassword: string the user's replacement password.
          * @param $token: string the user's granted token allowing the reset from an authorized source.
@@ -1765,9 +1900,9 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
                 if ($userId < 9999) {
                     $userId = $this->m_userId;
                 }
-                $enginesisResponse = $this->callServerAPI('UserGet', array('get_user_id' => $userId));
+                $enginesisResponse = $this->callServerAPI('UserGet', ['get_user_id' => $userId]);
             } elseif ($this->isValidUserName($userId)) {
-                $enginesisResponse = $this->callServerAPI('UserGetByName', array('user_name' => $userId));
+                $enginesisResponse = $this->callServerAPI('UserGetByName', ['user_name' => $userId]);
             }
             $results = $this->setLastErrorFromResponse($enginesisResponse);
             if ($results != null && is_array($results)) {
@@ -1895,6 +2030,11 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $this->m_avatarEndPoint . '?site_id=' . $this->m_siteId . '&user_id=' . $userId . '&size=' . $size;
         }
 
+        /**
+         * Get meta data details about a specific game given its unique game identifier.
+         * @param int $game_id the id of the game to get information about.
+         * @return object
+         */
         public function gameGet ($gameId) {
             if ($this->isInvalidId($gameId)) {
                 $gameId = $this->gameId;
@@ -1909,6 +2049,11 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $gameInfo;
         }
 
+        /**
+         * Get meta data details about a specific game given its unique game name.
+         * @param int $game_id the id of the game to get information about.
+         * @return object
+         */
         public function gameGetByName ($gameName) {
             $enginesisResponse = $this->callServerAPI('GameGetByName', array('game_name' => $gameName));
             $results = $this->setLastErrorFromResponse($enginesisResponse);
@@ -1920,6 +2065,10 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $gameInfo;
         }
 
+        /**
+         * Set or update a game rating. Game ratings are for example 1 to 5 stars (but can be
+         * any arbitrary range 0 to 100.)
+         */
         public function gameRatingUpdate ($rating, $gameId) {
             if ($rating < 0 || $rating > 100) {
                 $rating = 5;
@@ -1937,6 +2086,9 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $gameInfo;
         }
 
+        /**
+         * Return the game rating for a specific game id.
+         */
         public function gameRatingGet ($gameId) {
             if ($this->isInvalidId($gameId)) {
                 $gameId = $this->gameId;
@@ -1951,6 +2103,9 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $gameInfo;
         }
 
+        /**
+         * Return a list of rated games by their rating, highest to lowest.
+         */
         public function gameRatingList ($numberOfGames) {
             if ($numberOfGames < 1 || $numberOfGames > 100) {
                 $numberOfGames = 5;
@@ -1965,6 +2120,10 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $gameList;
         }
 
+        /**
+         * Return a list of games given a specific list id. Arbitrary curated games can be
+         * organized into lists. You need to know the list id.
+         */
         public function gameListByIdList ($listOfGameIds, $delimiter) {
             if (empty($listOfGameIds)) {
                 $listOfGameIds = '' . $this->gameId . '';
@@ -1982,6 +2141,9 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $gameList;
         }
 
+        /**
+         * Set or update a vote for a URI.
+         */
         public function voteForURIUnauth($uri, $voteGroupURI, $voteValue, $securityKey) {
             $service = 'VoteForURIUnauth';
             $parameters = array(
@@ -2000,6 +2162,9 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $response;
         }
 
+        /**
+         * Get the vote totals for a URI group.
+         */
         public function voteCountPerURIGroup($voteGroupURI) {
             $service = 'VoteCountPerURIGroup';
             $parameters = array(
@@ -2015,6 +2180,9 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $response;
         }
 
+        /**
+         * Get meta data information about a developer.
+         */
         public function developerGet($developerId) {
             $service = 'DeveloperGet';
             $parameters = array(
@@ -2030,6 +2198,9 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $response;
         }
 
+        /**
+         * Get the game data for a specific game id.
+         */
         public function gameDataGet($gameId) {
             $service = 'GameDataGet';
             $parameters = array(
@@ -2045,6 +2216,9 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $response;
         }
 
+        /**
+         * Return the favorite game list for the current logged in user.
+         */
         public function userFavoriteGamesList() {
             $service = 'UserFavoriteGamesList';
             $parameters = array();
@@ -2053,6 +2227,9 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $this->resultsFromServerResponse($results);
         }
 
+        /**
+         * Add or update a game to the user's favorite game list.
+         */
         public function userFavoriteGamesAssign($gameId) {
             $service = 'UserFavoriteGamesAssign';
             $parameters = array(
@@ -2063,7 +2240,13 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $this->resultsFromServerResponse($results);
         }
 
+        /**
+         * Add or update a list of games to the user's favorite game list.
+         */
         public function userFavoriteGamesAssignList($gameIdList) {
+            if (is_array($gameIdList)) {
+                $gameIdList = implode(',', $gameIdList);
+            }
             $service = 'UserFavoriteGamesAssignList';
             $parameters = array(
                 'game_id_list' => $gameIdList,
@@ -2074,6 +2257,9 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $this->resultsFromServerResponse($results);
         }
 
+        /**
+         * Remove a game from the user's favorite game list.
+         */
         public function userFavoriteGamesDelete($gameId) {
             $service = 'UserFavoriteGamesDelete';
             $parameters = array(
@@ -2084,7 +2270,13 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $this->resultsFromServerResponse($results);
         }
 
+        /**
+         * Remove a list of games from the user's favorite game list.
+         */
         public function userFavoriteGamesDeleteList($gameIdList) {
+            if (is_array($gameIdList)) {
+                $gameIdList = implode(',', $gameIdList);
+            }
             $service = 'UserFavoriteGamesDeleteList';
             $parameters = array(
                 'game_id_list' => $gameIdList,
@@ -2095,6 +2287,9 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $this->resultsFromServerResponse($results);
         }
 
+        /**
+         * Change the position of a game in the user's favorite game list.
+         */
         public function userFavoriteGamesMove($gameId, $sortOrder) {
             $service = 'UserFavoriteGamesMove';
             $parameters = array(
@@ -2110,6 +2305,9 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
         // Promotion API
         // =============================================================================================================
 
+        /**
+         * Return a list of promotions given a promotion id.
+         */
         public function promotionList($promotionId, $queryDate = null, $showItems = false) {
             $service = 'PromotionList';
             if ($queryDate != null) {
@@ -2125,6 +2323,9 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $this->resultsFromServerResponse($results);
         }
 
+        /**
+         * Return a list of promoted items given a promotion id.
+         */
         public function promotionItemList($promotionId, $queryDate = null) {
             $service = 'PromotionItemList';
             if ($queryDate != null) {
@@ -2142,10 +2343,17 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
         // =============================================================================================================
         // Conference API
         // =============================================================================================================
+
+        /**
+         * Return the path to the conference assets.
+         */
         public function conferenceAssetRootPath($conferenceId) {
             return $this->getServiceRoot() . 'sites/' . $this->m_siteId . '/conf/' . $conferenceId . '/';
         }
 
+        /**
+         * Return meta information about a specific conference.
+         */
         public function conferenceGet($conferenceId) {
             $service = 'ConferenceGet';
             if ( ! is_integer($conferenceId)) {
@@ -2163,6 +2371,9 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $this->resultsFromServerResponse($results);
         }
 
+        /**
+         * Return meta information about a specific topic in a conference.
+         */
         public function conferenceTopicGet($conferenceId, $topicId) {
             $service = 'ConferenceTopicGet';
             if ( ! is_integer($conferenceId)) {
@@ -2181,6 +2392,9 @@ define('SESSION_USERID_CACHE', 'engsession_uid');
             return $this->resultsFromServerResponse($results);
         }
 
+        /**
+         * Return a list of topics in a given conference.
+         */
         public function conferenceTopicList($conferenceId, $tags, $startDate, $endDate, $startItem, $numItems) {
             $service = 'ConferenceTopicList';
             if ( ! is_integer($conferenceId)) {

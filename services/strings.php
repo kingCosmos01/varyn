@@ -57,11 +57,11 @@
          */
         public function __construct($siteId, $languageCode) {
             global $enginesis_strings_en;
-            global $varynServerRootPath; // from common, points to website root above /public/ and ends with /
+            global $serverRootPath; // from common.php, points to website root above /public/ and ends with /
 
             $this->_siteId = $siteId;
             $this->_languageCode = strtolower($languageCode);
-            $this->_localePath = $varynServerRootPath . 'services' . DIRECTORY_SEPARATOR . 'locale' . DIRECTORY_SEPARATOR;
+            $this->_localePath = $serverRootPath . 'services' . DIRECTORY_SEPARATOR . 'locale' . DIRECTORY_SEPARATOR;
 
             if (isset($enginesis_strings_en)) { // loaded from './locale/en/strings_en.php'
                 $this->_defaultStringTable = $enginesis_strings_en;

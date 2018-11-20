@@ -158,7 +158,7 @@ class EnginesisBlog
                     $html .= '<div class="conf-topic-preview"><h4><a href="' . $blogPage . $topicId . '">' . $topic->topic_title . '</a></h4><p>' . substr($topic->abstract, 0, 140) . '</p></div>';
                     $numberOfTopics --;
                 } elseif ($topicId == $topicSelected) {
-                    // determine next page and previous page fromt eh current page, but this assumes the current
+                    // determine next page and previous page from the current page, but this assumes the current
                     // page is in the topic list.
                     if ($i == 0) {
                         $previousTopicId = $topicList[$countTopicsAvailable - 1]->topic_id;
