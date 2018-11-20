@@ -1,17 +1,27 @@
 <?php
-// Verify the server is operating correctly
+// Verify the server is operating correctly. This page is used from monitor check systems to verify
+// the web server is running and all systems are performing as expected.
 require_once('../services/common.php');
 
+// Show additional verification information
+$showInfo = isset($_GET['info']) && $_GET['info'] == 990;
+
 // Verify PHP is properly loaded and we have common.php properly loaded
-$pageok = false;
+$pageok = true;
+if ( ! isset($enginesisLogger) || $enginesisLogger == null) {
+    $pageok = false;
+    $enginesisLogger->log("Server verification fails with no logging system", LogMessageLevel::Error, 'SYSMON');
+}
 $version = defined('VARYN_VERSION') ? VARYN_VERSION : null;
 $pageok = strlen($version) > 0;
-$showInfo = isset($_GET['info']) && $_GET['info'] == 990;
 
 // Verify we're on a known server stage
 if ($pageok) {
     $serverStage = serverStage();
     $pageok = strlen($serverStage) == 0 || preg_match('/^-[dlqx]$/', $serverStage) === 1;
+}
+if ( ! $pageok) {
+    $enginesisLogger->log("Server verification fails at stage/version check", LogMessageLevel::Error, 'SYSMON');
 }
 
 if ($showInfo) {
@@ -91,7 +101,7 @@ if (count($testStatus) > 0) {
         }
         if ( ! $value) {
             $pageok = false;
-            $enginesisLogger->log("Server verification fails for test $key", LogMessageLevel::Error, $subsystem);
+            $enginesisLogger->log("Server verification fails for test $key", LogMessageLevel::Error, 'SYSMON');
         }
     }
 }
@@ -110,6 +120,7 @@ if ($pageok) {
         }
     } else {
         $pageok = false;
+        $enginesisLogger->log("Server verification fails for userGet $userId", LogMessageLevel::Error, 'SYSMON');
         if ($showInfo) {
             echo("<h4>userGet $userId</h4><p>FAILED</p>");
         }
@@ -117,7 +128,7 @@ if ($pageok) {
 }
 
 if ($pageok) {
-    echo "PAGEOK";
+    echo 'PAGEOK';
 } else {
-    echo "ERROR";
+    echo 'ERROR';
 }
