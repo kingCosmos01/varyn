@@ -179,8 +179,8 @@ abstract class EnginesisRefreshStatus {
         private function makeErrorResponse($errorCode, $errorMessage, $parameters) {
             $service = isset($parameters['fn']) ? $parameters['fn'] : 'UNKNOWN';
             $stateSequence = isset($parameters['stateSeq']) ? $parameters['stateSeq'] : 0;
-            $contents = '{"results":{"status":{"success":"0","message":"' . $errorCode . '","extended_info":"' . $errorMessage . '"},"passthru":{"fn":"' . $service . '","state_seq":' . $stateSequence . '}}}';
-            return $response;
+            $enginesisResponse = '{"results":{"status":{"success":"0","message":"' . $errorCode . '","extended_info":"' . $errorMessage . '"},"passthru":{"fn":"' . $service . '","state_seq":' . $stateSequence . '}}}';
+            return $enginesisResponse;
         }
 
         /**
