@@ -1318,6 +1318,26 @@ abstract class EnginesisRefreshStatus {
         }
 
         /**
+         * The general public site get - returns a minimum set of public attributes about a site.
+         * @param $siteId - an int indicating a site_id.
+         * @return object A site info object containing only the public attributes.
+         */
+        public function siteGet ($siteId) {
+            $site = null;
+            if (is_numeric ($siteId)) {
+                if ($siteId < 100) {
+                    $siteId = $this->m_siteId;
+                }
+                $enginesisResponse = $this->callServerAPI('SiteGet', ['site_id' => $siteId]);
+                $results = $this->setLastErrorFromResponse($enginesisResponse);
+                if ($results != null && is_array($results)) {
+                    $site = $results[0];
+                }
+            }
+            return $site;
+        }
+
+        /**
          * Call Enginesis SessionBegin which is used to start any conversation with the server. Must call before beginning a game.
          * @param gameId
          * @param gameKey
