@@ -29,7 +29,7 @@ define('SERVER_ROOT', $serverRootPath);
 define('SERVER_DATA_PATH', $serverRootPath . 'data/');
 define('SERVER_PRIVATE_PATH', $serverRootPath . 'private/');
 define('SERVICE_ROOT', $serverRootPath . 'services/');
-define('VIEWS_ROOT', $serverRootPath . 'services/views/');
+define('VIEWS_ROOT', $serverRootPath . 'views/');
 
 /**
  * @description
