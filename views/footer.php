@@ -47,7 +47,7 @@ if ( ! isset($showSubscribe)) {
     var siteConfiguration = {
         siteId: <?php echo($siteId);?>,
         developerKey: "<?php echo($developerKey);?>",
-        serverStage: "<?php echo($stage);?>",
+        serverStage: "<?php echo($serverStage);?>",
         authToken: "<?php echo($authToken);?>",
         languageCode: navigator.language || navigator.userLanguage
     };
