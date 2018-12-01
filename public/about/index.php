@@ -102,7 +102,7 @@ include_once(VIEWS_ROOT . 'header.php');
         head.ready(function() {
             var siteConfiguration = {
                     siteId: <?php echo($siteId);?>,
-                    serverStage: "<?php echo($stage);?>",
+                    serverStage: "<?php echo($serverStage);?>",
                     languageCode: navigator.language || navigator.userLanguage
                 },
                 pageParameters = {

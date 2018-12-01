@@ -192,7 +192,7 @@ include_once(VIEWS_ROOT . 'footer.php');
     head.ready(function() {
         var siteConfiguration = {
                 siteId: <?php echo($siteId);?>,
-                serverStage: "<?php echo($stage);?>",
+                serverStage: "<?php echo($serverStage);?>",
                 languageCode: navigator.language || navigator.userLanguage
             },
             pageParameters = {

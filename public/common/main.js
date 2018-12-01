@@ -503,7 +503,7 @@ function submitSearch ()
         var query = searchId.value;
         if (query != null && query.length > 0) {
             showErrorPopup("Search", "We are going to look for " + query);
-            window.location = '/services/AllGames.php?q=' + query;
+            window.location = '/services/allgames/?q=' + query;
         }
     }
 }
