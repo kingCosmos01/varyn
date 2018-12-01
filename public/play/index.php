@@ -136,7 +136,7 @@ include_once(VIEWS_ROOT . 'footer.php');
         var siteConfiguration = {
                 siteId: '<?php echo($siteId);?>',
                 gameId: '<?php echo($gameId);?>',
-                serverStage: '<?php echo($stage);?>',
+                serverStage: '<?php echo($serverStage);?>',
                 languageCode: navigator.language || navigator.userLanguage
             },
             pageParameters = {

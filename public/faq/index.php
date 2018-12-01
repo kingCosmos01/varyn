@@ -43,7 +43,7 @@ include_once(VIEWS_ROOT . 'footer.php');
 <script type="text/javascript">
 
     var enginesisSiteId = <?php echo($siteId);?>,
-        serverStage = "<?php echo($stage);?>",
+        serverStage = "<?php echo($serverStage);?>",
         enginesisGameListId = 6,
         enginesisHomePagePromoId = 2;
 

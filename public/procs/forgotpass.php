@@ -89,7 +89,7 @@ include_once(VIEWS_ROOT . 'footer.php');
                 siteId: <?php echo($siteId);?>,
                 gameId: 0,
                 gameGroupId: 0,
-                serverStage: "<?php echo($stage);?>",
+                serverStage: "<?php echo($serverStage);?>",
                 languageCode: navigator.language || navigator.userLanguage,
                 developerKey: '<?php echo($developerKey);?>',
                 facebookAppId: '<?php echo($socialServiceKeys[2]['app_id']);?>',
