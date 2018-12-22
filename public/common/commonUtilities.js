@@ -516,7 +516,7 @@
             chr1, chr2, chr3, enc1, enc2, enc3, enc4,
             i = 0;
 
-        input = this.utf8Encode(input);
+        input = commonUtilities.utf8Encode(input);
         while (i < inputLength) {
             chr1 = input.charCodeAt(i ++);
             chr2 = input.charCodeAt(i ++);
@@ -567,7 +567,7 @@
                 output = output + String.fromCharCode(chr3);
             }
         }
-        return this.utf8Decode(output);
+        return commonUtilities.utf8Decode(output);
     };
 
     /**
@@ -655,7 +655,7 @@
      * @return {boolean} true if removed, false if doesn't exist.
      */
     commonUtilities.cookieRemove = function (key, path, domain) {
-        if (this.cookieExists(key)) {
+        if (commonUtilities.cookieExists(key)) {
             document.cookie = encodeURIComponent(key) + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" + (domain ? "; domain=" + domain : "") + (path ? "; path=" + path : "");
             return true;
         } else {
@@ -976,7 +976,7 @@
             }
             tagList = tags.split(delimiter);
             for (i = tagList.length - 1; i >= 0; i --) {
-                tagList[i] = this.stripTags(tagList[i].trim(), "").substr(0, 50).trim();
+                tagList[i] = commonUtilities.stripTags(tagList[i].trim(), '').substr(0, 50).trim();
                 if (tagList[i].length < 2) {
                     tagList.splice(i, 1);
                 }
@@ -1659,7 +1659,7 @@
      */
     commonUtilities.getGravatarURL = function (email, size) {
         var size = size || 80;
-        return "https://www.gravatar.com/avatar/" + this.MD5(email) + ".jpg?s=" + size;
+        return "https://www.gravatar.com/avatar/" + commonUtilities.md5(email) + ".jpg?s=" + size;
     };
 
     /* ----------------------------------------------------------------------------------

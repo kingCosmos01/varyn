@@ -123,36 +123,31 @@
             enginesis.authToken = parameters.authToken != undefined ? parameters.authToken : null;
             enginesis.callBackFunction = parameters.callBackFunction != undefined ? parameters.callBackFunction : null;
         }
-        if (validateOperationalState()) {
-            setPlatform();
-            setProtocolFromCurrentLocation();
-            qualifyAndSetServerStage(enginesis.serverStage);
-            if ( ! restoreUserFromAuthToken()) {
-                restoreUserSessionInfo();
-            }
-            if (!enginesis.isUserLoggedIn()) {
-                anonymousUserLoad();
-            }
-            if (restoreServiceQueue()) {
-                // defer the queue processing
-                window.setTimeout(restoreOnline, 500);
-            }
+        setPlatform();
+        setProtocolFromCurrentLocation();
+        qualifyAndSetServerStage(enginesis.serverStage);
+        if ( ! restoreUserFromAuthToken()) {
+            restoreUserSessionInfo();
+        }
+        if ( ! enginesis.isUserLoggedIn()) {
+            anonymousUserLoad();
+        }
+        if (restoreServiceQueue()) {
+            // defer the queue processing
+            window.setTimeout(restoreOnline, 500);
         }
     };
 
     /**
      * Review the current state of the enginesis object to make sure we have enough information
-     * to properly communicate with the server.
-     * @returns {*}
+     * to properly communicate with the server. The decision may change over time, but for now Enginesis requires:
+     *   1. Developer key - the developer's API key is required to make API calls.
+     *   2. Site id - we must know the site id to make any API calls and to verify the developer key matches.
+     *   3. serviceURL - must be set in order to make API calls.
+     * @returns {boolean} true if we think we are in a good state, otherwise false.
      */
-    function validateOperationalState() {
-        var valid;
-        if (enginesis.siteId > 0 && enginesis.developerKey.length > 0) {
-            valid = true;
-        } else {
-            valid = false;
-        }
-        return valid;
+    function validOperationalState() {
+        return enginesis.siteId > 0 && enginesis.developerKey.length > 0 && enginesis.siteResources.serviceURL.length > 0;
     }
 
     /**
@@ -630,7 +625,7 @@
      */
     function sendRequest(serviceName, parameters, overRideCallBackFunction) {
         return new Promise(function(resolve, reject) {
-            if ( ! enginesis.disabled) {
+            if ( ! enginesis.disabled && validOperationalState()) {
                 var enginesisParameters = serverParamObjectMake(serviceName, parameters);
                 enginesisParameters.overRideCallBackFunction = overRideCallBackFunction;
                 enginesis.serviceQueue.push(enginesisParameters);
@@ -644,7 +639,12 @@
                     callbackPriority(enginesisResult, resolve, overRideCallBackFunction, enginesis.callBackFunction);
                 }
             } else {
-                var enginesisResult = forceErrorResponseObject(serviceName, 0, "DISABLED", "Enginesis is disabled.");
+                var enginesisResult;
+                if (enginesis.disabled) {
+                    enginesisResult = forceErrorResponseObject(serviceName, 0, "DISABLED", "Enginesis is disabled.");
+                } else {
+                    enginesisResult = forceErrorResponseObject(serviceName, 0, "VALIDATION_FAILED", "Enginesis internal state failed validation.");
+                }                
                 callbackPriority(enginesisResult, resolve, overRideCallBackFunction, enginesis.callBackFunction);
             }
         });
