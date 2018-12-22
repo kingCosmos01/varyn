@@ -57,8 +57,9 @@ function setGameContainer ($gameInfo, $enginesisServer, $siteId, $gameId) {
     $bgcolor = '#' . $gameInfo->bgcolor;
     $pluginId = $gameInfo->game_plugin_id;
     $allowScroll = $gameInfo->popup == 0 ? 'no' : 'yes';
+    $gameContainerHTML = '<!-- debug: plugin=' . $pluginId . ' w/h=' . $width . 'x' . $height . '-->';
     if ($pluginId == 9) { // embed
-        $gameContainerHTML = '<div id="gameContainer-iframe" style="position: relative; margin: 0 auto; width: 100%; height: 100%;">' . $gameInfo->game_link . '</div>';
+        $gameContainerHTML .= '<div id="gameContainer-iframe" style="position: relative; margin: 0 auto; width: 100%; height: 100%;">' . $gameInfo->game_link . '</div>';
     } else {
         if ($pluginId == 10) { // canvas
             if (strpos($gameInfo->game_link, '://') > 0) {
@@ -69,7 +70,7 @@ function setGameContainer ($gameInfo, $enginesisServer, $siteId, $gameId) {
         } else {
             $gameLink = $enginesisServer . 'games/play.php?site_id=' . $siteId . '&game_id=' . $gameId;
         }
-        $gameContainerHTML = '<iframe id="gameContainer-iframe" src="' . $gameLink . '" allowfullscreen scrolling="' . $allowScroll . '" width="' . $width . '" height="' . $height . '" border="0"></iframe>';
+        $gameContainerHTML .= '<iframe id="gameContainer-iframe" src="' . $gameLink . '" allowfullscreen scrolling="' . $allowScroll . '" width="' . $width . '" height="' . $height . '" border="0"></iframe>';
     }
     return $gameContainerHTML;
 }
@@ -109,7 +110,7 @@ include_once(VIEWS_ROOT . 'header.php');
                 <h3 class="panel-title">Other games you may like:</h3>
             </div>
         </div>
-    </div><!-- row -->
+    </div>
     <div id="PlayPageGamesArea" class="row">
     </div>
     <div id="bottomAd" class="row">
@@ -133,20 +134,11 @@ include_once(VIEWS_ROOT . 'footer.php');
     var varynApp;
 
     head.ready(function() {
-        var siteConfiguration = {
-                siteId: '<?php echo($siteId);?>',
-                gameId: '<?php echo($gameId);?>',
-                serverStage: '<?php echo($serverStage);?>',
-                languageCode: navigator.language || navigator.userLanguage
-            },
-            pageParameters = {
-                showSubscribe: '<?php echo($showSubscribe);?>',
-                width: '<?php echo($gameInfo->width);?>',
-                height: '<?php echo($gameInfo->height);?>',
-                pluginId: '<?php echo($gameInfo->game_plugin_id);?>',
-                developerId: '<?php echo($gameInfo->developer_id);?>'
-            };
-
+        siteConfiguration.gameId = '<?php echo($gameId);?>';
+        pageParameters.width = '<?php echo($gameInfo->width);?>';
+        pageParameters.height = '<?php echo($gameInfo->height);?>';
+        pageParameters.pluginId = '<?php echo($gameInfo->game_plugin_id);?>';
+        pageParameters.developerId = '<?php echo($gameInfo->developer_id);?>';
         varynApp = varyn(siteConfiguration);
         varynApp.initApp(varynPlayPage, pageParameters);
     });

@@ -6,8 +6,6 @@
 var varynPlayPage = function (varynApp, siteConfiguration) {
     "use strict";
 
-    var enginesisSession = varynApp.getEnginesisSession();
-
     function setGameDeveloper (developerInfo) {
         var developerInfoDiv = document.getElementById("gameDeveloper");
         if (developerInfoDiv != null) {
@@ -70,59 +68,52 @@ var varynPlayPage = function (varynApp, siteConfiguration) {
         window.location.reload();
     }
 
-    function setGameContainer (pageViewParameters) {
+    function setGameContainer (pageViewParameters, enginesisSession) {
         var gameContainerDiv = document.getElementById("gameContainer"),
             gameContainerIframe,
             requiredAspectRatio,
-            width = pageViewParameters.width,
-            height = pageViewParameters.height,
+            requestedWidth = pageViewParameters.width,
+            requestedHeight = pageViewParameters.height,
             pluginId = pageViewParameters.pluginId,
             isTouchDevice = enginesisSession.isTouchDevice(),
-            embedOnTouchDevice = false;
+            boundingRect = gameContainerDiv.getBoundingClientRect();
 
         // we want to size the container to the size of the game and center it in the panel div.
 
-        enginesisSession.gameWidth = width;
-        enginesisSession.gameHeight = height;
-        if (height < width) {
-            requiredAspectRatio = height / width;
+        if (requestedHeight < requestedWidth) {
+            requiredAspectRatio = requestedHeight / requestedWidth;
         } else {
-            requiredAspectRatio = width / height;
+            requiredAspectRatio = requestedWidth / requestedHeight;
         }
+        enginesisSession.gameWidth = requestedWidth;
+        enginesisSession.gameHeight = requestedHeight;
         enginesisSession.gameAspectRatio = requiredAspectRatio; // cache the ideal aspect ratio to use when the frame is resized
         enginesisSession.gamePluginId = pluginId;
         if (gameContainerDiv != null) {
-            embedOnTouchDevice = isTouchDevice && enginesisSession.gamePluginId == 9;
-            if (enginesisSession.gamePluginId == 9) {
-                gameContainerDiv.style['overflow-y'] = "scroll";
-                gameContainerDiv.style['overflow-x'] = "hidden";
-                gameContainerDiv.style['-webkit-overflow-scrolling'] = "touch";
-                if (isTouchDevice) {
-                    // if we are on mobile and this is an Embed type game, just embed the game link directly into the div.
-                    showOnlyTheGame(true);
-                }
-                //                    gameContainerDiv.style.width = width + "px";
-                //                    gameContainerDiv.style.maxWidth = width + "px";
-                //                    gameContainerDiv.style.height = height + "px";
-                //                    gameContainerDiv.style.maxHeight = height + "px";
-                gameContainerDiv.style.paddingTop = "0";
-                // insertAndExecute("gameContainer", gameData.game_link);
-            } else {
-                //                    if (EnginesisSession.gamePluginId == 10) {
-                //                        if (gameData.game_link.indexOf('://') > 0) {
-                //                            gameLink = gameData.game_link;
-                //                        } else {
-                //                            gameLink = enginesisHost + "/games/" + gameData.game_name + "/" + gameData.game_link;
-                //                        }
-                //                    } else {
-                //                        gameLink = enginesisHost + "/games/play.php?site_id=<?php //echo($siteId);?>//&game_id=<?php //echo($gameId);?>//";
-                //                    }
-                //                    gameContainerDiv.innerHTML = "<iframe id=\"gameContainer-iframe\" src=\"" + gameLink + "\" allowfullscreen scrolling=\"" + allowScroll + "\" width=\"" + width + "\" height=\"" + height + "\"/>";
-            }
-            if (isTouchDevice && enginesisSession.gamePluginId == 10) {
+            if (isTouchDevice) {
+                // if we are on mobile and this is an Embed or Canvas game, force the container 
+                // to full width/height and let the game size itself inside the container.
                 showOnlyTheGame(true);
-            } else if ( ! embedOnTouchDevice) {
-                if (gameContainerDiv.clientWidth >= width) { // the game will fit the available space
+            } else {
+                if (enginesisSession.gamePluginId == 9) {
+                    // For Embed games, setup the requested width and height.
+                    // if no requested w/h, then set the height to the remaining client
+                    // height. clientHeight - boundingRect
+                    gameContainerDiv.style['overflow-y'] = "scroll";
+                    gameContainerDiv.style['overflow-x'] = "hidden";
+                    gameContainerDiv.style['-webkit-overflow-scrolling'] = "touch";
+                    // gameContainerDiv.style.width = width + "px";
+                    // gameContainerDiv.style.maxWidth = width + "px";
+                    // gameContainerDiv.style.height = height + "px";
+                    // gameContainerDiv.style.maxHeight = height + "px";
+                    // insertAndExecute("gameContainer", gameData.game_link);
+                } else if (enginesisSession.gamePluginId == 10) {
+                    // for Canvas games, fit the game to the container or shrink the
+                    // container to the game size. Best case is using all available width/height.
+                    var width = gameContainerDiv.width;
+                    var height = window.innerHeight - boundingRect.top;
+
+                    // the game will fit the available space
                     gameContainerIframe = document.getElementById("gameContainer-iframe");
                     if (gameContainerIframe != null) {
                         gameContainerIframe.style.width = width + "px";
@@ -134,8 +125,9 @@ var varynPlayPage = function (varynApp, siteConfiguration) {
                     gameContainerDiv.style.maxWidth = width + "px";
                     gameContainerDiv.style.height = height + "px";
                     gameContainerDiv.style.maxHeight = height + "px";
-                } else if ( ! (enginesisSession.gamePluginId == 9)) { // iframe game does not fit
-                    gameContainerDiv.style.paddingTop = (requiredAspectRatio * 100) + "%";
+                } else {
+                    gameContainerDiv.style.height = requestedHeight + "px";
+                    gameContainerDiv.style.maxHeight = requestedHeight + "px";
                 }
             }
         }
@@ -167,7 +159,6 @@ var varynPlayPage = function (varynApp, siteConfiguration) {
         fitGameToFullScreen();
     }
 
-
     /**
      * Callback to handle responses from Enginesis.
      * @param enginesisResponse
@@ -179,22 +170,25 @@ var varynPlayPage = function (varynApp, siteConfiguration) {
 
         if (enginesisResponse != null && enginesisResponse.fn != null) {
             results = enginesisResponse.results;
-            succeeded = results.status.success;
-            errorMessage = results.status.message;
-            switch (enginesisResponse.fn) {
-                case "NewsletterAddressAssign":
-                    handleNewsletterServerResponse(succeeded);
-                    break;
-                case "DeveloperGet":
-                    setGameDeveloper(enginesisResponse.results.result[0]);
-                    break;
-                case "SiteListGamesRandom":
-                    if (succeeded == 1) {
+            succeeded = results.status.success == "1";
+            if (succeeded) {
+                switch (enginesisResponse.fn) {
+                    case "NewsletterAddressAssign":
+                        handleNewsletterServerResponse(succeeded);
+                        break;
+                    case "DeveloperGet":
+                        setGameDeveloper(enginesisResponse.results.result[0]);
+                        break;
+                    case "SiteListGamesRandom":
                         varynApp.gameListGamesResponse(enginesisResponse.results.result, "PlayPageGamesArea", 9, false);
-                    }
-                    break;
-                default:
-                    break;
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+                errorMessage = results.status.message + ": " + results.status.extended_info;
+                // display the errors
+                console.log("Error " + errorMessage + " from Enginesis service call " + enginesisResponse.fn);
             }
         }
     }
@@ -207,9 +201,10 @@ var varynPlayPage = function (varynApp, siteConfiguration) {
 
             gtag('game', 'request', gameId);
             // document.domain = serverHostDomain;
+            var enginesisSession = varynApp.getEnginesisSession();
             enginesisSession.siteListGamesRandom(24, enginesisCallBack);
             enginesisSession.developerGet(pageViewParameters.developerId, enginesisCallBack);
-            setGameContainer(pageViewParameters);
+            setGameContainer(pageViewParameters, enginesisSession);
             if (enginesisSession.isTouchDevice()) {
                 window.addEventListener('orientationchange', resetGameFrameSize, false);
             }
