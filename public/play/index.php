@@ -41,6 +41,7 @@ if ($gameInfo != null) {
     $gameLink = '//www.varyn.com/play.php?gameid=' . $gameId;
     $pageOGLink = '//www.varyn.com/play/' . $gameId;
     $pageDescription = $gameInfo->short_desc;
+    $pageKeywords = $gameInfo->search_terms;
     $gameContainerHTML = setGameContainer($gameInfo, $enginesis->getServiceRoot(), $siteId, $gameId);
 } else {
     // TODO: It may be better to go to /games/ with a search string ?q=$gameId but with an error message "Game not found"
@@ -70,12 +71,12 @@ function setGameContainer ($gameInfo, $enginesisServer, $siteId, $gameId) {
         } else {
             $gameLink = $enginesisServer . 'games/play.php?site_id=' . $siteId . '&game_id=' . $gameId;
         }
-        $gameContainerHTML .= '<iframe id="gameContainer-iframe" src="' . $gameLink . '" allowfullscreen scrolling="' . $allowScroll . '" width="' . $width . '" height="' . $height . '" border="0"></iframe>';
+        // $gameContainerHTML .= '<iframe id="gameContainer-iframe" src="' . $gameLink . '" allowfullscreen scrolling="' . $allowScroll . '" width="' . $width . '" height="' . $height . '" border="0"></iframe>';
+        $gameContainerHTML .= '<iframe id="gameContainer-iframe" src="' . $gameLink . '" allowfullscreen scrolling="' . $allowScroll . '"></iframe>';
     }
     return $gameContainerHTML;
 }
 
-// TODO: Setup Facebook app and add     <meta property="fb:app_id" content="###" />
 $pageTitle = $title . ' on Varyn.com';
 include_once(VIEWS_ROOT . 'header.php');
 ?>
