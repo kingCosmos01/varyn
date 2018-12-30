@@ -28,7 +28,7 @@
     "use strict";
 
     var enginesis = {
-        VERSION: "2.4.59",
+        VERSION: "2.4.60",
         debugging: true,
         disabled: false, // use this flag to turn off communicating with the server
         isOnline: true,  // flag to determine if we are currently able to reach Enginesis servers
@@ -1865,11 +1865,17 @@
             userId: enginesis.loggedInUserInfo.userId,
             userName: enginesis.loggedInUserInfo.userName,
             fullName: enginesis.loggedInUserInfo.fullName,
+            rank: enginesis.loggedInUserInfo.rank,
+            experiencePoints: enginesis.loggedInUserInfo.experiencePoints,
+            loginDate: enginesis.loggedInUserInfo.loginDate,
+            email: enginesis.loggedInUserInfo.email,
+            location: enginesis.loggedInUserInfo.location,
+            country: enginesis.loggedInUserInfo.country,
             siteUserId: enginesis.loggedInUserInfo.siteUserId,
             networkId: enginesis.networkId,
             accessLevel: enginesis.loggedInUserInfo.accessLevel,
             gender: enginesis.loggedInUserInfo.gender,
-            DOB: enginesis.loggedInUserInfo.dateOfBirth,
+            dateOfBirth: enginesis.loggedInUserInfo.dateOfBirth,
             accessToken: enginesis.authToken,
             tokenExpiration: enginesis.tokenExpirationDate
         };
@@ -1978,7 +1984,7 @@
     /**
      * Each site registers a set of resources apps may need to do certain things that are site-specific.
      * These host name are also configured to the current stage and protocol. This set of URLs/resources
-     * is configured on teh server for each site and the server should be queried the first time to get
+     * is configured on the server for each site and the server should be queried the first time to get
      * them. They rarely change so caching should be fine. This function returns 
      * an object populated with the following urls:
      *  .root = the root of the website
@@ -1992,19 +1998,44 @@
      * @returns {object} object holding the set of server URLs.
      */
     enginesis.getSiteSpecificUrls = function() {
-        // TODO: fix this to get the correct host for the site-id
-        // var urlBase = getProtocol() + enginesis.serverHost;
-        var urlBase = getProtocol() + "varyn" + enginesis.serverStage + ".com";
-        return {
-            root: urlBase + "/",
-            forgotPassword: urlBase + "/procs/forgotpass.php",
-            login: urlBase + "/profile/",
-            play: urlBase + "/play/",
-            privacy: urlBase + "/privacy/",
-            profile: urlBase + "/profile/",
-            register: urlBase + "/profile/?action=signup",
-            terms: urlBase + "/tos/"
-        };
+        var urlBase;
+        var siteResources = enginesis.siteResources;
+        //     serviceURL: null,
+        //     avatarImageURL: null,
+        //     enginesis.siteResources.profileURL = sessionInfo.profileUrl || "";
+        //     enginesis.siteResources.loginURL = sessionInfo.loginUrl || "";
+        //     enginesis.siteResources.registerURL = sessionInfo.registerUrl || "";
+        //     enginesis.siteResources.forgotPasswordURL = sessionInfo.forgotPasswordUrl || "";
+        //     enginesis.siteResources.playURL = sessionInfo.playUrl || "";
+        //     enginesis.siteResources.privacyURL = sessionInfo.privacyUrl || "";
+        //     enginesis.siteResources.termsURL = sessionInfo.termsUrl || "";
+
+        if (siteResources.profileURL != undefined && siteResources.profileURL.length > 0) {
+            urlBase = getProtocol() + enginesis.serverHost + "/";
+            return {
+                root: urlBase,
+                forgotPassword: siteResources.forgotPasswordURL,
+                login: siteResources.loginURL,
+                play: siteResources.playURL,
+                privacy: siteResources.privacyURL,
+                profile: siteResources.profileURL,
+                register: siteResources.registerURL,
+                terms: siteResources.termsURL
+            };    
+        } else {
+            // TODO: fix this to get the correct host for the site-id when siteResources is not available.
+            urlBase = getProtocol() + "varyn" + enginesis.serverStage + ".com";
+            return {
+                root: urlBase + "/",
+                forgotPassword: urlBase + "/procs/forgotpass.php",
+                login: urlBase + "/profile/",
+                play: urlBase + "/play/",
+                privacy: urlBase + "/privacy/",
+                profile: urlBase + "/profile/",
+                register: urlBase + "/profile/?action=signup",
+                terms: urlBase + "/tos/"
+            };
+        }
     };
 
     /**
@@ -2792,8 +2823,13 @@
         if (userId == 0) {
             userId = enginesis.loggedInUserInfo.userId;
         }
-        size = 0;
-        return siteResources.avatarImageURL + '?site_id=' + siteId + '&user_id=' + userId + '&size=' + size;
+        // TODO: Size is determined by site_data, sites could have different sizes
+        if (size < 0) {
+            size = 0;
+        } else if (size > 2) {
+            size = 2;
+        }
+        return enginesis.siteResources.avatarImageURL + '?site_id=' + enginesis.siteId + '&user_id=' + userId + '&size=' + size;
     };
 
     /**

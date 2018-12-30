@@ -52,7 +52,6 @@
     /**
      * Return the provided object as a string in key: value; format.
      *
-     * @method objectToString
      * @param {object} obj The object to convert to a string representation.
      * @return {string} string The object converted to a string representation.
      */
@@ -75,7 +74,6 @@
     /**
      * Return the provided array as a string in key: value; format.
      *
-     * @method arrayToString
      * @param {array} array The array to convert to a string representation.
      * @return {string} string The array converted to a string representation.
      */
@@ -107,7 +105,6 @@
      * Return the provided object as a string in key: value; format. This version handles
      * functions but is slower than objectToString.
      *
-     * @method objectStringify
      * @param {object} object The object to convert to a string representation.
      * @return {string} string The object converted to a string representation.
      */
@@ -149,7 +146,6 @@
      * Return the current document query string as an object with
      * key/value pairs converted to properties.
      *
-     * @method queryStringToObject
      * @param {string} urlParamterString An optional query string to parse as the query string. If not
      *   provided then use window.location.search.
      * @return {object} result The query string converted to an object of key/value pairs.
@@ -230,7 +226,6 @@
     /**
      * Given a path make sure it represents a full path with a leading and trailing /.
      *
-     * @method makeFullPath
      * @param {string} path URI path to check.
      * @return {string} path Full URI path.
      */
@@ -251,7 +246,6 @@
     /**
      * Append a folder or file name to the end of an existing path string.
      *
-     * @method
      * @param {string} path URI path to append to.
      * @param {string} file folder or file to append.
      * @return {string} path Full URI path.
@@ -274,7 +268,6 @@
     /**
      * Replace occurrences of {token} with matching keyed values from parameters array.
      *
-     * @method tokenReplace
      * @param {string} text text containing tokens to be replaced.
      * @param {Array} parameters array/object of key/value pairs to match keys as tokens in text and replace with value.
      * @return {string} text replaced string.
@@ -294,6 +287,7 @@
 
     /**
      * Translate single characters of an input string.
+     *
      * @param {String} string to translate. It is not mutated.
      * @param {Array} undesired characters to translate from in string.
      * @param {Array} desired characters to translate to in string.
@@ -357,9 +351,10 @@
     };
 
     /**
-     * Convert any string into a string that can be used as a DOM id. For example, the string
+     * Convert any string into a string that can be used as a DOM id (aka slug). For example, the string
      *    "This is   +a TEST" is changed to "this-is-a-test". Spaces and multiple spaces change
      *    to -, special chars are removed, and the string is all lowercase.
+     *
      * @param {string} label the string to consider.
      * @returns {string} the converted string.
      */
@@ -382,12 +377,11 @@
      * Determine if the current invokation environment is a mobile device.
      * TODO: Really would rather use modernizr.js as you really do not want isMobile(), you want isTouchDevice()
      *
-     * @method isMobile
      * @return {bool} true if we think this is a mobile device, false if we think otherwise.
      *
      */
     commonUtilities.isMobile = function () {
-        return (this.isMobileAndroid() || this.isMobileBlackberry() || this.isMobileIos() || this.isMobileWindows());
+        return (commonUtilities.isMobileAndroid() || commonUtilities.isMobileBlackberry() || commonUtilities.isMobileIos() || commonUtilities.isMobileWindows());
     };
 
     commonUtilities.isMobileAndroid = function () {
@@ -415,7 +409,6 @@
     /**
      * Encode a Unicode string in UTF-8 character encoding.
      *
-     * @method utf8Encode
      * @param {string} input string in Unicode to convert to UTF-8.
      * @return {string} result UTF-8 encoded input string.
      */
@@ -445,7 +438,6 @@
     /**
      * Decode a UTF-8 encoded string into a Unicode character coding format.
      *
-     * @method utf8Decode
      * @param {string} utfText string in UTF-8 to convert to Unicode.
      * @return {string} result Unicode representation of input string.
      */
@@ -481,7 +473,6 @@
      * Because the image is loaded asynchronously over the network a callback function
      * will be called once the image is loaded and encoded.
      *
-     * @method base64FromImageUrl
      * @param {string} url URL to an image.
      * @param {function} callback Called when image is loaded. This function takes one parameter,
      *         a string that represents the Base 64 encoded image.
@@ -506,7 +497,6 @@
     /**
      * Encode a string into its base 64 representation.
      *
-     * @method base64Encode
      * @param {string} input string to encode in base 64.
      * @return {string} output encoded string.
      */
@@ -540,7 +530,6 @@
     /**
      * Convert a base 64 encoded string to its UTF-8 character coding.
      *
-     * @method base64Decode
      * @param {string} input string in base 64 to convert to UTF-8.
      * @return {string} result UTF-8 string.
      */
@@ -588,7 +577,6 @@
     /**
      * Return the contents fo the cookie indexed by the specified key.
      *
-     * @method cookieGet
      * @param {string} key Indicate which cookie to get.
      * @return {string} value Contents of cookie stored with key.
      */
@@ -603,7 +591,6 @@
     /**
      * Set a cookie indexed by the specified key.
      *
-     * @method cookieSet
      * @param key {string} Indicate which cookie to set.
      * @param value {String|Object} Value to store under key.
      * @param expiration {Number|String|Date} When the cookie should expire.
@@ -648,7 +635,6 @@
     /**
      * Remove a cookie indexed by the specified key.
      *
-     * @method cookieRemove
      * @param key {string} Indicate which cookie to remove.
      * @param path {string} Cookie URL path.
      * @param domain {string} Cookie domain.
@@ -666,7 +652,6 @@
     /**
      * Determine if the cookie exists.
      *
-     * @method cookieExists
      * @param key {string} Key to test if exists.
      * @return {boolean} true if exists, false if doesn't exist.
      */
@@ -681,7 +666,6 @@
     /**
      * Return an array of all cookie keys.
      *
-     * @method cookieGetKeys
      * @return {Array} Array of all stored cookie keys.
      */
     commonUtilities.cookieGetKeys = function () {
@@ -879,7 +863,6 @@
      * A very basic function performance tester. Will track the time it takes to run the
      *        function for the specified number of iterations.
      *
-     * @method performanceTest
      * @param testFunction {function} a function to test. This function takes no parameters. If you
      *        require parameters then wrap into a function that takes no parameters.
      * @param testId {string} any id you want to assign to the test. Not used, but returned.
