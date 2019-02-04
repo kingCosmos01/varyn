@@ -162,7 +162,7 @@ function GoToProfilePage (withParameters)
     if (withParameters.length > 0) {
         queryString = '?' + withParameters;
     }
-    window.location = '/services/MyProfile.php' + queryString;
+    window.location = '/profile/' + queryString;
 }
 
 function setLoginCookie (userId, siteUserId, userName, sessionId, authtoken)

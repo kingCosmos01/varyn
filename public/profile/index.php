@@ -615,7 +615,7 @@ function createResendConfirmEmailLink($errorCode, $user_id, $user_name, $email, 
         appendParamIfNotEmpty($params, 'n', $user_name);
         appendParamIfNotEmpty($params, 'e', $email);
         appendParamIfNotEmpty($params, 't', $confirmation_token);
-        return '<a href=/profile.php?action=resendconfirm' . $params . '>Resend confirmation</a>';
+        return '<a href=/profile/?action=resendconfirm' . $params . '>Resend confirmation</a>';
     } else {
         return '';
     }
@@ -773,13 +773,13 @@ include_once(VIEWS_ROOT . 'header.php');
         <div class="row">
             <div class="col-md-6 profile-login">
                 <div id="errorContent" class="errorContent"><?php echo($errorMessage);?></div>
-                <form id="register_form" method="POST" action="profile.php" onsubmit="return <?php if ($isLoggedIn) { echo('profilePage.updateFormValidation()'); } else {echo('profilePage.registerFormValidation()');} ?>;">
+                <form id="register_form" method="POST" action="/profile/" onsubmit="return <?php if ($isLoggedIn) { echo('profilePage.updateFormValidation()'); } else {echo('profilePage.registerFormValidation()');} ?>;">
                     <div class="tab-content">
                         <div role="tabpanel" class="tab-pane fade in active" id="basicInfo">
 <?php
         if ( ! $isLoggedIn) {
 ?>
-                            <h3><span class="varyn-shield-icon"></span> Registration</h3><div class="register-login-option">Already a member? <a href="profile.php" title="Already a member? Log in with your account" alt="Already a member? Log in with your account.">Log in</a>.</div>
+                            <h3><span class="varyn-shield-icon"></span> Registration</h3><div class="register-login-option">Already a member? <a href="/profile/" title="Already a member? Log in with your account" alt="Already a member? Log in with your account.">Log in</a>.</div>
 <?php
         }
 ?>
@@ -849,7 +849,7 @@ include_once(VIEWS_ROOT . 'header.php');
         <p>You are not logged in. Login to see your profile, earn coins, appear on leader boards, and participate in our community.</p>
         <div class="row">
             <div class="panel col-md-6 profile-login">
-                <form id="login" method="POST" action="profile.php">
+                <form id="login" method="POST" action="/profile/">
                     <h4>Already a member? Log in:</h4>
                     <div id="errorContent" class="errorContent"><?php echo($errorMessage);?></div>
                     <div class="form-group">
@@ -868,7 +868,7 @@ include_once(VIEWS_ROOT . 'header.php');
                 <input type="button" class="btn btn-primary btn-varyn" id="profile_register_now" value="Sign up with Email" onclick="profilePage.showRegistrationPopup(true);" title="Sign up with your email address" /><br/>
                 <h4>Or</h4>
                 <input type="button" class="btn btn-primary btn-facebook" id="facebook-connect-button" value="Login with Facebook" title="Login with your Facebook account" />
-                <input type="button" class="btn btn-primary btn-gapi-signin" id="gapi-signin-button" value="Sign in with Google" title="Sign in with your Google+ account" />
+                <input type="button" class="btn btn-primary btn-gapi-signin" id="gapi-signin-button" value="Sign in with Google" title="Sign in with your Google account" />
                 <input type="button" class="btn btn-primary btn-twitter-signin" id="twitter-signin-button" value="Sign in with Twitter" title="Sign in with your Twitter account" />
             </div>
         </div>

@@ -13,7 +13,7 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
-
+node_modules/
 services/serverConfig.php
 public/blog/wp-content/uploads/
 

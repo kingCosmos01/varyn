@@ -3,7 +3,7 @@
  * Expects the commonUtilities module to load and operate as designed.
  * See Expect interface at https://facebook.github.io/jest/docs/en/expect.html
  */
-var commonUtilities = require("../lib/commonUtilities");
+var commonUtilities = require("../public/common/commonUtilities");
 
 
 test("Expect commonUtilities to exist and contain required functions", function() {

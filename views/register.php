@@ -44,7 +44,7 @@ require_once('../services/common.php');
         <p>Your Name: <input type="text" name="fullname" /></p>
         <p>Your Location: <input type="text" name="location" /></p>
         <p>Your tag line: <input type="text" name="tagline" /></p>
-        <a href="/services/MyProfile.php" data-role="button">Submit</a><a href="#" data-rel="back" data-role="button">Cancel</a>
+        <a href="/profile/" data-role="button">Submit</a><a href="#" data-rel="back" data-role="button">Cancel</a>
     </div>
 </div><!-- page_container -->
 </body>

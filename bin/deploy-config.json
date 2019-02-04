@@ -1,0 +1,14 @@
+{
+    "site": "varyn",
+    "targetstage": "-q",
+    "isDryRun": false,
+    "destinationHost": "",
+    "destinationUser": "",
+    "destinationPassword": "",
+    "destinationPath": "/var/www/vhosts/varyn-q",
+    "excludeFiles": "./bin/exclude-varyn-files.txt",
+    "sourcePath": "./",
+    "sshKeyFile": "",
+    "debug": true,
+    "logFile": "deploy.log"
+}

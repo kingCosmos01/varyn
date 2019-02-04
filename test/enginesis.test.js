@@ -3,7 +3,7 @@
  * Expects the UserData module to load and operate as designed.
  * See Expect interface at https://facebook.github.io/jest/docs/en/expect.html
  */
-var enginesis = require("../lib/enginesis");
+var enginesis = require("../public/common/enginesis");
 
 test('Expect enginesis to exist and contain required functions', function() {
     expect(enginesis).toBeDefined();

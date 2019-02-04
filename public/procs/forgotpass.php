@@ -49,7 +49,7 @@ include_once(VIEWS_ROOT . 'header.php');
                         <?php
                     } else {
                         ?>
-                        <form id="forgot-password-form" method="POST" action="../profile.php" onsubmit="return varynApp.formForgotPasswordClicked();">
+                        <form id="forgot-password-form" method="POST" action="/profile/" onsubmit="return varynApp.formForgotPasswordClicked();">
                             <div class="popupMessageArea">
                                 This is the response from the server
                             </div>

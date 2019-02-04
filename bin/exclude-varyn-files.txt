@@ -1,0 +1,12 @@
+.DS_Store
+Thumbs.db
+thumbs.db
+.git
+.idea
+.svn
+.gitignore
+*.zip
+*.log
+data/
+node_modules/
+public/blog/wp-content/uploads/
