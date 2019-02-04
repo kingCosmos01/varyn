@@ -1073,7 +1073,7 @@
                 siteId: enginesis.siteId,
                 userId: userInfoSaved.userId,
                 userName: userInfoSaved.userName,
-                siteUserId: userInfoSaved.siteUserId,
+                siteUserId: userInfoSaved.siteUserId || "",
                 accessLevel: userInfoSaved.accessLevel,
             });
             // TODO: verify hash to verify the payload was not tampered.
@@ -1083,7 +1083,7 @@
             }
             loggedInUserInfo.userId = userInfoSaved.userId;
             loggedInUserInfo.userName = userInfoSaved.userName;
-            loggedInUserInfo.siteUserId = userInfoSaved.siteUserId;
+            loggedInUserInfo.siteUserId = userInfoSaved.siteUserId || "";
             enginesis.networkId = userInfoSaved.networkId;
             enginesis.siteKey = userInfoSaved.siteKey;
             loggedInUserInfo.accessLevel = userInfoSaved.accessLevel;
