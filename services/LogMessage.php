@@ -195,37 +195,37 @@ class LogMessage
         } else {
             $this->_active = true;
         }
-        if (isset($loggingConfiguration['log_level'])) { //
+        if (isset($loggingConfiguration['log_level'])) {
             $this->_logLevel = $loggingConfiguration['log_level'];
         } else {
             $this->_logLevel = LogMessageLevel::All;
         }
-        if (isset($loggingConfiguration['log_to_output'])) { //
+        if (isset($loggingConfiguration['log_to_output'])) {
             $this->_logToOutput = $this->castToBoolean($loggingConfiguration['log_to_output']);
         } else {
             $this->_logToOutput = false;
         }
-        if (isset($loggingConfiguration['log_to_url'])) { //
+        if (isset($loggingConfiguration['log_to_url'])) {
             $this->_logToURL = $loggingConfiguration['log_to_url'];
         } else {
             $this->_logToURL = '';
         }
-        if (isset($loggingConfiguration['log_to_socket'])) { //
+        if (isset($loggingConfiguration['log_to_socket'])) {
             $this->_logToSocket = $loggingConfiguration['log_to_socket'];
         } else {
             $this->_logToSocket = 0;
         }
-        if (isset($loggingConfiguration['log_file_prefix'])) { //
+        if (isset($loggingConfiguration['log_file_prefix'])) {
             $this->_logFilePrefix = $loggingConfiguration['log_file_prefix'];
         } else {
             $this->_logFilePrefix = LogMessage::_defaultFilePrefix() . $stage . '_php_';
         }
-        if (isset($loggingConfiguration['log_file_path'])) { //
+        if (isset($loggingConfiguration['log_file_path'])) {
             $this->_logFilePath = $loggingConfiguration['log_file_path'];
         } else {
             $this->_logFilePath = LogMessage::_defaultFileWritablePath();
         }
-        if (isset($loggingConfiguration['log_to_file'])) { //
+        if (isset($loggingConfiguration['log_to_file'])) {
             $this->_logToFile = $this->castToBoolean($loggingConfiguration['log_to_file']);
         } else {
             $this->_logToFile = ! isEmpty($this->_logFilePath) || ! isEmpty($this->_logFilePrefix);
@@ -438,5 +438,5 @@ class LogMessage
         echo '<pre>';
         echo(var_export($variable, true));
         echo '</pre></div>';
-    }    
+    }
 }
