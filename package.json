@@ -1,6 +1,6 @@
 {
   "name": "varyn",
-  "version": "2.1.3",
+  "version": "2.1.4",
   "description": "Varyn gaming website",
   "main": "bin/build.js",
   "scripts": {
