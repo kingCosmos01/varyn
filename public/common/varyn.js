@@ -201,7 +201,8 @@ var varyn = function (parameters) {
          * @returns {boolean}
          */
         isValidEmail: function (email) {
-            return /\S+@\S+\.\S+/.test(email);
+            var isValid = /\S+@\S+\.\S+/.test(email);
+            return isValid;
         },
 
         /**
@@ -1204,6 +1205,29 @@ var varyn = function (parameters) {
         testUserNameIsUnique: function (id) {
             var isUnique = $('#' + id).hasClass('username-is-unique');
             return isUnique;
+        },
+
+        /**
+         * On change handler for the user email field on a registration form.
+         * Try to make sure the email is valid and reset any error conditions.
+         * @param {object} DOM element that is changing.
+         */
+        onChangeEmail: function (event) {
+            if (event && event.target) {
+                var element = event.target;
+                var isError = false;
+                if (event.type == "change") {
+                    if ( ! this.isValidEmail(element.value)) {
+                        this.showErrorMessage("Your email " + element.value + " looks bad. Can you try again?", element.id);
+                        isError = true;
+                    }
+                }
+                if ( ! isError) {
+                    element.classList.remove("popup-form-input-error");
+                    element.classList.add("popup-form-input");
+                    this.showErrorMessage("", null);
+                }
+            }
         },
 
         /**
