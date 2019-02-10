@@ -1,5 +1,5 @@
 /**
- * Functionality supporting the play.php page. This script is loaded with the page load then pageLoaded is called
+ * Functionality supporting the /play/index.php page. This script is loaded with the page load then pageLoaded is called
  * from varyn.initApp().
  *
  */
