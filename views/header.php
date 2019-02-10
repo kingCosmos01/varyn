@@ -204,7 +204,7 @@ if (empty($pageSocialImage2)) {
                         </div>
                         <div class="form-group">
                             <label for="register-username">User name:</label>
-                            <input type="text" name="register-username" class="popup-form-input required username" id="register-username" placeholder="A unique user name" data-target="popup_user_name_unique" autocorrect="off" autocomplete="name" required maxlength="50" tabindex="11"/><img id="popup_user_name_unique" class="username-is-not-unique" src="/images/red_x.png" width="32" height="32"/>
+                            <input type="text" name="register-username" class="popup-form-input required username" id="register-username" placeholder="A unique user name" data-target="popup_user_name_unique" autocorrect="off" autocomplete="name" required maxlength="50" tabindex="11"/><span id="popup_user_name_unique" class="username-is-not-unique"></span>
                         </div>
                         <div class="form-group">
                             <label for="register-password">Password:</label>

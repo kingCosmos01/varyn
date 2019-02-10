@@ -784,7 +784,7 @@ include_once(VIEWS_ROOT . 'header.php');
         }
 ?>
                             <div class="form-group"><label for="register_form_email">Email: <span class="required-field">*</span></label><input type="email" name="register_form_email" class="popup-form-input required email" id="register_form_email" placeholder="Your email address" autocomplete="email" autocorrect="off" autocapitalize="off" required maxlength="80" value="<?php echo($email);?>"/></div>
-                            <div class="form-group"><label for="register_form_username">User name: <span class="required-field">*</span></label><input type="text" name="register_form_username" class="popup-form-input required username" id="register_form_username" placeholder="A unique user name" autocomplete="username" autocorrect="off" required maxlength="50" value="<?php echo($userName);?>" data-target="register_user_name_unique"/><img id="register_user_name_unique" class="username-is-not-unique" src="/images/red_x.png" width="32" height="32"/></div>
+                            <div class="form-group"><label for="register_form_username">User name: <span class="required-field">*</span></label><input type="text" name="register_form_username" class="popup-form-input required username" id="register_form_username" placeholder="A unique user name" autocomplete="username" autocorrect="off" required maxlength="50" value="<?php echo($userName);?>" data-target="register_user_name_unique"/><span id="register_user_name_unique" class="username-is-not-unique"></span></div>
 <?php
         if ( ! $isLoggedIn) {
 ?>

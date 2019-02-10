@@ -803,37 +803,45 @@ footer {
 }
 
 .username-is-unique {
-    content: url(/images/green_tick.png);
+    background: url(/images/green_tick.png) no-repeat;
+    background-size: contain;
     width: 32px;
     height: 32px;
     display: none;
     line-height: 48px;
+    margin: -12px 0;
 }
 
 .username-is-not-unique {
-    content: url(/images/red_x.png);
+    background: url(/images/red_x.png) no-repeat;
+    background-size: contain;
     width: 32px;
     height: 32px;
     display: none;
     line-height: 48px;
+    margin: -12px 0;
 }
 
 .password-match {
-    content: url(/images/green_tick.png);
+    background: url(/images/green_tick.png) no-repeat;
+    background-size: contain;
     width: 32px;
     height: 32px;
     display: none;
     float: right;
     line-height: 48px;
+    margin: -12px 0;
 }
 
 .password-no-match {
-    content: url(/images/red_x.png);
+    background: url(/images/red_x.png) no-repeat;
+    background-size: contain;
     width: 32px;
     height: 32px;
     display: none;
     float: right;
     line-height: 48px;
+    margin: -12px 0;
 }
 
 #profile_forgot_password {
@@ -1156,7 +1164,7 @@ blockquote {
 }
 
 .register-agreement-slider {
-    height: 48px;
+    height: 52px;
 }
 
 .slider-label {
@@ -1169,7 +1177,7 @@ input[type=range].validation-slider {
     display: inline-block;
     -webkit-appearance: none;
     width: 50%;
-    margin: 7.3px 0;
+    margin: 8px 0;
     background-color: rgba(0, 0, 0, 0);
 }
 input[type=range].validation-slider:focus {
@@ -1194,7 +1202,7 @@ input[type=range].validation-slider::-moz-range-track {
     border: 0.2px solid #a0a0a0;
 }
 input[type=range].validation-slider::-ms-track {
-    width: 50%;
+    width: 100%;
     height: 12px;
     cursor: pointer;
     background: transparent;
@@ -1226,21 +1234,20 @@ input[type=range].validation-slider::-ms-thumb {
     border: 1.8px solid #a0a0a0;
     height: 26px;
     width: 26px;
-    border-radius: 15px;
+    border-radius: 14px;
     background: #5cb85c;
     cursor: pointer;
-    height: 11.4px;
 }
 input[type=range].validation-slider::-ms-fill-lower {
     background: rgba(42, 100, 149, 0.78);
     border: 0.2px solid #a0a0a0;
-    border-radius: 14.2px;
+    border-radius: 15px;
     box-shadow: 1px 1px 1px #000000, 0 0 1px #0d0d0d;
 }
 input[type=range].validation-slider::-ms-fill-upper {
     background: rgba(48, 113, 169, 0.78);
     border: 0.2px solid #a0a0a0;
-    border-radius: 14.2px;
+    border-radius: 15px;
     box-shadow: 1px 1px 1px #000000, 0 0 1px #0d0d0d;
 }
 input[type=range].validation-slider:focus::-webkit-slider-runnable-track {

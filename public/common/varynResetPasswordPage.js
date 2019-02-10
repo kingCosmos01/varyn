@@ -63,16 +63,20 @@ var varynResetPasswordPage = function (varynApp, siteConfiguration) {
         passwordChangeHandler: function () {
             var newPassword = document.getElementById('newPassword').value,
                 isValid,
-                id = 'password-match',
-                button = 'reset-password-button';
+                passwordElement = document.getElementById('password-match'),
+                buttonElement = document.getElementById('reset-password-button');
 
             isValid = enginesisSession.isValidPassword(newPassword);
             if (isValid) {
-                $('#' + id).removeClass('password-no-match').addClass('password-match').css('display', 'inline-block');
-                $('#' + button).removeClass('disabled');
+                passwordElement.classList.remove('password-no-match');
+                passwordElement.classList.add('password-match');
+                passwordElement.style.display = "inline-block";
+                buttonElement.classList.remove('disabled');
             } else {
-                $('#' + id).removeClass('password-match').addClass('password-no-match').css('display', 'inline-block');
-                $('#' + button).addClass('disabled');
+                passwordElement.classList.remove('password-match');
+                passwordElement.classList.add('password-no-match');
+                passwordElement.style.display = "inline-block";
+                buttonElement.classList.add('disabled');
             }
         }
     }

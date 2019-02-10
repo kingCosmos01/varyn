@@ -1174,15 +1174,22 @@ var varyn = function (parameters) {
         /**
          * When we dynamically query the server to determine if the user name is a unique selection
          * use this function to indicate uniqueness result on the form.
-         * @param (id} which DOM id we wish to manipulate.
-         * @param {bool} true if the name is unique, false if it is taken.
+         * @param {string} id for which DOM element we wish to manipulate.
+         * @param {boolean} isUnique true if the name is unique, false if it is taken by someone else.
          */
         setUserNameIsUnique: function (id, isUnique) {
             if (id) {
-                if (isUnique) {
-                    $('#' + id).removeClass('username-is-not-unique').addClass('username-is-unique').css('display', 'inline-block');
-                } else {
-                    $('#' + id).removeClass('username-is-unique').addClass('username-is-not-unique').css('display', 'inline-block');
+                var element = document.getElementById(id);
+                if (element != null) {
+                    if (isUnique) {
+                        element.classList.remove('username-is-not-unique');
+                        element.classList.add('username-is-unique');
+                        element.style.display = "inline-block";
+                    } else {
+                        element.classList.remove('username-is-unique');
+                        element.classList.add('username-is-not-unique');
+                        element.style.display = "inline-block";
+                    }
                 }
             }
         },
