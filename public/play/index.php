@@ -38,7 +38,7 @@ if ($gameInfo != null) {
     $pageSocialImage2 = '//enginesis.varyn.com/games/' . $gameName . '/images/586x308.png';
     $pageFavIcon = '//enginesis.varyn.com/games/' . $gameName . '/images/50x50.png';
     $pageIcon = '//enginesis.varyn.com/games/' . $gameName . '/images/50x50.png';
-    $gameLink = '//www.varyn.com/play.php?gameid=' . $gameId;
+    $gameLink = '//www.varyn.com/play/?gameid=' . $gameId;
     $pageOGLink = '//www.varyn.com/play/' . $gameId;
     $pageDescription = $gameInfo->short_desc;
     $pageKeywords = $gameInfo->search_terms;
