@@ -1,5 +1,5 @@
 <?php
-$pagesDoNotHaveRegistrationForms = array('resetpass', 'forgotpass', 'requestConfirm');
+$pagesDoNotHaveRegistrationForms = ['resetpass', 'forgotpass', 'requestConfirm'];
 if ( ! isset($isLoggedIn)) {
     $isLoggedIn = false;
 }
@@ -212,8 +212,8 @@ if (empty($pageSocialImage2)) {
                         </div>
                         <div class="form-group">
                             <div class="validation-slider-area">
-                                <label for="register-agreement">I agree to the <a href="/tos/" target="_popup">Terms of Use</a></label><br/>
-                                <span><small>No</small>&nbsp;&nbsp;<input type="range" name="register-agreement" class="validation-slider" id="register-agreement" placeholder="Slide this all the way left to agree" tabindex="13" min="0" max="2" />&nbsp;&nbsp;<small>Yes</small></span>
+                                <label for="register-agreement">I agree to the <a href="/tos/" target="_popup">Terms of Use</a></label>
+                                <div class="register-agreement-slider"><small class="slider-label">No</small><input type="range" name="register-agreement" class="validation-slider" id="register-agreement" placeholder="Slide this all the way left to agree" tabindex="13" min="0" max="2" /><small class="slider-label">Yes</small></div>
                             </div>
                         </div>
                         <div class="form-group">
