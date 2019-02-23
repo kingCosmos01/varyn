@@ -7,6 +7,9 @@ thumbs.db
 .gitignore
 *.zip
 *.log
+package.json
+package-lock.json
+README.md
 bin/
 data/
 node_modules/
