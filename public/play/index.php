@@ -38,8 +38,8 @@ if ($gameInfo != null) {
     $pageSocialImage2 = '//enginesis.varyn.com/games/' . $gameName . '/images/586x308.png';
     $pageFavIcon = '//enginesis.varyn.com/games/' . $gameName . '/images/50x50.png';
     $pageIcon = '//enginesis.varyn.com/games/' . $gameName . '/images/50x50.png';
-    $gameLink = '//www.varyn.com/play/?gameid=' . $gameId;
-    $pageOGLink = '//www.varyn.com/play/' . $gameId;
+    $gameLink = '//www.varyn.com/game/' . $gameName;
+    $pageOGLink = '//www.varyn.com/game/' . $gameName;
     $pageDescription = $gameInfo->short_desc;
     $pageKeywords = $gameInfo->search_terms;
     $gameContainerHTML = setGameContainer($gameInfo, $enginesis->getServiceRoot(), $siteId, $gameId);

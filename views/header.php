@@ -50,6 +50,7 @@ if (empty($pageSocialImage2)) {
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="description" content="<?php echo($pageDescription);?>">
     <meta name="keywords" content="<?php echo($pageKeywords);?>">
+    <meta name="url" content="<?php echo($pageOGLink);?>">
     <meta name="author" content="Varyn">
     <meta name="google-signin-client_id" content="<?php echo($socialServiceKeys[7]['app_id']);?>">
     <link rel="manifest" href="/manifest.json">
@@ -74,7 +75,7 @@ if (empty($pageSocialImage2)) {
     <meta property="fb:app_id" content="<?php echo($socialServiceKeys[2]['app_id']);?>" />
     <meta property="fb:admins" content="<?php echo($socialServiceKeys[2]['admins']);?>" />
     <meta property="og:title" content="<?php echo($pageTitle);?>">
-    <meta property="og:url" content="//www.varyn.com">
+    <meta property="og:url" content="<?php echo($pageOGLink);?>">
     <meta property="og:site_name" content="Varyn">
     <meta property="og:description" content="<?php echo($pageDescription);?>">
     <meta property="og:image" content="<?php echo($pageSocialImage1);?>"/>
@@ -86,7 +87,7 @@ if (empty($pageSocialImage2)) {
     <meta name="twitter:card" content="summary_large_image"/>
     <meta name="twitter:domain" content="varyn.com"/>
     <meta name="twitter:site" content="@varyndev"/>
-    <meta name="twitter:url" content="//www.varyn.com">
+    <meta name="twitter:url" content="<?php echo($pageOGLink);?>">
     <meta name="twitter:creator" content="@varyndev"/>
     <meta name="twitter:title" content="<?php echo($pageTitle);?>"/>
     <meta name="twitter:image" content="<?php echo($pageSocialImage1);?>"/>
