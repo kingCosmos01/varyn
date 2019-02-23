@@ -44,7 +44,7 @@ include_once(VIEWS_ROOT . 'header.php');
         <p class="indent-2">By using this site and its services you agree to allow Varyn to record and manage data on your behalf. Varyn will use this data as required to perform its services and as it sees fit to offer, perform, produce, manage, and maintain the services available on this website. You agree to allow Varyn to use your data in anyway it sees fit in the operation of these services. The data is yours and you can copy and use your own personal data freely as you wish within the terms of this agreement and the <a href="/privacy/">privacy policy</a>. At any time if you disagree with these terms you may delete your account and all of your personal data will be removed from the site.</p>
         <p class="indent-2">Varyn will not sell, trade, or offer any personally identifiable or private data to any third party at any time.</p>
         <h4>Copyright and Trademark Information</h4>
-        <p class="indent-2">COPYRIGHT NOTICE: Copyright &copy; 2018 Varyn, Inc., All Rights Reserved.</p>
+        <p class="indent-2">COPYRIGHT NOTICE: Copyright &copy; 2019 Varyn, Inc., All Rights Reserved.</p>
         <p class="indent-2">Third-party trademarks are used solely for distributing the games herein and no license or affiliation is implied. All copyrights are held by the respective owners.</p>
     </div>
 </div>

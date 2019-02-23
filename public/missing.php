@@ -96,7 +96,9 @@ include_once(VIEWS_ROOT . 'footer.php');
     head.ready(function() {
         var siteConfiguration = {
                 siteId: <?php echo($siteId);?>,
+                developerKey: "<?php echo($developerKey);?>",
                 serverStage: "<?php echo($serverStage);?>",
+                authToken: "<?php echo($authToken);?>",
                 languageCode: navigator.language || navigator.userLanguage
             },
             pageParameters = {
