@@ -1,0 +1,58 @@
+{
+    "sitemap": {
+        "Varyn": {
+            "About": {
+                "title": "About",
+                "url": "/about/"
+            },
+            "Contact": {
+                "title": "Contact",
+                "url": "/contact/"
+            },
+            "Press": {
+                "title": "Press",
+                "url": "/press/"
+            },
+            "Privacy": {
+                "title": "Privacy",
+                "url": "/privacy/"
+            },
+            "Terms of service": {
+                "title": "Terms of service",
+                "url": "/tos/"
+            }
+        },
+        "Games": {
+            "All games": {
+                "title": "All games",
+                "url": "/allgames/"
+            },
+            "FAQ": {
+                "title": "FAQ",
+                "url": "/faq/"
+            },
+            "Featured content": {
+                "title": "featured",
+                "url": "/featured/"
+            },
+            "Experimental games": {
+                "title": "Experimental games",
+                "url": "/games/"
+            },
+            "Play games": {
+                "title": "Play games",
+                "url": "/play/"
+            },
+            "Your profile": {
+                "title": "Your profile",
+                "url": "/profile/"
+            }
+        },
+        "Blog": {
+            "Varyn blog": {
+                "title": "Blog",
+                "url": "/blog/"
+            }
+        }
+    }
+}
