@@ -7,6 +7,7 @@ if ($search != null) {
 }
 $page = 'home';
 $pageTitle = 'About Varyn';
+$pageDescription = 'Learn more about who is Varyn, our mission, and what we stand for.';
 $showSubscribe = getPostOrRequestVar('s', '0');
 include_once(VIEWS_ROOT . 'header.php');
 ?>
@@ -15,7 +16,7 @@ include_once(VIEWS_ROOT . 'header.php');
             <div id="about-varyn" class="col-sm-8">
                 <img src="/images/VarynCardLogo_md.png" width="200" height="200" border="0" align="left" style="margin-right: 20px;"/>
                 <h1>About Varyn</h1><br />
-                <p>Varyn is all about the fun! We want to bring you the best games we can make and the best games we can find, and we want you to be able to play these games with very little getting in your way.
+                <p>Varyn is all about fun! We want to bring you the best games we can make and the best games we can find, and we want you to be able to play these games with very little getting in your way.
                 We are dedicated to bringing you fine games of any type or style as long as it is a good game that is fun to play.</p>
                 <p>Varyn is a company of experienced game industry professionals who have been doing this for a long time. We love games: we love making them, we love playing them, we love talking about them!</p>
                 <p>So join us on our quest, play some games, and while you are at it tell us what you like or do not like so we can help make this even better for you.</p>

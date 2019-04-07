@@ -1,8 +1,8 @@
 <?php
 require_once('../../services/common.php');
 $page = 'offers';
-$pageTitle = 'Varyn | Coupons and Offers';
-$pageDescription = 'Get Coupons and Offers at Varyn! Varyn makes games using technology that performs on the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between desktop, tablet, and smart-phone.';
+$pageTitle = 'Coupons and Offers';
+$pageDescription = 'Get Coupons and Offers at Varyn! We partner with some great companies and retailers to offer you discounts on the products you want.';
 $search = getPostOrRequestVar('q', '');
 include_once(VIEWS_ROOT . 'header.php');
 ?>

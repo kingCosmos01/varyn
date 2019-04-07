@@ -7,6 +7,8 @@ if ($search != null) {
 }
 $showSubscribe = getPostOrRequestVar('s', '0');
 $page = 'home';
+$pageTitle = 'Varyn Press Kit';
+$pageDescription = 'Find assets and collatoral here. If you are interested in working with Varyn or writing about what we do you will find what you need in this section of the website.';
 include_once(VIEWS_ROOT . 'header.php');
 ?>
 <div class="container marketing">

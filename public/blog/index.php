@@ -8,9 +8,6 @@ if ($search != null) {
 require_once('../../services/blog.php');
 $showSubscribe = getPostOrRequestVar('s', '0');
 $page = 'blog';
-$pageTitle = $blog->getTopicTitle($topicId);
-$pageDescription = $blog->getTopicAbstract($topicId);
-include_once(VIEWS_ROOT . 'header.php');
 
 $topicId = getPostOrRequestVar('tid', 0);
 // Get 3 most recent topics
@@ -22,6 +19,15 @@ if (empty($topicList)) {
     $topicId = $topicList[0]->topic_id;
 }
 $blog->setConferenceTopic($topicId);
+$pageTitle = $blog->getTopicTitle($topicId);
+if (empty($pageTitle)) {
+    $pageTitle = 'Varyn Blog';
+}
+$pageDescription = $blog->getTopicAbstract($topicId);
+if (empty($pageDescription)) {
+    $pageDescription = 'Read the latest news and hot game topics here at Varyn.com. We offer great insights to help you get the most out of your online games and entertainment experience.';
+}
+include_once(VIEWS_ROOT . 'header.php');
 ?>
 <div class="container">
     <div class="row conf-topic-container">

@@ -6,6 +6,8 @@ if ($search != null) {
     exit;
 }
 $page = 'home';
+$pageTitle = 'Contact Varyn';
+$pageDescription = 'Contact us if you have something to say, you need help, or if you are interested in more information about what we do.';
 $showSubscribe = getPostOrRequestVar('s', '0');
 
 // These variables should only be accepted via POST:

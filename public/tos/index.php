@@ -6,8 +6,8 @@ if ($search != null) {
     exit;
 }
 $page = 'home';
-$pageTitle = 'Varyn | Terms of Use';
-$pageDescription = 'Varyn Terms of Service. Please review our terms of use before using our website.';
+$pageTitle = 'Terms of Use';
+$pageDescription = 'Varyn terms of service regarding the use of this website. Please review these terms of use before using this website.';
 $showSubscribe = getPostOrRequestVar('s', '0');
 include_once(VIEWS_ROOT . 'header.php');
 ?>

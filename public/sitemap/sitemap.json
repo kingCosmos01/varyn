@@ -2,56 +2,63 @@
     "sitemap": {
         "Varyn": {
             "About": {
-                "title": "About",
-                "url": "/about/"
+                "loc": "/about/",
+                "changefreq": "monthly",
+                "priority": 0.8
             },
             "Contact": {
-                "title": "Contact",
-                "url": "/contact/"
+                "loc": "/contact/",
+                "changefreq": "monthly",
+                "priority": 0.8
             },
             "Press": {
-                "title": "Press",
-                "url": "/press/"
+                "loc": "/press/",
+                "changefreq": "monthly",
+                "priority": 0.8
             },
             "Privacy": {
-                "title": "Privacy",
-                "url": "/privacy/"
+                "loc": "/privacy/",
+                "changefreq": "monthly",
+                "priority": 0.8
             },
             "Terms of service": {
-                "title": "Terms of service",
-                "url": "/tos/"
+                "loc": "/tos/",
+                "changefreq": "monthly",
+                "priority": 0.8
             }
         },
         "Games": {
             "All games": {
-                "title": "All games",
-                "url": "/allgames/"
+                "loc": "/allgames/",
+                "changefreq": "monthly",
+                "priority": 0.8
             },
             "FAQ": {
-                "title": "FAQ",
-                "url": "/faq/"
+                "loc": "/faq/",
+                "changefreq": "monthly",
+                "priority": 0.8
             },
             "Featured content": {
-                "title": "featured",
-                "url": "/featured/"
+                "loc": "/featured/",
+                "changefreq": "monthly",
+                "priority": 0.8
             },
             "Experimental games": {
-                "title": "Experimental games",
-                "url": "/games/"
-            },
-            "Play games": {
-                "title": "Play games",
-                "url": "/play/"
+                "loc": "/games/",
+                "changefreq": "monthly",
+                "priority": 0.8
             },
             "Your profile": {
-                "title": "Your profile",
-                "url": "/profile/"
+                "loc": "/profile/",
+                "changefreq": "weekly",
+                "priority": 0.8
             }
         },
         "Blog": {
             "Varyn blog": {
-                "title": "Blog",
-                "url": "/blog/"
+                "loc": "/blog/",
+                "changefreq": "weekly",
+                "priority": 0.8
             }
         }
     }

@@ -1,59 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
-        xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
-  <url>
-    <loc>https://varyn.com/</loc>
-	<lastmod>2018-03-10</lastmod>
-	<changefreq>weekly</changefreq>
-	<priority>1.0</priority>
-    <image:image>
-       <image:loc>https://varyn.com/images/VarynCardLogo_md.png</image:loc>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://varyn.com/game/1083</loc>
-	<lastmod>2018-03-10</lastmod>
-	<changefreq>weekly</changefreq>
-	<priority>1.0</priority>
-    <image:image>
-       <image:loc>https://varyn.com/images/VarynCardLogo_md.png</image:loc>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://varyn.com/about/</loc>
-	<lastmod>2018-01-13</lastmod>
-	<changefreq>weekly</changefreq>
-	<priority>1.0</priority>
-    <image:image>
-       <image:loc>https://varyn.com/images/VarynCardLogo_md.png</image:loc>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://varyn.com/allgames/</loc>
-	<lastmod>2018-01-13</lastmod>
-	<changefreq>weekly</changefreq>
-	<priority>0.8</priority>
-    <image:image>
-       <image:loc>https://varyn.com/images/VarynCardLogo_md.png</image:loc>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://varyn.com/profile/</loc>
-	<lastmod>2018-01-13</lastmod>
-	<changefreq>weekly</changefreq>
-	<priority>0.8</priority>
-    <image:image>
-       <image:loc>https://varyn.com/images/VarynCardLogo_md.png</image:loc>
-    </image:image>
-  </url>
-  <url>
-    <loc>https://varyn.com/blog/</loc>
-	<lastmod>2018-01-13</lastmod>
-	<changefreq>weekly</changefreq>
-	<priority>0.8</priority>
-    <image:image>
-       <image:loc>https://varyn.com/images/VarynCardLogo_md.png</image:loc>
-    </image:image>
-  </url>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<url>
+  <loc>https://varyn.com/about/</loc>
+  <lastmod>2019-04-06T23:49:20.641Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.8</priority>
+</url>
+<url>
+  <loc>https://varyn.com/contact/</loc>
+  <lastmod>2019-04-07T00:17:58.752Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.8</priority>
+</url>
+<url>
+  <loc>https://varyn.com/press/</loc>
+  <lastmod>2019-04-07T00:22:57.123Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.8</priority>
+</url>
+<url>
+  <loc>https://varyn.com/privacy/</loc>
+  <lastmod>2019-04-06T23:45:44.229Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.8</priority>
+</url>
+<url>
+  <loc>https://varyn.com/tos/</loc>
+  <lastmod>2019-04-06T23:46:47.186Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.8</priority>
+</url>
+<url>
+  <loc>https://varyn.com/allgames/</loc>
+  <lastmod>2019-04-07T00:26:04.043Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.8</priority>
+</url>
+<url>
+  <loc>https://varyn.com/faq/</loc>
+  <lastmod>2019-04-07T00:19:26.589Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.8</priority>
+</url>
+<url>
+  <loc>https://varyn.com/featured/</loc>
+  <lastmod>2019-04-07T00:20:59.041Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.8</priority>
+</url>
+<url>
+  <loc>https://varyn.com/games/</loc>
+  <lastmod>2019-04-07T00:33:52.969Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.8</priority>
+</url>
+<url>
+  <loc>https://varyn.com/profile/</loc>
+  <lastmod>2019-04-07T00:24:09.165Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.8</priority>
+</url>
+<url>
+  <loc>https://varyn.com/blog/</loc>
+  <lastmod>2019-04-07T00:38:53.785Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.8</priority>
+</url>
 </urlset>

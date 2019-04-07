@@ -30,8 +30,8 @@ if ($search != null) {
 $stringTable = new EnginesisStringTable($siteId, $languageCode);
 $debug = (int) strtolower(getPostOrRequestVar('debug', 0));
 $page = 'profile';
-$pageTitle = 'Varyn: Great games you can play anytime, anywhere';
-$pageDescription = 'Varyn makes games using technology that performs on the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between desktop, tablet, and smart-phone.';
+$pageTitle = 'Profile';
+$pageDescription = 'View your player profile or review other followers and players at Varyn.com.';
 processTrackBack();
 $showSubscribe = getPostOrRequestVar('s', '0');
 

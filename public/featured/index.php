@@ -6,7 +6,8 @@ if ($search != null) {
     exit;
 }
 $page = 'featured';
-$pageTitle = 'What are the hot games at Varyn.com';
+$pageTitle = 'Hot games, contests, and tournaments';
+$pageDescription = 'Discover the most recent content added to the site. We offer games, contests for prizes, and tournaments.';
 $webserver = '';
 $server = 'https://www.enginesis.com';
 include_once(VIEWS_ROOT . 'header.php');

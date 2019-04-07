@@ -6,8 +6,8 @@ if ($search != null) {
     exit;
 }
 $page = 'home';
-$pageTitle = 'Varyn | Privacy Policy';
-$pageDescription = 'Varyn privacy policy. Varyn makes games using technology that performs on the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between desktop, tablet, and smart-phone.';
+$pageTitle = 'Privacy Policy';
+$pageDescription = 'Varyn privacy policy. Varyn is concerned for your privacy and protecting your data. We put forward this policy on data privacy to help you understand what we do and what control you have.';
 $showSubscribe = getPostOrRequestVar('s', '0');
 include_once(VIEWS_ROOT . 'header.php');
 ?>
@@ -16,7 +16,7 @@ include_once(VIEWS_ROOT . 'header.php');
         <h1>Privacy Policy</h1>
         <p class="copyright">Updated on 20-May-2018.</p>
         <p>This document sets forth the Varyn Online Privacy Policy (the Privacy Policy) for this web site, www.varyn.com (the Site).
-            Varyn is concerned for your privacy and protecting your data and we put forward this policy on data privacy to help you understand what we do and what control you have.
+            Varyn is concerned for your privacy and protecting your data. We put forward this policy on data privacy to help you understand what we do and what control you have.
             If you have objections to the Privacy Policy, you should not access or use this Site.
             The Privacy Policy is subject to change.</p>
         <h3>Collection of Personal Information</h3>

@@ -6,7 +6,7 @@ if ($search != null) {
     exit;
 }
 $page = 'home';
-$pageTitle = 'Frequently asked questions at Varyn.com';
+$pageTitle = 'Frequently asked questions';
 $pageDescription = 'Here are the questions asked most by our users at Varyn.com.';
 $showSubscribe = getPostOrRequestVar('s', '0');
 include_once(VIEWS_ROOT . 'header.php');
