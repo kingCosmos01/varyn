@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
+  <loc>https://varyn.com/</loc>
+  <lastmod>2017-12-26T23:18:43.169Z</lastmod>
+  <changefreq>weekly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
   <loc>https://varyn.com/about/</loc>
   <lastmod>2019-04-06T23:49:20.641Z</lastmod>
   <changefreq>monthly</changefreq>
@@ -59,6 +65,402 @@
   <lastmod>2019-04-07T00:24:09.165Z</lastmod>
   <changefreq>weekly</changefreq>
   <priority>0.8</priority>
+</url>
+<url>
+  <loc>/play/?id=1000</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1001</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1002</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1003</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1004</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1005</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1006</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1008</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1009</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1010</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1011</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1012</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1013</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1014</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1016</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1017</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1018</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1021</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1023</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1042</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1043</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1044</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1046</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1047</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1049</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1050</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1053</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1055</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1063</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1064</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1065</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1066</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1067</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1069</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1070</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1071</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1072</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1073</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1074</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1075</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1076</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1077</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1078</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1079</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1081</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1082</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1083</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1084</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1085</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1086</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1087</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1088</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1089</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1090</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1091</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1092</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1093</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1094</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1095</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1096</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1097</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1098</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1099</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1100</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1101</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
+</url>
+<url>
+  <loc>/play/?id=1105</loc>
+  <lastmod>2019-04-07T20:14:09.600Z</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.9</priority>
 </url>
 <url>
   <loc>https://varyn.com/blog/</loc>

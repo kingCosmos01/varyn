@@ -1,6 +1,11 @@
 {
     "sitemap": {
         "Varyn": {
+            "Home": {
+                "loc": "/",
+                "changefreq": "weekly",
+                "priority": 0.9
+            },
             "About": {
                 "loc": "/about/",
                 "changefreq": "monthly",
@@ -52,6 +57,9 @@
                 "loc": "/profile/",
                 "changefreq": "weekly",
                 "priority": 0.8
+            },
+            "Games": {
+                "plugin": "enginesis"
             }
         },
         "Blog": {
