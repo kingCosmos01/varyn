@@ -19,6 +19,64 @@ test('Expect enginesis version to be #.#.#', function() {
     expect(versionCheck).toBeTruthy();
 });
 
+test('Expect enginesis isBrowserBuild', function () {
+    expect(window).toBeDefined(); // Jest defines the window object
+    expect(enginesis.isBrowserBuild).toBeDefined();
+    expect(enginesis.isBrowserBuild).toBeTruthy();
+
+    expect(process).toBeDefined(); // Node defines the process object
+    expect(enginesis.isNodeBuild).toBeDefined();
+    expect(enginesis.isNodeBuild).toBeTruthy();
+});
+
+test('Expect enginesis makeErrorResponse to work', function () {
+    var testObject = enginesis.makeErrorResponse("serviceName", 1, "NO_ERROR", "No message", { fn: "serviceName", user_id: 9999 });
+    var result = enginesis.isEnginesisResult(testObject);
+    expect(result).toBeTruthy();
+    result = enginesis.isError(testObject);
+    expect(result).toBeTruthy();
+    result = enginesis.error(testObject);
+    expect(result).toBe("NO_ERROR");
+    result = enginesis.toErrorString(testObject);
+    expect(result).toBe("NO_ERROR: No message");
+});
+
+test('Expect enginesis isEnginesisResult to work', function () {
+    var testObject = {};
+    var result = enginesis.isEnginesisResult(testObject);
+    expect(result).toBeFalsy();
+    testObject.results = 1;
+    result = enginesis.isEnginesisResult(testObject);
+    expect(result).toBeFalsy();
+    testObject.results = {
+        status: 1
+    };
+    result = enginesis.isEnginesisResult(testObject);
+    expect(result).toBeFalsy();
+    testObject.results = {
+        result: [1],
+        row: []
+    };
+    result = enginesis.isEnginesisResult(testObject);
+    expect(result).toBeFalsy();
+    testObject = enginesis.makeErrorResponse("serviceName", 1, "NO_ERROR", "No message", { fn: "serviceName", user_id: 9999 });
+    result = enginesis.isEnginesisResult(testObject);
+    expect(result).toBeTruthy();
+});
+
+
+// test('Expect enginesis sessionMakeHash to work', function() {
+//     expect(enginesis.sessionMakeHash).toBeDefined();
+// });
+
+test('Expect enginesis md5 to work', function () {
+    expect(enginesis.md5).toBeDefined();
+    var clearString = "info@enginesis.com";
+    var hashString = "c4b8e770a5bc10fb50cb6df4855266ed";
+    var result = enginesis.md5(clearString);
+    expect(result).toBe(hashString);
+});
+
 test('Expect enginesis blowfish to work', function() {
     // test without padding
     var encryptedBase64Safe  = "Qolmvwn1kaOOdjWtUcg8Df8zHz_7E60iNDvIRiqSBvIs_ncp__u9gSingDcjxbQk";

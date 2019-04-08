@@ -75,6 +75,8 @@
         platform: "",
         locale: "US-en",
         isNativeBuild: false,
+        isBrowserBuild: typeof window !== "undefined" && typeof window.document !== "undefined" && typeof window.location !== "undefined",
+        isNodeBuild: typeof process !== "undefined" && process.versions != null && process.versions.node != null,
         isTouchDeviceFlag: false,
         SESSION_COOKIE: "engsession",
         SESSION_USERINFO: "engsession_user",
@@ -86,6 +88,7 @@
         serviceQueue: [],
         serviceQueueSaveKey: "enginesisServiceQueue",
         serviceQueueRestored: 0,
+        nodeRequest: null,
 
         supportedNetworks: {
             Enginesis: 1,
@@ -134,7 +137,7 @@
         }
         if (restoreServiceQueue()) {
             // defer the queue processing
-            window.setTimeout(restoreOnline, 500);
+            global.setTimeout(restoreOnline, 500);
         }
     };
 
@@ -496,6 +499,47 @@
         return true;
     }
 
+    /**
+     * When running as a Node.js process we can use request(). request must be required separately.
+     * @param serviceName {string}
+     * @param parameters {object}
+     * @param overRideCallBackFunction {function}
+     * @returns {boolean} true if a request is sent, false if the request was not sent.
+     */
+    function sendNodeRequest(serviceName, parameters, overRideCallBackFunction) {
+        var enginesisParameters = serverParamObjectMake(serviceName, parameters);
+
+        if (enginesis.nodeRequest == null) {
+            enginesis.nodeRequest = require('request');
+            if (enginesis.nodeRequest == null) {
+                throw new Error("request() is not defined in the node.js environment");
+            }
+        }
+        enginesis.nodeRequest.post({
+            method: "POST",
+            url: enginesis.siteResources.serviceURL,
+            form: convertParamsToFormData(enginesisParameters),
+            headers: {
+                "User-Agent": "Enginesis client",
+                "Content-Type": "application/x-www-form-urlencoded"
+            }}, function(requestError, response, body) {
+                if (requestError != null) {
+                    var errorMessage = "Error posting to " + enginesis.siteResources.serviceURL + ": " + requestError.toString();
+                    if (setOffline()) {
+                        errorMessage = "Enginesis Network error encountered, assuming we're offline. " + enginesis.serverHost + " for " + serviceName + ": " + requestError.toString();
+                    } else {
+                        errorMessage = "Enginesis is already offline, leaving this message on the queue.";
+                    }
+                    debugLog(errorMessage);
+                    requestCompleteXMLHTTP(parameters.state_seq, forceErrorResponseString(serviceName, parameters.state_seq, "OFFLINE", errorMessage), overRideCallBackFunction);
+                } else {
+                    requestCompleteXMLHTTP(parameters.state_seq, body, overRideCallBackFunction);
+                }
+            }
+        );
+        return true;
+    }
+
     function getNextUnprocessedMessage() {
         var serviceQueue = enginesis.serviceQueue;
         var unprocessedRequest = null;
@@ -526,7 +570,7 @@
                 var overRideCallBackFunction = enginesisParameters.overRideCallBackFunction;
                 var errorMessage;
 
-                if (typeof window.fetch === "function") {
+                if (typeof global.fetch === "function") {
                     fetch(enginesis.siteResources.serviceURL, {
                         method: "POST",
                         mode: "cors",
@@ -599,6 +643,10 @@
                                 enginesis.callBackFunction
                             );
                         });
+                } else if (enginesis.isNodeBuild) {
+                    sendNodeRequest(serviceName, enginesisParameters, function (enginesisResult) {
+                        callbackPriority(enginesisResult, resolve, overRideCallBackFunction, enginesis.callBackFunction);
+                    });
                 } else {
                     sendRequestPolyfill(serviceName, enginesisParameters, function (enginesisResult) {
                         callbackPriority(enginesisResult, resolve, overRideCallBackFunction, enginesis.callBackFunction);
@@ -745,12 +793,21 @@
      * @returns {*}
      */
     function convertParamsToFormData (parameterObject) {
-        var key,
-            formDataObject = new FormData();
+        var key;
+        var formDataObject;
 
+        if (enginesis.isBrowserBuild) {
+            formDataObject = new FormData();
+        } else {
+            formDataObject = {};
+        }
         for (key in parameterObject) {
             if (parameterObject.hasOwnProperty(key) && typeof parameterObject[key] !== "function") {
-                formDataObject.append(key, parameterObject[key]);
+                if (enginesis.isBrowserBuild) {
+                    formDataObject.append(key, parameterObject[key]);
+                } else {
+                    formDataObject[key] = parameterObject[key];
+                }
             }
         }
         return formDataObject;
@@ -808,7 +865,11 @@
      * Set the internal https protocol flag based on the current page we are loaded on.
      */
     function setProtocolFromCurrentLocation () {
-        enginesis.useHTTPS = window.location.protocol == "https:";
+        if (enginesis.isBrowserBuild) {
+            enginesis.useHTTPS = global.location.protocol == "https:";
+        } else {
+            enginesis.useHTTPS = false;
+        }
     }
 
     /**
@@ -826,7 +887,7 @@
      */
     function qualifyAndSetServerStage (newServerStage) {
         var regMatch;
-        var currentHost = window.location.host;
+        var currentHost = enginesis.isBrowserBuild ? global.location.host : ""; // TODO: How to get host in NodeJS?
 
         if (typeof newServerStage === "undefined" || newServerStage == null) {
             newServerStage = currentHost;
@@ -878,10 +939,12 @@
      */
     function touchDevice () {
         var isTouch = false;
-        if ("ontouchstart" in window) {
-            isTouch = true;
-        } else if (window.DocumentTouch && document instanceof DocumentTouch) {
-            isTouch = true;
+        if (enginesis.isBrowserBuild) {
+            if ("ontouchstart" in window) {
+                isTouch = true;
+            } else if (global.DocumentTouch && document instanceof DocumentTouch) {
+                isTouch = true;
+            }
         }
         return isTouch;
     }
@@ -890,10 +953,17 @@
      * Cache settings regarding the current platform we are running on.
      */
     function setPlatform () {
-        enginesis.platform = navigator.platform;
-        enginesis.locale = navigator.language;
-        enginesis.isNativeBuild = window.location.protocol == "file:";
-        enginesis.isTouchDeviceFlag = touchDevice();
+        if (enginesis.isBrowserBuild) {
+            enginesis.platform = navigator.platform;
+            enginesis.locale = navigator.language;
+            enginesis.isNativeBuild = global.location.protocol == "file:";
+            enginesis.isTouchDeviceFlag = touchDevice();
+        } else {
+            enginesis.platform = "nodejs";
+            enginesis.locale = "en";
+            enginesis.isNativeBuild = true;
+            enginesis.isTouchDeviceFlag = false;
+        }
     }
 
     /**
@@ -912,8 +982,8 @@
                 return decodeURIComponent(s.replace(/\+/g, " "));
             },
             result = {};
-        if ( ! urlParameterString) {
-            urlParameterString = window.location.search.substring(1);
+        if ( ! urlParameterString && enginesis.isBrowserBuild) {
+            urlParameterString = global.location.search.substring(1);
         }
         while (match = search.exec(urlParameterString)) {
             result[decode(match[1])] = decode(match[2]);
@@ -929,7 +999,7 @@
      * @returns {string} value Contents of cookie stored with key.
      */
     function cookieGet (key) {
-        if (key) {
+        if (typeof document !== "undefined" && key) {
             return decodeURIComponent(document.cookie.replace(new RegExp("(?:(?:^|.*;)\\s*" + encodeURIComponent(key).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1")) || null;
         } else {
             return "";
@@ -1163,7 +1233,7 @@
      */
     function saveObjectWithKey(key, object) {
         if (key != null && object != null) {
-            window.localStorage[key] = JSON.stringify(object);
+            global.localStorage[key] = JSON.stringify(object);
         }
     }
 
@@ -1173,7 +1243,7 @@
      */
     function removeObjectWithKey(key) {
         if (key != null) {
-            window.localStorage.removeItem(key);
+            global.localStorage.removeItem(key);
         }
     }
 
@@ -1186,8 +1256,8 @@
         var jsonData,
             object = null;
 
-        if (key != null) {
-            jsonData = window.localStorage[key];
+        if (typeof global.localStorage !== "undefined" && key != null) {
+            jsonData = global.localStorage[key];
             if (jsonData != null) {
                 object = JSON.parse(jsonData);
             }
@@ -1784,6 +1854,15 @@
     };
 
     /**
+     * Determine if the object is an Enginesis result object.
+     * @param {object} enginesisResult The object to test.
+     * @returns {boolean} true if the result is considered an Enginesis result object, otherwise false.
+     */
+    enginesis.isEnginesisResult = function (enginesisResult) {
+        return enginesisResult && enginesisResult.hasOwnProperty('results') && enginesisResult.results.hasOwnProperty('status') && enginesisResult.results.status.hasOwnProperty('success');
+    };
+
+    /**
      * Return the error of the most recent service call.
      * @returns {object}
      */
@@ -1828,6 +1907,22 @@
     };
 
     /**
+     * Return the error code of a response as a string.
+     * @param {object} enginesisResult
+     * @returns {string} The error object reduced to a string of text.
+     */
+    enginesis.toErrorString = function (enginesisResult) {
+        var errorMessage = "";
+        if (enginesisResult && enginesisResult.results && enginesisResult.results.status) {
+            errorMessage += enginesisResult.results.status.message;
+            if (enginesisResult.results.status.extended_info) {
+                errorMessage += ": " + enginesisResult.results.status.extended_info;
+            }
+        }
+        return errorMessage;
+    };
+
+    /**
      * Return the error code of a response.
      * @param {object} enginesisResult 
      */
@@ -1837,6 +1932,22 @@
             error = enginesisResult.results.status.message;
         }
         return error;
+    };
+
+    /**
+     * Generate an enginesis error that looks the same as an error response from the server.
+     * This may be helpful to applications with error event handling to consolodate the code
+     * so it looks the same as real error responses.
+     * 
+     * @param {string} serviceName The official Enginesis service endpoint that was invoked.
+     * @param {int} stateSeq Session serial number.
+     * @param {string} errorCode An Enginesis error code.
+     * @param {string} errorMessage Additional info about the error, such as data conditions.
+     * @param {object} passThrough Object of parameters supplied to the service endpoint.
+     * @returns {object} the Enginesis error object.
+     */
+    enginesis.makeErrorResponse = function (serviceName, stateSeq, errorCode, errorMessage, passThrough) {
+        return forceErrorResponseObject(serviceName, stateSeq, errorCode, errorMessage, passThrough);
     };
 
     /**
@@ -2357,7 +2468,7 @@
      * @returns {boolean}
      */
     enginesis.gameTrackingRecord = function (category, action, label, hitData, overRideCallBackFunction) {
-        if (window.ga != null) {
+        if (enginesis.isBrowserBuild && global.ga != undefined) {
             // use Google Analytics if it is there (send, event, category, action, label, value)
             ga("send", "event", category, action, label, hitData);
         }
@@ -3162,4 +3273,4 @@
         };
         global.enginesis = enginesis;
     }
-})(window);
+})(this);
