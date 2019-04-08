@@ -28,7 +28,7 @@
     "use strict";
 
     var enginesis = {
-        VERSION: "2.4.60",
+        VERSION: "2.4.64",
         debugging: true,
         disabled: false, // use this flag to turn off communicating with the server
         isOnline: true,  // flag to determine if we are currently able to reach Enginesis servers
@@ -42,35 +42,21 @@
         },
         siteId: 0,
         gameId: 0,
-        gameWidth: 0,
-        gameHeight: 0,
-        gamePluginId: 0,
+        gameKey: "",
         gameGroupId: 0,
         languageCode: "en",
-        syncId: 0,
+        internalStateSeq: 0,
         lastError: "",
         lastErrorMessage: "",
         callBackFunction: null,
         authToken: null,
         authTokenWasValidated: false,
+        authTokenExpires: null,
+        refreshToken: null,
         sessionId: null,
         siteKey: null,
         developerKey: null,
-        loggedInUserInfo: {
-            userId: 0,
-            userName: "",
-            fullName: "",
-            gender: "U",
-            dateOfBirth: null,
-            accessLevel: 0,
-            siteUserId: "",
-            rank: 10001,
-            experiencePoints: 0,
-            loginDate: null,
-            email: null,
-            location: "",
-            country: ""
-        },
+        loggedInUserInfo: null,
         networkId: 1,
         platform: "",
         locale: "US-en",
@@ -89,7 +75,8 @@
         serviceQueueSaveKey: "enginesisServiceQueue",
         serviceQueueRestored: 0,
         nodeRequest: null,
-
+        gameInfo: null,
+        favoriteGames: new Set(),
         supportedNetworks: {
             Enginesis: 1,
             Facebook:  2,
@@ -116,9 +103,11 @@
      *        See documentation for Enginesis response object structure.
      */
     enginesis.init = function(parameters) {
+        initializeLocalSessionInfo();
         if (parameters) {
             enginesis.siteId = parameters.siteId != undefined ? parameters.siteId : 0;
             enginesis.gameId = parameters.gameId != undefined ? parameters.gameId : 0;
+            enginesis.gameKey = parameters.gameKey != undefined ? parameters.gameKey : "";
             enginesis.gameGroupId = parameters.gameGroupId != undefined ? parameters.gameGroupId : 0;
             enginesis.languageCode = parameters.languageCode != undefined ? parameters.languageCode : "en";
             enginesis.serverStage = parameters.serverStage != undefined ? parameters.serverStage : "";
@@ -142,6 +131,37 @@
     };
 
     /**
+     * Initialize all user session related data to a known initial state.
+     */
+    function initializeLocalSessionInfo() {
+        enginesis.loggedInUserInfo = {
+            userId: 0,
+            userName: "",
+            fullName: "",
+            gender: "U",
+            dateOfBirth: null,
+            accessLevel: 0,
+            siteUserId: "",
+            rank: 10001,
+            level: "n00b",
+            experiencePoints: 0,
+            coins: 0,
+            loginDate: null,
+            email: null,
+            location: "",
+            country: ""
+        };
+
+        // Clear the session and user info
+        enginesis.networkId = 1;
+        enginesis.sessionId = null;
+        enginesis.authToken = null;
+        enginesis.authTokenWasValidated = false;
+        enginesis.authTokenExpires = null;
+        enginesis.refreshToken = null;
+    }
+
+    /**
      * Review the current state of the enginesis object to make sure we have enough information
      * to properly communicate with the server. The decision may change over time, but for now Enginesis requires:
      *   1. Developer key - the developer's API key is required to make API calls.
@@ -160,6 +180,68 @@
      */
     function isEmpty (field) {
         return (typeof field === "undefined") || field === null || (typeof field === "string" && field === "") || (field instanceof Array && field.length == 0) || field === false || (typeof field === "number" && (isNaN(field) || field === 0));
+    }
+
+    /**
+     * Determine if a given variable is considered null (either null or undefined).
+     * @param field
+     * @returns {boolean}
+     */
+    function isNull (field) {
+        return (typeof field === "undefined") || field === null;
+    }
+
+    /**
+     * Coerce a value to its boolean equivelent, causing the value to be interpreted as its 
+     * boolean intention. This works very different that the JavaScript coercion. For example,
+     * "0" == true and "false" == true in JavaScript but here "0" == false and "false" == false.
+     * @param {*} value A value to test.
+     */
+    function coerceBoolean (value) {
+        if (typeof value === "string") {
+            value = value.toLowerCase();
+            return value === "1" || value === "true" || value === "t" || value === "checked" || value === "yes" || value === "y";
+        } else {
+            return value === true || value === 1;
+        }
+    }
+
+    /**
+     * Return the status of an enginesis service request.
+     * @param {object} enginesisResult Enginesis server result object.
+     * @returns {boolean} true if the request succeeded (it may succeed but return no results) or false if the request failed.
+     */
+    function resultIsSuccess(enginesisResult) {
+        return enginesisResult && enginesisResult.results && enginesisResult.results.status && enginesisResult.results.status.success == "1";
+    }
+
+    /**
+     * Return the error code associated with an enginesis service request. Successful requests
+     * usually return an empty string for the error code.
+     * @param {object} enginesisResult Enginesis server result object.
+     * @returns {string} An enginesis error code (look it up in the error code table.)
+     */
+    function resultErrorCode(enginesisResult) {
+        if (enginesisResult && enginesisResult.results && enginesisResult.results.status) {
+            return enginesisResult.results.status.message;
+        } else {
+            return "INVALID_PARAM";
+        }
+    }
+
+    /**
+     * Return the extended information related to a failed service request. Extended info is only available
+     * if a request failed, otherwise no extended information is available. Extended information is
+     * useful for service debugging and not intended for user display.
+     * @param {object} enginesisResult Enginesis server result object.
+     * @returns {string} Extended information if a service request failed.
+     */
+    function resultErrorMessage(enginesisResult) {
+        if (enginesisResult && enginesisResult.results) {
+            return enginesisResult.results.status.extended_info;
+        } else {
+            return "";
+        }
     }
 
     /**
@@ -205,20 +287,26 @@
     }
 
     /**
-     * When the server response, intercept any result we get so we can preprocess it before
+     * When the server responds, intercept any result we get so we can preprocess it before
      * sending it off to the callback function. This may require different logic for different
-     * services. At this time, we are only processing SessionBegin to remember the session id
-     * we were assigned.
+     * services.
      * @param {Object} enginesisResult 
      */
     function preprocessEnginesisResult(enginesisResult) {
-        if (enginesisResult && enginesisResult.fn) {
-            if (enginesisResult.results.status.success == "1") {
-                if (enginesisResult.fn == "SessionBegin") {
-                    updateGameSessionInfo(enginesisResult);
-                } else if (enginesisResult.fn == "UserLogin") {
-                    updateLoggedInUserInfo(enginesisResult);
-                }
+        var serviceEndPoint = enginesisResult.fn;
+        if (resultIsSuccess(enginesisResult) && serviceEndPoint) {
+            // TODO: find a better place to define this dispatch table
+            var dispatchTable = {
+                SessionBegin: updateGameSessionInfo,
+                SessionRefresh: refreshSessionInfo,
+                UserLogin: updateLoggedInUserInfo,
+                UserLogout: clearLoggedInUserInfo,
+                GameGet: updateGameInfo,
+                UserFavoriteGamesList: updateFavoriteGames
+            };
+            var dispatchFunction = dispatchTable[serviceEndPoint];
+            if ( ! isNull(dispatchFunction)) {
+                dispatchFunction(enginesisResult);
             }
         }
     }
@@ -234,12 +322,69 @@
     }
 
     /**
+     * This is the callback from a request to refresh the Enginesis login when the auth token
+     * expires. This response is similar to the initial login response.
+     * @param {object} enginesisResult Enginesis result object.
+     */
+    function refreshSessionInfo(enginesisResult) {
+        if (enginesisResult && enginesisResult.results && enginesisResult.results.result.row) {
+            var sessionInfo = enginesisResult.results.result.row;
+
+            // verify session hash so that we know the payload was not tampered with
+            if ( ! sessionVerifyCr(sessionInfo.cr)) {
+                // TODO: In this case, we should fail. The hash from the server doesn't match
+                // what we computed locally, so it appears someone is trying to impersonate
+                // another user. It could also be that the hash has expired and we just need
+                // to compute a new one.
+                debugLog("updateLoggedInUserInfo hash does not match. From server: " + sessionInfo.cr + ". Computed here: " + sessionMakeHash());
+            }
+
+            // Save the new session id and user info
+            enginesis.sessionId = sessionInfo.session_id;
+            enginesis.authToken = sessionInfo.authtok;
+            enginesis.authTokenExpires = sessionInfo.expires;
+            enginesis.refreshToken = sessionInfo.refreshToken;
+            enginesis.authTokenWasValidated = true;
+            saveUserSessionInfo();
+        }
+    }
+
+    /**
+     * Update the local cache of game information when the server replies with game attributes.
+     * @param {object} enginesisResult Enginesis server response object
+     */
+    function updateGameInfo(enginesisResult) {
+        if (enginesisResult.results.result.row) {
+            enginesis.gameInfo = enginesisResult.results.result.row;
+        } else {
+            enginesis.gameInfo = enginesisResult.results.result[0];
+        }
+        if (coerceBoolean(enginesis.gameInfo.is_favorite)) {
+            enginesis.favoriteGames.add(parseInt(enginesis.gameInfo.game_id, 10));
+        }
+    }
+
+    /**
+     * When a list of the user's favorite games is requested intercept the response and
+     * update the local cache of favorite games.
+     * @param {object} enginesisResult Enginesis server response object
+     */
+    function updateFavoriteGames(enginesisResult) {
+        var serverFavoriteGamesList = enginesisResult.results.result;
+        enginesis.favoriteGames.clear();
+        for (var i = 0; i < serverFavoriteGamesList.length; i ++) {
+            enginesis.favoriteGames.add(parseInt(serverFavoriteGamesList[i].game_id, 10));
+        }
+    }
+
+    /**
      * Capture the session begin session id so we can use it for communicating with the server.
-     * @param {object} enginesisResult 
+     * @param {object} enginesisResult Enginesis server response object
      */
     function updateGameSessionInfo(enginesisResult) {
         var sessionInfo = enginesisResult.results.result.row;
         if (validateGameSessionHash(sessionInfo)) {
+            updateGameInfo(enginesisResult);
             enginesis.sessionId = sessionInfo.session_id;
             enginesis.siteKey = sessionInfo.developerKey || "";
             if (sessionInfo.authtok) {
@@ -249,7 +394,12 @@
                 enginesis.anonymousUser.userId = sessionInfo.site_mark;
                 anonymousUserSave();
             }
+            if (coerceBoolean(sessionInfo.tokenExpired) && ! isEmpty(enginesis.refreshToken)) {
+                // When the server says the token is expired and we have a refresh token, we can request a fresh auth token.
+                enginesis.sessionRefresh(enginesis.refreshToken, null);
+            }
         }
+        enginesis.siteResources.baseURL = sessionInfo.siteBaseUrl || "";
         enginesis.siteResources.profileURL = sessionInfo.profileUrl || "";
         enginesis.siteResources.loginURL = sessionInfo.loginUrl || "";
         enginesis.siteResources.registerURL = sessionInfo.registerUrl || "";
@@ -288,7 +438,9 @@
             loggedInUserInfo.accessLevel = userInfo.access_level;
             loggedInUserInfo.siteUserId = userInfo.site_user_id;
             loggedInUserInfo.rank = userInfo.user_rank;
+            loggedInUserInfo.level = userInfo.level;
             loggedInUserInfo.experiencePoints = userInfo.site_experience_points;
+            loggedInUserInfo.coins = userInfo.site_currency_value;
             loggedInUserInfo.loginDate = userInfo.last_login;
             loggedInUserInfo.email = userInfo.email_address;
             loggedInUserInfo.location = userInfo.city;
@@ -320,6 +472,17 @@
     }
 
     /**
+     * After a successful logout clear everything we know about the user.
+     * @param {object} enginesisResult 
+     */
+    function clearLoggedInUserInfo(enginesisResult) {
+        if (enginesisResult && enginesisResult.results && enginesisResult.results.result.row) {
+            initializeLocalSessionInfo();
+            clearUserSessionInfo();
+        }
+    }
+
+    /**
      * Compute the Enginesis day stamp for the current day. This must match what the server would compute
      * on the same day.
      */
@@ -339,25 +502,25 @@
     function sessionMakeHash(userInfo) {
         var loggedInUserInfo = enginesis.loggedInUserInfo;
         userInfo = userInfo || {};
-        if (typeof userInfo.siteId === "undefined" || userInfo.siteId == null) {
+        if (isNull(userInfo.siteId)) {
             userInfo.siteId = enginesis.siteId;
         }
-        if (typeof userInfo.siteKey === "undefined" || userInfo.siteKey == null) {
+        if (isNull(userInfo.siteKey)) {
             userInfo.siteKey = enginesis.siteKey;
         }
-        if (typeof userInfo.dayStamp === "undefined" || userInfo.dayStamp == null) {
+        if (isNull(userInfo.dayStamp)) {
             userInfo.dayStamp = sessionDayStamp();
         }
-        if (typeof userInfo.userId === "undefined" || userInfo.userId == null) {
+        if (isNull(userInfo.userId)) {
             userInfo.userId = loggedInUserInfo.userId;
         }
-        if (typeof userInfo.userName === "undefined" || userInfo.userName == null) {
+        if (isNull(userInfo.userName)) {
             userInfo.userName = loggedInUserInfo.userName;
         }
-        if (typeof userInfo.siteUserId === "undefined" || userInfo.siteUserId == null) {
+        if (isNull(userInfo.siteUserId)) {
             userInfo.siteUserId = loggedInUserInfo.siteUserId;
         }
-        if (typeof userInfo.accessLevel === "undefined" || userInfo.accessLevel == null) {
+        if (isNull(userInfo.accessLevel)) {
             userInfo.accessLevel = loggedInUserInfo.accessLevel;
         }
         return enginesis.md5("s=" + userInfo.siteId + "&u=" + userInfo.userId + "&d=" + userInfo.dayStamp + "&n=" + userInfo.userName + "&i=" + userInfo.siteUserId + "&l=" + userInfo.accessLevel + "&k=" + userInfo.siteKey);
@@ -699,7 +862,7 @@
     }
 
     function immediateErrorResponse(serviceName, parameters, errorCode, errorMessage, overRideCallBackFunction) {
-        return new Promise(function(resolve, reject) {
+        return new Promise(function(resolve) {
             var enginesisResult = forceErrorResponseObject(serviceName, 0, errorCode, errorMessage);
             callbackPriority(enginesisResult, resolve, overRideCallBackFunction, enginesis.callBackFunction);
         });
@@ -713,19 +876,22 @@
      * @returns {object}
      */
     function serverParamObjectMake (serviceName, additionalParameters) {
+        enginesis.internalStateSeq += 1;
         var serverParams = { // these are defaults that could be overridden with additionalParameters
             fn: serviceName,
             language_code: enginesis.languageCode,
             site_id: enginesis.siteId,
-            user_id: enginesis.loggedInUserInfo.userId,
-            game_id: enginesis.gameId,
-            state_seq: ++ enginesis.syncId,
+            state_seq: enginesis.internalStateSeq,
             state_status: 0,
             response: "json"
         };
         if (enginesis.loggedInUserInfo.userId != 0) {
             serverParams.logged_in_user_id = enginesis.loggedInUserInfo.userId;
+            serverParams.user_id = enginesis.loggedInUserInfo.userId;
             serverParams.authtok = enginesis.authToken;
+        }
+        if (enginesis.gameId) {
+            serverParams.game_id = enginesis.gameId;
         }
         if (additionalParameters != null) {
             for (var key in additionalParameters) {
@@ -739,10 +905,10 @@
 
     /**
      * Generate an internal error that looks the same as an error response from the server.
-     * @param serviceName {string}
-     * @param stateSeq {int}
-     * @param errorCode {string}
-     * @param errorMessage {string}
+     * @param {string} serviceName The official Enginesis service endpoint that was invoked.
+     * @param {int} stateSeq Session serial number.
+     * @param {string} errorCode An Enginesis error code.
+     * @param {string} errorMessage Additional info about the error, such as data conditions.
      * @return {string} a JSON string representing a standard Enginesis error.
      */
     function forceErrorResponseString(serviceName, stateSeq, errorCode, errorMessage) {
@@ -1128,6 +1294,14 @@
     }
 
     /**
+     * Remove the local cache of user info.
+     */
+    function clearUserSessionInfo() {
+        removeObjectWithKey(enginesis.SESSION_COOKIE);
+        initializeLocalSessionInfo();
+    }
+
+    /**
      * When reloading the game we can see if a prior user login was in the cache so we can
      * restore the session. If the session expires we can use a session refresh instead of 
      * asking the user to log in again.
@@ -1188,14 +1362,20 @@
 
     /**
      * Recall a refresh token in local storage.
-     * @returns {string} either the token that was saved or an empty string.
+     * @returns {string} either the token that was saved or null.
      */
     function _getRefreshToken() {
-        var refreshToken,
-            refreshTokenData = loadObjectWithKey(enginesis.refreshTokenStorageKey);
-
-        if (refreshTokenData != null && typeof refreshTokenData.refreshToken !== "undefined") {
-            refreshToken = refreshTokenData.refreshToken;
+        var refreshToken = enginesis.refreshToken;
+        if (isEmpty(refreshToken)) {
+            restoreUserSessionInfo();
+            refreshToken = enginesis.refreshToken;
+            if (isEmpty(refreshToken)) {
+                return null;
+            } else {
+                return refreshToken;
+            }
+        } else {
+            return refreshToken;
         }
         return refreshToken;
     }
@@ -1227,7 +1407,7 @@
     }
 
     /**
-     * Save an object in HTML5 local storage given a key.
+     * Save an object in local storage given a key.
      * @param key
      * @param object
      */
@@ -1248,7 +1428,7 @@
     }
 
     /**
-     * Restore an object previously saved in HTML5 local storage
+     * Restore an object previously saved in local storage
      * @param key
      * @returns {object}
      */
@@ -1276,14 +1456,14 @@
             subscriberEmail: "",
             userId: 0,
             userName: "",
-            favoriteGames: [],
-            gamesPlayed: [],
+            favoriteGames: new Set(),
+            gamesPlayed: new Set(),
             cr: ""
         };
     }
 
     /**
-     * Load the anonymous user data from HTML5 local storage. If we do not have a prior save then initialize
+     * Load the anonymous user data from local storage. If we do not have a prior save then initialize
      * a first time user.
      * @return object
      */
@@ -1297,18 +1477,29 @@
                 if (cr != anonymousUserHash()) {
                     enginesis.anonymousUser = anonymousUserInitialize();
                 }
+                if (Array.isArray(enginesis.anonymousUser.favoriteGames)) {
+                    enginesis.anonymousUser.favoriteGames = new Set(enginesis.anonymousUser.favoriteGames);
+                }
+                if (Array.isArray(enginesis.anonymousUser.gamesPlayed)) {
+                    enginesis.anonymousUser.gamesPlayed = new Set(enginesis.anonymousUser.gamesPlayed);
+                }
             }
         }
         return enginesis.anonymousUser;
     }
 
     /**
-     * Save the anonymous user to HTML5 local storage.
+     * Save the anonymous user to local storage. The Sets are converted to Arrays for serialization.
      */
     function anonymousUserSave() {
         if (enginesis.anonymousUser != null) {
-            enginesis.anonymousUser.cr = anonymousUserHash();
-            saveObjectWithKey(enginesis.anonymousUserKey, enginesis.anonymousUser);
+            var anonymousUser = enginesis.anonymousUser;
+            anonymousUser.favoriteGames = Array.from(anonymousUser.favoriteGames);
+            anonymousUser.gamesPlayed = Array.from(anonymousUser.gamesPlayed);
+            anonymousUser.cr = anonymousUserHash();
+            saveObjectWithKey(enginesis.anonymousUserKey, anonymousUser);
+            anonymousUser.favoriteGames = new Set(anonymousUser.favoriteGames);
+            anonymousUser.gamesPlayed = new Set(anonymousUser.gamesPlayed);
         }
     }
 
@@ -1321,14 +1512,15 @@
     }
 
     /**
-     * Prepare a score submission to be sent securely to the server.
-     * @param {int} siteId 
-     * @param {int} userId 
-     * @param {int} gameId 
-     * @param {int} score 
-     * @param {string} gameData 
-     * @param {int} timePlayed 
-     * @param {string} sessionId 
+     * Prepare a score submission to be sent securely to the server. This is an internal function and
+     * not designed to be called by client code.
+     * @param {int} siteId Site identifier.
+     * @param {int} userId User who is submitting the score.
+     * @param {int} gameId Game that was played.
+     * @param {int} score Game final score.
+     * @param {string} gameData JSON string of game-specific play data.
+     * @param {int} timePlayed Game play time related to score and gameData, in milliseconds.
+     * @param {string} sessionId Id that was given at SessionBegin.
      * @returns {string} the encrypted score payload or null if an error occurred.
      */
     function encryptScoreSubmit(siteId, userId, gameId, score, gameData, timePlayed, sessionId) {
@@ -1876,14 +2068,11 @@
 
     /**
      * Determine if the enginesis result is an error.
-     * @param {object} enginesisResult 
+     * @param {object} enginesisResult
+     * @returns {boolean} true if the result is considered an error, false if it succeeded.
      */
     enginesis.isError = function(enginesisResult) {
-        var isError = false;
-        if (enginesisResult && enginesisResult.results && enginesisResult.results.status) {
-            isError = enginesisResult.results.status.success == "0";
-        }
-        return isError;
+        return ! resultIsSuccess(enginesisResult);
     };
 
     /**
@@ -1925,13 +2114,10 @@
     /**
      * Return the error code of a response.
      * @param {object} enginesisResult 
+     * @returns {string} An Enginesis error code.
      */
     enginesis.error = function(enginesisResult) {
-        var error = "";
-        if (enginesisResult && enginesisResult.results && enginesisResult.results.status) {
-            error = enginesisResult.results.status.message;
-        }
-        return error;
+        return resultErrorCode(enginesisResult);
     };
 
     /**
@@ -1958,12 +2144,11 @@
      * @returns {string} the result object interpreted as a printable string.
      */
     enginesis.resultToString = function(enginesisResult) {
-        if (enginesis.isError(enginesisResult)) {
-            return enginesisResult.results.status.message + (enginesisResult.results.status.extended_info ? " " + enginesisResult.results.status.extended_info : "");
-        } else {
+        if (resultIsSuccess(enginesisResult)) {
             return enginesisResult.results.passthru.fn;
+        } else {
+            return enginesisResult.results.status.message + (enginesisResult.results.status.extended_info ? " " + enginesisResult.results.status.extended_info : "");
         }
-        return "";
     };
 
     /**
@@ -1972,12 +2157,14 @@
      */
     enginesis.getLoggedInUserInfo = function () {
         return {
-            isLoggedIn: enginesis.loggedInUserInfo.userId != 0,
+            isLoggedIn: enginesis.isUserLoggedIn(),
             userId: enginesis.loggedInUserInfo.userId,
             userName: enginesis.loggedInUserInfo.userName,
             fullName: enginesis.loggedInUserInfo.fullName,
             rank: enginesis.loggedInUserInfo.rank,
+            level: enginesis.loggedInUserInfo.level,
             experiencePoints: enginesis.loggedInUserInfo.experiencePoints,
+            coins: enginesis.loggedInUserInfo.coins,
             loginDate: enginesis.loggedInUserInfo.loginDate,
             email: enginesis.loggedInUserInfo.email,
             location: enginesis.loggedInUserInfo.location,
@@ -2002,7 +2189,7 @@
 
     /**
      * Determine if the user name is a valid format that would be accepted by the server.
-     * @param userName
+     * @param userName {string}
      * @returns {boolean}
      */
     enginesis.isValidUserName = function (userName) {
@@ -2012,13 +2199,13 @@
 
     /**
      * Determine if the password is a valid password that will be accepted by the server.
-     * @param password
+     * @param password {string}
      * @returns {boolean}
      */
     enginesis.isValidPassword = function (password) {
         // TODO: reuse the regex we use on enginesis or varyn
-        // TODO: Passwords should be no fewer than 8 chars.
-        return password.length > 4;
+        // TODO: consider making this a server request and doing the mode complex check (not a compromised password)
+        return password.length > 7;
     };
 
     /**
@@ -2030,23 +2217,8 @@
     };
 
     /**
-     * Save the Enginesis refresh token for later recall.
-     * @returns {string}
-     */
-    enginesis.saveRefreshToken = function (refreshToken) {
-        return _saveRefreshToken(refreshToken);
-    };
-
-    /**
-     * Remove the Enginesis refresh token.
-     */
-    enginesis.clearRefreshToken = function () {
-        _clearRefreshToken();
-    };
-
-    /**
      * Determine and set the server stage from the specified string. It can be a stage request or a domain.
-     * @param newServerStage
+     * @param newServerStage {string}
      * @returns {string}
      */
     enginesis.serverStageSet = function (newServerStage) {
@@ -2094,7 +2266,7 @@
 
     /**
      * Each site registers a set of resources apps may need to do certain things that are site-specific.
-     * These host name are also configured to the current stage and protocol. This set of URLs/resources
+     * These host names are also configured to the current stage and protocol. This set of URLs/resources
      * is configured on the server for each site and the server should be queried the first time to get
      * them. They rarely change so caching should be fine. This function returns 
      * an object populated with the following urls:
@@ -2111,20 +2283,10 @@
     enginesis.getSiteSpecificUrls = function() {
         var urlBase;
         var siteResources = enginesis.siteResources;
-        //     serviceURL: null,
-        //     avatarImageURL: null,
-        //     enginesis.siteResources.profileURL = sessionInfo.profileUrl || "";
-        //     enginesis.siteResources.loginURL = sessionInfo.loginUrl || "";
-        //     enginesis.siteResources.registerURL = sessionInfo.registerUrl || "";
-        //     enginesis.siteResources.forgotPasswordURL = sessionInfo.forgotPasswordUrl || "";
-        //     enginesis.siteResources.playURL = sessionInfo.playUrl || "";
-        //     enginesis.siteResources.privacyURL = sessionInfo.privacyUrl || "";
-        //     enginesis.siteResources.termsURL = sessionInfo.termsUrl || "";
 
         if (siteResources.profileURL != undefined && siteResources.profileURL.length > 0) {
-            urlBase = getProtocol() + enginesis.serverHost + "/";
             return {
-                root: urlBase,
+                root: getProtocol() + siteResources.baseURL,
                 forgotPassword: siteResources.forgotPasswordURL,
                 login: siteResources.loginURL,
                 play: siteResources.playURL,
@@ -2134,10 +2296,9 @@
                 terms: siteResources.termsURL
             };    
         } else {
-            // TODO: fix this to get the correct host for the site-id when siteResources is not available.
-            urlBase = getProtocol() + "varyn" + enginesis.serverStage + ".com";
+            // TODO: if SessionBegin was not called we won't have this information. We need an alternative in this scenario. Maybe force a call to SessionBegin?
             return {
-                root: urlBase + "/",
+                root: getProtocol() + "varyn" + enginesis.serverStage + ".com",
                 forgotPassword: urlBase + "/procs/forgotpass.php",
                 login: urlBase + "/profile/",
                 play: urlBase + "/play/",
@@ -2159,10 +2320,15 @@
 
     /**
      * Set or override the current game-id.
-     * @param newGameId
+     * @param newGameId {integer} An Enginesis game identifier.
+     * @param newGameKey {string} The Enginesis game key associated with the game id.
      * @returns {*}
      */
-    enginesis.gameIdSet = function (newGameId) {
+    enginesis.gameIdSet = function (newGameId, newGameKey) {
+        if (enginesis.gameId != newGameId) {
+            enginesis.gameInfo = null;
+        }
+        enginesis.gameKey = newGameKey || "";
         return enginesis.gameId = newGameId;
     };
 
@@ -2305,6 +2471,11 @@
         if (typeof gameId === "undefined" || gameId === 0 || gameId === null) {
             gameId = enginesis.gameIdGet();
         }
+        if (typeof gameKey === "undefined" || gameKey === "" || gameKey === null) {
+            gameKey = enginesis.gameKey;
+        } else {
+            enginesis.gameKey = gameKey;
+        }
         if ( ! enginesis.isUserLoggedIn()) {
             cookieSet(enginesis.anonymousUserKey, enginesis.anonymousUser, 60 * 60 * 24, "/", "", false);
             siteMark = enginesis.anonymousUser.userId;
@@ -2323,12 +2494,18 @@
         if (isEmpty(refreshToken)) {
             refreshToken = _getRefreshToken();
             if (isEmpty(refreshToken)) {
-                enginesis.lastError = "INVALID_TOKEN";
-                enginesis.lastErrorMessage = "Refresh token not provided or is invalid.";
+                enginesis.lastError = "NOT_LOGGED_IN";
+                enginesis.lastErrorMessage = "You are not logged in.";
                 return false;
             }
         }
-        return sendRequest("SessionRefresh", {token: refreshToken}, overRideCallBackFunction);
+        var game_id = enginesis.gameIdGet();
+        var gameKey = enginesis.gameKey;
+        var siteMark = 0;
+        if ( ! enginesis.isUserLoggedIn()) {
+            siteMark = enginesis.anonymousUser.userId;
+        }
+        return sendRequest("SessionRefresh", {token: refreshToken, game_id: game_id, gamekey: gameKey, site_mark: siteMark}, overRideCallBackFunction);
     };
 
     /**
@@ -2656,6 +2833,37 @@
     // ScoreSubmitRankGet
     // ScoreSubmitRankList
 
+    enginesis.scoreRankList = function(gameId, timePeriodType, timePeriod, firstRank, numRanks, overRideCallBackFunction) {
+        var service = "ScoreRankList";
+        var errorCode = "";
+        if (isEmpty(gameId)) {
+            gameId = enginesis.gameId;
+            if (isEmpty(gameId)) {
+                errorCode = "INVALID_GAME_ID";
+            }
+        }
+        if (isEmpty(timePeriodType)) {
+            timePeriodType = 0;
+        }
+        if (isEmpty(timePeriod)) {
+            timePeriod = 0;
+        }
+        if (isEmpty(firstRank)) {
+            firstRank = 1;
+        }
+        if (isEmpty(numRanks)) {
+            numRanks = 100;
+        }
+        var parameters = {
+            game_id: gameId,
+            time_period_type: timePeriodType,
+            time_period: timePeriod,
+            first_rank: firstRank,
+            num_ranks: numRanks
+        };
+        return sendRequest(service, parameters, overRideCallBackFunction);
+    };
+
     enginesis.newsletterCategoryList = function (overRideCallBackFunction) {
         return sendRequest("NewsletterCategoryList", {}, overRideCallBackFunction);
     };
@@ -2846,6 +3054,23 @@
         return sendRequest("UserGetByName", {user_name: userName}, overRideCallBackFunction);
     };
 
+    /**
+     * Logout the current logged in user. This invalidates any session data we are holding
+     * both locally and on the server.
+     * @returns {Promise} A promise that resolves with the server's response.
+     */
+    enginesis.userLogout = function(overRideCallBackFunction) {
+        return sendRequest("UserLogout", {}, overRideCallBackFunction);
+    };
+
+    /**
+     * Perform a user login given a user name (also accepts user email address) and the password.
+     * In the callback function you receive a response if the login succeeds or not. A successful
+     * login provides information about the user.
+     * @param {string} userName The user name or email to identify the user.
+     * @param {string} password The user's password which shold conform to the password rules.
+     * @returns {Promise} A promise that resolves with the server's response.
+     */
     enginesis.userLogin = function(userName, password, overRideCallBackFunction) {
         return sendRequest("UserLogin", {user_name: userName, password: password}, overRideCallBackFunction);
     };
@@ -3009,6 +3234,27 @@
     };
 
     /**
+     * Determine if the game_id in question is among the user's favorite games. This function will
+     * return an answer right away by looking at the cached list of games. If a call back function is
+     * provided, the server will be queried for a updated list of favorite games and the test
+     * will be done asynchronously.
+     * @param game_id {integer} A game id to check, or null/0 to check the current game id.
+     * @param callBackFunction {function} If provided, query the server then call this function with the result.
+     * @returns {boolean}
+     */
+    enginesis.isUserFavoriteGame = function (game_id, callBackFunction) {
+        game_id = game_id || enginesis.gameId;
+        var isFavorite = enginesis.favoriteGames.has(game_id);
+        if ( ! isNull(callBackFunction) && typeof callBackFunction === "function") {
+            sendRequest("UserFavoriteGamesList", {}, null)
+            .then(function(enginesisResult) {
+                callBackFunction(game_id, enginesis.favoriteGames.has(game_id));
+            });
+        }
+        return isFavorite;
+    };
+
+    /**
      * Get list of users favorite games. User must be logged in.
      * @param overRideCallBackFunction
      * @returns {boolean}
@@ -3024,6 +3270,8 @@
      * @returns {boolean}
      */
     enginesis.userFavoriteGamesAssign = function(game_id, overRideCallBackFunction) {
+        game_id = game_id || enginesis.gameId;
+        enginesis.favoriteGames.add(game_id);
         return sendRequest("UserFavoriteGamesAssign", {game_id: game_id}, overRideCallBackFunction);
     };
 
@@ -3034,6 +3282,10 @@
      * @returns {boolean}
      */
     enginesis.userFavoriteGamesAssignList = function(game_id_list, overRideCallBackFunction) {
+        var gameIdList = game_id_list.split(",");
+        for (var i = 0; i < gameIdList.length; i ++) {
+            enginesis.favoriteGames.add(gameIdList[i]);
+        }
         return sendRequest("UserFavoriteGamesAssignList", {game_id_list: game_id_list, delimiter: ','}, overRideCallBackFunction);
     };
 
@@ -3043,8 +3295,10 @@
      * @param overRideCallBackFunction
      * @returns {boolean}
      */
-    enginesis.userFavoriteGamesDelete = function(game_id, overRideCallBackFunction) {
-        return sendRequest("UserFavoriteGamesDelete", {game_id: game_id}, overRideCallBackFunction);
+    enginesis.userFavoriteGamesUnassign = function(game_id, overRideCallBackFunction) {
+        game_id = game_id || enginesis.gameId;
+        enginesis.favoriteGames.delete(game_id);
+        return sendRequest("UserFavoriteGamesUnassign", {game_id: game_id}, overRideCallBackFunction);
     };
 
     /**
@@ -3053,8 +3307,12 @@
      * @param overRideCallBackFunction
      * @returns {boolean}
      */
-    enginesis.userFavoriteGamesDeleteList = function(game_id_list, overRideCallBackFunction) {
-        return sendRequest("UserFavoriteGamesDeleteList", {game_id_list: game_id_list, delimiter: ','}, overRideCallBackFunction);
+    enginesis.userFavoriteGamesUnassignList = function(game_id_list, overRideCallBackFunction) {
+        var gameIdList = game_id_list.split(",");
+        for (var i = 0; i < gameIdList.length; i ++) {
+            enginesis.favoriteGames.delete(gameIdList[i]);
+        }
+        return sendRequest("UserFavoriteGamesUnassignList", {game_id_list: game_id_list, delimiter: ','}, overRideCallBackFunction);
     };
 
     /**
@@ -3168,24 +3426,10 @@
      * @param gameId
      */
     enginesis.anonymousUserAddFavoriteGame = function(gameId) {
-        var gameIdList,
-            existingPos;
-
         if (enginesis.anonymousUser == null) {
             anonymousUserLoad();
         }
-        gameIdList = enginesis.anonymousUser.favoriteGames;
-        if (gameIdList != null && gameIdList.length > 0) {
-            existingPos = gameIdList.indexOf(gameId);
-            if (existingPos < 0) {
-                gameIdList.unshift(gameId);
-            }
-        } else if (gameIdList == null) {
-            gameIdList = [gameId];
-        } else {
-            gameIdList.push(gameId);
-        }
-        enginesis.anonymousUser.favoriteGames = gameIdList;
+        enginesis.anonymousUser.favoriteGames.add(gameId);
         anonymousUserSave();
     };
 
@@ -3195,26 +3439,10 @@
      * @param gameId
      */
     enginesis.anonymousUserGamePlayed = function(gameId) {
-        var gameIdList,
-            existingPos;
-
         if (enginesis.anonymousUser == null) {
             anonymousUserLoad();
         }
-        gameIdList = enginesis.anonymousUser.gamesPlayed;
-        if (gameIdList != null && gameIdList.length > 0) {
-            existingPos = gameIdList.indexOf(gameId);
-            if (existingPos > 0) {
-                gameIdList.splice(0, 0, gameIdList.splice(existingPos, 1)[0]);
-            } else if (existingPos < 0) {
-                gameIdList.unshift(gameId);
-            }
-        } else if (gameIdList == null) {
-            gameIdList = [gameId];
-        } else {
-            gameIdList.push(gameId);
-        }
-        enginesis.anonymousUser.gamesPlayed = gameIdList;
+        enginesis.anonymousUser.gamesPlayed.add(gameId);
         anonymousUserSave();
     };
 

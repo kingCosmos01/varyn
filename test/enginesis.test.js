@@ -13,7 +13,7 @@ test('Expect enginesis to exist and contain required functions', function() {
     expect(enginesis.conferenceTopicList).toBeDefined();
 });
 
-test('Expect enginesis version to be #.#.#', function() {
+test('Expect enginesis version to be #.#.#', function () {
     var version = enginesis.versionGet();
     var versionCheck = version.match(/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(\.(0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*)?(\+[0-9a-zA-Z-]+(\.[0-9a-zA-Z-]+)*)?$/);
     expect(versionCheck).toBeTruthy();
@@ -59,11 +59,10 @@ test('Expect enginesis isEnginesisResult to work', function () {
     };
     result = enginesis.isEnginesisResult(testObject);
     expect(result).toBeFalsy();
-    testObject = enginesis.makeErrorResponse("serviceName", 1, "NO_ERROR", "No message", { fn: "serviceName", user_id: 9999 });
+    testObject = enginesis.makeErrorResponse("serviceName", 1, "NO_ERROR", "No message", {fn: "serviceName", user_id: 9999});
     result = enginesis.isEnginesisResult(testObject);
     expect(result).toBeTruthy();
 });
-
 
 // test('Expect enginesis sessionMakeHash to work', function() {
 //     expect(enginesis.sessionMakeHash).toBeDefined();

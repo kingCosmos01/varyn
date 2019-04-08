@@ -1009,6 +1009,20 @@
     };
 
     /**
+     * Convert a string to a "slug". The result string can be used as a DOM id, a path part, or a safe string.
+     * Rules:
+     *   * Only allow A-Z, a-z, 0-9, dash, space.
+     *   * Trim any leading or trailing space.
+     *   * Only lowercase characters.
+     *   * Max length 50.
+     * @param string {string} A string to process.
+     * @return {string} Result string.
+     */
+    commonUtilities.stringToSlug = function (string) {
+        return string.replace(/[^ \w-]/g, '').trim().replace(/\s+/g, '-').toLowerCase().substr(0, 50);
+    }
+
+    /**
      * Determine if a string looks like a valid email address.
      * @param email {string}
      * @returns {boolean}

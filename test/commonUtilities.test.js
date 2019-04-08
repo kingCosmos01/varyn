@@ -352,7 +352,80 @@ test("unlockWebAudio", function() {
     expect(audioElement).toBeDefined();
     expect(audioElement.play).toBeDefined();
 });
-    
+
+test("test for commonUtilities.validateFields", function() {
+    expect(commonUtilities.validateFields).toBeDefined();
+
+    var keyValueArrayOfFields = {
+        name: "Herman",
+        gender: "M",
+        dob: new Date("1910-11-01")
+    };
+    var keyValueArrayOfDefinitions = {
+        name: {
+            type: "string",
+            optional: false,
+            min: 2,
+            max: 50
+        },
+        gender: {
+            type: "string",
+            optional: false,
+            min: 1,
+            max: 1
+        },
+        dob: {
+            type: "date",
+            optional: true
+        }
+    };
+
+    var result = commonUtilities.validateFields(keyValueArrayOfFields, keyValueArrayOfDefinitions);
+    expect(result).toBeInstanceOf(Array);
+});
+
+test("test string to slug function", function() {
+    var string = "1234";
+    var expected = "1234";
+    var result = commonUtilities.stringToSlug(string);
+    expect(result).toEqual(expected, "Numbers OK");
+
+    string = "abcd";
+    expected = "abcd";
+    result = commonUtilities.stringToSlug(string);
+    expect(result).toEqual(expected, "Letters OK");
+
+    string = "ABCD";
+    expected = "abcd";
+    result = commonUtilities.stringToSlug(string);
+    expect(result).toEqual(expected, "No uppercase letters");
+
+    string = "";
+    expected = "";
+    result = commonUtilities.stringToSlug(string);
+    expect(result).toEqual(expected, "Empty string OK");
+
+    string = "    ";
+    expected = "";
+    result = commonUtilities.stringToSlug(string);
+    expect(result).toEqual(expected, "No leading or trailing space");
+
+    string = "AdVanc3d sn0W";
+    expected = "advanc3d-sn0w";
+    result = commonUtilities.stringToSlug(string);
+    expect(result).toEqual(expected, "Lowercase only, numbers ok, space to dash");
+
+    string = "   AdVanc3d sn0W   ";
+    expected = "advanc3d-sn0w";
+    result = commonUtilities.stringToSlug(string);
+    expect(result).toEqual(expected, "Lowercase only, numbers ok, space to dash, no leading or trailing space");
+
+    string = " Lowercase only, numbers 333 ok, space t&&%o d\$ash, no le`ading or tr~ailing space ";
+    expected = "lowercase-only-numbers-333-ok-space-to-dash-no-lea";
+    result = commonUtilities.stringToSlug(string);
+    expect(result).toEqual(expected, "Lowercase, numbers, space to dash, no leading or trailing space, 50 chars max");
+});
+
 test("test for expected browser functions", function() {
     expect(commonUtilities.isMobile).toBeDefined();
     expect(commonUtilities.isMobileAndroid).toBeDefined();
@@ -380,5 +453,4 @@ test("test for expected browser functions", function() {
 
     expect(commonUtilities.performanceTest).toBeDefined();
     expect(commonUtilities.insertScriptElement).toBeDefined();
-    expect(commonUtilities.validateFields).toBeDefined();
 });
