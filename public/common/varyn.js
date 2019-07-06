@@ -1095,7 +1095,7 @@ var varyn = function (parameters) {
          * Setup any keyboard listeers the page should be looking out for.
          */
         setKeyboardListeners: function() {
-            document.addEventListener('keydown', this.keyboardListener.bind(this));
+            // document.addEventListener('keydown', this.keyboardListener.bind(this));
         },
 
         keyboardListener: function(event) {

@@ -120,6 +120,7 @@ var varynPlayPage = function (varynApp, siteConfiguration) {
                         gameContainerIframe.style.maxWidth = width + "px";
                         gameContainerIframe.style.height = height + "px";
                         gameContainerIframe.style.maxHeight = height + "px";
+                        gameContainerIframe.contentWindow.focus();
                     }
                     gameContainerDiv.style.width = width + "px";
                     gameContainerDiv.style.maxWidth = width + "px";
