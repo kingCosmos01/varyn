@@ -278,18 +278,18 @@ function immediateLog(message, error = true) {
 
 function updateBuildInfoFile() {
     var path = require('path'),
-        buildFileName = 'build-info.txt',
+        buildFileName = 'build-info.json',
         dateFormat = require('dateformat'),
         buildFolder = './public',
         user = env['USER'],
         package_name = env['npm_package_name'],
         version = env['npm_package_version'],
         buildFile = path.join(buildFolder, buildFileName),
-        currentDateTime = dateFormat('dddd yyyy-mm-dd HH:MM'),
+        currentDateTime = dateFormat('isoDateTime'),
         buildInfo = {
             packageName: package_name,
             version: version,
-            buildDate: currentDateTime,
+            publish_date: currentDateTime,
             user: user
         };
     echo(JSON.stringify(buildInfo)).to(buildFile);
