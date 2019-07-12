@@ -111,7 +111,7 @@ var varyn = function (parameters) {
             currentPage = this.getCurrentPage();
             pageViewParameters = pageViewParameterObject;
             // document.domain = siteConfiguration.serverHostDomain;
-            this.setKeyboardListeners();
+            // this.setKeyboardListeners();
             enginesis.init(enginesisParameters);
             if (pageViewParameters != null && pageViewParameters.showSubscribe !== undefined && pageViewParameters.showSubscribe == '1') {
                 varynApp.showSubscribePopup();
