@@ -15,6 +15,8 @@
   },
   "keywords": [
     "varyn",
+    "website",
+    "javascript",
     "games",
     "fun",
     "play"
@@ -26,13 +28,13 @@
   },
   "homepage": "https://github.com/VarynInc/varyn#readme",
   "devDependencies": {
-    "chalk": "^2.4.1",
-    "cheerio": "^1.0.0-rc.2",
+    "chalk": "^2.4.2",
+    "cheerio": "^1.0.0-rc.3",
     "dateformat": "^3.0.3",
-    "jest": "^24.7.1",
+    "jest": "^24.8.0",
     "path": "^0.12.7",
     "rsync": "^0.6.1",
     "shelljs": "^0.8.3",
-    "yargs": "^12.0.5"
+    "yargs": "^13.3.0"
   }
 }
