@@ -117,7 +117,8 @@ if ($networkId > 1) {
     $userInfoSSO = $socialServices->connectSSO();
 }
 $action = strtolower(getPostOrRequestVar('action', ''));
-if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we expect user-name and password
+if ($action == 'login' && ! $isLoggedIn) {
+    // User issued a login request we expect user-name and password
     $userName = getPostVar('login_form_username');
     $password = getPostVar('login_form_password');
     $rememberMe = valueToBoolean(getPostVar('rememberme', false));
@@ -145,10 +146,12 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
         setSiteUserCookie($userInfo, $enginesis->getServerName());
         $userInfoJSON = getSiteUserCookie();
     }
-} elseif ($action == 'signup' && ! $isLoggedIn) { // user requested to sign up, show the registration form
+} elseif ($action == 'signup' && ! $isLoggedIn) {
+    // user requested to sign up, show the registration form
     $showRegistrationForm = true;
     $inputFocusId = 'register_form_email';
-} elseif ($action == 'popupregister' && ! $isLoggedIn) { // user completed the short registration form
+} elseif ($action == 'popupregister' && ! $isLoggedIn) {
+    // user completed the short registration form
     $userName = getPostVar("register-username", '');
     $password = getPostVar("register-password", '');
     $email = getPostVar("register-email", '');
@@ -212,7 +215,8 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
         $inputFocusId = 'register-email';
     }
     $action = 'register';
-} elseif ($action == 'register' && ! $isLoggedIn) { // user completed the full page registration form
+} elseif ($action == 'register' && ! $isLoggedIn) {
+    // user completed the full page registration form
     $userName = getPostVar("register_form_username", '');
     $password = getPostVar("register_form_password", '');
     $email = getPostVar("register_form_email", '');
@@ -275,7 +279,8 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
         $inputFocusId = 'register_form_email';
         $showRegistrationForm = true;
     }
-} elseif ($action == 'update') { // user requested an update of their profile information
+} elseif ($action == 'update') {
+    // user requested an update of their profile information
     if ( ! $isLoggedIn || empty($userId)) {
         $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::MUST_BE_LOGGED_IN) . '</p>';
         debugLog("profile.php got into user edit without a valid logged in user.");
@@ -447,7 +452,8 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
             }
         }
     }
-} elseif ($action == 'forgotpassword') { // user completed the Forgot Password form, initiate a forgot password flow.
+} elseif ($action == 'forgotpassword') {
+    // user completed the Forgot Password form, initiate a forgot password flow.
     $userName = getPostVar("forgotpassword_username", '');
     $email = getPostVar("forgotpassword_email", '');
     $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
@@ -484,7 +490,8 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
         }
         $inputFocusId = 'profile_forgot_password';
     }
-} elseif ($action == 'resetpassword') { // user requested a Password Reset, initiate a forgot password flow.
+} elseif ($action == 'resetpassword') {
+    // user requested a Password Reset, initiate a forgot password flow.
     $result = $enginesis->userResetPassword();
     if ($result) {
         $errorMessage = '<p class="text-info">' . $stringTable->lookup(EnginesisUIStrings::REG_COMPLETE_RESET_MESSAGE, null) . '</p>';
@@ -511,7 +518,8 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
         }
         $inputFocusId = 'profile_forgot_password';
     }
-} elseif ($action == 'resendconfirm') { // User did not confirm registration or it expired, issue a new registration confirmation request.
+} elseif ($action == 'resendconfirm') {
+    // User did not confirm registration or it expired, issue a new registration confirmation request.
     $userName = getPostOrRequestVar('u');
     // TODO: 1. verify user-name is in waiting for confirm state. 2. call RegisteredUserResetSecondaryPassword
     $_user_id = getPostOrRequestVar('u', 0);
@@ -520,7 +528,8 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
     $_token = getPostOrRequestVar('t', '');
     $result = $enginesis->RegisteredUserResetSecondaryPassword($userName, $email);
     $redirectedStatusMessage = $stringTable->lookup(EnginesisUIStrings::REDIRECT_CONFIRM_MESSAGE, null);
-} elseif ($action == 'logout') { // User requested Logout.
+} elseif ($action == 'logout') {
+    // User requested Logout.
     $result = $enginesis->userLogout();
     clearVarynUserCookie($enginesis->getServerName());
     $isLogout = 'true'; // to communicate to varyn.js
@@ -533,20 +542,20 @@ if ($action == 'login' && ! $isLoggedIn) { // User issued a login request we exp
     $refreshToken = '';
     $userInfoJSON = '';
     $errorMessage = '<p class="text-info">' . $stringTable->lookup(EnginesisUIStrings::LOGOUT_COMPLETE, null) . '</p>';
-} elseif ($action == 'view') { // Request to View the profile of a specified user.
-    $viewUserId = getPostOrRequestVar('id', '');
-    if ($viewUserId == '') {
-        $viewUserId = getPostOrRequestVar('user', '');
-    }
+} elseif ($action == 'view') {
+    // Request to View the profile of a specified user.
+    $viewUserId = getPostOrRequestVar(['id','u','user'], '');
     if ($viewUserId != '') {
         $otherUserInfo = $enginesis->userGet($viewUserId);
     }
-} elseif ($action == 'test') { // Run some tests
+} elseif ($action == 'test') {
+    // Run some tests
     $debug = 1;
-    $testInfo = array();
-    $testInfo[] = 'add items to this array to display test results';
-    $testInfo[] = $stringTable->lookup(EnginesisUIStrings::MISSING_STRING, array('key' => 'user_id'));
-    $testInfo[] = $stringTable->lookup(EnginesisUIStrings::REG_INFO_UPDATED, array('key' => 'user_id'));
+    $testInfo = [
+        'add items to this array to display test results',
+        $stringTable->lookup(EnginesisUIStrings::MISSING_STRING, array('key' => 'user_id')),
+        $stringTable->lookup(EnginesisUIStrings::REG_INFO_UPDATED, array('key' => 'user_id'))
+    ];
 } else {
     if ($action == 'regconfirm') {
         // redirect from regconfirm.php so we can display the error message

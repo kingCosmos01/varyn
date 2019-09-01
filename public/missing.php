@@ -7,23 +7,29 @@ if ($search != null) {
 }
 $page = 'home';
 $showSubscribe = getPostOrRequestVar('s', '0');
+$extendedMessage = getPostOrRequestVar('m', null);
 include_once(VIEWS_ROOT . 'header.php');
 ?>
     <div class="container top-promo-area">
         <div class="row">
             <div id="Missing" class="col-sm-8">
                 <h2>Not Found Here</h2>
+                <?php
+                if ($extendedMessage) {
+                    echo('<p class="text-danger">' . $extendedMessage . '</p>');
+                }
+                ?>
                 <p class="text-danger">The content you are looking for is not at this location. The link may be incorrectly entered or the content you are looking for was moved to a new location.</p>
                 <p>Please check it, or use our search field, or use one of our other links to find the content you are looking for.</p>
                 <p><strong>But wait!</strong> While you are here, why not try one of these awesome games:</p>
-            </div><!-- /.Missing -->
+            </div>
             <div id="ad300" class="col-sm-4 col-md-2">
                 <div id="boxAd300" class="ad300">
                     <iframe src="<?php echo($webServer);?>/common/ad300.html" frameborder="0" scrolling="no" style="width: 300px; height: 250px; overflow: hidden; z-index: 9999; left: 0px; bottom: 0px; display: inline-block;"></iframe>
                 </div>
                 <p id="ad300-subtitle" class="text-right"><small>Advertisement</small></p>
             </div>
-        </div><!-- row -->
+        </div>
     </div>
     <div class="container marketing">
         <div class="panel panel-primary">

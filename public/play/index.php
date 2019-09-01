@@ -46,7 +46,7 @@ if ($gameInfo != null) {
 } else {
     // TODO: It may be better to go to /games/ with a search string ?q=$gameId but with an error message "Game not found"
     // header("Location: /games/?q=$gameId");
-    header("Location: /missing.php");
+    header("Location: /missing.php?m=" . urlencode("No information found for $gameId."));
     exit(0);
 }
 

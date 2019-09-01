@@ -1196,7 +1196,7 @@ class Enginesis
             $contents = $this->makeErrorResponse('SYSTEM_ERROR', $errorInfo, $parameters);
         }
         if ($debug) {
-            $this->debuLog("callServerAPI response from $fn: $contents");
+            $this->debugCallback("callServerAPI response from $fn: $contents");
         }
         if ($response == 'json') {
             $contentsObject = json_decode($contents);
@@ -2076,7 +2076,7 @@ class Enginesis
      * @return object
      */
     public function gameGetByName ($gameName) {
-        $enginesisResponse = $this->callServerAPI('GameGetByName', array('game_name' => $gameName));
+        $enginesisResponse = $this->callServerAPI('GameGetByName', ['game_name' => $gameName], true);
         $results = $this->setLastErrorFromResponse($enginesisResponse);
         if ($results != null && isset($results[0])) {
             $gameInfo = $results[0];
