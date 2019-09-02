@@ -32,6 +32,7 @@
         debugging: true,
         disabled: false, // use this flag to turn off communicating with the server
         isOnline: true,  // flag to determine if we are currently able to reach Enginesis servers
+        isPaused: false, // flag to track if the game is paused.
         errorLevel: 15,  // bitmask: 1=info, 2=warning, 4=error, 8=severe
         useHTTPS: false,
         serverStage: null,
@@ -54,6 +55,7 @@
         authTokenExpires: null,
         refreshToken: null,
         sessionId: null,
+        sessionExpires: null,
         siteKey: null,
         developerKey: null,
         loggedInUserInfo: null,
@@ -109,7 +111,7 @@
             enginesis.gameId = parameters.gameId != undefined ? parameters.gameId : 0;
             enginesis.gameKey = parameters.gameKey != undefined ? parameters.gameKey : "";
             enginesis.gameGroupId = parameters.gameGroupId != undefined ? parameters.gameGroupId : 0;
-            enginesis.languageCode = parameters.languageCode != undefined ? parameters.languageCode : "en";
+            enginesis.languageCode = setLanguageCode(parameters.languageCode);
             enginesis.serverStage = parameters.serverStage != undefined ? parameters.serverStage : "";
             enginesis.developerKey = parameters.developerKey != undefined ? parameters.developerKey : "";
             enginesis.authToken = parameters.authToken != undefined ? parameters.authToken : null;
@@ -265,8 +267,9 @@
     /**
      * Internal function to handle completed service request and convert the JSON response to
      * an object and then invoke the call back function.
-     * @param enginesisResponseData
-     * @param overRideCallBackFunction
+     * @param stateSequenceNumber {Number} The state identifier corresponding to this transaction.
+     * @param enginesisResponseData {EnginesisResponse} The Enginesis response object.
+     * @param overRideCallBackFunction {Function} Optional function to call when complete.
      */
     function requestCompleteXMLHTTP (stateSequenceNumber, enginesisResponseData, overRideCallBackFunction) {
         var enginesisResponseObject;
@@ -279,9 +282,9 @@
             debugLog("Enginesis requestComplete exception " + JSON.stringify(enginesisResponseObject));
         }
         enginesisResponseObject.fn = enginesisResponseObject.results.passthru.fn;
-        if (overRideCallBackFunction != null) {
+        if (typeof overRideCallBackFunction == "function") {
             overRideCallBackFunction(enginesisResponseObject);
-        } else if (enginesis.callBackFunction != null) {
+        } else if (typeof enginesis.callBackFunction == "function") {
             enginesis.callBackFunction(enginesisResponseObject);
         }
     }
@@ -323,30 +326,28 @@
 
     /**
      * This is the callback from a request to refresh the Enginesis login when the auth token
-     * expires. This response is similar to the initial login response.
+     * expires. This response is similar to the initial login response. Called from `sessionRefresh`.
      * @param {object} enginesisResult Enginesis result object.
      */
     function refreshSessionInfo(enginesisResult) {
+        var refreshSuccessful = false;
         if (enginesisResult && enginesisResult.results && enginesisResult.results.result.row) {
             var sessionInfo = enginesisResult.results.result.row;
+
+            debugLog(">>>>> enginesis.refreshSessionInfo new session id " + sessionInfo.session_id + " new CR " + sessionInfo.cr);
 
             // verify session hash so that we know the payload was not tampered with
             if ( ! sessionVerifyCr(sessionInfo.cr)) {
                 // TODO: In this case, we should fail. The hash from the server doesn't match
-                // what we computed locally, so it appears someone is trying to impersonate
+                // what we expected computed locally, so it appears someone is trying to impersonate
                 // another user. It could also be that the hash has expired and we just need
                 // to compute a new one.
                 debugLog("updateLoggedInUserInfo hash does not match. From server: " + sessionInfo.cr + ". Computed here: " + sessionMakeHash());
+                refreshSuccessful = false;
             }
-
-            // Save the new session id and user info
-            enginesis.sessionId = sessionInfo.session_id;
-            enginesis.authToken = sessionInfo.authtok;
-            enginesis.authTokenExpires = sessionInfo.expires;
-            enginesis.refreshToken = sessionInfo.refreshToken;
-            enginesis.authTokenWasValidated = true;
-            saveUserSessionInfo();
+            refreshSuccessful = saveUserSessionInfo(sessionInfo);
         }
+        return refreshSuccessful;
     }
 
     /**
@@ -379,6 +380,7 @@
 
     /**
      * Capture the session begin session id so we can use it for communicating with the server.
+     * Called from `sessionBegin`.
      * @param {object} enginesisResult Enginesis server response object
      */
     function updateGameSessionInfo(enginesisResult) {
@@ -386,6 +388,7 @@
         if (validateGameSessionHash(sessionInfo)) {
             updateGameInfo(enginesisResult);
             enginesis.sessionId = sessionInfo.session_id;
+            console.log("enginesis.updateGameSessionInfo session_id is " + enginesis.sessionId);
             enginesis.siteKey = sessionInfo.developerKey || "";
             if (sessionInfo.authtok) {
                 enginesis.authToken = sessionInfo.authtok;
@@ -397,6 +400,8 @@
             if (coerceBoolean(sessionInfo.tokenExpired) && ! isEmpty(enginesis.refreshToken)) {
                 // When the server says the token is expired and we have a refresh token, we can request a fresh auth token.
                 enginesis.sessionRefresh(enginesis.refreshToken, null);
+            } else {
+                saveUserSessionInfo(null);
             }
         }
         enginesis.siteResources.baseURL = sessionInfo.siteBaseUrl || "";
@@ -413,9 +418,11 @@
      * After a successful login copy everything we got back from the server about the
      * validated user. For example, we are going to need the session-id, authentication token,
      * and user-id for subsequent transactions with the server.
-     * @param {object} enginesisResult 
+     * @param {object} enginesisResult Log in data sent from the server.
+     * @returns {boolean} True if save is successful, false if error.
      */
     function updateLoggedInUserInfo(enginesisResult) {
+        var updated = false;
         if (enginesisResult && enginesisResult.results && enginesisResult.results.result.row) {
             var userInfo = enginesisResult.results.result.row;
             var loggedInUserInfo = enginesis.loggedInUserInfo;
@@ -429,7 +436,7 @@
                 debugLog("updateLoggedInUserInfo hash does not match. From server: " + userInfo.cr + ". Computed here: " + sessionMakeHash());
             }
             
-            // Copy user info locally
+            // Move server authorized user data into the local cache
             loggedInUserInfo.userId = userInfo.user_id;
             loggedInUserInfo.userName = userInfo.user_name;
             loggedInUserInfo.fullName = userInfo.real_name;
@@ -446,14 +453,7 @@
             loggedInUserInfo.location = userInfo.city;
             loggedInUserInfo.country = userInfo.country_code;
             enginesis.networkId = userInfo.network_id;
-
-            // Save the new session id and user info
-            enginesis.sessionId = userInfo.session_id;
-            enginesis.authToken = userInfo.authtok;
-            enginesis.authTokenWasValidated = true;
-            enginesis.authTokenExpires = userInfo.expires;
-            enginesis.refreshToken = userInfo.refreshToken;
-            saveUserSessionInfo();
+            updated = saveUserSessionInfo(userInfo);
 
         // {"user_id":"10240","site_id":"106","user_name":"Killer","real_name":"Varyn System",
 // "site_user_id":null,"network_id":"1","dob":"1955-08-06","gender":"M","city":"New York, NY",
@@ -469,6 +469,7 @@
 // "refreshToken":"blDRMDfGtQXZSuMMTo4hXbltsEIhS2kqcfvma\/eoBV0QNfUt1YixXucGeJL xX4\/uBCeuYnG0RE7e7zggxzcnS5L5Z4S6pPJKYlXQV1iAPWtA6d7vQH8Rau90eRV\/Gq3",
 // "expires":"2019-03-28 21:27:01"}
         }
+        return updated;
     }
 
     /**
@@ -505,25 +506,46 @@
         if (isNull(userInfo.siteId)) {
             userInfo.siteId = enginesis.siteId;
         }
+        if (isNull(userInfo.userId)) {
+            userInfo.userId = loggedInUserInfo.userId;
+        }
+        if (isNull(userInfo.gameId)) {
+            userInfo.gameId = enginesis.gameId;
+        }
         if (isNull(userInfo.siteKey)) {
             userInfo.siteKey = enginesis.siteKey;
         }
         if (isNull(userInfo.dayStamp)) {
             userInfo.dayStamp = sessionDayStamp();
         }
-        if (isNull(userInfo.userId)) {
-            userInfo.userId = loggedInUserInfo.userId;
-        }
         if (isNull(userInfo.userName)) {
             userInfo.userName = loggedInUserInfo.userName;
         }
         if (isNull(userInfo.siteUserId)) {
             userInfo.siteUserId = loggedInUserInfo.siteUserId;
+            if (isNull(userInfo.siteUserId)) {
+                userInfo.siteUserId = "";
+            }
         }
         if (isNull(userInfo.accessLevel)) {
             userInfo.accessLevel = loggedInUserInfo.accessLevel;
         }
-        return enginesis.md5("s=" + userInfo.siteId + "&u=" + userInfo.userId + "&d=" + userInfo.dayStamp + "&n=" + userInfo.userName + "&i=" + userInfo.siteUserId + "&l=" + userInfo.accessLevel + "&k=" + userInfo.siteKey);
+        if (userInfo.userId == 0) {
+            // Use the site mark only if we do not have a user id
+            if (isNull(userInfo.siteMark)) {
+                if (enginesis.anonymousUser) {
+                    userInfo.siteMark = enginesis.anonymousUser.userId;
+                } else {
+                    userInfo.siteMark = 0;
+                }
+            }
+        } else {
+            userInfo.siteMark = 0;
+        }
+        var hashClear = "s=" + userInfo.siteId + "&u=" + userInfo.userId + "&d=" + userInfo.dayStamp + "&n=" + userInfo.userName + "&g=" + userInfo.gameId + "&i=" + userInfo.siteUserId + "&l=" + userInfo.accessLevel + "&m=" + userInfo.siteMark + "&k=" + userInfo.siteKey;
+        var hash = enginesis.md5(hashClear);
+        console.log("sessionMakeHash from " + hashClear + " yields " + hash);
+        return hash;
     }
 
     /**
@@ -968,7 +990,7 @@
             formDataObject = {};
         }
         for (key in parameterObject) {
-            if (parameterObject.hasOwnProperty(key) && typeof parameterObject[key] !== "function") {
+            if (parameterObject.hasOwnProperty(key) && typeof parameterObject[key] !== "function" && key != "overRideCallBackFunction") {
                 if (enginesis.isBrowserBuild) {
                     formDataObject.append(key, parameterObject[key]);
                 } else {
@@ -1132,11 +1154,17 @@
         }
     }
 
+    function setLanguageCode(languageCode) {
+        if (isEmpty(languageCode)) {
+            return "en";
+        } else if (languageCode.length > 2) {
+            return languageCode.substr(0, 2);
+        }
+    }
+
     /**
      * Return the current document query string as an object with
      * key/value pairs converted to properties.
-     *
-     * @method queryStringToObject
      * @param {string} urlParamterString An optional query string to parse as the query string. If not
      *   provided then use window.location.search.
      * @return {object} result The query string converted to an object of key/value pairs.
@@ -1159,8 +1187,6 @@
 
     /**
      * Return the contents of the cookie indexed by the specified key.
-     *
-     * @method cookieGet
      * @param {string} key Indicate which cookie to get.
      * @returns {string} value Contents of cookie stored with key.
      */
@@ -1174,8 +1200,6 @@
 
     /**
      * Set a cookie indexed by the specified key.
-     *
-     * @method cookieSet
      * @param key {string} Indicate which cookie to set.
      * @param value {String|Object} Value to store under key.
      * @param expiration {Number|String|Date} When the cookie should expire. Number indicates
@@ -1261,13 +1285,38 @@
     }
 
     /**
+     * Remove the local cache of user info.
+     */
+    function clearUserSessionInfo() {
+        removeObjectWithKey(enginesis.SESSION_COOKIE);
+        initializeLocalSessionInfo();
+    }
+
+    /**
      * Once a user logs in successfully we save the important data in a local cache so we can
      * restore the session between game loads. If the session expires we can use a session
      * refresh instead of asking the user to log in again.
+     * @param {Object|null} sessionInfo the parameters that define the user session, otherwise saves
+     *   what is already set on the current session.
+     *   sessionInfo.expires is a UTC date when this info should expire.
      * @returns {boolean} true if the save was successful, otherwise false.
      */
-    function saveUserSessionInfo() {
-        var success = false;
+    function saveUserSessionInfo(sessionInfo) {
+        var haveValidSession;
+        if (sessionInfo) {
+            haveValidSession = true;
+            enginesis.sessionId = sessionInfo.session_id;
+            enginesis.sessionExpires = new Date(sessionInfo.session_expires);
+            enginesis.authToken = sessionInfo.authtok;
+            enginesis.authTokenExpires = new Date(sessionInfo.expires);
+            enginesis.refreshToken = sessionInfo.refreshToken;
+            enginesis.authTokenWasValidated = true;
+        } else {
+            haveValidSession = false;
+        }
+        console.log("enginesis.saveUserSessionInfo session id is " + enginesis.sessionId);
+
+        var success = true;
         var hash = sessionMakeHash();
         var loggedInUserInfo = enginesis.loggedInUserInfo;
         var userInfoToSave = {
@@ -1283,22 +1332,15 @@
             email: loggedInUserInfo.email,
             location: loggedInUserInfo.location,
             country: loggedInUserInfo.country,
-            sessionId: enginesis.sessionId,
-            authToken: enginesis.authToken,
-            authTokenExpires: enginesis.authTokenExpires,
+            sessionId: haveValidSession ? enginesis.sessionId : null,
+            sessionExpires: haveValidSession ? enginesis.sessionExpires.toJSON() : null,
+            authToken: haveValidSession ? enginesis.authToken : null,
+            authTokenExpires: haveValidSession ? enginesis.authTokenExpires.toJSON() : null,
             refreshToken: enginesis.refreshToken,
             cr: hash
         };
         saveObjectWithKey(enginesis.SESSION_COOKIE, userInfoToSave);
         return success;
-    }
-
-    /**
-     * Remove the local cache of user info.
-     */
-    function clearUserSessionInfo() {
-        removeObjectWithKey(enginesis.SESSION_COOKIE);
-        initializeLocalSessionInfo();
     }
 
     /**
@@ -1319,6 +1361,7 @@
                 userName: userInfoSaved.userName,
                 siteUserId: userInfoSaved.siteUserId || "",
                 accessLevel: userInfoSaved.accessLevel,
+                siteKey: userInfoSaved.siteKey
             });
             // TODO: verify hash to verify the payload was not tampered.
             // TODO: verify session, auth token, if no longer valid try to refresh the session.
@@ -1338,11 +1381,80 @@
             loggedInUserInfo.location = userInfoSaved.location;
             loggedInUserInfo.country = userInfoSaved.country;
             enginesis.sessionId = userInfoSaved.sessionId;
+            enginesis.sessionExpires = new Date(userInfoSaved.sessionExpires);
             enginesis.authToken = userInfoSaved.authToken;
-            enginesis.authTokenExpires = userInfoSaved.authTokenExpires;
+            enginesis.authTokenExpires = new Date(userInfoSaved.authTokenExpires);
             enginesis.refreshToken = userInfoSaved.refreshToken;
+            console.log("enginesis.restoreUserSessionInfo " + enginesis.sessionId);
         }
         return success;
+    }
+
+    /**
+     * Verify the information we have on this user matches what we cached from the server (in case
+     * a hacker compromised what's in memory.) Verify the authentication token has not expired. If
+     * it has we need to request a new one, which will require a trip to the server and take time.
+     * This is something that should be called before any sensitive transaction with the server.
+     * Granted, the server will still do these checks, but doing them here saves server resources
+     * and user frustration.
+     * @returns {Promise} Returns a Promise that will resolve if the session is not expired, or if
+     *   the session has expired then once a new session is established with the server. The new session
+     *   will automatically update the local cache and Enginesis internal state. This will reject if
+     *   the session cannot be refreshed, in which case the user must log in.
+     */
+    function verifyUserSessionInfo() {
+        return new Promise(function(resolve, reject) {
+            var hash;
+            var errorMessage;
+            var sessionExpireTime;
+            var sessionExpired;
+            var timeZoneOffset;
+            var isRefreshed = false;
+            var hashMatched = false;
+            var loggedInUserInfo = enginesis.loggedInUserInfo;
+            var userInfoSaved = loadObjectWithKey(enginesis.SESSION_COOKIE);
+            if (userInfoSaved != null) {
+                if (userInfoSaved.sessionExpires === undefined || userInfoSaved.sessionExpires == 0) {
+                    // if we don't get a session expire date then just assume it expired.
+                    sessionExpireTime = new Date();
+                } else {
+                    sessionExpireTime = new Date(userInfoSaved.sessionExpires);
+                }
+                timeZoneOffset = sessionExpireTime.getTimezoneOffset() * 60000;
+                sessionExpired = Date.now().valueOf() > (sessionExpireTime.valueOf() - timeZoneOffset);
+                hash = sessionMakeHash({
+                    siteId: enginesis.siteId,
+                    userId: loggedInUserInfo.userId,
+                    userName: loggedInUserInfo.userName,
+                    siteUserId: loggedInUserInfo.siteUserId || "",
+                    accessLevel: loggedInUserInfo.accessLevel,
+                    siteKey: enginesis.siteKey
+                });
+                hashMatched = (hash == userInfoSaved.cr) && loggedInUserInfo.userId == userInfoSaved.userId;
+                if ( ! sessionExpired && hashMatched) {
+                    isRefreshed = true;
+                    resolve(isRefreshed);
+                } else {
+                    if (sessionExpired) {
+                        debugLog("verifyUserSessionInfo Session expired but we think we can refresh it.");
+                        enginesis.sessionRefresh(_getRefreshToken(), null)
+                        .then(function() {
+                            isRefreshed = true;
+                            resolve(isRefreshed);
+                        }, function(enginesisError) {
+                            reject(enginesisError);
+                        })
+                        .catch(function(exception) {
+                            reject(exception);
+                        });
+                    } else {
+                        errorMessage = "Session hash does not match but session not expired.";
+                        debugLog("verifyUserSessionInfo " + errorMessage + " from cache: " + userInfoSaved.cr + ". Computed here: " + hash);
+                        reject(new Error(errorMessage));
+                    }
+                }
+            }
+        });
     }
 
     /**
@@ -1520,12 +1632,13 @@
      * @param {int} score Game final score.
      * @param {string} gameData JSON string of game-specific play data.
      * @param {int} timePlayed Game play time related to score and gameData, in milliseconds.
-     * @param {string} sessionId Id that was given at SessionBegin.
+     * @param {string} sessionId Session id that was given at SessionBegin.
      * @returns {string} the encrypted score payload or null if an error occurred.
      */
     function encryptScoreSubmit(siteId, userId, gameId, score, gameData, timePlayed, sessionId) {
         var result = null;
         var rawScoreString = "site_id=" + siteId.toString() + "&user_id=" + userId.toString() + "&game_id=" + gameId.toString() + "&score=" + score.toString() + "&game_data=" + gameData + "&time_played=" + timePlayed.toString();
+        console.log("Encrypting with " + sessionId + " data " + rawScoreString);
         result = enginesis.blowfish.encryptString(rawScoreString, sessionId);
         return result;
     }
@@ -2046,6 +2159,14 @@
     };
 
     /**
+     * Return the current logged in user id.
+     * @returns {integer} current logged in user id or 0 if no user is logged in.
+     */
+    enginesis.userIdGet = function() {
+        return enginesis.isUserLoggedIn() ? enginesis.loggedInUserInfo.userId : 0;
+    }
+
+    /**
      * Determine if the object is an Enginesis result object.
      * @param {object} enginesisResult The object to test.
      * @returns {boolean} true if the result is considered an Enginesis result object, otherwise false.
@@ -2152,6 +2273,33 @@
     };
 
     /**
+     * A game must call `pause` when going to background or pausing the game. This allows Enginesis to
+     * update its internal state and pause any timers or network requests and wait for the `resume` call.
+     */
+    enginesis.pause = function() {
+        enginesis.isPaused = true;
+    };
+
+    /**
+     * A game must call `resume` when restoring from a paused state. Enginesis will undo anything
+     * put on hold for pause as well as perform necessary state checks.
+     * - Check the session is still valid and not expired and if so issue a refresh in the background.
+     */
+    enginesis.resume = function() {
+        enginesis.isPaused = false;
+        if (enginesis.isUserLoggedIn()) {
+            // check expiration of the session and refresh if we need to
+            enginesis.sessionRefreshIfExpired()
+            .then(function(isRefreshed) {
+                debugLog("Session was " + (isRefreshed ? "refreshed" : "OK"));
+            })
+            .catch(function(exception) {
+                debugLog("Session sessionRefreshIfExpired exception " + exception.toString());
+            });
+        }
+    };
+
+    /**
      * Return an object of user information. If no user is logged in a valid object is still returned but with invalid user info.
      * @returns {object}
      */
@@ -2234,9 +2382,8 @@
     };
 
     /**
-     * @method: useHTTPS
-     * @purpose: get and/or set the use HTTPS flag, allowing the caller to force the protocol. By default we set
-     *           useHTTPS from the current document location. This allows the caller to query it and override its value.
+     * Get and/or set the use HTTPS flag, allowing the caller to force the protocol. By default we set
+     * useHTTPS from the current document location. This allows the caller to query it and override its value.
      * @param: {boolean} useHTTPSFlag should be either true to force https or false to force http, or undefined to leave it as is
      * @returns: {boolean} the current state of the useHTTPS flag.
      */
@@ -2285,20 +2432,23 @@
         var siteResources = enginesis.siteResources;
 
         if (siteResources.profileURL != undefined && siteResources.profileURL.length > 0) {
+            urlBase = getProtocol() + siteResources.baseURL;
             return {
-                root: getProtocol() + siteResources.baseURL,
-                forgotPassword: siteResources.forgotPasswordURL,
-                login: siteResources.loginURL,
-                play: siteResources.playURL,
-                privacy: siteResources.privacyURL,
-                profile: siteResources.profileURL,
-                register: siteResources.registerURL,
-                terms: siteResources.termsURL
+                root: urlBase,
+                forgotPassword: urlBase + siteResources.forgotPasswordURL,
+                login: urlBase + siteResources.loginURL,
+                play: urlBase + siteResources.playURL,
+                privacy: urlBase + siteResources.privacyURL,
+                profile: urlBase + siteResources.profileURL,
+                register: urlBase + siteResources.registerURL,
+                terms: urlBase + siteResources.termsURL
             };    
         } else {
             // TODO: if SessionBegin was not called we won't have this information. We need an alternative in this scenario. Maybe force a call to SessionBegin?
+            // TODO: using varyn.com as the default makes no sense here.
+            urlBase = getProtocol() + "varyn" + enginesis.serverStage + ".com";
             return {
-                root: getProtocol() + "varyn" + enginesis.serverStage + ".com",
+                root: urlBase,
                 forgotPassword: urlBase + "/procs/forgotpass.php",
                 login: urlBase + "/profile/",
                 play: urlBase + "/play/",
@@ -2355,15 +2505,6 @@
      */
     enginesis.siteIdGet = function () {
         return enginesis.siteId;
-    };
-
-    /**
-     * Set or override the current site-id.
-     * @param newSiteId
-     * @returns {number}
-     */
-    enginesis.siteIdSet = function (newSiteId) {
-        return enginesis.siteId = newSiteId;
     };
 
     /**
@@ -2488,15 +2629,16 @@
      * call this when you attempt to call a service and it replied with TOKEN_EXPIRED.
      * @param refreshToken {string} optional, if not provided (empty/null) then we try to pull the one we have in the local store.
      * @param overRideCallBackFunction
-     * @returns {boolean} true if successful but if false call getLastError to get an error code as to what went wrong.
+     * @returns {Promise} Resolves if successful but if fails then call getLastError to get an error code as to what went wrong.
      */
     enginesis.sessionRefresh = function (refreshToken, overRideCallBackFunction) {
+        var serviceName = "SessionRefresh";
         if (isEmpty(refreshToken)) {
             refreshToken = _getRefreshToken();
             if (isEmpty(refreshToken)) {
                 enginesis.lastError = "NOT_LOGGED_IN";
                 enginesis.lastErrorMessage = "You are not logged in.";
-                return false;
+                return immediateErrorResponse(serviceName, {}, enginesis.lastError, enginesis.lastErrorMessage, overRideCallBackFunction);
             }
         }
         var game_id = enginesis.gameIdGet();
@@ -2505,7 +2647,17 @@
         if ( ! enginesis.isUserLoggedIn()) {
             siteMark = enginesis.anonymousUser.userId;
         }
-        return sendRequest("SessionRefresh", {token: refreshToken, game_id: game_id, gamekey: gameKey, site_mark: siteMark}, overRideCallBackFunction);
+        return sendRequest(serviceName, {token: refreshToken, game_id: game_id, gamekey: gameKey, site_mark: siteMark}, overRideCallBackFunction);
+    };
+
+    /**
+     * Proactive check to see if the user's session has expired, and if so, refresh it.
+     * @returns {Promise} A Promise that will resolve if the session if OK or if the session has been refreshed.
+     *   If this rejects, it usually means a session doesn't exist, the user is not truly logged in, or the
+     *   session information we have in the cache has been compromised.
+     */
+    enginesis.sessionRefreshIfExpired = function () {
+        return verifyUserSessionInfo();
     };
 
     /**
@@ -2542,8 +2694,7 @@
     };
 
     /**
-     * @method: gameDataGet
-     * @purpose: Get user generated game data. Not to be confused with gameConfigGet (which is system generated.)
+     * Get user generated game data. Not to be confused with gameConfigGet (which is system generated.)
      * @param: {int} gameDataId The specific id assigned to the game data to get. Was generated by gameDataCreate.
      * @returns: {boolean} status of send to server.
      */
@@ -2595,24 +2746,35 @@
      * @returns {boolean}
      */
     enginesis.sendToFriend = function(fromAddress, fromName, toAddress, userMessage, lastScore, overRideCallBackFunction) {
-        return sendRequest("GameDataCreate", {
-            referrer: "Enginesis",
-            from_address: fromAddress,
-            from_name: fromName,
-            to_address: toAddress,
-            to_name: "User",
-            user_msg: userMessage,
-            user_files: "",
-            game_data: "",
-            name_tag: "",
-            add_to_gallery: 0,
-            last_score: lastScore
-        }, overRideCallBackFunction);
+        var errorCode = "";
+        var service = "GameDataCreate";
+        if (( ! enginesis.authTokenWasValidated || enginesis.loggedInUserInfo.userId == 0) && (isEmpty(fromAddress) || isEmpty(fromName))) {
+            // if not logged in, fromAddress, fromName must be provided. Otherwise we get it on the server from the logged in user info.
+            errorCode = "INVALID_PARAM";
+        } else if (isEmpty(enginesis.gameId)) {
+            errorCode = "INVALID_GAME_ID";
+        }
+        if (errorCode == "") {
+            return sendRequest(service, {
+                referrer: "Enginesis",
+                from_address: fromAddress,
+                from_name: fromName,
+                to_address: toAddress,
+                to_name: "User",
+                user_msg: userMessage,
+                user_files: "",
+                game_data: "",
+                name_tag: "",
+                add_to_gallery: 0,
+                last_score: lastScore
+            }, overRideCallBackFunction);
+        } else {
+            return immediateErrorResponse(service, {game_id: gameId, from_address: fromAddress, from_name: fromName}, errorCode, "Error encountered while processing send to friend.", overRideCallBackFunction);
+        }
     };
 
     /**
-     * @method: gameConfigGet
-     * @purpose: Get game data configuration. Not to be confused with GameData (which is user generated.)
+     * Get game data configuration. Not to be confused with GameData (which is user generated.)
      * @param: {int} gameConfigId A specific game data configuration to get. If provided the other parameters are ignored.
      * @param: {int} gameId The gameId, if 0 then the gameId set previously will be assumed. gameId is mandatory.
      * @param: {int} categoryId A category id if the game organizes its data configurations by categories. Otherwise use 0.
@@ -2772,7 +2934,7 @@
     };
 
     enginesis.scoreSubmitUnauth = function (gameId, userName, score, gameData, timePlayed, userSource, overRideCallBackFunction) {
-        var sessionId = "";
+        var sessionId = enginesis.sessionId;
         // TODO: userName = enginesis.anonymousUser.userName, site_mark = enginesis.anonymousUser.userId;
         return sendRequest("ScoreSubmitUnauth", {game_id: gameId, session_id: sessionId, user_name: userName, score: score, game_data: gameData, time_played: timePlayed, user_source: userSource}, overRideCallBackFunction);
     };
