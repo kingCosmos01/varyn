@@ -146,11 +146,6 @@ function getUserExtendedInfoCookieName ()
     return SiteConfiguration.varynUserInfoCookieName;
 }
 
-function getEnginesisSessionCookieName ()
-{
-    return SiteConfiguration.enginesisSessionCookieName;
-}
-
 function GoToHomePage ()
 {
     window.location = '/';
@@ -186,11 +181,6 @@ function setLoginCookie (userId, siteUserId, userName, sessionId, authtoken)
     userInfoObject.cr = cr;
     cookieValue = arrayAsQueryString(userInfoObject);
     window.localStorage.setItem(cookieName, cookieValue);
-
-    cookieName = getEnginesisSessionCookieName();
-    cookieValue = authtoken;
-    Enginesis.debugLog("setLoginCookie for enginesis cookie c=" + cookieName + "; value=" + cookieValue);
-    createCookie(cookieName, cookieValue, 2);
 }
 
 function saveExtendedUserInfo (enginesisResultsRow)
@@ -286,7 +276,7 @@ function getLoggedInUserInfo ()
 function isLoggedInUser ()
 {
     // check if login cookie is set and it is valid AND we have the enginesis token
-    var isLoggedIn = false;
+    var isLoggedIn;
     var haveUserInfo = false;
     var localCookie = window.localStorage.getItem(getLoginCookieName());
     if (localCookie != null && localCookie.length > 0) {
@@ -298,10 +288,7 @@ function isLoggedInUser ()
         haveUserInfo = true;
         Enginesis.debugLog("isLoggedInUser c=" + getLoginCookieName() + "; id=" + userInfoObject.userId + "; name=" + userInfoObject.userName + "; session=" + userInfoObject.sessionId + "; tok=" + userInfoObject.authtoken);
     }
-    var enginesisSessionToken = readCookie(getEnginesisSessionCookieName());
-    if (enginesisSessionToken != null && haveUserInfo) {
-        isLoggedIn = true;
-    }
+    isLoggedIn = haveUserInfo && Enginesis.isLoggedInUser();
     return isLoggedIn;
 }
 
@@ -309,7 +296,6 @@ function logOutUser ()
 {
     // clear login state
     window.localStorage.removeItem(getLoginCookieName());
-    eraseCookie(getEnginesisSessionCookieName());
     FB.logout(function(response) {Enginesis.debugLog("Facebook user is logged out");});
     window.localStorage.removeItem("userName");
     window.localStorage.removeItem("password");

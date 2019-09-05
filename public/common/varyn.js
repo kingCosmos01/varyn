@@ -9,7 +9,6 @@ var varyn = function (parameters) {
     var siteConfiguration = {
             debug: true,
             originWhiteList: ['www.enginesis.com', 'games.enginesis.com', 'metrics.enginesis.com', 'www.enginesis-l.com', 'games.enginesis-l.com', 'metrics.enginesis-l.com', 'www.enginesis-q.com', 'games.enginesis-q.com', 'metrics.enginesis-q.com'],
-            enginesisSessionCookieName: 'engsession',
             varynLoginCookieName: 'varynsession',
             varynUserInfoCookieName: 'varynuser',
             developerKey: parameters.developerKey,

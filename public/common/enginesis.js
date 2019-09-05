@@ -181,7 +181,7 @@
      * @returns {boolean}
      */
     function isEmpty (field) {
-        return (typeof field === "undefined") || field === null || (typeof field === "string" && field === "") || (field instanceof Array && field.length == 0) || field === false || (typeof field === "number" && (isNaN(field) || field === 0));
+        return field === undefined || field === null || (typeof field === "string" && (field === "" || field === "undefined")) || (field instanceof Array && field.length == 0) || field === false || (typeof field === "number" && (isNaN(field) || field === 0));
     }
 
     /**
@@ -1156,10 +1156,11 @@
 
     function setLanguageCode(languageCode) {
         if (isEmpty(languageCode)) {
-            return "en";
+            languageCode = "en";
         } else if (languageCode.length > 2) {
-            return languageCode.substr(0, 2);
+            languageCode = languageCode.substr(0, 2);
         }
+        return languageCode;
     }
 
     /**
