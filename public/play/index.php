@@ -45,13 +45,15 @@ if ($gameInfo != null) {
     $gameContainerHTML = setGameContainer($gameInfo, $enginesis->getServiceRoot(), $siteId, $gameId);
 } else {
     // TODO: It may be better to go to /games/ with a search string ?q=$gameId but with an error message "Game not found"
-    // header("Location: /games/?q=$gameId");
     header("Location: /missing.php?m=" . urlencode("No information found for $gameId."));
     exit(0);
 }
 
+/**
+ * generate the necessary HTML to setup the game container div.
+ */
 function setGameContainer ($gameInfo, $enginesisServer, $siteId, $gameId) {
-    // generate the necessary HTML to setup the game container div
+    global $authToken;
 
     $width = $gameInfo->width;
     $height = $gameInfo->height;
@@ -64,14 +66,16 @@ function setGameContainer ($gameInfo, $enginesisServer, $siteId, $gameId) {
     } else {
         if ($pluginId == 10) { // canvas
             if (strpos($gameInfo->game_link, '://') > 0) {
+                // if the link specifies a protocol then it is a full URL to a webpage
                 $gameLink = $gameInfo->game_link;
             } else {
+                // otherwise it is a file in the game folder on the matching Enginesis stage
                 $gameLink = $enginesisServer . 'games/' . $gameInfo->game_name . '/' . $gameInfo->game_link;
             }
         } else {
             $gameLink = $enginesisServer . 'games/play.php?site_id=' . $siteId . '&game_id=' . $gameId;
         }
-        // $gameContainerHTML .= '<iframe id="gameContainer-iframe" src="' . $gameLink . '" allowfullscreen scrolling="' . $allowScroll . '" width="' . $width . '" height="' . $height . '" border="0"></iframe>';
+        $gameLink = appendQueryParameter($gameLink, 'authtok', $authToken);
         $gameContainerHTML .= '<iframe id="gameContainer-iframe" src="' . $gameLink . '" allowfullscreen scrolling="' . $allowScroll . '"></iframe>';
     }
     return $gameContainerHTML;

@@ -124,6 +124,33 @@ function currentPageName() {
     return basename($_SERVER['PHP_SELF'], '.php');
 }
 
+/**
+ * Append a query parameter on to the end of a URL string. This helper function handles
+ * the edge cases.
+ * @param $url {string} The initial URL. Can be null or empty string.
+ * @param $key {string} A key to add as a query parameter. Cannot be empty.
+ * @param $value {string} The value for the key. Cannot be null.
+ */
+function appendQueryParameter($url, $key, $value) {
+    if ( ! empty($key) && $value !== null) {
+        if (empty($url)) {
+            $url = '';
+        }
+        $queryString = urlencode($key) . '=' . urlencode($value);
+        $hasQuery = strpos($url, '?');
+        if ($hasQuery === false) {
+            $updatedURL = $url. '?' . $queryString;
+        } elseif ($hasQuery == (strlen($url) - 1)) {
+            $updatedURL = $url . $queryString;
+        } else {
+            $updatedURL = $url . '&' . $queryString;
+        }
+    } else {
+        $updatedURL = $url;
+    }
+    return $updatedURL;
+}
+
 function encodeURLParams ($parameters) {
     $encodedURLParams = '';
     foreach ($parameters as $key => $value) {

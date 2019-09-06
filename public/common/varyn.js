@@ -98,8 +98,8 @@ var varyn = function (parameters) {
                     siteId: siteConfiguration.siteId,
                     gameId: siteConfiguration.gameId || 0,
                     gameGroupId: siteConfiguration.gameGroupId || 0,
-                    serverStage: 'enginesis.' + siteConfiguration.serverHostDomain,
-                    authToken: siteConfiguration.authToken || '',
+                    serverStage: "enginesis." + siteConfiguration.serverHostDomain,
+                    authToken: siteConfiguration.authToken || "",
                     developerKey: siteConfiguration.developerKey,
                     languageCode: this.parseLanguageCode(siteConfiguration.languageCode),
                     callBackFunction: this.enginesisCallBack.bind(this)
@@ -109,8 +109,6 @@ var varyn = function (parameters) {
             _isLogout = pageViewParameterObject.isLogout;
             currentPage = this.getCurrentPage();
             pageViewParameters = pageViewParameterObject;
-            // document.domain = siteConfiguration.serverHostDomain;
-            // this.setKeyboardListeners();
             enginesis.init(enginesisParameters);
             if (pageViewParameters != null && pageViewParameters.showSubscribe !== undefined && pageViewParameters.showSubscribe == '1') {
                 varynApp.showSubscribePopup();
