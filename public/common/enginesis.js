@@ -907,10 +907,12 @@
             state_status: 0,
             response: "json"
         };
-        if (enginesis.loggedInUserInfo.userId != 0) {
+        if (enginesis.loggedInUserInfo.userId != 0 && enginesis.authTokenWasValidated) {
             serverParams.logged_in_user_id = enginesis.loggedInUserInfo.userId;
-            serverParams.user_id = enginesis.loggedInUserInfo.userId;
             serverParams.authtok = enginesis.authToken;
+            if (isNull(serverParams.user_id)) {
+                serverParams.user_id = enginesis.loggedInUserInfo.userId;
+            }
         }
         if (enginesis.gameId) {
             serverParams.game_id = enginesis.gameId;
