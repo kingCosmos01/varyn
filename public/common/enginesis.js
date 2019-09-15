@@ -1266,7 +1266,10 @@
     /**
      * Get info about the current logged in user, if there is one, from authtok parameter or cookie.
      * The authentication token can be provided to the game via query string (authtok=xxx) or
-     * stored in a HTTP session cookie.
+     * stored in a HTTP session cookie. The priority logic is:
+     *   1. use authToken provided as a parameter to `enginesis.init()`
+     *   2. else, use authtok provided as a query to the current page
+     *   3. else, use authToken saved in enginesis session cookie
      * @returns {boolean} true if a user is restored this way, false if not.
      */
     function restoreUserFromAuthToken () {
@@ -1275,20 +1278,24 @@
         var userInfo;
         var wasRestored = false;
 
-        if (authToken == null || authToken == "") {
+        if (isEmpty(authToken)) {
             queryParameters = queryStringToObject();
-            if (typeof queryParameters.authtok !== "undefined") {
+            if (queryParameters.authtok !== undefined) {
                 authToken = queryParameters.authtok;
+                debugLog("restoreUserFromAuthToken from query: " + authToken);
             }
+        } else {
+            debugLog("restoreUserFromAuthToken from parameter: " + authToken);
         }
-        if (authToken == null || authToken == "") {
+        if (isEmpty(authToken)) {
             authToken = cookieGet(enginesis.SESSION_COOKIE);
+            debugLog("restoreUserFromAuthToken from cookie: " + authToken);
         }
-        if (authToken != null && authToken != "") {
+        if ( ! isEmpty(authToken)) {
             // TODO: Validate the token (for now we are accepting that it is valid but we should check!) If the authToken is valid then we can trust the userInfo
             // TODO: we can use cr to validate the token was not changed
             userInfo = cookieGet(enginesis.SESSION_USERINFO);
-            if (userInfo != null && userInfo != "") {
+            if ( ! isEmpty(userInfo)) {
                 userInfo = JSON.parse(userInfo);
                 if (userInfo != null) {
                     enginesis.authToken = authToken;
@@ -1300,7 +1307,14 @@
                     enginesis.networkId = Math.floor(userInfo.network_id);
                     wasRestored = true;
                 }
+                debugLog("restoreUserFromAuthToken valid user: " + enginesis.loggedInUserInfo.userName + "(" + enginesis.loggedInUserInfo.userId + ")");
+            } else {
+                // if we have an authtoken but we did not cache the user info, then
+                // if we trust that token, we need to log this user in
+                debugLog("restoreUserFromAuthToken valid token but no cached user " + authToken);
             }
+        } else {
+            debugLog("restoreUserFromAuthToken no token to authorize.");
         }
         return wasRestored;
     }
