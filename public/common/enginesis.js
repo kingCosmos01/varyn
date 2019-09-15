@@ -107,15 +107,15 @@
     enginesis.init = function(parameters) {
         initializeLocalSessionInfo();
         if (parameters) {
-            enginesis.siteId = parameters.siteId != undefined ? parameters.siteId : 0;
-            enginesis.gameId = parameters.gameId != undefined ? parameters.gameId : 0;
-            enginesis.gameKey = parameters.gameKey != undefined ? parameters.gameKey : "";
-            enginesis.gameGroupId = parameters.gameGroupId != undefined ? parameters.gameGroupId : 0;
+            enginesis.siteId = parameters.siteId !== undefined ? parameters.siteId : 0;
+            enginesis.gameId = parameters.gameId !== undefined ? parameters.gameId : 0;
+            enginesis.gameKey = parameters.gameKey !== undefined ? parameters.gameKey : "";
+            enginesis.gameGroupId = parameters.gameGroupId !== undefined ? parameters.gameGroupId : 0;
             enginesis.languageCode = setLanguageCode(parameters.languageCode);
-            enginesis.serverStage = parameters.serverStage != undefined ? parameters.serverStage : "";
-            enginesis.developerKey = parameters.developerKey != undefined ? parameters.developerKey : "";
-            enginesis.authToken = parameters.authToken != undefined ? parameters.authToken : null;
-            enginesis.callBackFunction = parameters.callBackFunction != undefined ? parameters.callBackFunction : null;
+            enginesis.serverStage = parameters.serverStage !== undefined ? parameters.serverStage : "*";
+            enginesis.developerKey = parameters.developerKey !== undefined ? parameters.developerKey : "";
+            enginesis.authToken = parameters.authToken !== undefined ? parameters.authToken : null;
+            enginesis.callBackFunction = parameters.callBackFunction !== undefined ? parameters.callBackFunction : null;
         }
         setPlatform();
         setProtocolFromCurrentLocation();
@@ -1078,9 +1078,11 @@
     function qualifyAndSetServerStage (newServerStage) {
         var regMatch;
         var currentHost = enginesis.isBrowserBuild ? global.location.host : ""; // TODO: How to get host in NodeJS?
+        enginesis.serverHost = null;
 
-        if (typeof newServerStage === "undefined" || newServerStage == null) {
-            newServerStage = currentHost;
+        if (newServerStage === undefined || newServerStage === null) {
+            // if a stage is not request then match the current stage
+            newServerStage = "*";
         }
         switch (newServerStage) {
             case "":
@@ -1090,33 +1092,49 @@
             case "-x":
                 // use the stage requested
                 enginesis.serverStage = newServerStage;
-                enginesis.serverHost = "www.enginesis" + enginesis.serverStage + ".com";
                 break;
             case "*":
                 // match the stage matching current host
                 if (currentHost.substr(0, 9) == "localhost") {
                     newServerStage = "-l";
                 } else {
-                    regMatch = /\-[ldqx]\./.exec(currentHost);
+                    regMatch = /-[ldqx]\./.exec(currentHost);
                     if (regMatch != null && regMatch.index > 0) {
                         newServerStage = currentHost.substr(regMatch.index, 2);
                     } else {
-                        newServerStage = ""; // anything we do not expect goes to the live instance
+                        // anything we do not expect goes to the live instance
+                        newServerStage = "";
                     }
                 }
                 enginesis.serverStage = newServerStage;
-                enginesis.serverHost = "www.enginesis" + enginesis.serverStage + ".com";
                 break;
             default:
                 // if it was not a stage match assume it is a full host name, find the stage in it if it exists
-                regMatch = /\-[ldqx]\./.exec(newServerStage);
+                regMatch = /-[ldqx]\./.exec(newServerStage);
                 if (regMatch != null && regMatch.index > 0) {
                     enginesis.serverStage = newServerStage.substr(regMatch.index, 2);
                 } else {
-                    enginesis.serverStage = ""; // anything we do not expect goes to the live instance
+                    // anything we do not expect goes to the live instance
+                    enginesis.serverStage = "";
                 }
+                // use the domain requested
                 enginesis.serverHost = newServerStage;
                 break;
+        }
+        if (enginesis.serverHost === null) {
+            // convert www.host.tld into enginesis.host.tld
+            var service = "enginesis";
+            var domainParts = currentHost.split(".");
+            var numberOfParts = domainParts.length;
+            if (numberOfParts > 1) {
+                enginesis.serverHost = service
+                    + "."
+                    + domainParts[numberOfParts - 2].replace(/-[ldqx]$/, "")
+                    + enginesis.serverStage
+                    + "." + domainParts[numberOfParts - 1];
+            } else {
+                enginesis.serverHost = currentHost;
+            }
         }
         enginesis.siteResources.serviceURL = getProtocol() + enginesis.serverHost + "/index.php";
         enginesis.siteResources.avatarImageURL = getProtocol() + enginesis.serverHost + "/avatar/index.php";
