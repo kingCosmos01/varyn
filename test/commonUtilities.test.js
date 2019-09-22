@@ -155,12 +155,16 @@ test("is empty", function() {
     expect(result).toBeTruthy();
     result = commonUtilities.isEmpty([]);
     expect(result).toBeTruthy();
+    result = commonUtilities.isEmpty("null");
+    expect(result).toBeTruthy();
+    result = commonUtilities.isEmpty("NULL");
+    expect(result).toBeTruthy();
+    result = commonUtilities.isEmpty(NaN);
+    expect(result).toBeTruthy();
 
     result = commonUtilities.isEmpty(" ");
     expect(result).toBeFalsy();
     result = commonUtilities.isEmpty("0");
-    expect(result).toBeFalsy();
-    result = commonUtilities.isEmpty("null");
     expect(result).toBeFalsy();
     result = commonUtilities.isEmpty(1);
     expect(result).toBeFalsy();
@@ -177,6 +181,137 @@ test("is empty", function() {
     expect(result).toBeFalsy();
     result = commonUtilities.isEmpty([1]);
     expect(result).toBeFalsy();
+});
+
+test("is null", function () {
+    var result;
+    var valueUndefined;
+    var valueNull = null;
+    var valueOK = "OK";
+
+    result = commonUtilities.isNull();
+    expect(result).toBeTruthy();
+    result = commonUtilities.isNull(null);
+    expect(result).toBeTruthy();
+    result = commonUtilities.isNull(valueNull);
+    expect(result).toBeTruthy();
+    result = commonUtilities.isNull(valueUndefined);
+    expect(result).toBeTruthy();
+
+    result = commonUtilities.isNull(valueOK);
+    expect(result).toBeFalsy();
+    result = commonUtilities.isNull("0");
+    expect(result).toBeFalsy();
+    result = commonUtilities.isNull(0);
+    expect(result).toBeFalsy();
+    result = commonUtilities.isNull(NaN);
+    expect(result).toBeFalsy();
+    result = commonUtilities.isNull(false);
+    expect(result).toBeFalsy();
+    result = commonUtilities.isNull("false");
+    expect(result).toBeFalsy();
+});
+
+test("coerce boolean", function () {
+    var result = commonUtilities.coerceBoolean(1);
+    expect(result).toBeTruthy();
+    result = commonUtilities.coerceBoolean(true);
+    expect(result).toBeTruthy();
+    result = commonUtilities.coerceBoolean("true");
+    expect(result).toBeTruthy();
+    result = commonUtilities.coerceBoolean("t");
+    expect(result).toBeTruthy();
+    result = commonUtilities.coerceBoolean("TRUE");
+    expect(result).toBeTruthy();
+    result = commonUtilities.coerceBoolean("T");
+    expect(result).toBeTruthy();
+    result = commonUtilities.coerceBoolean("1");
+    expect(result).toBeTruthy();
+    result = commonUtilities.coerceBoolean("y");
+    expect(result).toBeTruthy();
+    result = commonUtilities.coerceBoolean("Y");
+    expect(result).toBeTruthy();
+    result = commonUtilities.coerceBoolean("yes");
+    expect(result).toBeTruthy();
+    result = commonUtilities.coerceBoolean("YES");
+    expect(result).toBeTruthy();
+    result = commonUtilities.coerceBoolean("Yes");
+    expect(result).toBeTruthy();
+    result = commonUtilities.coerceBoolean("checked");
+    expect(result).toBeTruthy();
+    result = commonUtilities.coerceBoolean("Checked");
+    expect(result).toBeTruthy();
+    result = commonUtilities.coerceBoolean("CHECKED");
+    expect(result).toBeTruthy();
+
+    result = commonUtilities.coerceBoolean(false);
+    expect(result).toBeFalsy();
+    result = commonUtilities.coerceBoolean(0);
+    expect(result).toBeFalsy();
+    result = commonUtilities.coerceBoolean(11);
+    expect(result).toBeFalsy();
+    result = commonUtilities.coerceBoolean(null);
+    expect(result).toBeFalsy();
+    result = commonUtilities.coerceBoolean();
+    expect(result).toBeFalsy();
+    result = commonUtilities.coerceBoolean(undefined);
+    expect(result).toBeFalsy();
+    result = commonUtilities.coerceBoolean(NaN);
+    expect(result).toBeFalsy();
+    result = commonUtilities.coerceBoolean(666);
+    expect(result).toBeFalsy();
+    result = commonUtilities.coerceBoolean("666");
+    expect(result).toBeFalsy();
+    result = commonUtilities.coerceBoolean("");
+    expect(result).toBeFalsy();
+    result = commonUtilities.coerceBoolean("F");
+    expect(result).toBeFalsy();
+    result = commonUtilities.coerceBoolean("false");
+    expect(result).toBeFalsy();
+    result = commonUtilities.coerceBoolean("null");
+    expect(result).toBeFalsy();
+});
+
+test("coerce null", function () {
+    var result = commonUtilities.coerceNotNull();
+    expect(result).toBe(null);
+    result = commonUtilities.coerceNotNull(undefined);
+    expect(result).toBe(null);
+    result = commonUtilities.coerceNotNull(null);
+    expect(result).toBe(null);
+    result = commonUtilities.coerceNotNull(6);
+    expect(result).toBe(6);
+    result = commonUtilities.coerceNotNull("22");
+    expect(result).toBe("22");
+    result = commonUtilities.coerceNotNull(null, undefined, "22");
+    expect(result).toBe("22");
+    result = commonUtilities.coerceNotNull(null, null, null, null, null, null, null, null, null, "22");
+    expect(result).toBe("22");
+    result = commonUtilities.coerceNotNull(null, null, null, null, "66", null, null, null, null, "22");
+    expect(result).toBe("66");
+    result = commonUtilities.coerceNotNull(null, null, null, null, 66, null, null, null, null, 22);
+    expect(result).toBe(66);
+    result = commonUtilities.coerceNotNull(null, null, null, null, 0, null, null, null, null, 22);
+    expect(result).toBe(0);
+});
+
+test("coerce empty", function () {
+    var result = commonUtilities.coerceNotEmpty();
+    expect(result).toBe(null);
+    result = commonUtilities.coerceNotEmpty(undefined);
+    expect(result).toBe(undefined);
+    result = commonUtilities.coerceNotEmpty(null);
+    expect(result).toBe(null);
+    result = commonUtilities.coerceNotEmpty(6);
+    expect(result).toBe(6);
+    result = commonUtilities.coerceNotEmpty("22");
+    expect(result).toBe("22");
+    result = commonUtilities.coerceNotEmpty(null, null, null, null, 0, null, null, null, null, 22);
+    expect(result).toBe(22);
+    result = commonUtilities.coerceNotEmpty(null, "", NaN, undefined, 0, null, false, null, "null", 22);
+    expect(result).toBe(22);
+    result = commonUtilities.coerceNotEmpty(null, "", NaN, undefined, "66", null, false, null, "null", 22);
+    expect(result).toBe("66");
 });
 
 test("MySQLDate", function() {

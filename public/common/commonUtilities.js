@@ -315,20 +315,104 @@
     }
 
     /**
-     * Determine if a variable is "empty", which could depend on what type it is:
-     *   any variant when null or undefined
-     *   if a boolean, then when false
-     *   if a number, then when 0
-     *   if a string, then 0 length
-     *   if an array, then 0 length
-     * Given boolean logic expression order of precedence, we should arrange the return
-     *   statement with the most likely case first, the least likely case last.
-     * @param field var any variable
-     * @returns {boolean} returns true if empty, false if not empty.
+     * Determine if a given variable is considered an empty value. A value is considered empty if it is any one of
+     * `null`, `undefined`, `false`, `NaN`, an empty string, an empty array, or 0. Note this does not consider an
+     * empty object `{}` to be empty.
+     * @param {any} field The parameter to be tested for emptiness.
+     * @returns {boolean} `true` if `field` is considered empty.
      */
     commonUtilities.isEmpty = function (field) {
-        return (typeof field === "undefined") || field === null || field === "" || (field instanceof Array && field.length == 0) || field === false || field === 0;
-    };
+        return field === undefined
+            || field === null
+            || field === false
+            || (typeof field === "string" && (field === "" || field === "null" || field === "NULL"))
+            || (field instanceof Array && field.length == 0)
+            || (typeof field === "number" && (isNaN(field) || field === 0));
+    }
+
+    /**
+     * Determine if a given variable is considered null (either null or undefined).
+     * At the moment this will not check for "null"/"NULL" values, as when using SQL.
+     * @param {any} field A value to consider.
+     * @returns {boolean} `true` if `value` is considered null.
+     */
+    commonUtilities.isNull = function(field) {
+        return field === undefined || field === null;
+    }
+
+    /**
+     * Coerce a value to its boolean equivelent, causing the value to be interpreted as its 
+     * boolean intention. This works very different that the JavaScript coercion. For example,
+     * "0" == true and "false" == true in JavaScript but here "0" == false and "false" == false.
+     * @param {*} value A value to test.
+     * @returns {boolean} `true` if `value` is considered a coercible true value.
+     */
+    commonUtilities.coerceBoolean = function(value) {
+        if (typeof value === "string") {
+            value = value.toLowerCase();
+            return value === "1" || value === "true" || value === "t" || value === "checked" || value === "yes" || value === "y";
+        } else {
+            return value === true || value === 1;
+        }
+    }
+
+    /**
+     * Coerce a value to the first non-empty value of a given set of parameters. It is expected the last
+     * parameter is a non-empty value and is the expected result when all arguments are empty values. If
+     * for some reason this function is called with an unexpected number of parameters it returns `null`.
+     * See `isEmpty()` for the meaning of "empty".
+     * @param {any} arguments Any number of parameters, at least the last one is expected to be not empty.
+     * @returns {any} The first parameter encountered, in order, that is not an empty value.
+     */
+    commonUtilities.coerceNotEmpty = function() {
+        var result;
+        var numberOfArguments = arguments.length;
+        if (numberOfArguments == 0) {
+            result = null;
+        } else if (numberOfArguments == 1) {
+            result = arguments[0];
+        } else {
+            for (var i = 0; i < numberOfArguments; i++) {
+                if (! commonUtilities.isEmpty(arguments[i])) {
+                    result = arguments[i];
+                    break;
+                }
+            }
+            if (result === undefined) {
+                result = arguments[numberOfArguments - 1];
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Coerce a value to the first non-null value of a given set of parameters. It is expected the last
+     * parameter is a non-null value and is the expected result when all arguments are null values. If
+     * for some reason this function is called with an unexpected number of parameters it returns `null`.
+     * See `isNull()` for the meaning of "null".
+     * @param {any} arguments Any number of parameters, at least the last one is expected to be not null.
+     * @returns {any} The first parameter encountered, in order, that is not a null value.
+     */
+    commonUtilities.coerceNotNull = function() {
+        var result;
+        var numberOfArguments = arguments.length;
+        if (numberOfArguments == 0) {
+            result = null;
+        } else if (numberOfArguments == 1) {
+            result = arguments[0] === undefined ? null : arguments[0];
+        } else {
+            for (var i = 0; i < numberOfArguments; i++) {
+                if (! commonUtilities.isNull(arguments[i])) {
+                    result = arguments[i];
+                    break;
+                }
+            }
+            if (result === undefined) {
+                result = arguments[numberOfArguments - 1];
+            }
+        }
+        return result;
+    }
 
     /**
      * Convert a string into one that has no HTML vunerabilities such that it can be rendered inside an HTML tag.
