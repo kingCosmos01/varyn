@@ -7,7 +7,6 @@
  */
 date_default_timezone_set('America/New_York');
 define('LOGFILE_PREFIX', 'enginesis_php_');
-define('SITE_SESSION_COOKIE', 'enguser');
 define('ENGINESIS_SITE_NAME', 'Enginesis');
 define('ENGINESIS_SITE_ID', 100);
 define('DEBUG_ACTIVE', false);

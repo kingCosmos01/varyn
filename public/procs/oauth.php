@@ -220,7 +220,6 @@
                                                 $authToken = $userInfo->authtok;
                                                 $refreshToken = $userInfo->refreshToken;
                                                 $userId = $userInfo->user_id;
-                                                setSiteUserCookie($userInfo, $enginesis->getServerName());
                                                 if ( ! $debug) {
                                                     header('Location: /profile/');
                                                 }

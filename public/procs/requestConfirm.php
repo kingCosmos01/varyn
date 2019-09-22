@@ -24,7 +24,7 @@
     $errorMessage = '';
 
     if ($isLoggedIn) {
-        $userInfo = getSiteUserCookieObject();
+        $userInfo = $enginesis->getLoggedInUserInfo();
         $authToken = $userInfo->authtok;
         $user_id = $userInfo->user_id; // only use the user_id that is logged in
         $site_id = $userInfo->site_id;

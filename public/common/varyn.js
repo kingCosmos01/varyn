@@ -9,8 +9,8 @@ var varyn = function (parameters) {
     var siteConfiguration = {
             debug: true,
             originWhiteList: ['www.enginesis.com', 'games.enginesis.com', 'metrics.enginesis.com', 'www.enginesis-l.com', 'games.enginesis-l.com', 'metrics.enginesis-l.com', 'www.enginesis-q.com', 'games.enginesis-q.com', 'metrics.enginesis-q.com'],
-            varynLoginCookieName: 'varynsession',
             varynUserInfoCookieName: 'varynuser',
+            userInfoKey: 'varynuserinfo',
             developerKey: parameters.developerKey,
             siteId: parameters.siteId,
             gameId: parameters.gameId,
@@ -30,7 +30,6 @@ var varyn = function (parameters) {
             minUserNameLength: 3,
             minimumAge: 13
         },
-        userInfoKey = 'VarynAppUserInfo',
         unconfirmedNetworkId = 1,
         currentPage = '',
         waitingForUserNameReply = false,
@@ -53,30 +52,40 @@ var varyn = function (parameters) {
         return resultNetworkId;
     }
 
+    /**
+     * The server will give us a user info object as a cookie so that we know who is logged in on the client.
+     */
     function getVarynUserInfoFromCookie () {
         var userInfoJSON = commonUtilities.cookieGet(siteConfiguration.varynUserInfoCookieName);
         if (userInfoJSON != null && userInfoJSON != '') {
+            // TODO: verify the cookie user info has not been tampered with.
             return JSON.parse(userInfoJSON);
         }
         return null;
     }
 
     /**
-     * If a prior user object was saved we can retrieve it.
+     * If a prior user object was saved in local storage we can retrieve it.
      * @returns {null|object}
      */
     function getSavedUserInfo () {
-        var userInfoJSON = commonUtilities.loadObjectWithKey(userInfoKey);
-        return typeof userInfoJSON === 'string' ? JSON.parse(userInfoJSON) : userInfoJSON;
+        var userInfo = commonUtilities.loadObjectWithKey(siteConfiguration.userInfoKey);
+        if (typeof userInfo === 'string') {
+            userInfo = JSON.parse(userInfoJSON);
+        }
+        // TODO: verify the loaded user info has not been tampered with, at least verify the hash matches what is expected.
+        // However, since this is data given to use from enginesis, enginesis must provide the API to verify this data.
+        return userInfo;
     }
 
     /**
-     * Save the verified logged in user info.
+     * Save the verified logged in user info in local storage so we are able to remember who is
+     * logged in over page loads.
      * @param userInfo
      * @returns {*}
      */
     function saveUserInfo (userInfo) {
-        return commonUtilities.saveObjectWithKey(userInfoKey, userInfo);
+        return commonUtilities.saveObjectWithKey(siteConfiguration.userInfoKey, userInfo);
     }
 
     /**
@@ -84,7 +93,7 @@ var varyn = function (parameters) {
      * @returns {*}
      */
     function clearSavedUserInfo () {
-        return commonUtilities.removeObjectWithKey(userInfoKey);
+        return commonUtilities.removeObjectWithKey(siteConfiguration.userInfoKey);
     }
 
     return {
@@ -160,15 +169,18 @@ var varyn = function (parameters) {
         },
 
         /**
-         * Return the current logged in user info object.
-         * TODO: Verify the user is in fact logged in and token is valid.
-         * @returns {*}
+         * Return the current logged in user info object. We first check to see if we cached this
+         * from a prior request, if not cached then check local storage, and if not there either then
+         * see if the server gave it to us by cookie. If none of these check out we could make a
+         * server call (TODO).
+         * TODO: Verify the user is in fact logged in and the token is valid.
+         * @returns {object|null} null if no user is logged in.
          */
         getVarynUserInfo: function () {
             // user info could come from authtok or cookie.
             var userInfo = siteConfiguration.userInfo;
             if (userInfo == null) {
-                userInfo = commonUtilities.loadObjectWithKey(userInfoKey);
+                userInfo = commonUtilities.loadObjectWithKey(siteConfiguration.userInfoKey);
                 if (userInfo == null) {
                     userInfo = getVarynUserInfoFromCookie();
                 }

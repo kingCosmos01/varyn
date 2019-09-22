@@ -46,7 +46,6 @@ $redirectedStatusMessage = '';
 $invalidFields = null;
 $socialServices = null;
 $otherUserInfo = null;
-$userInfoJSON = ''; // a JSON representation of the $userInfo object
 $userInfo = null;
 $authToken = '';
 $refreshToken = '';
@@ -89,8 +88,6 @@ if ($networkId > 1) {
                 $authToken = $userInfo->authtok;
                 $refreshToken = $userInfo->refreshToken;
                 $userId = $userInfo->user_id;
-                setSiteUserCookie($userInfo, $enginesis->getServerName());
-                $userInfoJSON = getSiteUserCookie();
             }
         } else {
             debugLog("Connection for network $networkId SSO returned no logged in user");
@@ -100,16 +97,7 @@ if ($networkId > 1) {
     }
 } elseif ($isLoggedIn) {
     // if we have the Enginesis login cookie then we should also verify the user's login with any SSO is still valid.
-    if ($enginesis->getTokenStatus() == EnginesisRefreshStatus::refreshed) {
-        $userInfo = $enginesis->getRefreshedUserInfo();
-        setSiteUserCookie($userInfo, $enginesis->getServerName());
-    } else {
-        $userInfo = getSiteUserCookieObject();
-        if ($userInfo == null) {
-            $userInfo = $enginesis->sessionUserInfoGet();
-        }
-    }
-    $userInfoJSON = getSiteUserCookie();
+    $userInfo = $enginesis->getLoggedInUserInfo();
     $authToken = $userInfo->authtok;
     $userId = $userInfo->user_id;
     $networkId = $enginesis->getNetworkId();
@@ -143,8 +131,6 @@ if ($action == 'login' && ! $isLoggedIn) {
         $authToken = $userInfo->authtok;
         $refreshToken = $userInfo->refreshToken;
         $userId = $userInfo->user_id;
-        setSiteUserCookie($userInfo, $enginesis->getServerName());
-        $userInfoJSON = getSiteUserCookie();
     }
 } elseif ($action == 'signup' && ! $isLoggedIn) {
     // user requested to sign up, show the registration form
@@ -399,8 +385,6 @@ if ($action == 'login' && ! $isLoggedIn) {
                                     if ($userInfo) {
                                         $authToken = $userInfo->authtok;
                                         $userId = $userInfo->user_id;
-                                        setSiteUserCookie($userInfo, $enginesis->getServerName());
-                                        $userInfoJSON = getSiteUserCookie();
                                     } else {
                                         // TODO: using the refresh token failed, either it expired or there is a system error.
                                         $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REG_INFO_INCOMPLETE, null) . '</p>';
@@ -531,7 +515,6 @@ if ($action == 'login' && ! $isLoggedIn) {
 } elseif ($action == 'logout') {
     // User requested Logout.
     $result = $enginesis->userLogout();
-    clearVarynUserCookie($enginesis->getServerName());
     $isLogout = 'true'; // to communicate to varyn.js
     $isLoggedIn = false;
     $userInfo = null;
@@ -540,7 +523,6 @@ if ($action == 'login' && ! $isLoggedIn) {
     $password = '';
     $authToken = '';
     $refreshToken = '';
-    $userInfoJSON = '';
     $errorMessage = '<p class="text-info">' . $stringTable->lookup(EnginesisUIStrings::LOGOUT_COMPLETE, null) . '</p>';
 } elseif ($action == 'view') {
     // Request to View the profile of a specified user.
@@ -564,9 +546,8 @@ if ($action == 'login' && ! $isLoggedIn) {
             $redirectedStatusMessage = $stringTable->lookup(EnginesisUIStrings::WELCOME_MESSAGE, null);
             // TODO: Verify the cookie/token matches this user
             // TODO: There should be a safeguard if a hacker comes with action+code but is really not the user we think he is spoofing
-            $userInfo = getSiteUserCookieObject();
+            $userInfo = $enginesis->getLoggedInUserInfo();
             $isValidSession = verifySessionIsValid($userId, $authToken);
-            $userInfoJSON = getSiteUserCookie();
             $isLoggedIn = true;
             $authToken = $userInfo->authtok;
             $refreshToken = $userInfo->refreshToken;
@@ -598,14 +579,13 @@ if ($action == 'login' && ! $isLoggedIn) {
     }
     if ($isLoggedIn) {
         if ($userInfo == null) {
-            $userInfo = getSiteUserCookieObject();
+            $userInfo = $enginesis->getLoggedInUserInfo();
             if ($userInfo == null) {
                 $userInfo = $enginesis->sessionUserInfoGet();
             }
         }
         $authToken = $userInfo->authtok;
         $userId = $userInfo->user_id;
-        $userInfoJSON = getSiteUserCookie();
     }
 }
 
@@ -659,7 +639,7 @@ include_once(VIEWS_ROOT . 'header.php');
     }
     if ($otherUserInfo == null && $isLoggedIn && ! $showRegistrationForm) {
         if ( ! isset($userInfo)) {
-            $userInfo = getSiteUserCookieObject();
+            $userInfo = $enginesis->getLoggedInUserInfo();
             if ($userInfo == null) {
                 $userInfo = $enginesis->sessionUserInfoGet();
             }
@@ -947,7 +927,7 @@ if (empty($refreshToken)) {
                 errorFieldId: '<?php echo($errorFieldId);?>',
                 inputFocusId: '<?php echo($inputFocusId);?>',
                 showSubscribe: '<?php echo($showSubscribe);?>',
-                userInfo: '<?php echo(addslashes($userInfoJSON));?>',
+                userInfo: '<?php echo(addslashes(json_encode($enginesis->getLoggedInUserInfo())));?>',
                 isLogout: <?php echo($isLogout);?>
             };
         varynApp = varyn(siteConfiguration);

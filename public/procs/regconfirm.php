@@ -27,7 +27,6 @@ if ($site_id > 0 && $user_id > 0 && $token != '') {
         $errorCode = $enginesis->getLastErrorCode();
     } else {
         $errorCode = 'SUCCESS';
-        setSiteUserCookie($serverResponse, $enginesis->getServerName());
         $errorCode .= '&u=' . $user_id . '&t=' . $token;
     }
 } else {

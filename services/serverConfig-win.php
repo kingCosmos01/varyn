@@ -6,7 +6,6 @@
  */
 date_default_timezone_set('America/New_York');
 define('LOGFILE_PREFIX', 'varyn');
-define('SITE_SESSION_COOKIE', 'varynuser');
 define('ENGINESIS_SITE_NAME', 'Varyn');
 define('ENGINESIS_SITE_ID', 106);
 define('DEBUG_ACTIVE', false);
