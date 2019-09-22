@@ -1252,28 +1252,32 @@
         if ( ! key || /^(?:expires|max\-age|path|domain|secure)$/i.test(key)) {
             return false;
         } else {
-            if (typeof value === "object") {
-                value = JSON.stringify(value);
-            }
-            if (expiration) {
-                switch (expiration.constructor) {
-                case Number:
-                    expires = expiration === Infinity ? neverExpires : "; max-age=" + expiration;
-                    break;
-                case String:
-                    expires = "; expires=" + expiration;
-                    break;
-                case Date:
-                    expires = "; expires=" + expiration.toUTCString();
-                    break;
-                default:
-                    expires = neverExpires;
-                    break;
-                }
+            if (value === null) {
+                document.cookie = encodeURIComponent(key) + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" + (domain ? "; domain=" + domain : "") + (path ? "; path=" + path : "");
             } else {
-                expires = neverExpires;
+                if (typeof value === "object") {
+                    value = JSON.stringify(value);
+                }
+                if (expiration) {
+                    switch (expiration.constructor) {
+                    case Number:
+                        expires = expiration === Infinity ? neverExpires : "; max-age=" + expiration;
+                        break;
+                    case String:
+                        expires = "; expires=" + expiration;
+                        break;
+                    case Date:
+                        expires = "; expires=" + expiration.toUTCString();
+                        break;
+                    default:
+                        expires = neverExpires;
+                        break;
+                    }
+                } else {
+                    expires = neverExpires;
+                }
+                document.cookie = encodeURIComponent(key) + "=" + encodeURIComponent(value) + expires + (domain ? "; domain=" + domain : "") + (path ? "; path=" + path : "") + (isSecure ? "; secure" : "");
             }
-            document.cookie = encodeURIComponent(key) + "=" + encodeURIComponent(value) + expires + (domain ? "; domain=" + domain : "") + (path ? "; path=" + path : "") + (isSecure ? "; secure" : "");
             return true;
         }
     };
@@ -1335,7 +1339,8 @@
      * Remove the local cache of user info.
      */
     function clearUserSessionInfo() {
-        removeObjectWithKey(enginesis.SESSION_COOKIE);
+        removeObjectWithKey(enginesis.SESSION_USERINFO);
+        cookieSet(enginesis.SESSION_USERINFO, null, 0, "/", "", false);
         initializeLocalSessionInfo();
     }
 
@@ -2348,27 +2353,13 @@
      */
     enginesis.getLoggedInUserInfo = function () {
         if (enginesis.isUserLoggedIn()) {
-            return {
-                isLoggedIn: enginesis.isUserLoggedIn(),
-                userId: enginesis.loggedInUserInfo.user_id,
-                userName: enginesis.loggedInUserInfo.user_name,
-                realName: enginesis.loggedInUserInfo.real_name,
-                userRank: enginesis.loggedInUserInfo.user_rank,
-                level: enginesis.loggedInUserInfo.level,
-                siteExperiencePoints: enginesis.loggedInUserInfo.site_experience_points,
-                siteCurrencyValue: enginesis.loggedInUserInfo.site_currency_value,
-                lastLogin: enginesis.loggedInUserInfo.last_login,
-                emailAddress: enginesis.loggedInUserInfo.email_address,
-                city: enginesis.loggedInUserInfo.city,
-                countryCode: enginesis.loggedInUserInfo.country_code,
-                siteUserId: enginesis.loggedInUserInfo.site_user_id,
-                networkId: enginesis.networkId,
-                accessLevel: enginesis.loggedInUserInfo.access_level,
-                gender: enginesis.loggedInUserInfo.gender,
-                dob: enginesis.loggedInUserInfo.dob,
-                accessToken: enginesis.authToken,
-                tokenExpiration: enginesis.tokenExpirationDate
-            };
+            var userInfo = {};
+            for (var property in enginesis.loggedInUserInfo) {
+                if (enginesis.loggedInUserInfo.hasOwnProperty(property)) {
+                    userInfo[property] = enginesis.loggedInUserInfo[property];
+                }
+            }
+            return userInfo;
         } else {
             return null;
         }
@@ -3264,7 +3255,7 @@
     };
 
     /**
-     * Logout the current logged in user. This invalidates any session data we are holding
+     * Log out the current logged in user. This invalidates any session data we are holding
      * both locally and on the server.
      * @returns {Promise} A promise that resolves with the server's response.
      */
