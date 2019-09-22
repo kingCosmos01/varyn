@@ -70,7 +70,7 @@ var varynPlayPage = function (varynApp, siteConfiguration) {
 
     function setGameContainer (pageViewParameters, enginesisSession) {
         var gameContainerDiv = document.getElementById("gameContainer"),
-            gameContainerIframe,
+            gameContainerIframe = document.getElementById("gameContainer-iframe"),
             requiredAspectRatio,
             requestedWidth = pageViewParameters.width,
             requestedHeight = pageViewParameters.height,
@@ -114,13 +114,11 @@ var varynPlayPage = function (varynApp, siteConfiguration) {
                     var height = window.innerHeight - boundingRect.top;
 
                     // the game will fit the available space
-                    gameContainerIframe = document.getElementById("gameContainer-iframe");
                     if (gameContainerIframe != null) {
                         gameContainerIframe.style.width = width + "px";
                         gameContainerIframe.style.maxWidth = width + "px";
                         gameContainerIframe.style.height = height + "px";
                         gameContainerIframe.style.maxHeight = height + "px";
-                        gameContainerIframe.contentWindow.focus();
                     }
                     gameContainerDiv.style.width = width + "px";
                     gameContainerDiv.style.maxWidth = width + "px";
@@ -131,6 +129,12 @@ var varynPlayPage = function (varynApp, siteConfiguration) {
                     gameContainerDiv.style.maxHeight = requestedHeight + "px";
                 }
             }
+        }
+        // Set focus on the iframe so that the keyboard works for the game, not the parent website.
+        if (gameContainerIframe != null) {
+            window.setTimeout(function() {
+                gameContainerIframe.contentWindow.focus();
+            }, 150);
         }
     }
 
