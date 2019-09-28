@@ -635,14 +635,11 @@ class Enginesis
      */
     public function sessionGetAuthenticationToken () {
         $authenticationToken = getPostOrRequestVar('authtok', '');
-        $method = "GET/POST";
         if (empty($authenticationToken)) {
             if (isset($_COOKIE[SESSION_COOKIE])) {
                 $authenticationToken = $_COOKIE[SESSION_COOKIE];
-                $method = "COOKIE";
             } else {
                 $authenticationToken = null;
-                $method = "NONE";
             }
         }
         return $authenticationToken;
