@@ -15,6 +15,7 @@ Desktop.ini
 $RECYCLE.BIN/
 node_modules/
 services/serverConfig.php
+services/deploy-config.json
 public/blog/wp-content/uploads/
 
 data/
