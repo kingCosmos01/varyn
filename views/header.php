@@ -22,10 +22,12 @@ if (empty($pageIcon)) {
     $pageIcon = '/favicon-196x196.png';
 }
 if (empty($pageOGLink)) {
-    $pageOGLink = '//www.varyn.com';
+    $pageOGLink = currentPageURL();
 }
 if (empty($pageSocialImage1)) {
     $pageSocialImage1 = '//www.varyn.com/images/1200x900.png';
+    $pageSocialImageWidth = 1200;
+    $pageSocialImageHeight = 900;
 }
 if (empty($pageSocialImage2)) {
     $pageSocialImage2 = '//www.varyn.com/images/VarynIcon1080.jpg';
@@ -79,6 +81,8 @@ if (empty($pageSocialImage2)) {
     <meta property="og:site_name" content="Varyn">
     <meta property="og:description" content="<?php echo($pageDescription);?>">
     <meta property="og:image" content="<?php echo($pageSocialImage1);?>"/>
+    <meta property="og:image:width" content="<?php echo($pageSocialImageWidth);?>"/>
+    <meta property="og:image:height" content="<?php echo($pageSocialImageHeight);?>"/>
     <meta property="og:image" content="<?php echo($pageSocialImage2);?>"/>
     <meta property="og:image" content="//www.varyn.com/images/1200x600.png"/>
     <meta property="og:image" content="//www.varyn.com/images/VarynIcon640.jpg"/>
@@ -90,6 +94,7 @@ if (empty($pageSocialImage2)) {
     <meta name="twitter:url" content="<?php echo($pageOGLink);?>">
     <meta name="twitter:creator" content="@varyndev"/>
     <meta name="twitter:title" content="<?php echo($pageTitle);?>"/>
+    <meta name="twitter:description" content="<?php echo($pageDescription);?>"/>
     <meta name="twitter:image" content="<?php echo($pageSocialImage1);?>"/>
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-41765479-1"></script>
     <script>
