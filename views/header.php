@@ -25,12 +25,12 @@ if (empty($pageOGLink)) {
     $pageOGLink = currentPageURL();
 }
 if (empty($pageSocialImage1)) {
-    $pageSocialImage1 = '//www.varyn.com/images/1200x900.png';
+    $pageSocialImage1 = 'https://www.varyn.com/images/1200x900.png';
     $pageSocialImageWidth = 1200;
     $pageSocialImageHeight = 900;
 }
 if (empty($pageSocialImage2)) {
-    $pageSocialImage2 = '//www.varyn.com/images/VarynIcon1080.jpg';
+    $pageSocialImage2 = 'https://www.varyn.com/images/VarynIcon1080.jpg';
 }
 ?>
 <!DOCTYPE html>
@@ -84,9 +84,9 @@ if (empty($pageSocialImage2)) {
     <meta property="og:image:width" content="<?php echo($pageSocialImageWidth);?>"/>
     <meta property="og:image:height" content="<?php echo($pageSocialImageHeight);?>"/>
     <meta property="og:image" content="<?php echo($pageSocialImage2);?>"/>
-    <meta property="og:image" content="//www.varyn.com/images/1200x600.png"/>
-    <meta property="og:image" content="//www.varyn.com/images/VarynIcon640.jpg"/>
-    <meta property="og:image" content="//www.varyn.com/images/2048x1536.png"/>
+    <meta property="og:image" content="https://www.varyn.com/images/1200x600.png"/>
+    <meta property="og:image" content="https://www.varyn.com/images/VarynIcon640.jpg"/>
+    <meta property="og:image" content="https://www.varyn.com/images/2048x1536.png"/>
     <meta property="og:type" content="website"/>
     <meta name="twitter:card" content="summary_large_image"/>
     <meta name="twitter:domain" content="varyn.com"/>

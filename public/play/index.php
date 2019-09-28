@@ -34,12 +34,12 @@ if ($gameInfo != null) {
     $gameId = $gameInfo->game_id;
     $gameName = $gameInfo->game_name;
     $title = $gameInfo->title;
-    $pageSocialImage1 = '//enginesis.varyn.com/games/' . $gameName . '/images/600x450.png';
+    $pageSocialImage1 = 'https://enginesis.varyn.com/games/' . $gameName . '/images/600x450.png';
     $pageSocialImageWidth = 600;
     $pageSocialImageHeight = 450;
-    $pageSocialImage2 = '//enginesis.varyn.com/games/' . $gameName . '/images/586x308.png';
-    $pageFavIcon = '//enginesis.varyn.com/games/' . $gameName . '/images/50x50.png';
-    $pageIcon = '//enginesis.varyn.com/games/' . $gameName . '/images/50x50.png';
+    $pageSocialImage2 = 'https://enginesis.varyn.com/games/' . $gameName . '/images/586x308.png';
+    $pageFavIcon = 'https://enginesis.varyn.com/games/' . $gameName . '/images/50x50.png';
+    $pageIcon = 'https://enginesis.varyn.com/games/' . $gameName . '/images/50x50.png';
     $gameLink = currentPageURL();
     $pageOGLink = currentPageURL();
     $pageDescription = $gameInfo->short_desc;
@@ -121,7 +121,7 @@ include_once(VIEWS_ROOT . 'header.php');
     <div id="PlayPageGamesArea" class="row">
     </div>
     <div id="bottomAd" class="row">
-        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+        <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
         <!-- varyn Responsive -->
         <ins class="adsbygoogle"
              style="display:block"
