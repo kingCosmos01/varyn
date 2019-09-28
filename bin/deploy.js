@@ -16,6 +16,7 @@
  *  P - ?
  *  --delete remove files from dest that are not in source
  *  rsync error codes: https://lxadm.com/Rsync_exit_codes
+ * Run deploy with `npm run deploy` or `npm run deploy -- --no-dryrun`
  */
 let rsyncFlags = "zrptcv";
 let debug = false;
@@ -151,7 +152,8 @@ function getArgs() {
             alias: "c",
             type: "string",
             describe: "path to config file",
-            demandOption: false
+            demandOption: false,
+            default: defaultConfigurationFilePath
         },
         "destination": {
             alias: "d",
@@ -218,7 +220,8 @@ function getArgs() {
             alias: "y",
             type: "boolean",
             describe: "perform dry run (no actual sync)",
-            demandOption: false
+            demandOption: false,
+            default: true
         },
     })
     .alias("?", "help")
