@@ -39,7 +39,7 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             switch (enginesisResponse.fn) {
                 case 'GameListListGames':
                     if (succeeded == 1) {
-                        varynApp.gameListGamesResponse(results.result, "ProfilePageTopGames", null, false);
+                        varynApp.gameListGamesResponse(results.result, "ProfilePageTopGames", null, "title");
                     }
                     break;
 

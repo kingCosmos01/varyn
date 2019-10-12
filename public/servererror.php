@@ -83,7 +83,7 @@ include_once(VIEWS_ROOT . 'footer.php');
                             break;
                         case "GameListListGames":
                             if (succeeded == 1) {
-                                varynApp.gameListGamesResponse(enginesisResponse.results.result, "AboutPageHotGames", 15, false);
+                                varynApp.gameListGamesResponse(enginesisResponse.results.result, "AboutPageHotGames", 15, "title");
                             }
                             break;
                         default:

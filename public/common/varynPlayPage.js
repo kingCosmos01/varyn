@@ -185,7 +185,7 @@ var varynPlayPage = function (varynApp, siteConfiguration) {
                         setGameDeveloper(enginesisResponse.results.result[0]);
                         break;
                     case "SiteListGamesRandom":
-                        varynApp.gameListGamesResponse(enginesisResponse.results.result, "PlayPageGamesArea", 9, false);
+                        varynApp.gameListGamesResponse(enginesisResponse.results.result, "PlayPageGamesArea", 9, "title");
                         break;
                     default:
                         break;

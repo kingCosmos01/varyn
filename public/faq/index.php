@@ -78,7 +78,7 @@ include_once(VIEWS_ROOT . 'footer.php');
                     break;
                 case "GameListListGames":
                     if (succeeded == 1) {
-                        gameListGamesResponse(enginesisResponse.results.result, "HomePageGamesArea", null, false);
+                        gameListGamesResponse(enginesisResponse.results.result, "HomePageGamesArea", null, "title");
                     }
                     break;
                 default:

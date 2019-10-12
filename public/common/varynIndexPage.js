@@ -155,7 +155,7 @@ var varynIndexPage = function (varynApp, siteConfiguration) {
                             } else {
                                 fillDiv = "HomePageTopGames";
                             }
-                            varynApp.gameListGamesResponse(results.result, fillDiv, 30, false);
+                            varynApp.gameListGamesResponse(results.result, fillDiv, 30, null);
                         }
                         break;
                     default:

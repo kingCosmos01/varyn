@@ -62,7 +62,7 @@ var varynBlogPage = function (varynApp, siteConfiguration) {
                         break;
                     case "GameListListGames":
                         if (succeeded == 1) {
-                            varynApp.gameListGamesResponse(results.result, "AboutPageHotGames", 15, false);
+                            varynApp.gameListGamesResponse(results.result, "AboutPageHotGames", 15, "plays");
                         }
                         break;
                     default:

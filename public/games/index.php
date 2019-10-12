@@ -1,7 +1,7 @@
 <?php
 require_once('../../services/common.php');
 $page = 'games';
-$pageTitle = 'Experimental Games at Varyn.com';
+$pageTitle = 'All games at Varyn.com';
 $pageDescription = 'Check out some of the games that are in development, betas, experiments in new game play ideas, and the research and development going on at Varyn.com.';
 $search = getPostOrRequestVar('q', '');
 $showSubscribe = getPostOrRequestVar('s', '0');
@@ -16,14 +16,13 @@ include_once(VIEWS_ROOT . 'header.php');
                 <h3 class="panel-title">Search for:</strong> <?php echo($search);?></h3>
             </div>
         </div>
-        <?php
+    <?php
     }
     ?>
     <div id="AllGamesArea" class="row">
     </div>
     <div id="bottomAd" class="row">
         <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-        <!-- Varyn Responsive -->
         <ins class="adsbygoogle"
              style="display:block"
              data-ad-client="ca-pub-9118730651662049"

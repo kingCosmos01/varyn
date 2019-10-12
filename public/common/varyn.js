@@ -412,8 +412,8 @@ var varyn = function (parameters) {
 
         /**
          * compareTitle is an array sort function to alphabetize an array by title
-         * @param a
-         * @param b
+         * @param {object} a First object to compare.
+         * @param {object} b Second object to compare.
          * @returns {number} 0 if equal, 1 if  is greater, -1 if b is greater
          */
         compareTitle: function (a, b) {
@@ -421,6 +421,23 @@ var varyn = function (parameters) {
                 return -1;
             } else if (a.title > b.title) {
                 return 1;
+            } else {
+                return 0;
+            }
+        },
+
+        /**
+         * compareDate is an array sort function to sort an array by descending date order.
+         * @param {object} a First object to compare.
+         * @param {object} b Second object to compare.
+         * @param {string} property The property on both objects that is expected to be a date.
+         * @returns {number} 0 if equal, 1 if  is greater, -1 if b is greater
+         */
+        compareDate: function (a, b, property) {
+            if (a[property] < b[property]) {
+                return 1;
+            } else if (a[property] > b[property]) {
+                return -1;
             } else {
                 return 0;
             }
@@ -1316,9 +1333,9 @@ var varyn = function (parameters) {
          * @param results {object}: the sever response object
          * @param elementId {string}: element to insert game modules HTML
          * @param maxItems {int}: no more than this number of games
-         * @param sortList {boolean}: true to sort the list of games alphabetically by title
+         * @param sortProperty {string}: sort the list of games by this property
          */
-        gameListGamesResponse: function (results, elementId, maxItems, sortList) {
+        gameListGamesResponse: function (results, elementId, maxItems, sortProperty) {
             // results is an array of games
             var i,
                 adsShownCounter,
@@ -1334,11 +1351,8 @@ var varyn = function (parameters) {
                 numberOfAdSpots;
 
             if (results != null && results.length > 0 && gamesContainer != null) {
-                if (sortList == null) {
-                    sortList = false;
-                }
-                if (sortList) {
-                    results.sort(compareTitle);
+                if (sortProperty) {
+                    results.sort(this.compareTitle);
                 }
                 if (maxItems == null || maxItems < 1) {
                     maxItems = results.length;
@@ -1412,7 +1426,7 @@ var varyn = function (parameters) {
                             } else {
                                 fillDiv = "HomePageTopGames";
                             }
-                            this.gameListGamesResponse(results.result, fillDiv, null, false);
+                            this.gameListGamesResponse(results.result, fillDiv, null, null);
                         }
                         break;
 

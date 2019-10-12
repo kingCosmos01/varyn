@@ -36,13 +36,13 @@ var varynAllGamesPage = function (varynApp, siteConfiguration) {
                     case "SiteListGames":
                         if (succeeded == 1) {
                             fillDiv = "AllGamesArea";
-                            varynApp.gameListGamesResponse(results.result, fillDiv, null, false);
+                            varynApp.gameListGamesResponse(results.result, fillDiv, null, "title");
                         }
                         break;
                     case "GameFind":
                         if (succeeded == 1) {
                             fillDiv = "AllGamesArea";
-                            varynApp.gameListGamesResponse(results.result, fillDiv, null, false);
+                            varynApp.gameListGamesResponse(results.result, fillDiv, null, "title");
                         }
                         break;
                     default:
