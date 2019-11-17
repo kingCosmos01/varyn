@@ -5,8 +5,8 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
     "use strict";
 
     var enginesisSession = varynApp.getEnginesisSession(),
-        errorFieldId = '',
-        inputFocusId = '';
+        errorFieldId = "",
+        inputFocusId = "";
 
     /**
      * Setup the security input fields only the first time the tab is visited
@@ -82,6 +82,19 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
                     this.onPageLoadSetTabEvents();
                 }
             }
+            if (!enginesisSession.isUserLoggedIn()) {
+                this.setupUserLogin();
+            }
+            if (varynApp.isLogout()) {
+                this.enableLoginButtons(false);
+            }
+            this.setupUserNameChangeHandler();
+            enginesisSession.gameListListGames(siteConfiguration.gameListIdTop, this.enginesisCallBack);
+            this.onPageLoadSetFocus();
+            window.onunload = this.updateCleanup.bind(this);
+        },
+
+        setupUserLogin: function() {
             if (document.getElementById('profile_forgot_password')) {
                 document.getElementById('profile_forgot_password').addEventListener('click', this.forgotPassword.bind(this));
             }
@@ -91,14 +104,7 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             if (document.getElementById('twitter-signin-button')) {
                 document.getElementById('twitter-signin-button').addEventListener('click', this.loginTwitter.bind(this));
             }
-            ssoGooglePlus.setLoginCallback(varynApp.registerSSO.bind(varynApp)); // Google button is attached in ssoGooglePlus.init()
-            if (varynApp.isLogout()) {
-                this.enableLoginButtons(false);
-            }
-            this.setupUserNameChangeHandler();
-            enginesisSession.gameListListGames(siteConfiguration.gameListIdTop, this.enginesisCallBack);
-            this.onPageLoadSetFocus();
-            window.onunload = this.updateCleanup.bind(this);
+            ssoGoogle.setLoginCallback(varynApp.registerSSO.bind(varynApp)); // Google button is attached in ssoGoogle.init()
         },
 
         /**
@@ -382,6 +388,18 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
         loginTwitter: function () {
             varynApp.trackEvent('login', 'sso', 'twitter');
             ssoTwitter.login();
+            return true;
+        },
+
+        /**
+         * When you request Apple login (e.g. click the Sign in with Apple button) we redirect to our
+         * oauth page and handle it with PHP. When the user returns a cookie should be available to pick up
+         * the Apple access token.
+         * @returns {boolean}
+         */
+        loginApple: function () {
+            varynApp.trackEvent('login', 'sso', 'apple');
+            ssoApple.login();
             return true;
         }
     }

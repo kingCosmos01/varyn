@@ -1,7 +1,6 @@
 /**
  * Single Sign On for Facebook.
  * When this module loads, we immediately check if we have a logged in user.
- * If yes,
  */
 
 (function ssoFacebook (global) {
@@ -9,9 +8,9 @@
     var ssoFacebook = {},
         _debug = true,
         _networkId = 2,
-        _siteUserId = '',
+        _siteUserId = "",
         _applicationId = '489296364486097',
-        _facebookSDKVersion = 'v2.8',
+        _SDKVersion = "v2.8",
         _scope = 'email',
         _initialized = false,
         _loaded = false,
@@ -19,23 +18,30 @@
         _facebookTokenExpiration = null,
         _facebookToken = null,
         _callbackWhenLoaded = null,
-        _userInfo = {
-            userName: '',
-            realName: '',
-            userId: '',      // Enginesis user id
-            networkId: 0,
-            siteUserId: '',  // Facebook user id
-            siteUserToken: '',
-            dob: null,
-            gender: 'U',
-            avatarURL: '',
-            email: ''
-        };
+        _callbackWhenLoggedIn = null,
+        _callbackWhenLoggedOut = null,
+        _userInfo = null;
 
     ssoFacebook.debugLog = function (message) {
         if (_debug) {
             console.log('ssoFacebook: ' + message);
         }
+    };
+
+    ssoFacebook.clearUserInfo = function () {
+        _userInfo = {
+            networkId: _networkId,
+            userName: '',
+            realName: '',
+            email: '',
+            userId: '',
+            siteUserId: '',
+            siteUserToken: '',
+            gender: 'U',
+            dob: null,
+            avatarURL: '',
+            scope: _scope
+        };
     };
 
     /**
@@ -52,6 +58,15 @@
             if (parameters.applicationId) {
                 _applicationId = parameters.applicationId;
             }
+            if (parameters.SDKVersion) {
+                _SDKVersion = parameters.SDKVersion;
+            }
+            if (parameters.loginCallback) {
+                _callbackWhenLoggedIn = parameters.loginCallback;
+            }
+            if (parameters.logoutCallback) {
+                _callbackWhenLoggedOut = parameters.logoutCallback;
+            }
         }
         return errors;
     };
@@ -64,6 +79,7 @@
     ssoFacebook.init = function () {
         _loading = false;
         _loaded = true;
+        ssoFacebook.clearUserInfo();
         if (window.FB) {
             this.debugLog('Facebook SDK is loaded');
             var FB = window.FB;
@@ -71,7 +87,7 @@
                 appId: _applicationId,
                 cookie: true,
                 xfbml: true,
-                version: _facebookSDKVersion
+                version: _SDKVersion
             });
             _initialized = true;
             FB.AppEvents.logPageView();
@@ -84,12 +100,14 @@
     };
 
     /**
-     * Load the Facebook library. This function must be called on any page that requires knowing if a user
+     * Load the Facebook SDK. This function must be called on any page that requires knowing if a user
      * is currently logged in with Facebook or any other Facebook services. Once loaded the Facebook SDK
-     * calls
+     * calls its own callback `fbAsyncInit()`, which then calls our callback `init()`.
+     * 
      * Example:
      *   ssoFacebook.load(parameters).then(function(result) { console.log('Facebook loaded'); }, function(error) { console.log('Facebook load failed ' + error.message); });
-     * @param parameters {object} parameters to configure our Facebook application.
+     * 
+     * @param parameters {object} parameters to configure our Facebook application. See `setParameters()`.
      * @returns {Promise}
      */
     ssoFacebook.load = function (parameters) {
@@ -99,17 +117,21 @@
             _loading = true;
             window.fbAsyncInit = this.init.bind(this);
             this.setParameters(parameters);
-            (function (d, s, id) {
-                var js, fjs = d.getElementsByTagName(s)[0];
+            (function (d, s, id, scriptSource) {
+                var js, fjs;
                 if (d.getElementById(id)) {
                     return;
                 }
+                fjs = d.getElementsByTagName(s)[0];
+                if (fjs == null) {
+                    fjs = d.getElementsByTagName("div")[0];
+                }
                 js = d.createElement(s);
                 js.id = id;
-                js.src = "https://connect.facebook.net/en_US/sdk.js";
+                js.src = scriptSource;
                 fjs.parentNode.insertBefore(js, fjs);
                 // once loaded Facebook SDK automatically calls window.fbAsyncInit()
-            }(document, 'script', 'facebook-jssdk'));
+            }(document, "script", "facebook-jssdk", "https://connect.facebook.net/en_US/sdk.js"));
         } else if ( ! _initialized) {
             this.init();
         }
@@ -181,7 +203,7 @@
     };
 
     /**
-     * Return the networks user token expiration date as a JavaScript date object. This could be null if the token
+     * Return the networks' user token expiration date as a JavaScript date object. This could be null if the token
      * is invaid or if no user is logged in.
      * @returns {*}
      */

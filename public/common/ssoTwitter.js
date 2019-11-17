@@ -9,30 +9,40 @@
     var ssoTwitter = {},
         _debug = true,
         _networkId = 11,
-        _siteUserId = '',
+        _siteUserId = "",
         _applicationId = 'DNJM5ALaCxE1E2TnpnJtEl2ml',
+        _SDKVersion = "",
         _initialized = false,
         _scope = 'email',
         _loading = false,
         _loaded = false,
         _tokenExpiration = null,
         _token = null,
-        _userInfo = {
-            userName: '',
-            realName: '',
-            userId: '',
-            networkId: 0,
-            siteUserId: '',
-            dob: null,
-            gender: 'U',
-            email: '',
-            avatarURL: ''
-        };
+        _callbackWhenLoaded = null,
+        _callbackWhenLoggedIn = null,
+        _callbackWhenLoggedOut = null,
+        _userInfo = null;
 
     ssoTwitter.debugLog = function (message) {
         if (_debug) {
             console.log('ssoTwitter: ' + message);
         }
+    };
+
+    ssoTwitter.clearUserInfo = function () {
+        _userInfo = {
+            networkId: _networkId,
+            userName: '',
+            realName: '',
+            email: '',
+            userId: '',
+            siteUserId: '',
+            siteUserToken: '',
+            gender: 'U',
+            dob: null,
+            avatarURL: '',
+            scope: _scope
+        };
     };
 
     /**
@@ -50,6 +60,15 @@
             if (parameters.applicationId) {
                 _applicationId = parameters.applicationId;
             }
+            if (parameters.SDKVersion) {
+                _SDKVersion = parameters.SDKVersion;
+            }
+            if (parameters.loginCallback) {
+                _callbackWhenLoggedIn = parameters.loginCallback;
+            }
+            if (parameters.logoutCallback) {
+                _callbackWhenLoggedOut = parameters.logoutCallback;
+            }
         }
         return errors;
     };
@@ -61,6 +80,7 @@
     ssoTwitter.init = function () {
         _loading = false;
         _loaded = true;
+        ssoTwitter.clearUserInfo();
         this.debugLog('init complete');
         return _initialized;
     };
@@ -70,15 +90,34 @@
      * is currently logged in with Twitter or any other Twitter services. Once loaded the Twitter SDK
      * calls
      * Example:
-     *   ssoFacebook.load(parameters).then(function(result) { console.log('Facebook loaded'); }, function(error) { console.log('Facebook load failed ' + error.message); });
-     * @param parameters {object} parameters to configure our Facebook application.
+     *   ssoTwitter.load(parameters).then(function(result) { console.log('Twitter loaded'); }, function(error) { console.log('Twitter load failed ' + error.message); });
+     * @param parameters {object} parameters to configure our Twitter application.
      * @returns {Promise}
      */
     ssoTwitter.load = function (parameters) {
-        _loaded = false;
-        _loading = true;
-        this.debugLog('loading');
-        this.setParameters(parameters);
+        if (!_loaded) {
+            this.debugLog('loading Twitter SDK');
+            _loaded = false;
+            _loading = true;
+            window.twitterInit = this.init.bind(this);
+            this.setParameters(parameters);
+            (function (d, s, id, scriptSource) {
+                var js, fjs;
+                if (d.getElementById(id)) {
+                    return;
+                }
+                fjs = d.getElementsByTagName(s)[0];
+                if (fjs == null) {
+                    fjs = d.getElementsByTagName("div")[0];
+                }
+                js = d.createElement(s);
+                js.id = id;
+                js.src = scriptSource;
+                fjs.parentNode.insertBefore(js, fjs);
+            }(document, "script", "twitter-jssdk", "https://platform.twitter.com/widgets.js"));
+        } else if (!_initialized) {
+            this.init();
+        }
     };
 
     /**
@@ -98,6 +137,7 @@
             if (ssoTwitterInstance.isReady()) {
                 ssoTwitterInstance.getLoginStatus().then(resolve, resolve);
             } else {
+                _callbackWhenLoaded = resolve;
                 ssoTwitterInstance.load(parameters);
             }
         });

@@ -816,7 +816,7 @@ var varyn = function (parameters) {
             } else if (_isLogout) {
                 var forceSignout = true;
                 if (forceSignout) {
-                    ssoGooglePlus.logout(function() {
+                    ssoGoogle.logout(function() {
                         console.log("Google user is logged out");
                     });
                 }
@@ -881,7 +881,7 @@ var varyn = function (parameters) {
 
                 // TODO: To force google logout 1. load SDK, 2. wait for load complete 3. logoutSSO.
                 if (forceSignout) {
-                    ssoGooglePlus.load({
+                    ssoGoogle.load({
                         networkId: enginesis.supportedNetworks.Google,
                         logoutCallback: function () {
                             thatVarynApp.checkIsUserLoggedIn();
@@ -935,13 +935,18 @@ var varyn = function (parameters) {
                     }
                     break;
                 case enginesis.supportedNetworks.Google:
-                    if (typeof ssoGooglePlus !== 'undefined') {
-                        ssoGooglePlus.load(null);
+                    if (typeof ssoGoogle !== 'undefined') {
+                        ssoGoogle.load(null);
                     }
                     break;
                 case enginesis.supportedNetworks.Twitter:
                     if (typeof ssoTwitter !== 'undefined') {
                         ssoTwitter.load(null);
+                    }
+                    break;
+                case enginesis.supportedNetworks.Apple:
+                    if (typeof ssoApple !== 'undefined') {
+                        ssoApple.load(null);
                     }
                     break;
                 default:
@@ -1026,13 +1031,18 @@ var varyn = function (parameters) {
                         }
                         break;
                     case enginesis.supportedNetworks.Google:
-                        if (ssoGooglePlus) {
-                            ssoGooglePlus.loadThenLogin(null).then(resolvePromise, rejectPromise);
+                        if (ssoGoogle) {
+                            ssoGoogle.loadThenLogin(null).then(resolvePromise, rejectPromise);
                         }
                         break;
                     case enginesis.supportedNetworks.Twitter:
                         if (ssoTwitter) {
                             ssoTwitter.loadThenLogin(null).then(resolvePromise, rejectPromise);
+                        }
+                        break;
+                    case enginesis.supportedNetworks.Apple:
+                        if (ssoApple) {
+                            ssoApple.loadThenLogin(null).then(resolvePromise, rejectPromise);
                         }
                         break;
                     default:
@@ -1056,7 +1066,7 @@ var varyn = function (parameters) {
             } else if (_isLogout) {
                 var forceSignout = true;
                 if (forceSignout) {
-                    ssoGooglePlus.logout(function() {
+                    ssoGoogle.logout(function() {
                         console.log("Google user is logged out");
                     });
                 }
@@ -1081,13 +1091,18 @@ var varyn = function (parameters) {
                     }
                     break;
                 case enginesis.supportedNetworks.Google:
-                    if (typeof ssoGooglePlus !== 'undefined') {
-                        ssoGooglePlus.logout(callMeWhenComplete);
+                    if (typeof ssoGoogle !== 'undefined') {
+                        ssoGoogle.logout(callMeWhenComplete);
                     }
                     break;
                 case enginesis.supportedNetworks.Twitter:
                     if (typeof ssoTwitter !== 'undefined') {
                         ssoTwitter.logout(callMeWhenComplete);
+                    }
+                    break;
+                case enginesis.supportedNetworks.Apple:
+                    if (typeof ssoApple !== 'undefined') {
+                        ssoApple.logout(callMeWhenComplete);
                     }
                     break;
                 default:

@@ -859,6 +859,7 @@ include_once(VIEWS_ROOT . 'header.php');
                 <input type="button" class="btn btn-primary btn-facebook" id="facebook-connect-button" value="Login with Facebook" title="Login with your Facebook account" />
                 <input type="button" class="btn btn-primary btn-gapi-signin" id="gapi-signin-button" value="Sign in with Google" title="Sign in with your Google account" />
                 <input type="button" class="btn btn-primary btn-twitter-signin" id="twitter-signin-button" value="Sign in with Twitter" title="Sign in with your Twitter account" />
+                <div id="appleid-signin" data-color="black" data-border="true" data-type="sign in"></div>
             </div>
         </div>
 <?php
@@ -934,9 +935,9 @@ if (empty($refreshToken)) {
         profilePage = varynApp.initApp(varynProfilePage, profilePageParameters);<?php echo($refreshTokenJavaScript);?>
     });
     if (debug) {
-        head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.min.js', '/common/ie10-viewport-bug-workaround.js', '//platform.twitter.com/widgets.js', 'https://apis.google.com/js/platform.js', '/common/enginesis.js', '/common/ShareHelper.js', '/common/commonUtilities.js', '/common/ssoFacebook.js', '/common/ssoGooglePlus.js', '/common/ssoTwitter.js', '/common/varyn.js', '/common/varynProfilePage.js');
+        head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.min.js', 'https://apis.google.com/js/platform.js', '/common/enginesis.js', '/common/ShareHelper.js', '/common/commonUtilities.js', '/common/ssoFacebook.js', '/common/ssoGoogle.js', '/common/ssoTwitter.js', '/common/ssoApple.js', '/common/varyn.js', '/common/varynProfilePage.js');
     } else {
-        head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.min.js', '/common/ie10-viewport-bug-workaround.js', '//platform.twitter.com/widgets.js', 'https://apis.google.com/js/platform.js', '/common/enginesis.js', '/common/ShareHelper.js', '/common/varyn.min.js');
+        head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.min.js', 'https://apis.google.com/js/platform.js', '/common/enginesis.js', '/common/ShareHelper.js', '/common/varyn.min.js');
     }
 </script>
 </body>

@@ -183,7 +183,7 @@ if (debug) {
         "/common/ShareHelper.js",
         "/common/commonUtilities.js",
         "/common/ssoFacebook.js",
-        "/common/ssoGooglePlus.js",
+        "/common/ssoGoogle.js",
         "/common/ssoTwitter.js",
         "/common/varyn.js"
     ]);

@@ -82,7 +82,8 @@
             Enginesis: 1,
             Facebook:  2,
             Google:    7,
-            Twitter:  11
+            Twitter:  11,
+            Apple:    14
         }
     };
 
