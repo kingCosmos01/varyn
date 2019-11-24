@@ -22,11 +22,11 @@ class SocialServicesFacebook extends SocialServices
         $this->appId = $socialServiceKeys[EnginesisNetworks::Facebook]['app_id'];
         $this->appSecret = $socialServiceKeys[EnginesisNetworks::Facebook]['app_secret'];
         $this->setNetworkId(EnginesisNetworks::Facebook);
-        $this->fb = new Facebook\Facebook(array(
+        $this->fb = new Facebook\Facebook([
             'app_id' => $this->appId,
             'app_secret' => $this->appSecret,
-            'default_graph_version' => 'v2.5'
-        ));
+            'default_graph_version' => 'v5.0'
+        ]);
         if (isset($_SESSION[FACEBOOK_SESSION_KEY])) {
             $accessToken = $_SESSION[FACEBOOK_SESSION_KEY];
             $this->m_accessToken = (string) $accessToken;
@@ -71,11 +71,11 @@ class SocialServicesFacebook extends SocialServices
         $fbHelper = $this->fb->getJavaScriptHelper();
         try {
             $accessToken = $fbHelper->getAccessToken();
-        } catch(Facebook\Exceptions\FacebookResponseException $e) {
+        } catch (Facebook\Exceptions\FacebookResponseException $e) {
             // When Graph returns an error
             $error = EnginesisErrors::INVALID_LOGIN;
             $errorMessage = 'Facebook login error ' . $e->getMessage();
-        } catch(Facebook\Exceptions\FacebookSDKException $e) {
+        } catch (Facebook\Exceptions\FacebookSDKException $e) {
             // When validation fails or other local issues
             $error = EnginesisErrors::INVALID_LOGIN;
             $errorMessage = 'Facebook login failed ' . $e->getMessage();
@@ -159,7 +159,7 @@ class SocialServicesFacebook extends SocialServices
             if ($user != null && isset($user['id'])) {
                 // Convert Facebook's $user into Enginesis $userInfo
                 $this->m_site_user_id = $user['id'];
-                $userInfo = array(
+                $userInfo = [
                     'network_id' => EnginesisNetworks::Facebook,
                     'site_user_id' => $this->m_site_user_id,
                     'real_name' => $user['name'],
@@ -170,7 +170,8 @@ class SocialServicesFacebook extends SocialServices
                     'agreement' => '1',
                     'scope' => '',
                     'avatar_url' => 'https://graph.facebook.com/' . $user['id'] . '/picture?type=square&width=120&height=120',
-                    'id_token' => '');
+                    'id_token' => ''
+                ];
             } else {
                 $this->setLastError('INVALID_PARAM', 'User is not properly logged in via Facebook SDK');
                 $userInfo = null;
@@ -214,7 +215,7 @@ class SocialServicesFacebook extends SocialServices
     }
 
     private function fakeUser() {
-        return (object) array(
+        return (object) [
             'network_id' => EnginesisNetworks::Facebook,
             'site_user_id' => '726468316',
             'user_name' => 'FakeFbUser',
@@ -226,6 +227,6 @@ class SocialServicesFacebook extends SocialServices
             'scope' => 'email',
             'avatar_url' => 'https://graph.facebook.com/726468316/picture?type=square&width=120&height=120',
             'id_token' => ''
-        );
+        ];
     }
 }
