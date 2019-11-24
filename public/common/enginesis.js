@@ -288,7 +288,7 @@
         if (isEmpty(gender)) {
             gender = "U";
         } else {
-        gender = gender.toUpperCase();
+            gender = gender.toUpperCase();
             if (gender[0] == "M") {
                 gender = "M";
             } else if (gender[0] == "F") {
