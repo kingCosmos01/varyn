@@ -285,13 +285,17 @@
      * TODO: Consider language code.
      */
     function validGender(gender) {
-        gender = gender.toUpperCase();
-        if (gender[0] == "M") {
-            gender = "M";
-        } else if (gender[0] == "F") {
-            gender = "F";
-        } else {
+        if (isEmpty(gender)) {
             gender = "U";
+        } else {
+        gender = gender.toUpperCase();
+            if (gender[0] == "M") {
+                gender = "M";
+            } else if (gender[0] == "F") {
+                gender = "F";
+            } else {
+                gender = "U";
+            }
         }
         return gender;
     }
