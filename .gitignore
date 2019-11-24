@@ -22,3 +22,5 @@ data/
 public/resources/
 public/games/*/
 public/lab/
+
+services/lib/vendor
