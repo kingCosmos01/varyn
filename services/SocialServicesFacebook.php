@@ -159,13 +159,18 @@ class SocialServicesFacebook extends SocialServices
             if ($user != null && isset($user['id'])) {
                 // Convert Facebook's $user into Enginesis $userInfo
                 $this->m_site_user_id = $user['id'];
+                if ($user->offsetExists('gender')) {
+                    $gender = strtoupper($user['gender'][0]);
+                } else {
+                    $gender = 'U';
+                }
                 $userInfo = [
                     'network_id' => EnginesisNetworks::Facebook,
                     'site_user_id' => $this->m_site_user_id,
                     'real_name' => $user['name'],
                     'user_name' => $user['name'],
                     'email_address' => $user['email'],
-                    'gender' => strtoupper($user['gender'][0]),
+                    'gender' => $gender,
                     'dob' => '',
                     'agreement' => '1',
                     'scope' => '',
