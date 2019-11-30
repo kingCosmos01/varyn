@@ -1,5 +1,7 @@
 {
   "name": "Varyn",
+  "lang": "en",
+  "dir": "ltr",
   "short_name": "Varyn",
   "description": "Fun games you can play anytime, anywhere",
   "icons": [{
@@ -27,8 +29,18 @@
     "sizes": "512x512",
     "type": "image/png"
   }],
+  "scope": "/",
   "start_url": "index.php",
   "display": "fullscreen",
   "background_color": "#690606",
-  "theme_color": "#690606"
+  "theme_color": "#690606",
+  "screenshots": [{
+    "src": "/images/2048x1536.png",
+    "sizes": "2048x1536",
+    "type": "image/png"
+  }, {
+    "src": "/images/1200x600.png",
+    "sizes": "1200x600",
+    "type": "image/png"
+  }]
 }

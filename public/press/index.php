@@ -152,10 +152,10 @@ include_once(VIEWS_ROOT . 'header.php');
                     <div id="images" class="container-fluid col-md-12">
                         <h2 id="company-name-images">Images</h2>
                         <p>Download all screenshots &amp; photos as <strong> <a href="/images/press-images.zip" title="Press Images archive">.zip (660 KB)</a> </strong></p>
-                        <p><a href="//www.enginesis.com/games/MatchMaster3000/images/ss1-640x477.jpg"><img class="img-responsive img-thumbnail" src="//www.enginesis.com/games/MatchMaster3000/images/ss1-640x477.jpg" alt="Match Master 3000" width="367" height="274"></a>
-                            <a href="//www.enginesis.com/games/MatchMaster3000/images/ss2-640x477.jpg"><img class="img-responsive img-thumbnail" src="//www.enginesis.com/games/MatchMaster3000/images/ss2-640x477.jpg" alt="Match Master 3000" width="367" height="274"></a>
-                            <a href="//www.enginesis.com/games/MatchMaster3000/images/ss3-640x477.jpg"><img class="img-responsive img-thumbnail" src="//www.enginesis.com/games/MatchMaster3000/images/ss3-640x477.jpg" alt="Match Master 3000" width="367" height="274"></a>
-                            <a href="//www.enginesis.com/games/MatchMaster3000/images/ss5-640x477.jpg"><img class="img-responsive img-thumbnail" src="//www.enginesis.com/games/MatchMaster3000/images/ss5-640x477.jpg" alt="Match Master 3000" width="367" height="274"></a>
+                        <p><a href="https://www.enginesis.com/games/MatchMaster3000/images/ss1-640x477.jpg"><img class="img-responsive img-thumbnail" src="//www.enginesis.com/games/MatchMaster3000/images/ss1-640x477.jpg" alt="Match Master 3000" width="367" height="274"></a>
+                            <a href="https://www.enginesis.com/games/MatchMaster3000/images/ss2-640x477.jpg"><img class="img-responsive img-thumbnail" src="//www.enginesis.com/games/MatchMaster3000/images/ss2-640x477.jpg" alt="Match Master 3000" width="367" height="274"></a>
+                            <a href="https://www.enginesis.com/games/MatchMaster3000/images/ss3-640x477.jpg"><img class="img-responsive img-thumbnail" src="//www.enginesis.com/games/MatchMaster3000/images/ss3-640x477.jpg" alt="Match Master 3000" width="367" height="274"></a>
+                            <a href="https://www.enginesis.com/games/MatchMaster3000/images/ss5-640x477.jpg"><img class="img-responsive img-thumbnail" src="//www.enginesis.com/games/MatchMaster3000/images/ss5-640x477.jpg" alt="Match Master 3000" width="367" height="274"></a>
                         </p>
                     </div>
                     <div id="logo-icon" class="col-md-12">

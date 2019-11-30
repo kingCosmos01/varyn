@@ -11,13 +11,13 @@ if ( ! isset($showSubscribe)) {
             <p class="pull-right"><a href="#">Back to top</a></p>
             <div class="social">
                 <ul>
-                    <li><a href="//www.facebook.com/varyndev" title="Follow Varyn on Facebook"><div class="facebook sprite"></div></a></li>
-                    <li><a href="//twitter.com/@varyndev" title="Follow Varyn on Twitter"><div class="twitter sprite"></div></a></li>
+                    <li><a href="https://www.facebook.com/varyndev" title="Follow Varyn on Facebook"><div class="facebook sprite"></div></a></li>
+                    <li><a href="https://twitter.com/@varyndev" title="Follow Varyn on Twitter"><div class="twitter sprite"></div></a></li>
                     <li><a href="https://plus.google.com/b/116018327404323787485" title="Follow Varyn on Google Plus"><div class="gplus sprite"></div></a></li>
                     <li><a href="https://www.linkedin.com/company/varyn-inc-" title="Follow Varyn on LinkedIn"><div class="linkedin sprite"></div></a></li>
-                    <li><a href="//www.youtube.com/channel/UC-TLi2sZGxNptz4p6tdbIqw" title="Follow Varyn on YouTube"><div class="youtube sprite"></div></a></li>
-                    <li><a href="//www.pinterest.com/varyndev/varyndev/" title="Follow Varyn on Pinterest"><div class="pinterest sprite"></div></a></li>
-                    <li><a href="//www.instagram.com/varyndev" title="Follow Varyn on Instagram"><div class="instagram sprite"></div></a></li>
+                    <li><a href="https://www.youtube.com/channel/UC-TLi2sZGxNptz4p6tdbIqw" title="Follow Varyn on YouTube"><div class="youtube sprite"></div></a></li>
+                    <li><a href="https://www.pinterest.com/varyndev/varyndev/" title="Follow Varyn on Pinterest"><div class="pinterest sprite"></div></a></li>
+                    <li><a href="https://www.instagram.com/varyndev" title="Follow Varyn on Instagram"><div class="instagram sprite"></div></a></li>
                 </ul>
             </div>
             <div id="footer-nav" class="text-center"><a href="/privacy/"><span class="glyphicon glyphicon-eye-open"></span> Privacy</a> <a href="/tos/"><span class="glyphicon glyphicon-info-sign"></span> Terms</a> <a href="/about/"><span class="glyphicon glyphicon-question-sign"></span> About Varyn</a> <a href="/contact/"><span class="glyphicon glyphicon-comment"></span> Contact</a></div>
@@ -37,7 +37,7 @@ if ( ! isset($showSubscribe)) {
             </div>
             <div class="legalcopy"><br />
                 <p class="copyright small text-center">Third-party trademarks are used solely for distributing the games herein and no license or affiliation is implied. All copyrights are held by the respective owners.</p>
-                <p class="copyright small text-center">Copyright &copy; 2019 <a href="//www.varyn.com">Varyn, Inc.</a>.  All rights reserved.</p>
+                <p class="copyright small text-center">Copyright &copy; 2019 <a href="https://www.varyn.com">Varyn, Inc.</a>.  All rights reserved.</p>
             </div>
         </div>
     </div>
