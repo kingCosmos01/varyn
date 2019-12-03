@@ -715,6 +715,24 @@ footer {
     background-color: #afafaf;
 }
 
+.btn-apple-signin {
+    display: block;
+    position: relative;
+    width: 200px;
+    height: 50px;
+    border-radius: 4px;
+    color: #fff;
+    background-color: #000;
+    box-sizing: border-box;
+    overflow: hidden;
+    font-size: 1.5rem;
+}
+
+.btn-apple-signin:hover {
+    color: #eeeeee;
+    background-color: #222222;
+}
+
 .required-field {
     color: #ff0000;
     font-size: 11px;
@@ -869,6 +887,11 @@ footer {
     display: inline-block;
     float: right;
     font-size: 10px;
+}
+
+.sub-link-group {
+    font-size: 12px;
+    padding: 0.5rem 2rem;
 }
 
 .leader-1 {

@@ -6,11 +6,16 @@
  * Author: jf
  * Date: 11/16/2019
  *
+ * Test: https://www.varyn-l.com/procs/appleauth.php?state=signin&code=1237198237&id_token=12367186238&user={"name":{"firstName":"Steve","lastName":"Crappleseed"},"email":"varyn.dev@gmail.com"}
+ * Test: https://www.varyn-l.com/procs/appleauth.php?state=signin&error=invalid_user
  */
     require_once('../../services/common.php');
     require_once('../../services/strings.php');
     setErrorReporting(true);
-    define('TOKEN_STORE_KEY', 'varyn-sso-token-store');
+    $debug = true;
+    $errorCode = null;
+    $network_id = EnginesisNetworks::Apple;
+    $provider = 'Apple';
 
     /**
      * Simple debug function that places debug output in the HTML stream.
@@ -70,204 +75,102 @@
         return $tokens;
     }
 
-    // TODO: If user is already logged in? Logout? Or Invalid call to this page?
-    // TODO: What if refreshing tokens?
+    /**
+     * When sign in authentication completes always redirect to /profile/.
+     * @param $errorCode {string} An error condition if the log in was not processed to a valid user.
+     */
+    function redirectToProfile($errorCode) {
+        global $network_id;
+        global $debug;
+
+        if ( ! empty($errorCode)) {
+            $query = '?code=' . urlencode($errorCode) . '&network=' . $network_id;
+        } else {
+            $query = '';
+        }
+        if ($debug) {
+            debugX("Would redirect to /profile/$query");
+        } else {
+            header('Location: /profile/' . $query);
+        }
+        exit(0);
+    }
 
     if ($enginesis->isLoggedInUser()) {
         debugX("called but a user is already logged in?");
-        header('Location: /profile/');
-        exit(0);
+        $errorCode = "already logged in";
+        redirectToProfile($errorCode);
     }
-    $debug = (int) getPostOrRequestVar('debug', 0);
-    $errorCode = null;
-    $network_id = 14;
     if (isset($_SERVER['HTTP_REFERER'])) {
         $referrer = $_SERVER['HTTP_REFERER'];
     } else {
         $referrer = 'unknown';
     }
-    $authState = strtolower(getPostOrRequestVar('state', ''));
-    $authenticationCode = strtolower(getPostOrRequestVar('code', ''));
-    $jwt = strtolower(getPostOrRequestVar('id_token', ''));
-    $userInfo = strtolower(getPostOrRequestVar('user', ''));
-    $error = strtolower(getPostOrRequestVar('error', ''));
-    if ($authState == '') {
-        // we didn't call this page, so try to determine who did and if it is a valid callback
-
-        // Is it a Twitter oauth callback?
-
-        $isDenied = getPostOrRequestVar('denied', '');
-        $oauthToken = getPostOrRequestVar('oauth_token', '');
-        $oauthVerifier = getPostOrRequestVar('oauth_verifier', '');
-        if (strlen($oauthToken) > 0 && strlen($oauthVerifier) > 0 && isValidReferrer($referrer)) {
-            // TODO: match token with the outstanding token we saved in the cookie
-            debugX("Accepting connection from $referrer");
-            $provider = 'twitter';
-            $action = 'login';
-            $oauthState = 'callback';
-        } elseif ($isDenied != '') {
-            debugX('Twitter denied login with ' . $isDenied);
-            header('Location: /profile/');
-        }
+    $authState = getPostOrRequestVar('state', '');
+    $error = getPostOrRequestVar('error', '');
+    $authenticationCode = getPostOrRequestVar('code', '');
+    $jwt = getPostOrRequestVar('id_token', '');
+    $userInfoJSON = getPostOrRequestVar('user', '');
+    if ($authState != 'signin') {
+        // Our JS code set the state and we are supposed the get only that value back, if it is anything else then it wasn't called by us.
+        debugX('Unknown authentication state ' . $authState);
+        $errorCode = 'Invalid sign in request';
+        redirectToProfile($errorCode);
     }
-    debugX('action ' . $action . ', provider ' . $provider);
-    switch ($action) {
-        case 'login':
-            debugX('provider ' . $provider);
-            switch ($provider) {
-                case 'twitter':
-                    $network_id = 11;
-                    $twitterConsumerKey = $socialServiceKeys[$network_id]['app_id'];
-                    $twitterConsumerSecret = $socialServiceKeys[$network_id]['app_secret'];
-                    $stage = serverStage();
-                    if ($stage == '') {
-                        $protocol = 'https';
-                    } else {
-                        $protocol = 'http';
-                    }
-                    $oauthCallback = $protocol . '://varyn' . $stage . '.com/procs/oauth.php';
-                    $twitterOAuth = new TwitterOAuth($twitterConsumerKey, $twitterConsumerSecret);
-                    if ($twitterOAuth != null) {
-                        if ($oauthState == 'init') {
-                            try {
-                                if ($debug) {
-                                    $oauthToken = 'Bj-zEQAAAAAA1YsSAAABXSls3NQ';
-                                    $oauthTokenSecret = 'sUIJloJq6ePJrF3MKeJ0rmq87vSHWsuH';
-                                    $requestToken = ['oauth_token' => $oauthToken, 'oauth_token_secret' => 'sUIJloJq6ePJrF3MKeJ0rmq87vSHWsuH', 'oauth_callback_confirmed' => true];
-                                    saveTokens(['oauth_token' => $oauthToken, 'oauth_token_secret' => $oauthTokenSecret]);
-                                    $url = $oauthCallback . '?oauth_token=' . $oauthToken . '&oauth_verifier=' . $oauthTokenSecret . '&debug=' . ($debug ? '1' : '0');
-                                    header('Location: ' . $url);
-                                    exit(0);
-                                } else {
-                                    $requestToken = $twitterOAuth->requestToken(array('oauth_callback' => $oauthCallback));
-                                    // if all goes according to plan, we get array(oauth_token, oauth_token_secret, oauth_callback_confirmed)
-                                    // if status == 200
-                                    if ($requestToken['oauth_callback_confirmed']) {
-                                        $oauthToken = $requestToken['oauth_token'];
-                                        $oauthTokenSecret = $requestToken['oauth_token_secret'];
-                                        if (strlen($oauthToken) > 0 && strlen($oauthTokenSecret) > 0) {
-                                            $twitterOAuth->setOauthToken($oauthToken, $oauthTokenSecret);
-                                            $url = $twitterOAuth->url(TwitterOAuth::API_AUTHORIZE, ['oauth_token' => $oauthToken]);
-                                            // TODO: save in cookie so we can match it when the user returns from login
-                                            saveTokens(['oauth_token' => $oauthToken, 'oauth_token_secret' => $oauthTokenSecret]);
-                                            header('Location: ' . $url);
-                                            exit(0);
-                                        } else {
-                                            debugX("Invalid token received from $provider : $oauthToken / $oauthTokenSecret");
-                                            $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
-                                        }
-                                    } else {
-                                        debugX('oauth_callback_confirmed is ' . $requestToken['oauth_callback_confirmed'] . ', thats an error!');
-                                        $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
-                                    }
-                                }
-                            } catch (Exception $exception) {
-                                debugX('init Caught exception ' . $exception->getmessage());
-                                $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
-                                // init Caught exception
-                                //<?xml version="1.0" encoding="UTF-8">
-                                //<hash>
-                                //   <error>This client application's callback url has been locked</error>
-                                //   <request>/oauth/request_token</request>
-                                //</hash>
-                            }
-                        } elseif ($oauthState == 'callback') {
-                            try {
-                                // TODO: Verify $oauthToken we just received matches the one we stored in the cookie
-                                $tokens = readTokens();
-                                if (is_array($tokens)) {
-                                    $priorOauthToken = $tokens['oauth_token'];
-                                    $priorOauthSecret = $tokens['oauth_token_secret'];
-                                } elseif (is_object($tokens)) {
-                                    $priorOauthToken = $tokens->oauth_token;
-                                    $priorOauthSecret = $tokens->oauth_token_secret;
-                                } else {
-                                    debugX("Cannot restore prior tokens so this is an invalid request.");
-                                    $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
-                                    debugX('tokens: ' . var_export($tokens, true));
-                                }
-                                if ($oauthToken == $priorOauthToken && isset($priorOauthSecret)) {
-                                    $twitterOAuth->setOauthToken($oauthToken, $priorOauthSecret);
-                                    $accessToken = $twitterOAuth->accessToken(array('oauth_verifier' => $oauthVerifier));
-                                    // if all goes according to plan, we get array(oauth_token, oauth_token_secret)
-                                    // if status == 200
-                                    if ($twitterOAuth->getLastHttpCode() == 200) {
-                                        $oauthToken = $accessToken['oauth_token'];
-                                        $oauthTokenSecret = $accessToken['oauth_token_secret'];
-                                        if (strlen($oauthToken) > 0 && strlen($oauthTokenSecret) > 0) {
-                                            $twitterOAuth->setOauthToken($oauthToken, $oauthTokenSecret);
-                                            $twitterUserInfo = $twitterOAuth->getUser();
-                                            $rememberMe = true;
-                                            debugX("User " . $twitterUserInfo->screen_name . " properly logged in with $provider : $oauthToken / $oauthTokenSecret");
-                                            $userInfoSSO = array(
-                                                'network_id' => EnginesisNetworks::Twitter,
-                                                'site_user_id' => $twitterUserInfo->id_str,
-                                                'user_name' => $twitterUserInfo->screen_name,
-                                                'real_name' => $twitterUserInfo->name,
-                                                'email_address' => $twitterUserInfo->email,
-                                                'dob' => dateToMysqlDate(date('Y-m-d H:i:s', strtotime('-14 year'))),
-                                                'gender' => 'U',
-                                                'scope' => '',
-                                                'agreement' => '1',
-                                                'avatar_url' => $twitterUserInfo->profile_image_url_https,
-                                                'id_token' => ''
-                                            );
-                                            $userInfo = $enginesis->userLoginCoreg($userInfoSSO, $rememberMe);
-                                            if ($userInfo == null) {
-                                                $error = $enginesis->getLastError();
-                                                if ($error != null) {
-                                                    $errorCode = $error['message'];
-                                                }
-                                            } else {
-                                                $isLoggedIn = true;
-                                                $authToken = $userInfo->authtok;
-                                                $refreshToken = $userInfo->refreshToken;
-                                                $userId = $userInfo->user_id;
-                                                if ( ! $debug) {
-                                                    header('Location: /profile/');
-                                                }
-                                                exit(0);
-                                            }
-                                        } else {
-                                            debugX("Invalid token received from $provider : $oauthToken / $oauthTokenSecret");
-                                            $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
-                                        }
-                                    } else {
-                                        debugX("Received HTTP error " . $twitterOAuth->getLastHttpCode() . " from Twitter!");
-                                        $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
-                                    }
-                                } else {
-                                    debugX("Invalid request prior session was not properly stored. Start over.");
-                                    $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
-                                }
-                            } catch (Exception $exception) {
-                                debugX('callback Caught exception ' . $exception->getmessage());
-                                $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
-                            }
-                        }
-                    }
-                    break;
+    if ($error != '') {
+        // If Apple gives us an error we should not continue.
+        debugX('Apple sign in reports error ' . $error);
+        $errorCode = 'Invalid sign in request';
+        redirectToProfile($errorCode);
+    }
+    if ($authenticationCode == '' || $jwt == '' || $userInfoJSON == '') {
+        // All this is mandatory. If anything is missing we should not process the log in request.
+        debugX('Apple sign in missing required data authenticationCode: "' . $authenticationCode . '" JWT: "' . $jwt . '" userInfo: "' . $userInfoJSON .'"');
+        $errorCode = 'Invalid sign in request';
+        redirectToProfile($errorCode);
+    }
 
-                case 'gapi':
-                    $id_token = strtolower(getPostOrRequestVar('idtoken', ''));
-                    if ($id_token != '') {
-                        // use SocialServicesGoogle to register this user's token
-                    }
-                    break;
+    $userInfo = json_decode($userInfoJSON);
+    if ($userInfo != null) {
+        $email = $userInfo->email;
+        $firstName = $userInfo->name->firstName;
+        $lastName = $userInfo->name->lastName;
+        $realName = mb_strimwidth($firstName . ' ' . $lastName, 0, 50);
+        $rememberMe = true;
+        $siteUserId = mb_strimwidth($jwt, 0, 50); // TODO: How do we get user-id from the JWT?
 
-                default:
-                    break;
+        debugX("User $realName properly logged in as $jwt");
+        $userInfoSSO = [
+            'network_id' => $network_id,
+            'site_user_id' => $siteUserId,
+            'user_name' => $realName,
+            'real_name' => $realName,
+            'email_address' => $email,
+            'dob' => dateToMysqlDate(date('Y-m-d H:i:s', strtotime('-14 year'))),
+            'gender' => 'U',
+            'scope' => '',
+            'agreement' => '1',
+            'avatar_url' => '', // TODO: Use the Gravitar URL from the email address
+            'id_token' => ''
+        ];
+        $userInfo = $enginesis->userLoginCoreg($userInfoSSO, $rememberMe);
+        if ($userInfo == null) {
+            $error = $enginesis->getLastError();
+            if ($error != null) {
+                $errorCode = $error['message'];
+            } else {
+                $errorCode = 'SSO failed';
             }
-            break;
-
-        default:
-            debugX("Invalid, unmatched, or unexpected connection from $referrer");
-            $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
-            break;
-    }
-    if ($errorCode != null) {
-        $errorCode = '?code=' . $errorCode . '&network=' . $network_id;
+            debugX("User $realName failed co-reg with $errorCode");
+        } else {
+            $isLoggedIn = true;
+            $authToken = $userInfo->authtok;
+            $refreshToken = $userInfo->refreshToken;
+            $userId = $userInfo->user_id;
+            debugX("User $userId properly registered as $realName");
+        }
     } else {
-        $errorCode = '';
+        $errorCode = 'Invalid user data';
+        debugX("Unable to decode JSON $userInfoJSON");
     }
-    header('Location: /profile/' . $errorCode);
+    redirectToProfile($errorCode);

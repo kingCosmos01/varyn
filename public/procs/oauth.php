@@ -1,7 +1,13 @@
 <?php
 /**
- * OAuth services come here for the redirect URI when an oauth is requested from any of our supported SSO networks.
- * This page always redirects to profile.php. If there is an error it sends &network=X&error=E
+ * OAuth services come here for the redirect URI when an oauth is requested
+ * from any of our supported SSO networks. This page always redirects to
+ * profile.php. If there is an error it appends ?network=X&error=E
+ * 
+ * Note at this writing this only handles Twitter oauth 2 authentication.
+ * Facebook and Google both use entirely client-side JavaScript. Apple redirects
+ * to a different page.
+ * 
  * Author: jf
  * Date: 5/22/2017
  *
@@ -113,7 +119,7 @@
             debugX('provider ' . $provider);
             switch ($provider) {
                 case 'twitter':
-                    $network_id = 11;
+                    $network_id = EnginesisNetworks::Twitter;
                     $twitterConsumerKey = $socialServiceKeys[$network_id]['app_id'];
                     $twitterConsumerSecret = $socialServiceKeys[$network_id]['app_secret'];
                     $stage = serverStage();
@@ -196,7 +202,7 @@
                                             $twitterUserInfo = $twitterOAuth->getUser();
                                             $rememberMe = true;
                                             debugX("User " . $twitterUserInfo->screen_name . " properly logged in with $provider : $oauthToken / $oauthTokenSecret");
-                                            $userInfoSSO = array(
+                                            $userInfoSSO = [
                                                 'network_id' => EnginesisNetworks::Twitter,
                                                 'site_user_id' => $twitterUserInfo->id_str,
                                                 'user_name' => $twitterUserInfo->screen_name,
@@ -208,7 +214,7 @@
                                                 'agreement' => '1',
                                                 'avatar_url' => $twitterUserInfo->profile_image_url_https,
                                                 'id_token' => ''
-                                            );
+                                            ];
                                             $userInfo = $enginesis->userLoginCoreg($userInfoSSO, $rememberMe);
                                             if ($userInfo == null) {
                                                 $error = $enginesis->getLastError();

@@ -9,9 +9,10 @@
         _debug = true,
         _networkId = 14,
         _siteUserId = "",
-        _applicationId = "",
+        _applicationId = "com.varyn.varynweb",
+        _redirectURI = "/procs/appleauth.php",
         _SDKVersion = "v1",
-        _scope = "name, email",
+        _scope = "name email",
         _initialized = false,
         _loaded = false,
         _loading = false,
@@ -75,8 +76,8 @@
             }
         }
         _appleAuth.clientId = _applicationId;
-        _appleAuth.scope = _applicationId;
-        _appleAuth.redirectURI = "/procs/appleauth.php";
+        _appleAuth.scope = _scope;
+        _appleAuth.redirectURI = _redirectURI;
         return errors;
     };
 
