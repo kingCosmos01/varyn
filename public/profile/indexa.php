@@ -863,9 +863,7 @@ include_once(VIEWS_ROOT . 'header.php');
                 <input type="button" class="btn btn-primary btn-facebook" id="facebook-connect-button" value="Login with Facebook" title="Login with your Facebook account" aria-label="Login with your Facebook account" role="button">
                 <input type="button" class="btn btn-primary btn-gapi-signin" id="gapi-signin-button" value="Sign in with Google" title="Sign in with your Google account" aria-label="Sign in with your Google account" role="button">
                 <input type="button" class="btn btn-primary btn-twitter-signin" id="twitter-signin-button" value="Sign in with Twitter" title="Sign in with your Twitter account" aria-label="Sign in with your Twitter account" role="button">
-                <input type="button" class="btn btn-primary btn-apple-signin" id="appleid-signin" value=" Sign in with Apple" title="Sign in with your Apple account" />
-                <!-- <button id="appleid-signin" class="btn-apple-signin" data-color="black" data-border="false" data-type="sign in" aria-label="Sign in with your Apple ID" role="button"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" aria-hidden="true"><use xlink:href="#common-authentication-apple-logo"></use></svg></button> -->
-                <!-- <div id="appleid-signin" class="btn-apple-signin" data-color="black" data-border="false" data-type="sign in"></div> -->
+                <input type="button" class="btn btn-primary btn-apple-signin apple-icon" id="appleid-signin" value="Sign in with Apple" title="Sign in with your Apple account" />
             </div>
         </div>
 <?php
