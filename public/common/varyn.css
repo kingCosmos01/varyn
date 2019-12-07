@@ -716,16 +716,16 @@ footer {
 }
 
 .btn-apple-signin {
-    display: block;
-    position: relative;
-    width: 200px;
+    background-color: #010101;
+    color: #ffffff;
+    padding-left: 40px;
     height: 50px;
-    border-radius: 4px;
-    color: #fff;
-    background-color: #000;
-    box-sizing: border-box;
-    overflow: hidden;
-    font-size: 1.5rem;
+    font-size: 0.96em;
+    border-color: #222222;
+}
+
+.apple-icon {
+    background: url("/images/apple.svg") no-repeat;
 }
 
 .btn-apple-signin:hover {

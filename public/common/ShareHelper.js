@@ -236,51 +236,6 @@ var ShareHelper = {
         }
     },
 
-    GoogleFeed: function (parameters, callbackWhenComplete) {
-        var options = {
-            contenturl: parameters.link,
-            clientid: parameters.googleClientId,
-            cookiepolicy: 'single_host_origin',
-            prefilltext: parameters.description,
-            calltoactionlabel: 'CHALLENGE',
-            calltoactionurl: parameters.link,
-            contentdeeplinkid: '/pages',
-            calltoactiondeeplinkid: '/pages/create'
-            },
-            domElement,
-            openStatus;
-
-        // Call the render method when appropriate within your app to display
-        // the button.
-        gapi.interactivepost.render('googleSharePost', options);
-        window.setTimeout(function() {
-            try {
-                domElement = document.getElementById('googleSharePost');
-                if (typeof domElement.onclick == "function") {
-                    try {
-                        domElement.onclick.apply(domElement);
-                    } catch (exception) {
-                        openStatus = window.open('https://plus.google.com/share?url=' + encodeURI(parameters.link),'_blank');
-//                        $("a.link").on("click", function() {
-//                            window.open('https://plus.google.com/share?url=' + encodeURI(parameters.link),'_blank');
-//                        });
-                    }
-                }
-            } catch (exceptionTwo) {
-                openStatus = window.open('https://plus.google.com/share?url=' + encodeURI(parameters.link),'_blank');
-            }
-            if (openStatus == undefined || openStatus == null || typeof(openStatus) == 'undefined') {
-
-            }
-            if (callbackWhenComplete != null) {
-                callbackWhenComplete('googleplus');
-            }
-        }, 350);
-
-        // Google + Share URL
-        // https://plus.google.com/share?url=
-    },
-
     TwitterStatus: function (parameters, callbackWhenComplete) {
         var twitterStatus = 'https://twitter.com/intent/tweet',
             fullPost,
