@@ -113,7 +113,7 @@ class Enginesis
         $this->setServerPaths();
         $this->setServiceRoot($enginesisServer);
         $this->m_serviceEndPoint = $this->m_serviceRoot . 'index.php';
-        $this->m_avatarEndPoint = $this->m_serviceRoot . 'avatar.php';
+        $this->m_avatarEndPoint = $this->m_serviceRoot . 'avatar/';
         $this->restoreUserFromAuthToken(null);
     }
 
