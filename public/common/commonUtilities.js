@@ -918,7 +918,6 @@
     //	<i tabindex="-1" class="socialIcon-twitter-1 shareIcon share_twitter"></i>
     // 	$(".share_facebook").click(shareFacebook);
     //	$(".share_twitter").click(shareTwitter);
-    // G+: https://developers.google.com/+/web/share/
 
     commonUtilities.shareOnFacebook = function (title, summary, url, image) {
         var options = '&p[title]=' + encodeURIComponent(title)
@@ -942,14 +941,6 @@
         window.open(
             'https://twitter.com/intent/tweet?' + options,
             'Tweet',
-            'toolbar=no,status=0,width=626,height=436'
-        );
-    };
-
-    commonUtilities.shareOnGoogle = function (url) {
-        window.open(
-            'https://plus.google.com/share?url=' + encodeURIComponent(url),
-            'Share on Google+',
             'toolbar=no,status=0,width=626,height=436'
         );
     };
