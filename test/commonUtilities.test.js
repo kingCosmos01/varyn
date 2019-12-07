@@ -583,7 +583,6 @@ test("test for expected browser functions", function() {
 
     expect(commonUtilities.shareOnFacebook).toBeDefined();
     expect(commonUtilities.shareOnTwitter).toBeDefined();
-    expect(commonUtilities.shareOnGoogle).toBeDefined();
     expect(commonUtilities.shareByEmail).toBeDefined();
 
     expect(commonUtilities.performanceTest).toBeDefined();
