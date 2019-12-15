@@ -4,12 +4,12 @@
  */
 
 (function ssoApple(global) {
-    'use strict';
+    "use strict";
     var ssoApple = {},
         _debug = true,
         _networkId = 14,
         _siteUserId = "",
-        _applicationId = "com.varyn.varynweb",
+        _applicationId = "com.varyn.varynweb", // TODO: can this com from init(parameters)?
         _redirectURI = "/procs/appleauth.php",
         _SDKVersion = "v1",
         _scope = "name email",
@@ -31,22 +31,26 @@
 
     ssoApple.debugLog = function (message) {
         if (_debug) {
-            console.log('ssoApple: ' + message);
+            console.log("ssoApple: " + message);
         }
     };
 
+    /**
+     * Define the data structure for what a logged in user shoud look like. This
+     * is common to all SSO modules.
+     */
     ssoApple.clearUserInfo = function () {
         _userInfo = {
             networkId: _networkId,
-            userName: '',
-            realName: '',
-            email: '',
-            userId: '',
-            siteUserId: '',
-            siteUserToken: '',
-            gender: 'U',
+            userName: "",
+            realName: "",
+            email: "",
+            userId: "",
+            siteUserId: "",
+            siteUserToken: "",
+            gender: "U",
             dob: null,
-            avatarURL: '',
+            avatarURL: "",
             scope: _scope
         };
     };
@@ -119,7 +123,7 @@
      */
     ssoApple.load = function (parameters) {
         if (!_loaded) {
-            this.debugLog('loading Apple SDK');
+            this.debugLog("loading Apple SDK");
             _loaded = false;
             _loading = true;
             this.setParameters(parameters);
@@ -161,10 +165,10 @@
         var ssoAppleInstance = this;
         return new Promise(function (resolve) {
             if (ssoAppleInstance.isReady()) {
-                ssoAppleInstance.debugLog('Apple SDK is ready');
+                ssoAppleInstance.debugLog("Apple SDK is ready");
                 ssoAppleInstance.getLoginStatus().then(resolve, resolve);
             } else {
-                ssoAppleInstance.debugLog('Apple SDK is not loaded');
+                ssoAppleInstance.debugLog("Apple SDK is not loaded");
                 _callbackWhenLoaded = resolve;
                 ssoAppleInstance.load(parameters);
             }
@@ -246,9 +250,9 @@
      * Setup for AMD, node, or standalone reference the commonUtilities object.
      * ----------------------------------------------------------------------------------*/
 
-    if (typeof define === 'function' && define.amd) {
+    if (typeof define === "function" && define.amd) {
         define(function () { return ssoApple; });
-    } else if (typeof exports === 'object') {
+    } else if (typeof exports === "object") {
         module.exports = ssoApple;
     } else {
         var existingFunctions = global.ssoApple;

@@ -5,15 +5,15 @@
  */
 
 (function ssoTwitter (global) {
-    'use strict';
+    "use strict";
     var ssoTwitter = {},
         _debug = true,
         _networkId = 11,
         _siteUserId = "",
-        _applicationId = 'DNJM5ALaCxE1E2TnpnJtEl2ml',
+        _applicationId = "DNJM5ALaCxE1E2TnpnJtEl2ml", // TODO: can this com from init(parameters)?
         _SDKVersion = "",
         _initialized = false,
-        _scope = 'email',
+        _scope = "email",
         _loading = false,
         _loaded = false,
         _tokenExpiration = null,
@@ -25,22 +25,26 @@
 
     ssoTwitter.debugLog = function (message) {
         if (_debug) {
-            console.log('ssoTwitter: ' + message);
+            console.log("ssoTwitter: " + message);
         }
     };
 
+    /**
+     * Define the data structure for what a logged in user shoud look like. This
+     * is common to all SSO modules.
+     */
     ssoTwitter.clearUserInfo = function () {
         _userInfo = {
             networkId: _networkId,
-            userName: '',
-            realName: '',
-            email: '',
-            userId: '',
-            siteUserId: '',
-            siteUserToken: '',
-            gender: 'U',
+            userName: "",
+            realName: "",
+            email: "",
+            userId: "",
+            siteUserId: "",
+            siteUserToken: "",
+            gender: "U",
             dob: null,
-            avatarURL: '',
+            avatarURL: "",
             scope: _scope
         };
     };
@@ -52,7 +56,6 @@
      */
     ssoTwitter.setParameters = function (parameters) {
         var errors = null;
-        this.debugLog('setParameters ' + JSON.stringify(parameters));
         if (parameters) {
             if (parameters.networkId) {
                 _networkId = parameters.networkId;
@@ -81,7 +84,6 @@
         _loading = false;
         _loaded = true;
         ssoTwitter.clearUserInfo();
-        this.debugLog('init complete');
         return _initialized;
     };
 
@@ -96,7 +98,6 @@
      */
     ssoTwitter.load = function (parameters) {
         if (!_loaded) {
-            this.debugLog('loading Twitter SDK');
             _loaded = false;
             _loading = true;
             window.twitterInit = this.init.bind(this);
@@ -212,7 +213,7 @@
      * Redirects to the login page.
      */
     ssoTwitter.login = function () {
-        document.location = '/procs/oauth.php?action=login&provider=twitter';
+        document.location = "/procs/oauth.php?action=login&provider=twitter";
     };
 
     /**
@@ -234,9 +235,9 @@
      * Setup for AMD, node, or standalone reference the commonUtilities object.
      * ----------------------------------------------------------------------------------*/
 
-    if (typeof define === 'function' && define.amd) {
+    if (typeof define === "function" && define.amd) {
         define(function () { return ssoTwitter; });
-    } else if (typeof exports === 'object') {
+    } else if (typeof exports === "object") {
         module.exports = ssoTwitter;
     } else {
         var existingFunctions = global.ssoTwitter;

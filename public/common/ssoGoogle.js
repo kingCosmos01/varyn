@@ -3,14 +3,14 @@
  */
 
 (function ssoGoogle (global) {
-    'use strict';
+    "use strict";
     var ssoGoogle = {},
         _debug = true,
         _networkId = 7,
         _siteUserId = "",
-        _applicationId = '1065156255426-al1fbn6kk4enqfq1f9drn8q1111optvt.apps.googleusercontent.com',
+        _applicationId = "1065156255426-al1fbn6kk4enqfq1f9drn8q1111optvt.apps.googleusercontent.com", // TODO: can this com from init(parameters)?
         _SDKVersion = "v1",
-        _scope = 'email profile',
+        _scope = "email profile",
         _initialized = false,
         _loading = false,
         _loaded = false,
@@ -22,28 +22,32 @@
         _callbackWhenLoggedOut = null,
         _googleAuth = {},
         _userInfo = null,
-        _authCookieToken = 'enggapisession',
-        _authCookieCode = 'enggapicode',
-        _loginButtonId = 'gapi-signin-button';
+        _authCookieToken = "enggapisession",
+        _authCookieCode = "enggapicode",
+        _loginButtonId = "gapi-signin-button";
 
     ssoGoogle.debugLog = function (message) {
         if (_debug) {
-            console.log('ssoGoogle: ' + message);
+            console.log("ssoGoogle: " + message);
         }
     };
 
+    /**
+     * Define the data structure for what a logged in user shoud look like. This
+     * is common to all SSO modules.
+     */
     ssoGoogle.clearUserInfo = function () {
         _userInfo = {
             networkId: _networkId,
-            userName: '',
-            realName: '',
-            email: '',
-            userId: '',
-            siteUserId: '',
-            siteUserToken: '',
-            gender: 'U',
+            userName: "",
+            realName: "",
+            email: "",
+            userId: "",
+            siteUserId: "",
+            siteUserToken: "",
+            gender: "U",
             dob: null,
-            avatarURL: '',
+            avatarURL: "",
             scope: _scope
         };
     };
@@ -59,7 +63,6 @@
      */
     ssoGoogle.setParameters = function (parameters) {
         var errors = null;
-        this.debugLog('setParameters ' + JSON.stringify(parameters));
         if (parameters) {
             if (parameters.networkId) {
                 _networkId = parameters.networkId;
@@ -97,17 +100,16 @@
             googleInstance = this;
 
         googleInstance.clearUserInfo();
-        commonUtilities.cookieRemove(_authCookieCode, '/', '');
+        commonUtilities.cookieRemove(_authCookieCode, "/", "");
         if (googleApi) {
-            googleInstance.debugLog('init');
             _loading = false;
             _loaded = true;
-            googleApi.load('auth2', function () {
-                googleApi.client.load('google', _SDKVersion).then(function () {
+            googleApi.load("auth2", function () {
+                googleApi.client.load("google", _SDKVersion).then(function () {
                     _initialized = true;
                     _googleAuth = googleApi.auth2.init({
                             client_id: _applicationId,
-                            cookiepolicy: 'single_host_origin',
+                            cookiepolicy:"single_host_origin",
                             scope: _scope
                         });
                     if (_callbackWhenLoggedOut != null) {
@@ -120,15 +122,13 @@
                         _googleAuth.isSignedIn.listen(googleInstance.updateSignInState.bind(googleInstance));
                         _googleAuth.currentUser.listen(googleInstance.userChanged.bind(googleInstance));
                         if (_googleAuth.isSignedIn.get()) {
-                            googleInstance.debugLog('init complete calling sign in');
                             _googleAuth.signIn();
                         } else {
                             googleInstance.attachGoogleLoginButton();
-                            googleInstance.debugLog('init complete not signed in');
                             if (_callbackWhenLoaded != null) {
                                 var callback = _callbackWhenLoaded;
                                 _callbackWhenLoaded = null;
-                                callback(Error('User is not logged in with Google.'));
+                                callback(Error("User is not logged in with Google."));
                             }
                         }
                     }
@@ -148,7 +148,7 @@
         var timeNow = new Date();
         var cookieExpireMinutes = 30;
         timeNow.setTime(timeNow.getTime() + (cookieExpireMinutes * 60 * 1000));
-        commonUtilities.cookieSet(_authCookieCode, authCode, timeNow.toUTCString(), '/', '', false);
+        commonUtilities.cookieSet(_authCookieCode, authCode, timeNow.toUTCString(), "/", "", false);
         //var url = '/procs/oauth.php';
         //var parameters = {
         //    provider: 'gapi',
@@ -193,10 +193,7 @@
                     };
                     googleInstance.setLoginCookie(currentGoogleUser, authResponse.id_token);
                     if (_callbackWhenLoggedIn != null) {
-                        ssoGoogle.debugLog('calling callback for logged in user ' + _userInfo.userName);
                         _callbackWhenLoggedIn(_userInfo);
-                    } else {
-                        ssoGoogle.debugLog('no callback for logged in user ' + _userInfo.userName);
                     }
                     // I cant get this code to work, Google crashes if we try to get the grantOfflineAccess so that never works.
                     //authResponse.grantOfflineAccess({
@@ -210,7 +207,7 @@
                     //    }
                     //});
                 }, function (error) {
-                    googleInstance.debugLog('error: ' + (JSON.stringify(error, undefined, 2)));
+                    googleInstance.debugLog("error: " + (JSON.stringify(error, undefined, 2)));
                 });
         }
     };
@@ -226,7 +223,6 @@
      */
     ssoGoogle.load = function (parameters) {
         if ( ! _loaded) {
-            this.debugLog("loading");
             _loaded = false;
             _loading = true;
             this.setParameters(parameters);
@@ -262,11 +258,10 @@
         var googleInstance = this;
         return new Promise(function(resolve) {
             if (googleInstance.isReady()) {
-                googleInstance.debugLog('loaded and ready');
                 googleInstance.getLoginStatus().then(resolve, resolve);
             } else {
                 _callbackWhenLoaded = resolve;
-                googleInstance.debugLog('not loaded, loading first then logging in');
+                googleInstance.debugLog("not loaded, loading first then logging in");
                 googleInstance.load(parameters);
             }
         });
@@ -336,10 +331,9 @@
     ssoGoogle.getLoginStatus = function (loginStatus) {
         return new Promise(function(resolve, reject) {
             if (_googleAuth.isSignedIn.get()) {
-                ssoGoogle.debugLog('user is signed in resolving getLoginStatus');
                 resolve(_userInfo);
             } else {
-                reject(Error('User is not logged in with Google.'));
+                reject(Error("User is not logged in with Google."));
             }
         });
     };
@@ -352,7 +346,7 @@
         if (currentGoogleUser != null) {
             var googleProfile = currentGoogleUser.getBasicProfile();
             if (googleProfile != null) {
-                this.debugLog('user change event for ' + googleProfile.getName());
+                this.debugLog("user change event for " + googleProfile.getName());
             }
         }
     };
@@ -364,7 +358,7 @@
         var googleAuthInstance = gapi.auth2.getAuthInstance();
         if (googleAuthInstance != null) {
             if (_googleAuth.isSignedIn.get()) {
-                this.debugLog('update sign in state change for a logged in user');
+                this.debugLog("update sign in state change for a logged in user");
                 // TODO: Not sure yet what to do here. We could check to see if any user info has changed since last time we saw this user.
                 // if ( ! _loginPending && _callbackWhenLoggedOut == null) {
                     //var currentGoogleUser = googleAuthInstance.currentUser.get(),
@@ -397,20 +391,20 @@
                 //    }
                 //}
             } else {
-                this.debugLog('update sign in state change for a signout');
+                this.debugLog("update sign in state change for a signout");
                 // TODO: perform signout, this was in response to a logout() call and the server replied.
             }
         } else {
-            this.debugLog('error cannot determine current user auth instance');
+            this.debugLog("error cannot determine current user auth instance");
         }
     };
 
     ssoGoogle.onGapiSuccess = function (googleUser) {
-        this.debugLog('onGapiSuccess');
+        this.debugLog("onGapiSuccess");
     };
 
     ssoGoogle.onGapiFailure = function (error) {
-        this.debugLog('onGapiFailure');
+        this.debugLog("onGapiFailure");
     };
 
     /**
@@ -426,25 +420,24 @@
      * @param callBackWhenComplete
      */
     ssoGoogle.logout = function (callBackWhenComplete) {
-        if (typeof gapi !== 'undefined' && typeof gapi.auth2 !== 'undefined') {
+        if (gapi !== undefined && gapi.auth2 !== undefined) {
             var googleAuthInstance = gapi.auth2.getAuthInstance();
             if (googleAuthInstance != null) {
                 googleAuthInstance.signOut().then(function () {
-                    ssoGoogle.debugLog(' user logout complete');
                     ssoGoogle.clearUserInfo();
-                    if (typeof callBackWhenComplete !== 'undefined' && callBackWhenComplete != null) {
+                    if (callBackWhenComplete !== undefined && callBackWhenComplete != null) {
                         callBackWhenComplete();
                     }
                 });
             } else {
-                this.debugLog('logout failed because auth2 module not initialized');
+                this.debugLog("logout failed because auth2 module not initialized");
                 if (typeof callBackWhenComplete !== 'undefined' && callBackWhenComplete != null) {
                     _callbackWhenLoggedOut = callBackWhenComplete;
                 }
             }
         } else {
-            this.debugLog('logout failed because auth2 module not loaded');
-            if (typeof callBackWhenComplete !== 'undefined' && callBackWhenComplete != null) {
+            this.debugLog("logout failed because auth2 module not loaded");
+            if (callBackWhenComplete !== undefined && callBackWhenComplete != null) {
                 _callbackWhenLoggedOut = callBackWhenComplete;
             }
         }
@@ -462,9 +455,9 @@
      * Setup for AMD, node, or standalone reference the commonUtilities object.
      * ----------------------------------------------------------------------------------*/
 
-    if (typeof define === 'function' && define.amd) {
+    if (typeof define === "function" && define.amd) {
         define(function () { return ssoGoogle; });
-    } else if (typeof exports === 'object') {
+    } else if (typeof exports === "object") {
         module.exports = ssoGoogle;
     } else {
         var existingFunctions = global.ssoGoogle;

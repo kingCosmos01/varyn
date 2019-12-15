@@ -939,9 +939,9 @@ if (empty($refreshToken)) {
         profilePage = varynApp.initApp(varynProfilePage, profilePageParameters);<?php echo($refreshTokenJavaScript);?>
     });
     if (debug) {
-        head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.min.js', 'https://apis.google.com/js/platform.js', '/common/enginesis.js', '/common/ShareHelper.js', '/common/commonUtilities.js', '/common/ssoFacebook.js', '/common/ssoGoogle.js', '/common/ssoTwitter.js', '/common/ssoApple.js', '/common/varyn.js', '/common/varynProfilePage.js');
+        head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.min.js', '/common/enginesis.js', '/common/ShareHelper.js', '/common/commonUtilities.js', '/common/ssoFacebook.js', '/common/ssoGoogle.js', '/common/ssoTwitter.js', '/common/ssoApple.js', '/common/varyn.js', '/common/varynProfilePage.js');
     } else {
-        head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.min.js', 'https://apis.google.com/js/platform.js', '/common/enginesis.js', '/common/ShareHelper.js', '/common/varyn.min.js');
+        head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.min.js', '/common/enginesis.min.js', '/common/varynProfilePage.min.js');
     }
 </script>
 </body>

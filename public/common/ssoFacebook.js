@@ -8,7 +8,7 @@
  */
 
 (function ssoFacebook (global) {
-    'use strict';
+    "use strict";
     var ssoFacebook = {},
         _debug = true,
         _networkId = 2,
@@ -28,7 +28,7 @@
 
     ssoFacebook.debugLog = function (message) {
         if (_debug) {
-            console.log('ssoFacebook: ' + message);
+            console.log("ssoFacebook: " + message);
         }
     };
 
@@ -90,7 +90,6 @@
         if (global.FB) {
             var FB = global.FB;
             _loaded = true;
-            this.debugLog('Facebook SDK is loaded');
             FB.init({
                 appId: _applicationId,
                 cookie: true,
@@ -120,7 +119,6 @@
      */
     ssoFacebook.load = function (parameters) {
         if ( ! _loading && ! _loaded) {
-            this.debugLog('loading Facebook SDK');
             _loaded = false;
             _loading = true;
             global.fbAsyncInit = this.init.bind(this);
@@ -160,10 +158,9 @@
         var ssoFacebookContext = this;
         return new Promise(function(resolve) {
             if (ssoFacebookContext.isReady()) {
-                ssoFacebookContext.debugLog('Facebook SDK is ready');
                 ssoFacebookContext.getLoginStatus().then(resolve, resolve);
             } else {
-                ssoFacebookContext.debugLog('Facebook SDK is not loaded');
+                ssoFacebookContext.debugLog("Facebook SDK is not loaded");
                 _callbackWhenLoaded = resolve;
                 ssoFacebookContext.load(parameters);
             }
@@ -280,7 +277,7 @@
                         networkId: _networkId,
                         userName: response.name,
                         realName: response.name,
-                        email: response.email || '',
+                        email: response.email || "",
                         siteUserId: response.id,
                         siteUserToken: response.id,
                         gender: enginesis.validGender(response.gender),
@@ -291,13 +288,13 @@
                     // if we get here, the user has approved our app AND they are logged in.
                     // We need to check this state IF a user is not currently logged in, this would indicate they should be logged in
                     // automatically with Facebook
-                    ssoFacebookContext.debugLog('Successful Facebook login for: ' + response.name + ' (' + response.id + ')');
+                    ssoFacebookContext.debugLog("Successful Facebook login for: " + response.name + " (" + response.id + ")");
                     if (typeof(callBackWhenComplete) === "function") {
                         callBackWhenComplete(_userInfo);
                     }
                 });
             } else {
-                ssoFacebookContext.debugLog('no one logged in with Facebook status: ' + facebookStatus);
+                ssoFacebookContext.debugLog("no one logged in with Facebook status: " + facebookStatus);
                 if (typeof(callBackWhenComplete) === "function") {
                     callBackWhenComplete(null);
                 }
@@ -352,8 +349,9 @@
                     */
                 });
             } else {
-                ssoFacebookContext.debugLog('Facebook SDK does not appear to be loaded');
-                reject(Error('Facebook SDK does not appear to be loaded.'));
+                var errorMessage = "Facebook SDK does not appear to be loaded";
+                ssoFacebookContext.debugLog(errorMessage);
+                reject(Error(errorMessage));
             }
         });
     };
@@ -480,9 +478,9 @@
      * Setup for AMD, node, or standalone reference the commonUtilities object.
      * ----------------------------------------------------------------------------------*/
 
-    if (typeof define === 'function' && define.amd) {
+    if (typeof define === "function" && define.amd) {
         define(function () { return ssoFacebook; });
-    } else if (typeof exports === 'object') {
+    } else if (typeof exports === "object") {
         module.exports = ssoFacebook;
     } else {
         var existingFunctions = global.ssoFacebook;

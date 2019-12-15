@@ -16,7 +16,7 @@ include_once(VIEWS_ROOT . 'header.php');
         <h2>Frequently Asked Questions</h2>
         <p>Need help? Here are the answers to the most common questions asked by our users.</p>
         <ul class="faq">
-            <li class="faq-question">Do I need to Use Facebook to Login?<p class="faq-answer">We support login via Facebook, Twitter, Google Plus, or you can create an account with us using your email address.</p></li>
+            <li class="faq-question">Do I need to Use Facebook to Login?<p class="faq-answer">We support login via Facebook, Twitter, Google, or you can create an account with us using your email address.</p></li>
             <li class="faq-question">I forgot my password, how do I get it?<p class="faq-answer">You must use the forgot password form located on the logged out <a href="/profile/">profile page</a>.</p></li>
             <li class="faq-question">Can I Block Another User From Contacting Me?<p class="faq-answer">Not at this time but that is a feature we are working on.</p></li>
             <li class="faq-question">I Earned Coins, Where Are They?<p class="faq-answer">Your coins are stored in your account. Make sure you are logged in.</p></li>
