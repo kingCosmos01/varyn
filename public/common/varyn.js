@@ -926,26 +926,47 @@ var varyn = function (parameters) {
          * @param networkId
          */
         loadSupportedNetwork: function(networkId) {
+            var ssoParameters;
             switch (networkId) {
                 case enginesis.supportedNetworks.Enginesis: // Enginesis is always loaded
                     break;
                 case enginesis.supportedNetworks.Facebook:
                     if (typeof ssoFacebook !== 'undefined') {
-                        ssoFacebook.load(null);
+                        ssoParameters = {
+                            networkId: networkId,
+                            applicationId: parameters.facebookAppId,
+                            loginCallback: null
+                        };
+                        ssoFacebook.load(ssoParameters);
                     }
                     break;
                 case enginesis.supportedNetworks.Google:
                     if (typeof ssoGoogle !== 'undefined') {
+                        ssoParameters = {
+                            networkId: networkId,
+                            applicationId: parameters.googleAppId,
+                            loginCallback: null
+                        };
                         ssoGoogle.load(null);
                     }
                     break;
                 case enginesis.supportedNetworks.Twitter:
                     if (typeof ssoTwitter !== 'undefined') {
+                        ssoParameters = {
+                            networkId: networkId,
+                            applicationId: parameters.twitterAppId,
+                            loginCallback: null
+                        };
                         ssoTwitter.load(null);
                     }
                     break;
                 case enginesis.supportedNetworks.Apple:
                     if (typeof ssoApple !== 'undefined') {
+                        ssoParameters = {
+                            networkId: networkId,
+                            applicationId: parameters.appleAppId,
+                            loginCallback: null
+                        };
                         ssoApple.load(null);
                     }
                     break;
