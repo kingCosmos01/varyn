@@ -482,7 +482,7 @@ function showStats() {
 function runBuild() {
     Promise.all([
         optimizeJS(configuration.sourceFolder + "/js", configuration.destinationFolder + "/js", configuration.packageName),
-        optimizeJSLibs(configuration.sourceFolder + "/lib", configuration.destinationFolder + "/lib"),
+        optimizeJSLibs(configuration.sourceFolder, configuration.destinationFolder),
         handleImages(configuration.sourceFolder, configuration.destinationFolder, configuration.imagesFileSpec)
     ]).then(function (result) {
         logInfo(chalk.green("ᙘ All builds complete"));
