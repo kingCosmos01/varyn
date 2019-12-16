@@ -8,7 +8,7 @@
         _debug = true,
         _networkId = 7,
         _siteUserId = "",
-        _applicationId = "1065156255426-al1fbn6kk4enqfq1f9drn8q1111optvt.apps.googleusercontent.com", // TODO: can this com from init(parameters)?
+        _applicationId = "",
         _SDKVersion = "v1",
         _scope = "email profile",
         _initialized = false,

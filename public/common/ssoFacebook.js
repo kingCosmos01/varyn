@@ -12,7 +12,7 @@
     var ssoFacebook = {},
         _debug = true,
         _networkId = 2,
-        _applicationId = "489296364486097", // TODO: can this com from init(parameters)?
+        _applicationId = "",
         _SDKVersion = "v5.0",
         _scope = "email",
         _initialized = false,
@@ -413,7 +413,7 @@
      */
     ssoFacebook.login = function (callBackWhenComplete) {
         // start the user login process.
-        if (typeof(global.FB) === undefined) {
+        if (global.FB === undefined) {
             this.loadThenLogin({}).then(callBackWhenComplete);
         } else {
             global.FB.login(function(facebookResponse) {

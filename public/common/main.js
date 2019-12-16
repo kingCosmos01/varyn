@@ -501,7 +501,7 @@ function submitSearch ()
 function facebookInit ()
 {
     FB.init({
-        appId      : SiteConfiguration.varynFacebookAppId,
+        appId      : SiteConfiguration.facebookAppId,
         channelUrl : '//www.varyn.com/common/channel.html', // Channel File
         status     : true, // check login status
         cookie     : true, // enable cookies to allow the server to access the session

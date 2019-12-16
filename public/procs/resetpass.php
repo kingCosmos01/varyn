@@ -213,6 +213,9 @@ include_once(VIEWS_ROOT . 'footer.php');
                 languageCode: navigator.language || navigator.userLanguage,
                 developerKey: '<?php echo($developerKey);?>',
                 facebookAppId: '<?php echo($socialServiceKeys[2]['app_id']);?>',
+                googleAppId: '<?php echo($socialServiceKeys[7]['app_id']);?>',
+                twitterAppId: '<?php echo($socialServiceKeys[11]['app_id']);?>',
+                appleAppId: '<?php echo($socialServiceKeys[14]['app_id']);?>',
                 authToken: '<?php echo($authToken);?>'
             },
             resetPasswordPageParameters = {

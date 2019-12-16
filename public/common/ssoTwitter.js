@@ -10,7 +10,7 @@
         _debug = true,
         _networkId = 11,
         _siteUserId = "",
-        _applicationId = "DNJM5ALaCxE1E2TnpnJtEl2ml", // TODO: can this com from init(parameters)?
+        _applicationId = "",
         _SDKVersion = "",
         _initialized = false,
         _scope = "email",

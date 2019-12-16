@@ -9,7 +9,7 @@
         _debug = true,
         _networkId = 14,
         _siteUserId = "",
-        _applicationId = "com.varyn.varynweb", // TODO: can this com from init(parameters)?
+        _applicationId = "",
         _redirectURI = "/procs/appleauth.php",
         _SDKVersion = "v1",
         _scope = "name email",
