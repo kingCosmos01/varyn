@@ -57,7 +57,8 @@
 
     /**
      * Initialize the library and prepare it for use.
-     * @param parameters
+     * 
+     * @param {object} parameters required to configure the service on behalf of the app.
      * @returns {boolean}
      */
     ssoApple.setParameters = function (parameters) {
@@ -71,6 +72,9 @@
             }
             if (parameters.SDKVersion) {
                 _SDKVersion = parameters.SDKVersion;
+            }
+            if (parameters.scope) {
+                _scope = parameters.scope;
             }
             if (parameters.loginCallback) {
                 _callbackWhenLoggedIn = parameters.loginCallback;
@@ -119,7 +123,8 @@
      * to continue the sign in process.
      * Example:
      *   ssoApple.load(parameters).then(function(result) { console.log('Apple loaded'); }, function(error) { console.log('Apple load failed ' + error.message); });
-     * @param parameters {object} parameters to configure our Apple application (see `setParameters()`).
+     * 
+     * @param {object} parameters to configure our Apple application (see `setParameters()`).
      */
     ssoApple.load = function (parameters) {
         if (!_loaded) {
@@ -158,7 +163,7 @@
      * This function returns a promise that will resolve to a function that is called with the user's Apple info
      * in the standard Enginesis object format. If the promise fails the function is called with an Error object.
      *
-     * @param parameters {object} same parameters you pass to load().
+     * @param {object} parameters to configure our Apple application (see `setParameters()`).
      * @returns {Promise}
      */
     ssoApple.loadThenLogin = function (parameters) {

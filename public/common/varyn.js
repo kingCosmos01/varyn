@@ -28,7 +28,8 @@ var varyn = function (parameters) {
 
             minPasswordLength: 4,
             minUserNameLength: 3,
-            minimumAge: 13
+            minimumAge: 13,
+            ssoParameters: parameters
         },
         unconfirmedNetworkId = 1,
         currentPage = '',
@@ -39,7 +40,7 @@ var varyn = function (parameters) {
         _isLogout = false;
 
     /**
-     * Network id is set by the Enginesis server based on what type of user login was performed.
+     * Network id is set by the Enginesis server based on what type of SSO user login was performed.
      * @returns {number}
      */
     function getNetworkId () {
@@ -802,6 +803,7 @@ var varyn = function (parameters) {
          * Single sign-on registration. In this case, the user id comes from a 3rd party network and we need to map that
          * to an new Enginesis user_id. Additional processing/error checking must be handled in the Enginesis callback.
          * This is used in a callback function that has no this context.
+         * 
          * @param {object} registrationParameters is a KV object. The keys must match the Enginesis UserLoginCoreg API
          * @param {int} networkId is the network identifier, see Enginesis documentation
          */
@@ -932,42 +934,22 @@ var varyn = function (parameters) {
                     break;
                 case enginesis.supportedNetworks.Facebook:
                     if (typeof ssoFacebook !== 'undefined') {
-                        ssoParameters = {
-                            networkId: networkId,
-                            applicationId: parameters.facebookAppId,
-                            loginCallback: null
-                        };
-                        ssoFacebook.load(ssoParameters);
+                        ssoFacebook.load(this.ssoFacebookParameters());
                     }
                     break;
                 case enginesis.supportedNetworks.Google:
                     if (typeof ssoGoogle !== 'undefined') {
-                        ssoParameters = {
-                            networkId: networkId,
-                            applicationId: parameters.googleAppId,
-                            loginCallback: null
-                        };
-                        ssoGoogle.load(null);
+                        ssoGoogle.load(this.ssoGoogleParameters());
                     }
                     break;
                 case enginesis.supportedNetworks.Twitter:
                     if (typeof ssoTwitter !== 'undefined') {
-                        ssoParameters = {
-                            networkId: networkId,
-                            applicationId: parameters.twitterAppId,
-                            loginCallback: null
-                        };
-                        ssoTwitter.load(null);
+                        ssoTwitter.load(this.ssoTwitterParameters());
                     }
                     break;
                 case enginesis.supportedNetworks.Apple:
                     if (typeof ssoApple !== 'undefined') {
-                        ssoParameters = {
-                            networkId: networkId,
-                            applicationId: parameters.appleAppId,
-                            loginCallback: null
-                        };
-                        ssoApple.load(null);
+                        ssoApple.load(this.ssoAppleParameters());
                     }
                     break;
                 default:
@@ -1037,6 +1019,7 @@ var varyn = function (parameters) {
          * @return {Promise} since this takes a network call to figure out.
          */
         checkLoggedInSSO: function (networkId) {
+            var thatVarynApp = this;
             return new Promise(function(resolvePromise, rejectPromise) {
                 switch (networkId) {
                     case enginesis.supportedNetworks.Enginesis:
@@ -1048,22 +1031,22 @@ var varyn = function (parameters) {
                         break;
                     case enginesis.supportedNetworks.Facebook:
                         if (ssoFacebook) {
-                            ssoFacebook.loadThenLogin(null).then(resolvePromise, rejectPromise);
+                            ssoFacebook.loadThenLogin(thatVarynApp.ssoFacebookParameters()).then(resolvePromise, rejectPromise);
                         }
                         break;
                     case enginesis.supportedNetworks.Google:
                         if (ssoGoogle) {
-                            ssoGoogle.loadThenLogin(null).then(resolvePromise, rejectPromise);
+                            ssoGoogle.loadThenLogin(thatVarynApp.ssoGoogleParameters()).then(resolvePromise, rejectPromise);
                         }
                         break;
                     case enginesis.supportedNetworks.Twitter:
                         if (ssoTwitter) {
-                            ssoTwitter.loadThenLogin(null).then(resolvePromise, rejectPromise);
+                            ssoTwitter.loadThenLogin(thatVarynApp.ssoTwitterParameters()).then(resolvePromise, rejectPromise);
                         }
                         break;
                     case enginesis.supportedNetworks.Apple:
                         if (ssoApple) {
-                            ssoApple.loadThenLogin(null).then(resolvePromise, rejectPromise);
+                            ssoApple.loadThenLogin(thatVarynApp.ssoAppleParameters()).then(resolvePromise, rejectPromise);
                         }
                         break;
                     default:
@@ -1151,6 +1134,34 @@ var varyn = function (parameters) {
                     console.log("varynApp.checkLoginStateSSO unsupported network " + networkId);
                     break;
             }
+        },
+
+        ssoFacebookParameters: function() {
+            return {
+                networkId: enginesis.supportedNetworks.Facebook,
+                applicationId: siteConfiguration.ssoParameters.facebookAppId
+            };
+        },
+
+        ssoGoogleParameters: function () {
+            return {
+                networkId: enginesis.supportedNetworks.Google,
+                applicationId: siteConfiguration.ssoParameters.googleAppId
+            };
+        },
+
+        ssoTwitterParameters: function () {
+            return {
+                networkId: enginesis.supportedNetworks.Twitter,
+                applicationId: siteConfiguration.ssoParameters.twitterAppId
+            };
+        },
+
+        ssoAppleParameters: function () {
+            return {
+                networkId: enginesis.supportedNetworks.Apple,
+                applicationId: siteConfiguration.ssoParameters.appleAppId
+            };
         },
 
         /**

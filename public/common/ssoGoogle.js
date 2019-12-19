@@ -54,6 +54,7 @@
 
     /**
      * Initialize the library and prepare it for use.
+     * 
      * @param parameters {object} of
      *    networkId: {integer} Enginesis network id (should be 7!)
      *    applicationId: {string} gapi client Id for API calls
@@ -72,6 +73,9 @@
             }
             if (parameters.SDKVersion) {
                 _SDKVersion = parameters.SDKVersion;
+            }
+            if (parameters.scope) {
+                _scope = parameters.scope;
             }
             if (parameters.loginCallback) {
                 _callbackWhenLoggedIn = parameters.loginCallback;
@@ -219,7 +223,8 @@
      * Replaces <script src="https://apis.google.com/js/client:platform.js?onload=initGoogle"></script>
      * Example:
      *   ssoGoogle.load(parameters).then(function(result) { console.log('Facebook loaded'); }, function(error) { console.log('Facebook load failed ' + error.message); });
-     * @param parameters {object} parameters to configure our Google application.
+     * 
+     * @param {object} parameters to configure our Google application.
      */
     ssoGoogle.load = function (parameters) {
         if ( ! _loaded) {
@@ -251,7 +256,7 @@
      * This function returns a promise that will resolve to a function that is called with the user's Google info
      * in the standard Enginesis object format. If the promise fails the function is called with an Error object.
      *
-     * @param parameters {object} same parameters you pass to load().
+     * @param {object} parameters to configure our Google application.
      * @returns {Promise}
      */
     ssoGoogle.loadThenLogin = function (parameters) {
