@@ -12,12 +12,12 @@
     var ssoFacebook = {},
         _debug = true,
         _networkId = 2,
-        _applicationId = "",
+        _applicationId = null,
         _SDKVersion = "v5.0",
         _scope = "email",
-        _initialized = false,
-        _loaded = false,
-        _loading = false,
+        _initialized = false, // true when FB.init has been run
+        _loaded = false,  // true when SDK framework is loaded and ready to use
+        _loading = false, // true only while loading the SDK framework
         _facebookTokenExpiration = null, // According to Facebook, this is a Unix timestamp.
         _facebookToken = null,
         _facebookSignedRequest = null,
@@ -54,7 +54,8 @@
 
     /**
      * Initialize the library and prepare it for use.
-     * @param parameters
+     * 
+     * @param {object} parameters required to configure the service on behalf of the app.
      * @returns {boolean}
      */
     ssoFacebook.setParameters = function (parameters) {
@@ -69,6 +70,9 @@
             if (parameters.SDKVersion) {
                 _SDKVersion = parameters.SDKVersion;
             }
+            if (parameters.scope) {
+                _scope = parameters.scope;
+            }
             if (parameters.loginCallback) {
                 _callbackWhenLoggedIn = parameters.loginCallback;
             }
@@ -82,18 +86,21 @@
     /**
      * Initialize the library and prepare it for use. This is called from the Facebook load callback. When loaded
      * we immediately check to see if we already have a logged in user.
+     * 
      * @returns {boolean}
      */
     ssoFacebook.init = function () {
+        console.log("Facebook callback invoked");
         _loading = false;
         ssoFacebook.clearUserInfo();
-        if (global.FB) {
+        if (global.FB && _applicationId) {
             var FB = global.FB;
             _loaded = true;
             FB.init({
                 appId: _applicationId,
+                autoLogAppEvents: true,
                 cookie: true,
-                xfbml: true,
+                xfbml: false,
                 version: _SDKVersion
             });
             _initialized = true;
@@ -114,14 +121,17 @@
      * Example:
      *   ssoFacebook.load(parameters).then(function(result) { console.log('Facebook loaded'); }, function(error) { console.log('Facebook load failed ' + error.message); });
      * 
-     * @param parameters {object} parameters to configure our Facebook application. See `setParameters()`.
+     * @param {object} parameters to configure our Facebook application. See `setParameters()`.
      * @returns {Promise}
      */
     ssoFacebook.load = function (parameters) {
+        if (global.FB) {
+            _loaded = true;
+        }
         if ( ! _loading && ! _loaded) {
             _loaded = false;
             _loading = true;
-            global.fbAsyncInit = this.init.bind(this);
+            global.fbAsyncInit = ssoFacebook.init.bind(ssoFacebook);
             this.setParameters(parameters);
             (function (d, s, id, scriptSource) {
                 var js, fjs;
@@ -134,11 +144,13 @@
                 }
                 js = d.createElement(s);
                 js.id = id;
+                js.type = "text/javascript";
+                js.async = true;
                 js.src = scriptSource;
                 fjs.parentNode.insertBefore(js, fjs);
                 // once loaded Facebook SDK automatically calls window.fbAsyncInit()
             }(document, "script", "facebook-jssdk", "https://connect.facebook.net/en_US/sdk.js"));
-        } else if ( ! _initialized) {
+        } else if (_loaded && ! _initialized) {
             this.init();
         }
     };
@@ -151,7 +163,7 @@
      * This function returns a promise that will resolve to a function that is called with the user's Facebook info
      * in the standard Enginesis object format. If the promise fails the function is called with an Error object.
      *
-     * @param parameters {object} same parameters you pass to load().
+     * @param {object} parameters to configure our Facebook application. See `setParameters()`.
      * @returns {Promise}
      */
     ssoFacebook.loadThenLogin = function (parameters) {
@@ -409,12 +421,13 @@
      * This is an async function and will return immediately, and then call
      * `callBackWhenComplete` when log in has completed.
      * 
+     * @param {object} parameters to configure our Facebook application. See `setParameters()`.
      * @param {Function} callBackWhenComplete the function to call once log in is complete.
      */
-    ssoFacebook.login = function (callBackWhenComplete) {
+    ssoFacebook.login = function (parameters, callBackWhenComplete) {
         // start the user login process.
         if (global.FB === undefined) {
-            this.loadThenLogin({}).then(callBackWhenComplete);
+            this.loadThenLogin(parameters).then(callBackWhenComplete);
         } else {
             global.FB.login(function(facebookResponse) {
                 ssoFacebook.setLoginStatus(facebookResponse, callBackWhenComplete);

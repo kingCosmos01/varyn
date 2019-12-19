@@ -375,7 +375,7 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
          */
         loginFacebook: function () {
             varynApp.trackEvent('login', 'sso', 'facebook');
-            ssoFacebook.login(varynApp.registerSSO.bind(varynApp));
+            ssoFacebook.login(varynApp.ssoFacebookParameters(), varynApp.registerSSO.bind(varynApp));
             return true;
         },
 
@@ -387,7 +387,7 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
          */
         loginTwitter: function () {
             varynApp.trackEvent('login', 'sso', 'twitter');
-            ssoTwitter.login();
+            ssoTwitter.login(varynApp.ssoTwitterParameters());
             return true;
         },
 
@@ -399,7 +399,7 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
          */
         loginApple: function () {
             varynApp.trackEvent('login', 'sso', 'apple');
-            ssoApple.login();
+            ssoApple.login(varynApp.ssoAppleParameters());
             return true;
         }
     }

@@ -82,6 +82,7 @@ if ($networkId > 1) {
                 $error = $enginesis->getLastError();
                 if ($error != null) {
                     $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::CANNOT_LOG_IN) . ' ' . errorToLocalString($error['message']) . '</p>';
+                    $isLoggedIn = false;
                 }
             } else {
                 $isLoggedIn = true;

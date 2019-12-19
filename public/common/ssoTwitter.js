@@ -51,7 +51,8 @@
 
     /**
      * Initialize the library and prepare it for use.
-     * @param parameters
+     * 
+     * @param {object} parameters to configure our Twitter application.
      * @returns {boolean}
      */
     ssoTwitter.setParameters = function (parameters) {
@@ -65,6 +66,9 @@
             }
             if (parameters.SDKVersion) {
                 _SDKVersion = parameters.SDKVersion;
+            }
+            if (parameters.scope) {
+                _scope = parameters.scope;
             }
             if (parameters.loginCallback) {
                 _callbackWhenLoggedIn = parameters.loginCallback;
@@ -93,7 +97,8 @@
      * calls
      * Example:
      *   ssoTwitter.load(parameters).then(function(result) { console.log('Twitter loaded'); }, function(error) { console.log('Twitter load failed ' + error.message); });
-     * @param parameters {object} parameters to configure our Twitter application.
+     * 
+     * @param {object} parameters to configure our Twitter application.
      * @returns {Promise}
      */
     ssoTwitter.load = function (parameters) {
@@ -129,7 +134,7 @@
      * This function returns a promise that will resolve to a function that is called with the user's Twitter info
      * in the standard Enginesis object format. If the promise fails the function is called with an Error object.
      *
-     * @param parameters {object} same parameters you pass to load().
+     * @param {object} parameters to configure our Twitter application.
      * @returns {Promise}
      */
     ssoTwitter.loadThenLogin = function (parameters) {
