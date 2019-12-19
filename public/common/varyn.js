@@ -928,6 +928,7 @@ var varyn = function (parameters) {
          * @param networkId
          */
         loadSupportedNetwork: function(networkId) {
+            var ssoParameters;
             switch (networkId) {
                 case enginesis.supportedNetworks.Enginesis: // Enginesis is always loaded
                     break;

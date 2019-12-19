@@ -10,6 +10,7 @@ thumbs.db
 package.json
 package-lock.json
 README.md
+.vscode/
 bin/
 data/
 node_modules/
