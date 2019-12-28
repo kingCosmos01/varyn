@@ -863,7 +863,7 @@ include_once(VIEWS_ROOT . 'header.php');
                 <input type="button" class="btn btn-primary btn-facebook" id="facebook-connect-button" value="Login with Facebook" title="Login with your Facebook account" aria-label="Login with your Facebook account" role="button">
                 <input type="button" class="btn btn-primary btn-gapi-signin" id="gapi-signin-button" value="Sign in with Google" title="Sign in with your Google account" aria-label="Sign in with your Google account" role="button">
                 <input type="button" class="btn btn-primary btn-twitter-signin" id="twitter-signin-button" value="Sign in with Twitter" title="Sign in with your Twitter account" aria-label="Sign in with your Twitter account" role="button">
-                <input type="button" class="btn btn-primary btn-apple-signin apple-icon" id="appleid-signin" value="Sign in with Apple" title="Sign in with your Apple account" />
+                <input type="button" class="btn btn-primary btn-apple-signin" id="appleid-signin" value="Sign in with Apple" title="Sign in with your Apple account" />
             </div>
         </div>
 <?php
