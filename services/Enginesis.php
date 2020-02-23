@@ -80,13 +80,14 @@ class Enginesis
 
     /**
      * Set up the Enginesis environment so it is able to easily make service requests with the server.
-     * @method constructor
+     * 
      * @param int $siteId Site id to represent.
      * @param string $enginesisServer which Enginesis server you want to connect with. Leave empty to match current stage.
      * @param string $developerKey Your developer key.
+     * @param string $debugFunction A function to call for debug logging, defaults to NULL.
      */
-    public function __construct ($siteId, $enginesisServer, $developerKey) {
-        $this->m_debug = true;
+    public function __construct ($siteId, $enginesisServer, $developerKey, $debugFunction = null) {
+        $this->m_debug = true; // TODO: Should initialize to false and only set when requested.
         $this->m_server = $this->serverName();
         $this->m_stage = $this->serverStage($this->m_server);
         $this->m_lastError = Enginesis::noError();
@@ -114,6 +115,9 @@ class Enginesis
         $this->setServiceRoot($enginesisServer);
         $this->m_serviceEndPoint = $this->m_serviceRoot . 'index.php';
         $this->m_avatarEndPoint = $this->m_serviceRoot . 'avatar/';
+        if ($debugFunction != null) {
+            $this->setDebugFunction($debugFunction);
+        }
         $this->restoreUserFromAuthToken(null);
     }
 
@@ -370,6 +374,7 @@ class Enginesis
      */
     public function getLoggedInUserInfo() {
         if ($this->m_refreshedUserInfo != null) {
+            $this->debugInfo("already have m_refreshedUserInfo " . json_encode($this->m_refreshedUserInfo));
             return $this->m_refreshedUserInfo;
         } else {
             return $this->sessionUserInfoGet();
@@ -712,6 +717,7 @@ class Enginesis
                 $this->m_authTokenWasValidated = true;
                 $this->m_isLoggedIn = true;
                 $this->m_refreshedUserInfo = $this->sessionUserInfoGet();
+                $this->debugInfo("Restored m_refreshedUserInfo from sessionUserInfoGet " . json_encode($this->m_refreshedUserInfo));
                 $status = EnginesisRefreshStatus::valid;
             } elseif ($errorCode == EnginesisErrors::TOKEN_EXPIRED) {
                 // if the auth token is expired we need to ask the server for a new one IF we have the refresh token
@@ -724,6 +730,7 @@ class Enginesis
                     } else {
                         $status = EnginesisRefreshStatus::refreshed;
                         $this->m_refreshedUserInfo = $userInfo;
+                        $this->debugInfo("Restored expired m_refreshedUserInfo from sessionRefresh " . json_encode($this->m_refreshedUserInfo));
                     }
                 } else {
                     $status = EnginesisRefreshStatus::missing;
@@ -741,6 +748,7 @@ class Enginesis
                 } else {
                     $status = EnginesisRefreshStatus::refreshed;
                     $this->m_refreshedUserInfo = $userInfo;
+                    $this->debugInfo("Restored missing m_refreshedUserInfo from sessionRefresh " . json_encode($this->m_refreshedUserInfo));
                 }
             }
         }
@@ -748,6 +756,7 @@ class Enginesis
         if ( ! $this->m_authTokenWasValidated) {
             $this->sessionClear();
         }
+        $this->debugInfo("restoreUserFromAuthToken m_refreshedUserInfo done " . json_encode($this->m_refreshedUserInfo));
         return $status;
     }
 
@@ -932,18 +941,23 @@ class Enginesis
     }
 
     /**
-     * Restore the user info data from cookie
+     * Restore the user info data from cookie.
+     * 
      * @return null|object
      */
-    public function sessionUserInfoGet () {
+    public function sessionUserInfoGet() {
         $userInfo = null;
         if (isset($_COOKIE[SESSION_USERINFO])) {
             try {
                 $userInfo = json_decode($_COOKIE[SESSION_USERINFO]);
                 // TODO: Validate this user data make sure it was not tampered, check if expired.
+                $this->debugInfo("decoded cookie for SESSION_USERINFO " . json_encode($userInfo));
             } catch (Exception $e) {
                 $this->setLastError('CANNOT_GET_USERINFO', 'sessionUserInfoGet could not get cookie: ' . $e->getMessage());
+                $this->debugInfo('sessionUserInfoGet fails: ' . json_decode($this->m_lastError));
             }
+        } else {
+            $this->debugInfo("no cookie for SESSION_USERINFO, not sure if you were expecting one");
         }
         return $userInfo;
     }
@@ -963,6 +977,7 @@ class Enginesis
                 $this->saveRefreshToken($userInfo->refreshToken);
             }
             $this->m_refreshedUserInfo = $userInfo;
+            $this->debugInfo("Restored m_refreshedUserInfo from sessionRestoreFromResponse " . json_encode($this->m_refreshedUserInfo));
         }
         return $userInfo;
     }
@@ -1088,6 +1103,18 @@ class Enginesis
     }
 
     /**
+     * Turn debugging on or off. Debugging is logged to the function set with `setDebugFunction`,
+     * otherwise this has no effect.
+     * 
+     * @param boolean $flag A value to evaluate to either `true` to turn on or `false` to turn off.
+     * @return boolean The current value of the debugging flag.
+     */
+    public function setDebugFlag($flag) {
+        $this->m_debug = ! ! $flag;
+        return $this->m_debug;
+    }
+
+    /**
      * Attempt to call the callback debug function if one was provided.
      * @param $message {string} A message to show in the log.
      */
@@ -1098,7 +1125,7 @@ class Enginesis
     }
 
     /**
-     * Call the debug function only when debugging is truned on.
+     * Call the debug function only when debugging is turned on.
      * @param $message {string} A message to show in the log while debugging is on.
      */
     public function debugInfo($message) {
