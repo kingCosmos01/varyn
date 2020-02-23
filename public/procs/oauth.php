@@ -2,11 +2,14 @@
 /**
  * OAuth services come here for the redirect URI when an oauth is requested
  * from any of our supported SSO networks. This page always redirects to
- * profile.php. If there is an error it appends ?network=X&error=E
+ * a page that expects an Enginesis authentication cookie to be set. If
+ * there is an error it appends ?network=X&error=E to the URL.
  * 
  * Note at this writing this only handles Twitter oauth 2 authentication.
  * Facebook and Google both use entirely client-side JavaScript. Apple redirects
  * to a different page.
+ * 
+ * To test this page: https://varyn-l.com/procs/oauth.php?debug=1&action=login&provider=twitter&redirect=1105
  * 
  * Author: jf
  * Date: 5/22/2017
@@ -17,6 +20,7 @@
     require_once('../../services/strings.php');
     setErrorReporting(true);
     define('TOKEN_STORE_KEY', 'varyn-sso-token-store');
+    $redirectPage = '/profile/';
 
     /**
      * Simple debug function that places debug output in the HTML stream.
@@ -36,13 +40,15 @@
 
     /**
      * An attempt to determine if the referrer is valid. I'm not sure this is going to work as referrer can be easily
-     * spoofed.
-     * @param $referrer
-     * @return bool
+     * spoofed. We expect referrer to be a valid Varyn domain.
+     * 
+     * @param {string} $referrer String to check.
+     * @return bool true if referrer is considered valid.
      */
     function isValidReferrer($referrer) {
         $isValid = false;
         if (strlen($referrer) > 0) {
+            // localhost || varyn[-[l|d|q|x]].com
             $isValid = true;
         }
         return $isValid;
@@ -75,15 +81,36 @@
         return $tokens;
     }
 
+    /**
+     * Set the page to redirect to if the request included information
+     * about which next page should load. Sets global PHP variable `$redirectPage`
+     * and returns the string.
+     * 
+     * @return string
+     */
+    function setRedirectPage() {
+        global $redirectPage;
+        $redirectRequest = strtolower(getPostOrRequestVar('redirect', ''));
+        if ($redirectRequest != '') {
+            // if a game, get the game page
+            if (isValidId($redirectRequest)) {
+                $redirectPage = "/play/?id=$redirectRequest";
+            }
+        }
+        return $redirectPage;
+    }
+
     // TODO: If user is already logged in? Logout? Or Invalid call to this page?
     // TODO: What if refreshing tokens?
 
+    $debug = (int) getPostOrRequestVar('debug', 0);
+    setRedirectPage();
+    
     if ($enginesis->isLoggedInUser()) {
         debugX("called but a user is already logged in?");
-        header('Location: /profile/');
+        header('Location: ' . $redirectPage);
         exit(0);
     }
-    $debug = (int) getPostOrRequestVar('debug', 0);
     $errorCode = null;
     $network_id = 0;
     if (isset($_SERVER['HTTP_REFERER'])) {
@@ -104,13 +131,18 @@
         $oauthVerifier = getPostOrRequestVar('oauth_verifier', '');
         if (strlen($oauthToken) > 0 && strlen($oauthVerifier) > 0 && isValidReferrer($referrer)) {
             // TODO: match token with the outstanding token we saved in the cookie
-            debugX("Accepting connection from $referrer");
+            debugX("Accepting connection from $referrer and assuming it's twitter.");
             $provider = 'twitter';
             $action = 'login';
             $oauthState = 'callback';
         } elseif ($isDenied != '') {
             debugX('Twitter denied login with ' . $isDenied);
-            header('Location: /profile/');
+            // Append error information to the redirect URL to help the page display an error.
+            $errorCode = EnginesisUIStrings::CANNOT_LOG_IN;
+            $pos = strpos($redirectPage, '?');
+            $redirectPage .= ($pos === false ? '?' : '&') . 'code=' . $errorCode . '&network=' . $network_id . '&reason=' . $isDenied;
+            header('Location: ' . $redirectPage);
+            exit(0);
         }
     }
     debugX('action ' . $action . ', provider ' . $provider);
@@ -134,9 +166,10 @@
                         if ($oauthState == 'init') {
                             try {
                                 if ($debug) {
+                                    // This is a debug mock and is not a valid token.
                                     $oauthToken = 'Bj-zEQAAAAAA1YsSAAABXSls3NQ';
                                     $oauthTokenSecret = 'sUIJloJq6ePJrF3MKeJ0rmq87vSHWsuH';
-                                    $requestToken = ['oauth_token' => $oauthToken, 'oauth_token_secret' => 'sUIJloJq6ePJrF3MKeJ0rmq87vSHWsuH', 'oauth_callback_confirmed' => true];
+                                    $requestToken = ['oauth_token' => $oauthToken, 'oauth_token_secret' => $oauthTokenSecret, 'oauth_callback_confirmed' => true];
                                     saveTokens(['oauth_token' => $oauthToken, 'oauth_token_secret' => $oauthTokenSecret]);
                                     $url = $oauthCallback . '?oauth_token=' . $oauthToken . '&oauth_verifier=' . $oauthTokenSecret . '&debug=' . ($debug ? '1' : '0');
                                     header('Location: ' . $url);
@@ -227,7 +260,7 @@
                                                 $refreshToken = $userInfo->refreshToken;
                                                 $userId = $userInfo->user_id;
                                                 if ( ! $debug) {
-                                                    header('Location: /profile/');
+                                                    header('Location: ' . $redirectPage);
                                                 }
                                                 exit(0);
                                             }
@@ -264,13 +297,14 @@
             break;
 
         default:
-            debugX("Invalid, unmatched, or unexpected connection from $referrer");
+            debugX("Invalid, unmatched, or unexpected connection from $referrer with $action");
             $errorCode = EnginesisUIStrings::SSO_EXCEPTION;
             break;
     }
     if ($errorCode != null) {
-        $errorCode = '?code=' . $errorCode . '&network=' . $network_id;
-    } else {
-        $errorCode = '';
+        // Append error information to the redirect URL to help the page to display an error.
+        $pos = strpos($redirectPage, '?');
+        $redirectPage .= ($pos === false ? '?' : '&') . 'code=' . $errorCode . '&network=' . $network_id;
     }
-    header('Location: /profile/' . $errorCode);
+    debugX("oauth redirecting to $redirectPage");
+    header('Location: ' . $redirectPage);

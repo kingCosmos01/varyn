@@ -69,12 +69,17 @@ function setErrorReporting ($reportingFlag) {
  */
 function reportError($msg, $file = '', $line = 0, $fn = '') {
     global $enginesisLogger;
+    $stackTrace = null;
 
     if (strlen($file) == 0) {
-        $file = __FILE__; // TODO: This makes no sense, maybe try to get the call stack?
+        $stackTrace = debug_backtrace(FALSE, 1);
+        $file = $stackTrace[1]['file'];
     }
     if ($line < 1) {
-        $line = __LINE__;
+        if ($stackTrace == null) {
+            $stackTrace = debug_backtrace(FALSE, 1);
+        }
+        $line = $stackTrace[1]['line'];
     }
     if (strlen($fn) > 0) {
         $msg = "$fn | " . $msg;

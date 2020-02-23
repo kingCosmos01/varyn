@@ -6,7 +6,7 @@
  */
 
 if ( ! defined('ENGINESIS_VERSION')) {
-    define('ENGINESIS_VERSION', '2.4.71');
+    define('ENGINESIS_VERSION', '2.4.72');
 }
 require_once('EnginesisErrors.php');
 if ( ! defined('SESSION_COOKIE')) {
@@ -222,7 +222,7 @@ class Enginesis
      * @return bool
      */
     public function isValidUserName ($userName) {
-        $badNames = array('null', 'undefined', 'xxx', 'shit', 'fuck', 'dick');
+        $badNames = ['null', 'undefined', 'xxx', 'shit', 'fuck', 'dick'];
         return strlen(trim($userName)) > 2 && ! in_array($userName, $badNames);
     }
 
@@ -241,7 +241,7 @@ class Enginesis
      * @return bool
      */
     public function isValidGender ($gender) {
-        $acceptableGenders = array('M', 'Male', 'F', 'Female', 'U', 'Undefined');
+        $acceptableGenders = ['M', 'Male', 'F', 'Female', 'U', 'Undefined'];
         return in_array($gender, $acceptableGenders);
     }
 
@@ -579,7 +579,7 @@ class Enginesis
      * @return object Returns a successful error code.
      */
     private static function noError () {
-        return array('success' => '1', 'message' => '', 'extended_info' => '');
+        return ['success' => '1', 'message' => '', 'extended_info' => ''];
     }
 
     /**
@@ -596,7 +596,7 @@ class Enginesis
             $extendedInfo = '';
             $results = $this->getResponseStatus($enginesisResponse, $success, $statusMessage, $extendedInfo);
             if ($results == null) {
-                $this->m_lastError = array('success' => $success, 'message' => $statusMessage, 'extended_info' => $extendedInfo);
+                $this->m_lastError = ['success' => $success, 'message' => $statusMessage, 'extended_info' => $extendedInfo];
             } else {
                 $this->m_lastError = Enginesis::noError();
             }
@@ -615,7 +615,7 @@ class Enginesis
         if ($success) {
             $this->m_lastError = Enginesis::noError();
         } else {
-            $this->m_lastError = array('success' => $success, 'message' => $errorCode, 'extended_info' => $errorMessage);
+            $this->m_lastError = ['success' => $success, 'message' => $errorCode, 'extended_info' => $errorMessage];
         }
         return $this->m_lastError;
     }
@@ -890,12 +890,12 @@ class Enginesis
             if ( ! setcookie(SESSION_COOKIE, $authenticationToken, time() + (SESSION_DAYSTAMP_HOURS * 60 * 60), '/', $this->sessionCookieDomain())) {
                 $rc = 'CANNOT_SET_SESSION';
                 $this->setLastError($rc, 'sessionSave setcookie failed');
-                $this->debugInfo("Failed to save the engsession cookie");
+                $this->debugInfo("Failed to save the engsession cookie", __FILE__, __LINE__);
             }
         } catch (Exception $e) {
             $rc = 'CANNOT_SET_SESSION';
             $this->setLastError($rc, 'sessionSave could not set cookie: ' . $e->getMessage());
-            $this->debugInfo("Exception when saving the engsession cookie");
+            $this->debugInfo("Exception when saving the engsession cookie", __FILE__, __LINE__);
         }
         error_reporting($errorLevel); // put error level back to where it was
         if ($rc == '') {
@@ -1117,10 +1117,12 @@ class Enginesis
     /**
      * Attempt to call the callback debug function if one was provided.
      * @param $message {string} A message to show in the log.
+     * @param $file {string} The PHP file that requested the debug.
+     * @param $line {integer} The line number in $file that requested the debug.
      */
-    public function debugCallback($message) {
+    public function debugCallback($message, $file, $line) {
         if ($this->m_debugFunction != null) {
-            call_user_func($this->m_debugFunction, $message);
+            call_user_func($this->m_debugFunction, $message, $file, $line);
         }
     }
 
@@ -1128,9 +1130,9 @@ class Enginesis
      * Call the debug function only when debugging is turned on.
      * @param $message {string} A message to show in the log while debugging is on.
      */
-    public function debugInfo($message) {
+    public function debugInfo($message, $file, $line) {
         if ($this->m_debug) {
-            $this->debugCallback($message);
+            $this->debugCallback($message, $file, $line);
         }
     }
 
@@ -1177,7 +1179,7 @@ class Enginesis
      * @return array A key/value array.
      */
     public function decodeURLParams ($encodedURLParams) {
-        $data = array();
+        $data = [];
         $arrayOfParameters = explode('&', $encodedURLParams);
         $i = 0;
         $numParameters = count($arrayOfParameters);
@@ -1275,7 +1277,7 @@ class Enginesis
         $isLocalhost = serverStage() == '-l';
         $url = $this->m_serviceEndPoint;
         $setSSLCertificate = startsWith(strtolower($url), 'https://');
-        $this->debugInfo("Calling $fn with " . json_encode($parameters));
+        $this->debugInfo("Calling $fn with " . json_encode($parameters), __FILE__, __LINE__);
         $ch = curl_init($url);
         if ($ch) {
             $referrer = serverName() . $this->currentPagePath();
@@ -1312,7 +1314,7 @@ class Enginesis
             $errorInfo = 'System error: unable to contact ' . $this->m_serviceEndPoint . ' or the server did not respond.';
             $contents = $this->makeErrorResponse('SYSTEM_ERROR', $errorInfo, $parameters);
         }
-        $this->debugInfo("callServerAPI response from $fn: $contents");
+        $this->debugInfo("callServerAPI response from $fn: $contents", __FILE__, __LINE__);
         if ($response == 'json') {
             $contentsObject = json_decode($contents);
             if ($contentsObject == null) {
@@ -1462,12 +1464,16 @@ class Enginesis
     public function sessionBegin ($gameId, $gameKey) {
         $service = 'SessionBegin';
         $userInfo = null;
-        if (isEmpty($gameId)) {
+        if ( ! isValidId($gameId)) {
             $gameId = $this->m_gameId;
-            $gameKey = gameKeyMake($this->m_siteId, $gameId);
+            if (isValidId($gameId)) {
+                $gameKey = gameKeyMake($this->m_siteId, $gameId);
+            }
         }
-        if (isEmpty($gameKey)) {
+        if (isEmpty($gameKey) && isValidId($gameId)) {
             $gameKey = gameKeyMake($this->m_siteId, $gameId);
+        } else {
+            $gameKey = '';
         }
         $parameters = [
             'game_id' => $gameId,
@@ -1477,6 +1483,13 @@ class Enginesis
         $results = $this->setLastErrorFromResponse($enginesisResponse);
         if ($results != null && isset($results->row)) {
             $userInfo = $this->sessionRestoreFromResponse($results);
+        } else {
+            $errorCode = $this->getLastErrorCode();
+            if ($errorCode == EnginesisErrors::INVALID_PARAMETER || $errorCode == EnginesisErrors::INVALID_TOKEN) {
+                // if the refresh token is invalid then log this user out or else
+                // we will keep trying this bad token on every request.
+                $this->userLogout();
+            }
         }
         return $userInfo;
     }
@@ -1510,6 +1523,13 @@ class Enginesis
         $results = $this->setLastErrorFromResponse($enginesisResponse);
         if ($results != null && isset($results->row)) {
             $userInfo = $this->sessionRestoreFromResponse($results);
+        } else {
+            $errorCode = $this->getLastErrorCode();
+            if ($errorCode == EnginesisErrors::INVALID_PARAMETER || $errorCode == EnginesisErrors::INVALID_TOKEN) {
+                // if the refresh token is invalid then log this user out or else
+                // we will keep trying this bad token on every request.
+                $this->userLogout();
+            }
         }
         return $userInfo;
     }
@@ -1816,7 +1836,7 @@ class Enginesis
      * @return object: null if all acceptable. key/value pairs that we think are unacceptable. key is the field in error, value is the error message.
      */
     public function registeredUserSecurityValidation ($user_id, $mobile_number, $security_question_id, $security_question, $security_answer) {
-        $errors = array();
+        $errors = [];
         $key = 'mobile_number';
         $questionOK = true;
         if ( ! $this->isValidString($mobile_number, 7, 20, true, false)) {

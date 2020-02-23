@@ -16,7 +16,7 @@
     "use strict";
 
     var commonUtilities = {
-        version: "1.2.9"
+        version: "1.3.1"
     },
     _base64KeyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
     _testNumber = 0;
@@ -1020,20 +1020,30 @@
     };
 
     /**
-     * Inserts a script element to the DOM on the indicated tag.
+     * Inserts a new script element into the DOM on the indicated tag.
+     * 
+     * @param id {string} The id attribute, so that the script element can be referenced.
      * @param src {string} The src attribute, usually a file reference or URL to a script to load.
      * @param tagName {string} optional tag you want to insert this script to. Defaults to "script"
      */
-    commonUtilities.insertScriptElement = function (src, tagName) {
-        var script = document.createElement("script");
-
+    commonUtilities.insertScriptElement = function (id, src, tagName) {
+        if (document.getElementById(id)) {
+            // script already exists.
+            return;
+        }
+        var scriptElement = document.createElement("script");
         if (tagName === undefined || tagName == null || tagName == "") {
             tagName = "script";
         }
-        script.src = src;
+        var fjs = document.getElementsByTagName(tagName)[0];
+        if (fjs == null) {
+            fjs = document.getElementsByTagName("div")[0];
+        }
+        scriptElement.id = id;
+        scriptElement.src = src;
         script.type = "text/javascript";
         script.async = true;
-        document.getElementsByTagName(tagName)[0].appendChild(script);
+        fjs.appendChild(script);
     };
 
     /**
@@ -1258,6 +1268,41 @@
         }
         return result;
     };
+
+    /**
+     * Parse a domain or a URL to return the domain with the server dropped.
+     * Works on either a domain name (e.g. www.host.com) or a URL (e.g.
+     * https://www.host.com/path). In either case this function should return
+     * the domain the server is a member of, e.g. `host.com`.
+     * 
+     * @param {String} proposedHost A proposed URL or domain name to parse.
+     * @returns {String} The proposed host domain with the server removed.
+     */
+    commonUtilities.domainDropServer = function(proposedHost) {
+        var targetHost = proposedHost ? proposedHost.toString() : "";
+        var pos = targetHost.indexOf("://"); // remove the protocol
+        if (pos > 0) {
+            targetHost = targetHost.substring(pos + 3);
+        }
+        pos = targetHost.indexOf("//"); // remove the neutral protocol
+        if (pos == 0) {
+            targetHost = targetHost.substring(2);
+        }
+        pos = targetHost.indexOf("/"); // remove everything after the domain
+        if (pos > 0) {
+            targetHost = targetHost.substring(0, pos);
+        }
+        pos = targetHost.indexOf(":"); // remove everything after the port
+        if (pos > 0) {
+            targetHost = targetHost.substring(0, pos);
+        }
+        var domainParts = targetHost.split(".");
+        if (domainParts.length > 2) {
+            domainParts.shift();
+        }
+        targetHost = domainParts.join(".")
+        return targetHost;
+    }
 
     /**
      * Compute MD5 checksum for the given string.
