@@ -28,7 +28,7 @@
     "use strict";
 
     var enginesis = {
-        VERSION: "2.4.71",
+        VERSION: "2.4.72",
         debugging: true,
         disabled: false, // use this flag to turn off communicating with the server
         isOnline: true,  // flag to determine if we are currently able to reach Enginesis servers
@@ -259,7 +259,7 @@
         if (enginesisResult && enginesisResult.results && enginesisResult.results.status) {
             return enginesisResult.results.status.message;
         } else {
-            return "INVALID_PARAM";
+            return "INVALID_PARAMETER";
         }
     }
 
@@ -382,6 +382,13 @@
                 refreshSuccessful = false;
             }
             refreshSuccessful = saveUserSessionInfo(sessionInfo);
+        } else {
+            var errorCode = resultErrorCode(enginesisResult);
+            if (errorCode == "INVALID_PARAMETER" || errorCode == "INVALID_TOKEN") {
+                // if the refresh token is invalid then log this user out or else
+                // we will keep trying this bad token on every request.
+                clearUserSessionInfo();
+            }
         }
         return refreshSuccessful;
     }
@@ -1098,6 +1105,7 @@
     function qualifyAndSetServerStage (newServerStage) {
         var regMatch;
         var currentHost = enginesis.isBrowserBuild ? global.location.host : ""; // TODO: How to get host in NodeJS?
+        var isLocalhost = false;
         enginesis.serverHost = null;
 
         if (newServerStage === undefined || newServerStage === null) {
@@ -1117,6 +1125,7 @@
                 // match the stage matching current host
                 if (currentHost.substr(0, 9) == "localhost") {
                     newServerStage = "-l";
+                    isLocalhost = true;
                 } else {
                     regMatch = /-[ldqx]\./.exec(currentHost);
                     if (regMatch != null && regMatch.index > 0) {
@@ -1152,6 +1161,8 @@
                     + domainParts[numberOfParts - 2].replace(/-[ldqx]$/, "")
                     + enginesis.serverStage
                     + "." + domainParts[numberOfParts - 1];
+            } else if (isLocalhost) {
+                enginesis.serverHost = "enginesis-l.com";
             } else {
                 enginesis.serverHost = currentHost;
             }
@@ -2793,7 +2804,7 @@
         var service = "GameDataCreate";
         if (( ! enginesis.authTokenWasValidated || Math.floor(enginesis.loggedInUserInfo.user_id) == 0) && (isEmpty(fromAddress) || isEmpty(fromName))) {
             // if not logged in, fromAddress, fromName must be provided. Otherwise we get it on the server from the logged in user info.
-            errorCode = "INVALID_PARAM";
+            errorCode = "INVALID_PARAMETER";
         } else if (isEmpty(enginesis.gameId)) {
             errorCode = "INVALID_GAME_ID";
         }
@@ -3025,7 +3036,7 @@
         if (errorCode == "") {
             submitString = encryptScoreSubmit(enginesis.siteId, enginesis.loggedInUserInfo.user_id, gameId, score, gameData, timePlayed, sessionId);
             if (submitString == null) {
-                errorCode = "INVALID_PARAM";
+                errorCode = "INVALID_PARAMETER";
             }
         }
         if (errorCode == "") {
