@@ -837,18 +837,37 @@ function randomString ($length, $maxCodePoint = 32, $reseed = false) {
  */
 function makeInputFormHackerToken () {
     global $enginesis;
-    $expirationTime = 30;
+    $expirationTime = 30; // 30 minutes. TODO: Is this a reasonable amount of time?
     $hackerToken = md5($enginesis->getServerName()) . '' . floor(time() / ($expirationTime * 60));
     return $hackerToken;
 }
 
 /**
  * Given a token from an input form check to verify it has not yet expired.
- * @param $token generated with makeInputFormHackerToken.
+ * @param string $token generated with makeInputFormHackerToken.
  * @return boolean true when the token is good.
  */
 function validateInputFormHackerToken ($token) {
     return makeInputFormHackerToken() == $token;
+}
+
+/**
+ * Helper function to verify the form hack prevention are verified. There are two checks performed on a
+ * page that has an input form that tends to get hacked by bots:
+ * 
+ * 1. An input field that asks for an email address, but we expect it to be empty. A real user will not enter a value in this field (typically it is hidden.)
+ * 2. A time-out token is placed in a hidden field in the form. If the form is submitted after this timer times out we reject the submission (took too long.)
+ * 
+ * @param array $inputFormNames an array of field names used on the current page form to check for the inputs. Order dependent. By default we use 'emailaddress' and 'all-clear'.
+ * @return boolean a `true` value indicates the form passes the checks, and `false` indicates a possible hack attempt.
+ */
+function verifyFormHacks($inputFormNames) {
+    if ($inputFormNames == null || $inputFormNames == []) {
+        $inputFormNames = ['emailaddress', 'all-clear'];
+    }
+    $thisFieldMustBeEmpty = isset($_POST[$inputFormNames[0]]) ? $_POST[$inputFormNames[0]] : 'hacker';
+    $hackerToken  = isset($_POST[$inputFormNames[1]]) ? $_POST[$inputFormNames[1]] : '0';
+    return $thisFieldMustBeEmpty === '' && validateInputFormHackerToken($hackerToken);
 }
 
 /**
@@ -1637,8 +1656,7 @@ $enginesisLogger = new LogMessage([
 ]);
 $page = '';
 $webServer = '';
-$enginesis = new Enginesis($siteId, null, $developerKey);
-$enginesis->setDebugFunction('reportError');
+$enginesis = new Enginesis($siteId, null, $developerKey, 'reportError');
 $serverName = $enginesis->getServerName();
 $serverStage = $enginesis->getServerStage();
 // turn on errors for all stages except LIVE TODO: Remove from above when we are going live.

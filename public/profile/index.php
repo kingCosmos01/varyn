@@ -99,11 +99,15 @@ if ($networkId > 1) {
 } elseif ($isLoggedIn) {
     // if we have the Enginesis login cookie then we should also verify the user's login with any SSO is still valid.
     $userInfo = $enginesis->getLoggedInUserInfo();
-    $authToken = $userInfo->authtok;
-    $userId = $userInfo->user_id;
-    $networkId = $enginesis->getNetworkId();
-    $socialServices = SocialServices::create($networkId);
-    $userInfoSSO = $socialServices->connectSSO();
+    if ($userInfo != null) {
+        $authToken = $userInfo->authtok;
+        $userId = $userInfo->user_id;
+        $networkId = $enginesis->getNetworkId();
+        $socialServices = SocialServices::create($networkId);
+        $userInfoSSO = $socialServices->connectSSO();
+    } else {
+        $isLoggedIn = false;
+    }
 }
 $action = strtolower(getPostOrRequestVar('action', ''));
 if ($action == 'login' && ! $isLoggedIn) {
@@ -111,8 +115,6 @@ if ($action == 'login' && ! $isLoggedIn) {
     $userName = getPostVar('login_form_username');
     $password = getPostVar('login_form_password');
     $rememberMe = valueToBoolean(getPostVar('rememberme', false));
-    $thisFieldMustBeEmpty = getPostVar('login_form_email', null);
-    $hackerToken = getPostVar('all-clear', ''); // this field must contain the token
     if ($userName == '' && $password == '') {
         $userName = getPostVar('login_username');
         $password = getPostVar('login_password');
@@ -139,131 +141,139 @@ if ($action == 'login' && ! $isLoggedIn) {
     $inputFocusId = 'register_form_email';
 } elseif ($action == 'popupregister' && ! $isLoggedIn) {
     // user completed the short registration form
-    $userName = getPostVar("register-username", '');
-    $password = getPostVar("register-password", '');
-    $email = getPostVar("register-email", '');
-    $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
-    $hackerToken = getPostVar("all-clear", '');
-    $realName = $userName;
-    $location = '';
-    $tagline = '';
-    $date12YearsAgo = strtotime('-12 year');
-    $dateOfBirth = date('Y-m-d', $date12YearsAgo);
-    $gender = 'U';
-    $agreement = getPostVar("register-agreement", 0);
-    $rememberMe = valueToBoolean(getPostVar('rememberme', false));
-    $parameters = array(
-        'user_name' => $userName,
-        'password' => $password,
-        'email_address' => $email,
-        'real_name' => $realName,
-        'location' => $location,
-        'tagline' => $tagline,
-        'dob' => $dateOfBirth,
-        'gender' => $gender,
-        'agreement' => $agreement
-        );
-    $invalidFields = $enginesis->userRegistrationValidation(0, $parameters);
-    if ($invalidFields == null) {
-        $userInfo = $enginesis->userRegistration($parameters);
-        $error = $enginesis->getLastError();
-        if ($enginesis->isError($error)) {
-            $errorCode = $error['message'];
-            switch ($errorCode) {
-                case EnginesisErrors::NAME_IN_USE:
-                    $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NAME_IN_USE);
-                    $inputFocusId = 'register_form_username';
-                    $errorFieldId = 'register_form_username';
-                    break;
-                case EnginesisErrors::EMAIL_IN_USE:
-                    $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_EMAIL_IN_USE);
-                    $inputFocusId = 'register_form_email';
-                    $errorFieldId = 'register_form_email';
-                    break;
-                case EnginesisErrors::INVALID_USER_NAME:
-                    $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_INVALID);
-                    $inputFocusId = 'register_form_username';
-                    $errorFieldId = 'register_form_username';
-                    break;
-                default:
-                    $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERROR, array('error' => $errorCode));
-                    $inputFocusId = 'register_form_email';
-                    break;
+    if (verifyFormHacks(['emailaddress', 'all-clear'])) {
+        $userName = getPostVar("register-username", '');
+        $password = getPostVar("register-password", '');
+        $email = getPostVar("register-email", '');
+        $realName = $userName;
+        $location = '';
+        $tagline = '';
+        $date12YearsAgo = strtotime('-12 year');
+        $dateOfBirth = date('Y-m-d', $date12YearsAgo);
+        $gender = 'U';
+        $agreement = getPostVar("register-agreement", 0);
+        $rememberMe = valueToBoolean(getPostVar('rememberme', false));
+        $parameters = array(
+            'user_name' => $userName,
+            'password' => $password,
+            'email_address' => $email,
+            'real_name' => $realName,
+            'location' => $location,
+            'tagline' => $tagline,
+            'dob' => $dateOfBirth,
+            'gender' => $gender,
+            'agreement' => $agreement
+            );
+        $invalidFields = $enginesis->userRegistrationValidation(0, $parameters);
+        if ($invalidFields == null) {
+            $userInfo = $enginesis->userRegistration($parameters);
+            $error = $enginesis->getLastError();
+            if ($enginesis->isError($error)) {
+                $errorCode = $error['message'];
+                switch ($errorCode) {
+                    case EnginesisErrors::NAME_IN_USE:
+                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NAME_IN_USE);
+                        $inputFocusId = 'register_form_username';
+                        $errorFieldId = 'register_form_username';
+                        break;
+                    case EnginesisErrors::EMAIL_IN_USE:
+                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_EMAIL_IN_USE);
+                        $inputFocusId = 'register_form_email';
+                        $errorFieldId = 'register_form_email';
+                        break;
+                    case EnginesisErrors::INVALID_USER_NAME:
+                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_INVALID);
+                        $inputFocusId = 'register_form_username';
+                        $errorFieldId = 'register_form_username';
+                        break;
+                    default:
+                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERROR, array('error' => $errorCode));
+                        $inputFocusId = 'register_form_email';
+                        break;
+                }
+                $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . $errorInfo . '</p>';
+                $showRegistrationForm = true;
+            } else {
+                $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ACCEPTED) . '</p>';
+                $inputFocusId = 'login_form_username';
             }
-            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . $errorInfo . '</p>';
-            $showRegistrationForm = true;
         } else {
-            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ACCEPTED) . '</p>';
-            $inputFocusId = 'login_form_username';
+            // TODO: handle invalid fields by showing UI
+            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, array('fields' => implode(', ', $invalidFields))) . '</p>';
+            $inputFocusId = 'register-email';
         }
     } else {
-        // TODO: handle invalid fields by showing UI
-        $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, array('fields' => implode(', ', $invalidFields))) . '</p>';
-        $inputFocusId = 'register-email';
+        $errorInfo = 'Invalid form submission. Please correct your error(s) and try again.';
+        $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . $errorInfo . '</p>';
+        $showRegistrationForm = true;
     }
     $action = 'register';
 } elseif ($action == 'register' && ! $isLoggedIn) {
     // user completed the full page registration form
-    $userName = getPostVar("register_form_username", '');
-    $password = getPostVar("register_form_password", '');
-    $email = getPostVar("register_form_email", '');
-    $fullname = getPostVar("register_form_fullname", '');
-    $location = getPostVar("register_form_location", '');
-    $tagline = getPostVar("register_form_tagline", '');
-    $dateOfBirth = getPostVar("register_form_dob", '');
-    $gender = getPostVar("register_form_gender", 'U');
-    $agreement = getPostVar("register_form_agreement", 0);
-    $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
-    $hackerToken = getPostVar("all-clear", '');
-    $rememberMe = valueToBoolean(getPostVar('rememberme', false));
-    $parameters = array(
-        'user_name' => $userName,
-        'password' => $password,
-        'email_address' => $email,
-        'real_name' => $fullname,
-        'location' => $location,
-        'tagline' => $tagline,
-        'dob' => $dateOfBirth,
-        'gender' => $gender,
-        'agreement' => $agreement
-    );
-    $invalidFields = $enginesis->userRegistrationValidation(0, $parameters);
-    if ($invalidFields == null) {
-        $userInfo = $enginesis->userRegistration($parameters);
-        $error = $enginesis->getLastError();
-        if ($enginesis->isError($error)) {
-            $errorCode = $error['message'];
-            switch ($errorCode) {
-                case EnginesisErrors::NAME_IN_USE:
-                    $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NAME_IN_USE);
-                    $inputFocusId = 'register_form_username';
-                    $errorFieldId = 'register_form_username';
-                    break;
-                case EnginesisErrors::EMAIL_IN_USE:
-                    $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_EMAIL_IN_USE);
-                    $inputFocusId = 'register_form_email';
-                    $errorFieldId = 'register_form_email';
-                    break;
-                case EnginesisErrors::INVALID_USER_NAME:
-                    $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_INVALID);
-                    $inputFocusId = 'register_form_username';
-                    $errorFieldId = 'register_form_username';
-                    break;
-                default:
-                    $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERROR, array('error' => $errorCode));
-                    $inputFocusId = 'register_form_email';
-                    break;
+    if (verifyFormHacks(['emailaddress', 'all-clear'])) {
+        $userName = getPostVar("register_form_username", '');
+        $password = getPostVar("register_form_password", '');
+        $email = getPostVar("register_form_email", '');
+        $fullname = getPostVar("register_form_fullname", '');
+        $location = getPostVar("register_form_location", '');
+        $tagline = getPostVar("register_form_tagline", '');
+        $dateOfBirth = getPostVar("register_form_dob", '');
+        $gender = getPostVar("register_form_gender", 'U');
+        $agreement = getPostVar("register_form_agreement", 0);
+        $rememberMe = valueToBoolean(getPostVar('rememberme', false));
+        $parameters = array(
+            'user_name' => $userName,
+            'password' => $password,
+            'email_address' => $email,
+            'real_name' => $fullname,
+            'location' => $location,
+            'tagline' => $tagline,
+            'dob' => $dateOfBirth,
+            'gender' => $gender,
+            'agreement' => $agreement
+        );
+        $invalidFields = $enginesis->userRegistrationValidation(0, $parameters);
+        if ($invalidFields == null) {
+            $userInfo = $enginesis->userRegistration($parameters);
+            $error = $enginesis->getLastError();
+            if ($enginesis->isError($error)) {
+                $errorCode = $error['message'];
+                switch ($errorCode) {
+                    case EnginesisErrors::NAME_IN_USE:
+                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NAME_IN_USE);
+                        $inputFocusId = 'register_form_username';
+                        $errorFieldId = 'register_form_username';
+                        break;
+                    case EnginesisErrors::EMAIL_IN_USE:
+                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_EMAIL_IN_USE);
+                        $inputFocusId = 'register_form_email';
+                        $errorFieldId = 'register_form_email';
+                        break;
+                    case EnginesisErrors::INVALID_USER_NAME:
+                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_INVALID);
+                        $inputFocusId = 'register_form_username';
+                        $errorFieldId = 'register_form_username';
+                        break;
+                    default:
+                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERROR, array('error' => $errorCode));
+                        $inputFocusId = 'register_form_email';
+                        break;
+                }
+                $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . $errorInfo . '</p>';
+                $showRegistrationForm = true;
+            } else {
+                $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ACCEPTED) . '</p>';
+                $inputFocusId = 'login_form_username';
             }
-            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . $errorInfo . '</p>';
-            $showRegistrationForm = true;
         } else {
-            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ACCEPTED) . '</p>';
-            $inputFocusId = 'login_form_username';
+            // TODO: handle invalid fields by showing UI, but try to set the focus on the first field in error.
+            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, array('fields' => implode(', ', $invalidFields))) . '</p>';
+            $inputFocusId = 'register_form_email';
+            $showRegistrationForm = true;
         }
     } else {
-        // TODO: handle invalid fields by showing UI, but try to set the focus on the first field in error.
-        $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, array('fields' => implode(', ', $invalidFields))) . '</p>';
-        $inputFocusId = 'register_form_email';
+        $errorInfo = 'Invalid form submission. Please correct your error(s) and try again.';
+        $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . $errorInfo . '</p>';
         $showRegistrationForm = true;
     }
 } elseif ($action == 'update') {
@@ -272,9 +282,9 @@ if ($action == 'login' && ! $isLoggedIn) {
         $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::MUST_BE_LOGGED_IN) . '</p>';
         debugLog("profile.php got into user edit without a valid logged in user.");
     } else {
-        $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
-        $hackerToken = getPostVar("all-clear", '');
-        if ($thisFieldMustBeEmpty == null && $hackerToken == '') {
+        $thisFieldMustBeEmpty = getPostVar('emailaddress', null);
+        $hackerToken = getPostVar('all-clear', '');
+        if ($thisFieldMustBeEmpty === null && $hackerToken === '') {
             // fill in the form with the users current information.
             // Call Enginesis to get a fresh view of the user's data in case it was changed in some other process.
             $userInfo = $enginesis->registeredUserGetEx($userId);
@@ -308,7 +318,7 @@ if ($action == 'login' && ! $isLoggedIn) {
             // User submitted update form. Validate the hacker stuff is ok
             // TODO: determine if no changes made and only submit based on changes
             // TODO: security fields updated?
-            if ( ! ($thisFieldMustBeEmpty == '' && validateInputFormHackerToken($hackerToken))) {
+            if ( ! ($thisFieldMustBeEmpty === '' && validateInputFormHackerToken($hackerToken))) {
                 $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REG_INFO_INCOMPLETE, null) . '</p>';
                 debugLog("profile.php error in user update fails hacker test: " . implode(',', array($thisFieldMustBeEmpty, $hackerToken, validateInputFormHackerToken($hackerToken))));
                 $inputFocusId = 'register_form_email';
@@ -439,40 +449,45 @@ if ($action == 'login' && ! $isLoggedIn) {
     }
 } elseif ($action == 'forgotpassword') {
     // user completed the Forgot Password form, initiate a forgot password flow.
-    $userName = getPostVar("forgotpassword_username", '');
-    $email = getPostVar("forgotpassword_email", '');
-    $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
-    $hackerToken = getPostVar("all-clear", '');
-    $result = $enginesis->userForgotPassword($userName, $email);
-    if ($result != null) {
-        if (isset($result->user_id) && $result->user_id > 0) {
-            $errorMessage = '<p class="text-info">' . $stringTable->lookup(EnginesisUIStrings::REG_RESET_PASSWORD, null) . '</p>';
-            $inputFocusId = 'login_form_username';
-        } else {
-            $result = null;
-        }
-    }
-    if ($result == null) {
-        $error = $enginesis->getLastError();
-        $errorCode = $error['message'];
-        if ($errorCode == 'SYSTEM_ERROR') {
-            $errorMessage = '<p class="text-error">' . errorToLocalString($errorCode) . '</p>';
-        } else {
-            $info = '';
-            if ( ! empty($userName) && ! empty($email)) {
-                $info = $userName . ', ' . $email;
+    if (verifyFormHacks(['emailaddress', 'all-clear'])) {
+        $userName = getPostVar("forgotpassword_username", '');
+        $email = getPostVar("forgotpassword_email", '');
+        $result = $enginesis->userForgotPassword($userName, $email);
+        if ($result != null) {
+            if (isset($result->user_id) && $result->user_id > 0) {
+                $errorMessage = '<p class="text-info">' . $stringTable->lookup(EnginesisUIStrings::REG_RESET_PASSWORD, null) . '</p>';
+                $inputFocusId = 'login_form_username';
             } else {
-                if ( ! empty($userName)) {
-                    $info = $userName;
-                }
-                if ( ! empty($email)) {
-                    $info = ($info == '' ? '' : ', ') . $email;
-                }
+                $result = null;
             }
-            $info = htmlentities($info);
-            $info .= $info == '' ? '' : '. ';
-            $errorMessage = '<p class="text-error">' . errorToLocalString($errorCode) . '<br/>' . $info . 'Please check your entry.</p>';
         }
+        if ($result == null) {
+            $error = $enginesis->getLastError();
+            $errorCode = $error['message'];
+            if ($errorCode == 'SYSTEM_ERROR') {
+                $errorMessage = '<p class="text-error">' . errorToLocalString($errorCode) . '</p>';
+            } else {
+                $info = '';
+                if ( ! empty($userName) && ! empty($email)) {
+                    $info = $userName . ', ' . $email;
+                } else {
+                    if ( ! empty($userName)) {
+                        $info = $userName;
+                    }
+                    if ( ! empty($email)) {
+                        $info = ($info == '' ? '' : ', ') . $email;
+                    }
+                }
+                $info = htmlentities($info);
+                $info .= $info == '' ? '' : '. ';
+                $errorMessage = '<p class="text-error">' . errorToLocalString($errorCode) . '<br/>' . $info . 'Please check your entry.</p>';
+            }
+            $inputFocusId = 'profile_forgot_password';
+        }
+    } else {
+        debugLog("profile.php forgotpassword form submission failed the hacker test.");
+        $errorCode = SERVICE_ERROR;
+        $errorMessage = '<p class="text-error">' . errorToLocalString($errorCode) . '<br/>' . $info . 'Please check your entry.</p>';
         $inputFocusId = 'profile_forgot_password';
     }
 } elseif ($action == 'resetpassword') {
