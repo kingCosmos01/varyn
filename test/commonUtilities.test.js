@@ -336,6 +336,78 @@ test("subtractYearsFromNow", function() {
     expect(resultDate.getDate()).toEqual(testDate.getDate());
 });
 
+test("domainDropServer", function() {
+    expect(commonUtilities.domainDropServer).toBeDefined();
+
+    var testString = "www.varyn.com";
+    var expectedResult = "varyn.com";
+    expect(commonUtilities.domainDropServer(testString)).toEqual(expectedResult);
+
+    var testString = "www.varyn.com:8000";
+    var expectedResult = "varyn.com";
+    expect(commonUtilities.domainDropServer(testString)).toEqual(expectedResult);
+
+    testString = "varyn.com";
+    expectedResult = "varyn.com";
+    expect(commonUtilities.domainDropServer(testString)).toEqual(expectedResult);
+
+    testString = "varyn.com:8000";
+    expectedResult = "varyn.com";
+    expect(commonUtilities.domainDropServer(testString)).toEqual(expectedResult);
+
+    testString = "burst.services.varyn.org";
+    expectedResult = "services.varyn.org";
+    expect(commonUtilities.domainDropServer(testString)).toEqual(expectedResult);
+
+    testString = "burst.services.varyn.org:8000";
+    expectedResult = "services.varyn.org";
+    expect(commonUtilities.domainDropServer(testString)).toEqual(expectedResult);
+
+    testString = "varyn";
+    expectedResult = "varyn";
+    expect(commonUtilities.domainDropServer(testString)).toEqual(expectedResult);
+
+    testString = "";
+    expectedResult = "";
+    expect(commonUtilities.domainDropServer(testString)).toEqual(expectedResult);
+
+    testString = null;
+    expectedResult = "";
+    expect(commonUtilities.domainDropServer(testString)).toEqual(expectedResult);
+
+    testString = "http://www.varyn.com";
+    expectedResult = "varyn.com";
+    expect(commonUtilities.domainDropServer(testString)).toEqual(expectedResult);
+
+    testString = "ftp://www.varyn.com";
+    expectedResult = "varyn.com";
+    expect(commonUtilities.domainDropServer(testString)).toEqual(expectedResult);
+
+    testString = "//www.varyn.com";
+    expectedResult = "varyn.com";
+    expect(commonUtilities.domainDropServer(testString)).toEqual(expectedResult);
+
+    testString = "https://www.varyn.com/";
+    expectedResult = "varyn.com";
+    expect(commonUtilities.domainDropServer(testString)).toEqual(expectedResult);
+
+    testString = "https://www.varyn.com/path/";
+    expectedResult = "varyn.com";
+    expect(commonUtilities.domainDropServer(testString)).toEqual(expectedResult);
+
+    testString = "https://www.varyn.com/path/to/any/file.html";
+    expectedResult = "varyn.com";
+    expect(commonUtilities.domainDropServer(testString)).toEqual(expectedResult);
+
+    testString = "https://varyn.com/path/to/any/file.html";
+    expectedResult = "varyn.com";
+    expect(commonUtilities.domainDropServer(testString)).toEqual(expectedResult);
+
+    testString = "https://varyn.com:8000/path/to/any/file.html";
+    expectedResult = "varyn.com";
+    expect(commonUtilities.domainDropServer(testString)).toEqual(expectedResult);
+});
+
 test("tagParse", function() {
 //    commonUtilities.tagParse = function (tags, delimiter) {
     expect(commonUtilities.tagParse).toBeDefined();
