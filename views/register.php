@@ -7,8 +7,18 @@ require_once('../services/common.php');
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Varyn Games | Register</title>
-    <link rel="icon" type="image/png" href="/images/logosmall.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" href="/favicon-48x48.png" sizes="48x48" />
+    <link rel="icon" type="image/png" href="/favicon-196x196.png" sizes="196x196">
+    <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="shortcut icon" href="/favicon-48x48.png">
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#c7254e">
+    <meta name="msapplication-TileColor" content="#c7254e">
+    <meta name="theme-color" content="#c7254e">
     <link rel="image_src" href="/images/VarynCardLogo.png" />
     <META NAME="Description" CONTENT="Varyn"/>
     <META NAME="Keywords" CONTENT="Varyn"/>

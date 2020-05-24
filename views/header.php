@@ -59,15 +59,19 @@ if (empty($pageSocialImage2)) {
     <link href="/common/bootstrap.min.css" rel="stylesheet">
     <link href="/common/carousel.css" rel="stylesheet">
     <link href="/common/varyn.css" rel="stylesheet">
-    <link rel="icon" href="<?php echo($pageFavIcon);?>">
-    <link rel="icon" type="image/png" href="/favicon-48x48.png" sizes="48x48"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" href="<?php echo($pageFavIcon);?>">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" href="/favicon-48x48.png" sizes="48x48" />
     <link rel="icon" type="image/png" href="/favicon-196x196.png" sizes="196x196">
     <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
-    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
-    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
-    <link rel="apple-touch-icon" href="/apple-touch-icon-180x180.png"/>
-    <link rel="shortcut icon" href="<?php echo($pageIcon);?>">
+    <link rel="shortcut icon" href="/favicon-48x48.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#c7254e">
+    <meta name="msapplication-TileColor" content="#c7254e">
+    <meta name="theme-color" content="#c7254e">
     <meta property="fb:app_id" content="<?php echo($socialServiceKeys[2]['app_id']);?>" />
     <meta property="fb:admins" content="<?php echo($socialServiceKeys[2]['admins']);?>" />
     <meta property="og:title" content="<?php echo($pageTitle);?>">

@@ -2,7 +2,7 @@
 /**
  * Handle registration confirmation from email request. The link in the email redirects to here, we use the parameters
  * u (user-id), s (site-id), and t (token, or secondary-password) to verify this is the user. Once confirmed the
- * user is logged in. If not confirmed a reason message is displayed. All cases redirect to profile.php with the
+ * user is logged in. If not confirmed a reason message is displayed. All cases redirect to /profile with the
  * error code and the message is diplayed there.
  * @Date: 1/5/16
  */
