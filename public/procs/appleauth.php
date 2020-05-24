@@ -1,7 +1,7 @@
 <?php
 /**
  * Support for Sign in with Apple authentication flow. Apple sign in comes here for the redirect URI 
- * when an authentication is requested. This page always redirects to profile.php. If there is an error
+ * when an authentication is requested. This page always redirects to /profile. If there is an error
  * it sends &network=X&error=E
  * Author: jf
  * Date: 11/16/2019

@@ -2,7 +2,6 @@
  * @file: main.js
  * @author: jf
  * @date: 7/25/13
- * @version: 2.1.1
  * @summary: The main JavaScript functionality supporting all the sites pages.
  */
 
@@ -17,16 +16,16 @@ function initPage ()
 {
     // this is called from head.js once all JS files have been loaded. It is essentially the page initialization function.
     var slider = document.getElementById("slider");
-    $('#slider').nivoSlider();
+    $("#slider").nivoSlider();
     var id = document.getElementById("page_header_left");
     if (id != null) {
         id.onclick = GoToHomePage;
     }
     id = document.getElementById("popupRegistration");
     if (id != null) {
-        $("#register_now,#closePopup,#cancelPopup").click( function () { popupToggle('popupRegistration') });
+        $("#register_now,#closePopup,#cancelPopup").click( function () { popupToggle("popupRegistration") });
     }
-    Enginesis.init(SiteConfiguration.enginesisSiteId, SiteConfiguration.serverStage, '', SiteConfiguration.enginesisDeveloperKey, SiteConfiguration.languageCode, enginesisResponseHandler);
+    Enginesis.init(SiteConfiguration.enginesisSiteId, SiteConfiguration.serverStage, "", SiteConfiguration.enginesisDeveloperKey, SiteConfiguration.languageCode, enginesisResponseHandler);
     Enginesis.debugLog("Enginesis " + Enginesis + " version " + Enginesis.VERSION + " for site_id " + Enginesis.getSiteId());
 }
 
@@ -87,14 +86,14 @@ function queryStringAsArray (queryString)
 function arrayAsQueryString (parameterArray)
 {
     // turns object properties into a query string format
-    var resultString = '';
-    if (typeof parameterArray === 'object') {
+    var resultString = "";
+    if (typeof parameterArray === "object") {
         for (var key in parameterArray) {
             if (parameterArray.hasOwnProperty(key)) {
                 if (resultString.length > 0) {
-                    resultString += '&' + key + '=' + parameterArray[key];
+                    resultString += "&" + key + "=" + parameterArray[key];
                 } else {
-                    resultString = key + '=' + encodeURIComponent(parameterArray[key]);
+                    resultString = key + "=" + encodeURIComponent(parameterArray[key]);
                 }
             }
         }
@@ -116,11 +115,11 @@ function createCookie (cookieName, cookieValue, daysToExpiration)
 function readCookie (cookieName)
 {
     var nameWithEQ = cookieName + "=";
-    var allTokens = document.cookie.split(';');
+    var allTokens = document.cookie.split(";");
     var result = null;
     for (var i = 0; i < allTokens.length; i ++) {
         var checkCookie = allTokens[i];
-        while (checkCookie.charAt(0) == ' ') {
+        while (checkCookie.charAt(0) == " ") {
             checkCookie = checkCookie.substring(1, checkCookie.length);
         }
         if (checkCookie.indexOf(nameWithEQ) == 0) {
@@ -148,16 +147,16 @@ function getUserExtendedInfoCookieName ()
 
 function GoToHomePage ()
 {
-    window.location = '/';
+    window.location = "/";
 }
 
 function GoToProfilePage (withParameters)
 {
-    var queryString = '';
+    var queryString = "";
     if (withParameters.length > 0) {
-        queryString = '?' + withParameters;
+        queryString = "?" + withParameters;
     }
-    window.location = '/profile/' + queryString;
+    window.location = "/profile/" + queryString;
 }
 
 function setLoginCookie (userId, siteUserId, userName, sessionId, authtoken)
@@ -229,7 +228,7 @@ function getExtendedUserInfo ()
 function makeHash (value)
 {
     // TODO: create a hash to make sure the cookie was not altered; return sha1(value + salt)
-    return '12345';
+    return "12345";
 }
 
 function loginSuccessful (enginesisResult)
@@ -314,7 +313,7 @@ function registrationFormSubmit ()
     Enginesis.debugLog("registrationFormSubmit");
     if (document.forms["registration-form"] != null) {
         var fieldWithError = validateRegistrationParameters();
-        if (fieldWithError == '') {
+        if (fieldWithError == "") {
 //        document.forms["registration-form"].submit();
             var locationParts = parseLocation(document.forms["registration-form"]["location"].value);
             var city = locationParts.city;
@@ -338,11 +337,11 @@ function registrationFormSubmit ()
                 1, "", "", "", "", 106, 1, "");
             rememberCredentialsForAutologin(userName, password);
         } else {
-            showErrorPopup('Registration', 'Registration incomplete, something is wrong with ' + fieldWithError + '. Name, password, and email are required.');
+            showErrorPopup("Registration", "Registration incomplete, something is wrong with " + fieldWithError + ". Name, password, and email are required.");
             // TODO: Focus form on fieldWithError
         }
     } else {
-        showErrorPopup('Registration', 'Please provide the required fields to register your account. Name, password, and email are required.');
+        showErrorPopup("Registration", "Please provide the required fields to register your account. Name, password, and email are required.");
     }
 }
 
@@ -354,7 +353,7 @@ function loginSubmit ()
     } else {
         var username = document.forms["login-form"]["username"].value;
         var password = document.forms["login-form"]["password"].value;
-        showErrorPopup('Login', 'You must provide your user name and password to login. ' + username + ' with ' + password + ' just wont do.');
+        showErrorPopup("Login", "You must provide your user name and password to login. " + username + " with " + password + " just wont do.");
     }
 }
 
@@ -387,22 +386,22 @@ function validateRegistrationParameters ()
 {
     // make sure we have enough filled out to continue.
     // TODO: Show a real error message indicating which field is incorrect
-    var fieldWithError = '';
+    var fieldWithError = "";
     if (document.forms["registration-form"] != null) {
         var username = document.forms["registration-form"]["username"].value;
         var password = document.forms["registration-form"]["password"].value;
         var email = document.forms["registration-form"]["email"].value;
         var agreed = document.forms["registration-form"]["agreement"].checked;
         if (username == null || username.length < 2) {
-            fieldWithError = 'username';
+            fieldWithError = "username";
         } else if (password == null || password.length < 3) {
-            fieldWithError = 'password';
+            fieldWithError = "password";
         } else if (email == null || email.length < 5 || ! isValidEmail(email)) {
-            fieldWithError = 'email';
+            fieldWithError = "email";
         } else if ( ! agreed) {
-            fieldWithError = 'agreement';
+            fieldWithError = "agreement";
         }
-        if (fieldWithError != '') {
+        if (fieldWithError != "") {
             Enginesis.debugLog("validateRegistrationParameters: Something is wrong with " + fieldWithError + "(" + document.forms["registration-form"][fieldWithError].value + ")");
         }
     }
@@ -426,12 +425,12 @@ function isAvailableUsername (userName)
 
 function getCorrectedDate (datevalue)
 {
-    if (datevalue == null || datevalue == '') {
+    if (datevalue == null || datevalue == "") {
         // your DOB will be today - 10 years
         var dateNow = new Date();
-        datevalue = (dateNow.getUTCFullYear() - 10) + '-' +
-            ('00' + (dateNow.getUTCMonth()+1)).slice(-2) + '-' +
-            ('00' + dateNow.getUTCDate()).slice(-2);
+        datevalue = (dateNow.getUTCFullYear() - 10) + "-" +
+            ("00" + (dateNow.getUTCMonth()+1)).slice(-2) + "-" +
+            ("00" + dateNow.getUTCDate()).slice(-2);
     } else {
         // TODO: verify this is a valid date in form yyyy-mm-dd
     }
@@ -447,7 +446,7 @@ function parseLocation (locationString)
     resultParts.state = "";
     resultParts.countryCode = "us";
     if (locationString != null && locationString.length > 1) {
-        var commaPos = locationString.indexOf(',');
+        var commaPos = locationString.indexOf(",");
         if (commaPos > 0) {
             resultParts.city = locationString.substring(0, commaPos).trim();
             resultParts.state = locationString.substring(commaPos+1).trim();
@@ -484,12 +483,12 @@ function getFormGenderSetting ()
 
 function submitSearch ()
 {
-    var searchId = document.getElementById('search-query');
+    var searchId = document.getElementById("search-query");
     if (searchId != null) {
         var query = searchId.value;
         if (query != null && query.length > 0) {
             showErrorPopup("Search", "We are going to look for " + query);
-            window.location = '/services/allgames/?q=' + query;
+            window.location = "/services/allgames/?q=" + query;
         }
     }
 }
@@ -502,25 +501,25 @@ function facebookInit ()
 {
     FB.init({
         appId      : SiteConfiguration.facebookAppId,
-        channelUrl : '//www.varyn.com/common/channel.html', // Channel File
-        status     : true, // check login status
-        cookie     : true, // enable cookies to allow the server to access the session
-        xfbml      : true  // parse XFBML
+        version    : "v6.0", // Target graphAPI v6.0
+        cookie     : true,   // enable cookies to allow the server to access the session
+        xfbml      : true    // parse XFBML
     });
-
+    FB.AppEvents.logPageView();
+    
     // Here we subscribe to the auth.authResponseChange JavaScript event. This event is fired
     // for any authentication related change, such as login, logout or session refresh. This means that
     // whenever someone who was previously logged out tries to log in again, the correct case below
     // will be handled.
 
-    FB.Event.subscribe('auth.authResponseChange', function(response) {
+    FB.Event.subscribe("auth.authResponseChange", function(response) {
         // Here we specify what we do with the response anytime this event occurs.
-        if (response.status === 'connected') {
+        if (response.status === "connected") {
             // The response object is returned with a status field that lets the app know the current
             // login status of the person. In this case, we're handling the situation where they
             // have logged in to the app.
             FacebookUserIsLoggedIn();
-        } else if (response.status === 'not_authorized') {
+        } else if (response.status === "not_authorized") {
             // In this case, the person is logged into Facebook, but not into the app, so we call
             // FB.login() to prompt them to do so.
             // In real-life usage, you wouldn't want to immediately prompt someone to login
@@ -544,15 +543,15 @@ function FacebookUserIsLoggedIn ()
 {
     // Our user is logged in with Facebook now auto-login with Enginesis
 
-    FB.api('/me', function(response) {
-        Enginesis.debugLog('Facebook login for ' + response.name + ' (' + response.id + ').');
+    FB.api("/me", function(response) {
+        Enginesis.debugLog("Facebook login for " + response.name + " (" + response.id + ").");
         if ( ! facebookUserIsStillValid(response.name, response.id)) {
             var gender = response.gender;
             var locale = response.locale; // en_US
-            var city = '';
-            var state = '';
-            var countryCode = '';
-            var dob = '';
+            var city = "";
+            var state = "";
+            var countryCode = "";
+            var dob = "";
             if (response.location != null && response.location.name != null) {
                 var location = parseLocation(response.location.name);
                 if (location != null) {
@@ -560,13 +559,13 @@ function FacebookUserIsLoggedIn ()
                     state = location.state;
                 }
             }
-            var locale_parts = locale.split('_');
+            var locale_parts = locale.split("_");
             if (locale_parts.count > 1) {
                 locale = locale_parts[0];
                 countryCode = locale_parts[1];
             } else {
-                locale = 'en';
-                countryCode = 'US';
+                locale = "en";
+                countryCode = "US";
             }
             var loginParameters = {
                 networkId: enginesis.supportedNetworks.Facebook,
@@ -574,12 +573,12 @@ function FacebookUserIsLoggedIn ()
                 userName: response.name,
                 realName: response.name,
                 emailAddress: response.email,
-                agreement: '1',
+                agreement: "1",
                 gender: response.gender,
                 dob: null,
-                avatarURL: '',
-                idToken: '',
-                scope: ''
+                avatarURL: "",
+                idToken: "",
+                scope: ""
             };
             enginesis.userLoginCoreg(loginParameters, enginesis.supportedNetworks.Facebook, null);
         } else {
@@ -594,7 +593,7 @@ function loginFacebook ()
         if (response.authResponse) {
             FacebookUserIsLoggedIn();
         } else {
-            enginesis.debugLog('User cancelled login or did not fully authorize.');
+            enginesis.debugLog("User cancelled login or did not fully authorize.");
         }
     });
 }
@@ -604,7 +603,7 @@ function facebookUserIsStillValid (facebookName, facebookId)
     // verify our cookie is still valid and it matches this user
     var isValid = false;
     var userInfoObject = getLoggedInUserInfo();
-    if (userInfoObject != null && userInfoObject['siteUserId'] == facebookId && userInfoObject['userName'] == facebookName) {
+    if (userInfoObject != null && userInfoObject["siteUserId"] == facebookId && userInfoObject["userName"] == facebookName) {
         isValid = true;
     }
     return isValid;
@@ -617,16 +616,16 @@ function setHeaderProfileLoggedinUser ()
     if (headerProfileDiv != null && userInfoObject != null) {
         var setDocElement = document.getElementById("header_user_profile_img");
         if (setDocElement != null) {
-            setDocElement.title = userInfoObject['user_name'];
+            setDocElement.title = userInfoObject["user_name"];
             setDocElement.src = "";
         }
         setDocElement = document.getElementById("header_username");
         if (setDocElement != null) {
-            setDocElement.innerText = userInfoObject['user_name'];
+            setDocElement.innerText = userInfoObject["user_name"];
         }
         setDocElement = document.getElementById("header_siterank");
         if (setDocElement != null) {
-            setDocElement.innerText = userInfoObject['site_rank'];
+            setDocElement.innerText = userInfoObject["site_rank"];
         }
     }
 }
@@ -640,10 +639,10 @@ function toggleDiv (popUpDivId)
     var id = document.getElementById(popUpDivId);
     if (id != null) {
         var newStyle;
-        if (id.style.display != 'block' && id.style.display != 'inline-block') {
-            newStyle = 'block';
+        if (id.style.display != "block" && id.style.display != "inline-block") {
+            newStyle = "block";
         } else {
-            newStyle = 'none';
+            newStyle = "none";
         }
         id.style.display = newStyle;
     }
@@ -652,8 +651,8 @@ function toggleDiv (popUpDivId)
 function hideDiv (popUpDivId)
 {
     var id = document.getElementById(popUpDivId);
-    if (id != null && id.style.display != 'none') {
-        id.style.display = 'none';
+    if (id != null && id.style.display != "none") {
+        id.style.display = "none";
     }
 }
 
@@ -663,7 +662,7 @@ function setCoverSize (id)
     if (cover != null) {
         var coverHeight = 0;
         var viewportHeight = 0;
-        if (typeof window.innerWidth != 'undefined') {
+        if (typeof window.innerWidth != "undefined") {
             viewportHeight = window.innerHeight;
         } else {
             viewportHeight = document.documentElement.clientHeight;
@@ -677,7 +676,7 @@ function setCoverSize (id)
                 coverHeight = document.body.parentNode.scrollHeight;
             }
         }
-        cover.style.height = coverHeight + 'px';
+        cover.style.height = coverHeight + "px";
     }
 }
 
@@ -685,7 +684,7 @@ function setWindowPosition (popUpDivId, popupWidth, popupHeight)
 {
     var windowWidth = 0;
     var viewportWidth = 0;
-    if (typeof window.innerWidth != 'undefined') {
+    if (typeof window.innerWidth != "undefined") {
         viewportWidth = window.innerHeight;
     } else {
         viewportWidth = document.documentElement.clientHeight;
@@ -701,55 +700,55 @@ function setWindowPosition (popUpDivId, popupWidth, popupHeight)
     }
     var popUpDiv = document.getElementById(popUpDivId);
     if (popUpDiv != null) {
-        popUpDiv.style.left = ((windowWidth / 2) - (popupWidth / 2)) + 'px';
-        popUpDiv.style.top = '10px';
+        popUpDiv.style.left = ((windowWidth / 2) - (popupWidth / 2)) + "px";
+        popUpDiv.style.top = "10px";
     }
 }
 
 function popupToggle (popUpDivId)
 {
-    toggleDiv('popupCover');
-    setCoverSize('popupCover');
+    toggleDiv("popupCover");
+    setCoverSize("popupCover");
     toggleDiv(popUpDivId);
     setWindowPosition(popUpDivId, 320, 400);
 }
 
 function setErrorMessage (title, message)
 {
-    var popupDiv = document.getElementById('popupErrorMessage');
+    var popupDiv = document.getElementById("popupErrorMessage");
     if (popupDiv != null) {
         popupDiv.innerHTML = '<div class="dialogHeader"><h2 class="errorTitle">' + title + '</h2></div><p class="errorMessage">' + message + '</p><br /><a href="#" id="cancelError">Continue</a>';
-        $("#cancelError").click( function () { popupToggle('popupErrorMessage') });
+        $("#cancelError").click( function () { popupToggle("popupErrorMessage") });
     }
 }
 
 function popupErrorMessage (title, message)
 {
     // build a popup error div with background cover
-    toggleDiv('popupCover');
-    setCoverSize('popupCover');
-    toggleDiv('popupErrorMessage');
-    setWindowPosition('popupErrorMessage', 300, 240);
+    toggleDiv("popupCover");
+    setCoverSize("popupCover");
+    toggleDiv("popupErrorMessage");
+    setWindowPosition("popupErrorMessage", 300, 240);
     showErrorPopup(title, message);
 }
 
 function showErrorPopup (title, message)
 {
-    var id = document.getElementById('popupCover');
+    var id = document.getElementById("popupCover");
     if (id != null) {
         var newStyle;
-        if (id.style.display != 'block' && id.style.display != 'inline-block') {
+        if (id.style.display != "block" && id.style.display != "inline-block") {
             // not already showing so do the whole routine
             popupErrorMessage(title, message);
         } else {
             // already showing a popup, we need to hide that one
-            hideDiv('popupRegistration');
-            toggleDiv('popupErrorMessage');
-            setWindowPosition('popupErrorMessage', 300, 240);
-            var popupDiv = document.getElementById('popupErrorMessage');
+            hideDiv("popupRegistration");
+            toggleDiv("popupErrorMessage");
+            setWindowPosition("popupErrorMessage", 300, 240);
+            var popupDiv = document.getElementById("popupErrorMessage");
             if (popupDiv != null) {
                 popupDiv.innerHTML = '<div class="dialogHeader"><h2 class="errorTitle">' + title + '</h2></div><p class="errorMessage">' + message + '</p><br /><a href="#" id="cancelError">Continue</a>';
-                $("#cancelError").click( function () { popupToggle('popupErrorMessage') });
+                $("#cancelError").click( function () { popupToggle("popupErrorMessage") });
             }
         }
     }

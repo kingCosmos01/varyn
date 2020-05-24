@@ -13,7 +13,7 @@
         _debug = true,
         _networkId = 2,
         _applicationId = null,
-        _SDKVersion = "v5.0",
+        _SDKVersion = "v6.0",
         _scope = "email",
         _initialized = false, // true when FB.init has been run
         _loaded = false,  // true when SDK framework is loaded and ready to use
@@ -206,7 +206,7 @@
     /**
      * Return the complete user info object, of null if no user is logged in.
      * @returns {
-            networkId: Number,
+            networkId: number,
             userName: string,
             realName: string,
             email: string,
@@ -326,39 +326,6 @@
             if (global.FB !== undefined && _loaded) {
                 global.FB.getLoginStatus(function(facebookResponse) {
                     ssoFacebookContext.setLoginStatus(facebookResponse, resolve);
-                    /*
-                    var facebookStatus = facebookResponse.status;
-                    var authResponse = facebookResponse.authResponse;
-                    if (facebookStatus === "connected") {
-                        // Logged in to Facebook and authorized Varyn.
-                        _facebookToken = authResponse.accessToken;
-                        _facebookTokenExpiration = authResponse.expiresIn;
-                        _facebookSignedRequest = authResponse.signedRequest;
-                        _siteUserId = authResponse.userID;
-                        FB.api('/me', 'get', {fields: 'id,name,email,gender'}, function (response) {
-                            _userInfo = {
-                                networkId: _networkId,
-                                userName: response.name,
-                                realName: response.name,
-                                email: response.email || '',
-                                siteUserId: response.id,
-                                siteUserToken: response.id,
-                                gender: enginesis.validGender(response.gender),
-                                dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(14)),
-                                avatarURL: "https://graph.facebook.com/" + response.id + "/picture?type=square",
-                                scope: _scope
-                            };
-                            // if we get here, the user has approved our app AND they are logged in.
-                            // We need to check this state IF a user is not currently logged in, this would indicate they should be logged in
-                            // automatically with Facebook
-                            ssoFacebookContext.debugLog('Successful Facebook login for: ' + response.name + ' (' + response.id + ')');
-                            resolve(_userInfo);
-                        });
-                    } else {
-                        ssoFacebookContext.debugLog('no one logged in with Facebook status: ' + facebookStatus);
-                        reject(Error('User is not logged in with Facebook.'));
-                    }
-                    */
                 });
             } else {
                 var errorMessage = "Facebook SDK does not appear to be loaded";
@@ -380,39 +347,6 @@
      */
     ssoFacebook.statusChangeCallback = function (facebookResponse) {
         ssoFacebook.setLoginStatus(facebookResponse, _callbackWhenLoggedIn);
-        /*
-        var ssoFacebookContext = this;
-        var facebookStatus = facebookResponse.status;
-        if (facebookStatus === "connected") {
-            // Logged in to Facebook and authorized Varyn.
-            var authResponse = facebookResponse.authResponse;
-            _facebookToken = authResponse.accessToken;
-            _facebookTokenExpiration = authResponse.expiresIn;
-            _facebookSignedRequest = authResponse.signedRequest;
-            _siteUserId = authResponse.userID;
-            FB.api('/me', 'get', {fields: 'id,name,email,gender'}, function (response) {
-                // if we get here, the user has approved our app AND they are logged in.
-                // We need to check this state IF a user is not currently logged in, this would indicate they should be logged in
-                // automatically with Facebook
-                ssoFacebookContext.debugLog('Successful Facebook login for: ' + response.name + ' (' + response.id + ')');
-                _userInfo = {
-                    networkId: _networkId,
-                    userName: response.name,
-                    realName: response.name,
-                    email: response.email || "",
-                    siteUserId: response.id,
-                    siteUserToken: response.id,
-                    gender: enginesis.validGender(response.gender),
-                    dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(14)),
-                    avatarURL: "https://graph.facebook.com/" + response.id + "picture?type=square",
-                    scope: _scope
-                };
-                if (typeof(_callbackWhenLoggedIn) === "function") {
-                    _callbackWhenLoggedIn(_userInfo);
-                }
-            });
-        }
-        */
     };
 
     /**
@@ -433,38 +367,6 @@
                 ssoFacebook.setLoginStatus(facebookResponse, callBackWhenComplete);
             }, {scope: _scope, return_scopes: true});
         }
-        /*
-        var ssoFacebookContext = this;
-        FB.login(function(response) {
-            var status = response.status; // TODO: if we get "unknown" then redirect to Facebook login ?
-            if (response.authResponse) {
-                FB.api('/me', 'get', {fields: 'id,name,email,gender'}, function(response) {
-                    var registrationParameters = {
-                        networkId: _networkId,
-                        userName: response.name,
-                        realName: response.name,
-                        email: response.email || "",
-                        siteUserId: response.id,
-                        siteUserToken: response.id,
-                        gender: enginesis.validGender(response.gender),
-                        dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(14)),
-                        avatarURL: "https://graph.facebook.com/" + response.id + "/picture?type=square",
-                        scope: _scope
-                    };
-                    ssoFacebookContext.debugLog('User login complete for ' + response.name);
-                    if (typeof(callBackWhenComplete) === "function") {
-                        callBackWhenComplete(registrationParameters);
-                    }
-                });
-            } else {
-                // TODO: I'm not sure what we do here, should we message the UI? "Login was not successful, do you want to try again?"
-                ssoFacebookContext.debugLog('User cancelled login or did not fully authorize.');
-                if (typeof(callBackWhenComplete) === "function") {
-                    callBackWhenComplete(null);
-                }
-            }
-        }, {scope: _scope, return_scopes: true});
-        */
     };
 
     /**
@@ -503,4 +405,5 @@
         };
         global.ssoFacebook = ssoFacebook;
     }
+    ssoFacebook.clearUserInfo();
 })(this);

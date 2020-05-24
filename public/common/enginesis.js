@@ -1331,6 +1331,7 @@
             // TODO: we can use cr to validate the token was not changed
             userInfo = cookieGet(enginesis.SESSION_USERINFO);
             if ( ! isEmpty(userInfo)) {
+                debugLog("restoreUserFromAuthToken user info: " + userInfo);
                 userInfo = JSON.parse(userInfo);
                 if (userInfo != null) {
                     enginesis.authToken = authToken;
@@ -1382,8 +1383,11 @@
             var hash = sessionMakeHash();
             var cr = enginesis.loggedInUserInfo.cr;
             // TODO: verify hashes agree?
+            // if (sessionInfo.cr != hash) {
+                // when hash does not agree what do we do? Log out user and clear session?
+            // }
             saveObjectWithKey(enginesis.SESSION_USERINFO, enginesis.loggedInUserInfo);
-            debugLog("enginesis.saveUserSessionInfo session id is " + enginesis.sessionId + " cr=" + cr + " hash=" + hash);
+            debugLog("enginesis.saveUserSessionInfo session id is " + enginesis.sessionId + " session.cr= " + sessionInfo.cr + "; loggedInUserInfo.cr=" + cr + "; sessionMakeHash=" + hash);
         } else {
             haveValidSession = false;
         }
@@ -3309,46 +3313,45 @@
      * @param overRideCallBackFunction {function} called when server replies.
      */
     enginesis.userLoginCoreg = function (registrationParameters, networkId, overRideCallBackFunction) {
-        if (typeof registrationParameters.siteUserId === 'undefined' || registrationParameters.siteUserId.length == 0) {
+        if (typeof registrationParameters.siteUserId === "undefined" || registrationParameters.siteUserId.length == 0) {
             return false;
         }
-        if ((typeof registrationParameters.userName === 'undefined' || registrationParameters.userName.length == 0) && (typeof registrationParameters.realName === 'undefined' || registrationParameters.realName.length == 0)) {
+        if ((typeof registrationParameters.userName === "undefined" || registrationParameters.userName.length == 0) && (typeof registrationParameters.realName === "undefined" || registrationParameters.realName.length == 0)) {
             return false; // Must provide either userName, realName, or both
         }
-        if (typeof registrationParameters.userName === 'undefined') {
-            registrationParameters.userName = '';
+        if (typeof registrationParameters.userName === "undefined") {
+            registrationParameters.userName = "";
         }
-        if (typeof registrationParameters.realName === 'undefined') {
-            registrationParameters.realName = '';
+        if (typeof registrationParameters.realName === "undefined") {
+            registrationParameters.realName = "";
         }
-        if (typeof registrationParameters.gender === 'undefined' || registrationParameters.gender.length == 0) {
-            registrationParameters.gender = 'U';
-        } else if (registrationParameters.gender != 'M' && registrationParameters.gender != 'F' && registrationParameters.gender != 'U') {
-            registrationParameters.gender = 'U';
+        if (typeof registrationParameters.gender === "undefined" || registrationParameters.gender.length == 0) {
+            registrationParameters.gender = "U";
+        } else if (registrationParameters.gender != "M" && registrationParameters.gender != "F" && registrationParameters.gender != "U") {
+            registrationParameters.gender = "U";
         }
-        if (typeof registrationParameters.emailAddress === 'undefined') {
-            registrationParameters.emailAddress = '';
+        if (typeof registrationParameters.emailAddress === "undefined") {
+            registrationParameters.emailAddress = "";
         }
-        if (typeof registrationParameters.scope === 'undefined') {
-            registrationParameters.scope = '';
+        if (typeof registrationParameters.scope === "undefined") {
+            registrationParameters.scope = "";
         }
-        if (typeof registrationParameters.agreement === 'undefined') {
-            registrationParameters.agreement = '0';
+        if (typeof registrationParameters.agreement === "undefined") {
+            registrationParameters.agreement = "0";
         }
-        if (typeof registrationParameters.idToken === 'undefined') {
-            registrationParameters.idToken = '';
+        if (typeof registrationParameters.idToken === "undefined") {
+            registrationParameters.idToken = "";
         }
-        if (typeof registrationParameters.avatarURL === 'undefined') {
-            registrationParameters.avatarURL = '';
+        if (typeof registrationParameters.avatarURL === "undefined") {
+            registrationParameters.avatarURL = "";
         }
-        if (typeof registrationParameters.dob === 'undefined' || registrationParameters.dob.length == 0) {
+        if (typeof registrationParameters.dob === "undefined" || registrationParameters.dob.length == 0) {
             registrationParameters.dob = new Date();
             registrationParameters.dob = registrationParameters.dob.toISOString().slice(0, 9);
         } else if (registrationParameters.dob instanceof Date) {
             // if is date() then convert to string
             registrationParameters.dob = registrationParameters.dob.toISOString().slice(0, 9);
         }
-
         return sendRequest("UserLoginCoreg", {
             site_user_id: registrationParameters.siteUserId,
             user_name: registrationParameters.userName,
