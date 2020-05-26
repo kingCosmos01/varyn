@@ -374,7 +374,7 @@ class Enginesis
      */
     public function getLoggedInUserInfo() {
         if ($this->m_refreshedUserInfo != null) {
-            $this->debugInfo("already have m_refreshedUserInfo " . json_encode($this->m_refreshedUserInfo));
+            $this->debugInfo("already have m_refreshedUserInfo " . json_encode($this->m_refreshedUserInfo), __FILE__, __LINE__);
             return $this->m_refreshedUserInfo;
         } else {
             return $this->sessionUserInfoGet();
@@ -717,7 +717,7 @@ class Enginesis
                 $this->m_authTokenWasValidated = true;
                 $this->m_isLoggedIn = true;
                 $this->m_refreshedUserInfo = $this->sessionUserInfoGet();
-                $this->debugInfo("Restored m_refreshedUserInfo from sessionUserInfoGet " . json_encode($this->m_refreshedUserInfo));
+                $this->debugInfo("Restored m_refreshedUserInfo from sessionUserInfoGet " . json_encode($this->m_refreshedUserInfo), __FILE__, __LINE__);
                 $status = EnginesisRefreshStatus::valid;
             } elseif ($errorCode == EnginesisErrors::TOKEN_EXPIRED) {
                 // if the auth token is expired we need to ask the server for a new one IF we have the refresh token
@@ -730,7 +730,7 @@ class Enginesis
                     } else {
                         $status = EnginesisRefreshStatus::refreshed;
                         $this->m_refreshedUserInfo = $userInfo;
-                        $this->debugInfo("Restored expired m_refreshedUserInfo from sessionRefresh " . json_encode($this->m_refreshedUserInfo));
+                        $this->debugInfo("Restored expired m_refreshedUserInfo from sessionRefresh " . json_encode($this->m_refreshedUserInfo), __FILE__, __LINE__);
                     }
                 } else {
                     $status = EnginesisRefreshStatus::missing;
@@ -748,7 +748,7 @@ class Enginesis
                 } else {
                     $status = EnginesisRefreshStatus::refreshed;
                     $this->m_refreshedUserInfo = $userInfo;
-                    $this->debugInfo("Restored missing m_refreshedUserInfo from sessionRefresh " . json_encode($this->m_refreshedUserInfo));
+                    $this->debugInfo("Restored missing m_refreshedUserInfo from sessionRefresh " . json_encode($this->m_refreshedUserInfo), __FILE__, __LINE__);
                 }
             }
         }
@@ -756,7 +756,7 @@ class Enginesis
         if ( ! $this->m_authTokenWasValidated) {
             $this->sessionClear();
         }
-        $this->debugInfo("restoreUserFromAuthToken m_refreshedUserInfo done " . json_encode($this->m_refreshedUserInfo));
+        $this->debugInfo("restoreUserFromAuthToken m_refreshedUserInfo done " . json_encode($this->m_refreshedUserInfo), __FILE__, __LINE__);
         return $status;
     }
 
@@ -951,13 +951,13 @@ class Enginesis
             try {
                 $userInfo = json_decode($_COOKIE[SESSION_USERINFO]);
                 // TODO: Validate this user data make sure it was not tampered, check if expired.
-                $this->debugInfo("decoded cookie for SESSION_USERINFO " . json_encode($userInfo));
+                $this->debugInfo("decoded cookie for SESSION_USERINFO " . json_encode($userInfo), __FILE__, __LINE__);
             } catch (Exception $e) {
                 $this->setLastError('CANNOT_GET_USERINFO', 'sessionUserInfoGet could not get cookie: ' . $e->getMessage());
-                $this->debugInfo('sessionUserInfoGet fails: ' . json_decode($this->m_lastError));
+                $this->debugInfo('sessionUserInfoGet fails: ' . json_decode($this->m_lastError), __FILE__, __LINE__);
             }
         } else {
-            $this->debugInfo("no cookie for SESSION_USERINFO, not sure if you were expecting one");
+            $this->debugInfo("no cookie for SESSION_USERINFO, not sure if you were expecting one", __FILE__, __LINE__);
         }
         return $userInfo;
     }
@@ -977,7 +977,7 @@ class Enginesis
                 $this->saveRefreshToken($userInfo->refreshToken);
             }
             $this->m_refreshedUserInfo = $userInfo;
-            $this->debugInfo("Restored m_refreshedUserInfo from sessionRestoreFromResponse " . json_encode($this->m_refreshedUserInfo));
+            $this->debugInfo("Restored m_refreshedUserInfo from sessionRestoreFromResponse " . json_encode($this->m_refreshedUserInfo), __FILE__, __LINE__);
         }
         return $userInfo;
     }
