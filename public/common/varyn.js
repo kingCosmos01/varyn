@@ -513,7 +513,7 @@ var varyn = function (parameters) {
 
         /**
          * showRegistrationPopup show the popup form to capture an new quick registration. This is a short form,
-         * for the long form go to the profile.php page.
+         * for the long form go to the profile page.
          */
         showRegistrationPopup: function (showFlag) {
             if (showFlag) {
@@ -528,7 +528,7 @@ var varyn = function (parameters) {
 
         /**
          * showLoginPopup show the popup form to capture an new quick registration. This is a short form,
-         * for the long form go to the profile.php page.
+         * for the long form go to the profile page.
          */
         showLoginPopup: function (showFlag) {
             if (showFlag) {
@@ -1085,27 +1085,27 @@ var varyn = function (parameters) {
         logoutSSO: function(networkId, callMeWhenComplete) {
             switch (networkId) {
                 case enginesis.supportedNetworks.Enginesis: // Enginesis is always loaded
-                    if (typeof callMeWhenComplete !== 'undefined' && callMeWhenComplete != null) {
+                    if (typeof callMeWhenComplete !== "undefined" && callMeWhenComplete != null) {
                         callMeWhenComplete();
                     }
                     break;
                 case enginesis.supportedNetworks.Facebook:
-                    if (typeof ssoFacebook !== 'undefined') {
+                    if (typeof ssoFacebook !== "undefined") {
                         ssoFacebook.logout(callMeWhenComplete);
                     }
                     break;
                 case enginesis.supportedNetworks.Google:
-                    if (typeof ssoGoogle !== 'undefined') {
+                    if (typeof ssoGoogle !== "undefined") {
                         ssoGoogle.logout(callMeWhenComplete);
                     }
                     break;
                 case enginesis.supportedNetworks.Twitter:
-                    if (typeof ssoTwitter !== 'undefined') {
+                    if (typeof ssoTwitter !== "undefined") {
                         ssoTwitter.logout(callMeWhenComplete);
                     }
                     break;
                 case enginesis.supportedNetworks.Apple:
-                    if (typeof ssoApple !== 'undefined') {
+                    if (typeof ssoApple !== "undefined") {
                         ssoApple.logout(callMeWhenComplete);
                     }
                     break;
@@ -1122,9 +1122,9 @@ var varyn = function (parameters) {
                 case enginesis.supportedNetworks.Google:
                     if (callbackInfo != null) {
                         if (callbackInfo.isSignedIn.get()) {
-                            console.log('Gplus user is signed in');
+                            console.log("Gplus user is signed in");
                         } else {
-                            console.log('Gplus user is NOT signed in');
+                            console.log("Gplus user is NOT signed in");
                         }
                     }
                     break;

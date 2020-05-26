@@ -22,6 +22,7 @@ var ShareHelper = {
     responseInfo: '',
     callBackWhenComplete: null,
     enginesisSession: null,
+    facebookSDKVersion: "v6.0",
 
     initialize: function (enginesisInstance, networkList, parameters, callbackWhenComplete) {
         var objectType,
@@ -101,7 +102,7 @@ var ShareHelper = {
     },
 
     initializeFacebook: function (parameters, callbackWhenComplete) {
-        var facebookScript = '//connect.facebook.net/en_US/sdk.js',
+        var facebookScript = 'https://connect.facebook.net/en_US/sdk.js',
             domId = 'facebook-jssdk';
 
         if (window.FB == null || window.FB.ui == null) {
@@ -110,32 +111,28 @@ var ShareHelper = {
                 window.FB.init({
                     appId: parameters.facebookAppId,
                     xfbml: true,
-                    status: true,
                     cookie: true,
-                    oauth: true,
-                    frictionlessRequests: true,
-                    display: 'popup',
-                    version: 'v2.0'
+                    version: facebookSDKVersion
                 });
-                if (callbackWhenComplete != null) {
+                if (callbackWhenComplete != null && typeof(callbackWhenComplete) === 'function') {
                     callbackWhenComplete('facebook');
                 }
             };
 
-            (function (domId) {
+            (function (domId, scriptType) {
                 var facebookJS,
                     firstJS;
                 if (document.getElementById(domId)) {
                     return;
                 }
-                firstJS = document.getElementsByTagName('script')[0];
-                facebookJS = document.createElement('script');
+                firstJS = document.getElementsByTagName(scriptType)[0];
+                facebookJS = document.createElement(scriptType);
                 facebookJS.id = domId;
                 facebookJS.async = true;
                 facebookJS.src = facebookScript;
                 firstJS.parentNode.insertBefore(facebookJS, firstJS);
                 // when facebookJS loads it will automatically call window.fbAsyncInit which will call our callback so we know FB is ready
-            }(domId));
+            }(domId, "script"));
         } else {
             if (callbackWhenComplete != null) {
                 callbackWhenComplete('facebook');

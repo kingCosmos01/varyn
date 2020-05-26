@@ -1,6 +1,6 @@
 <?php
 /**
- * Varyn's profile.php handles the user's profile page. If a user is logged in we show the details about that user
+ * If a user is logged in we show the details about that user
  * and the profile functions such as edit, change password, etc. This page can also show the public details about
  * another user. Finally, if no user is logged in, this page handles all the prompts and details for login, SSO,
  * forgot password.

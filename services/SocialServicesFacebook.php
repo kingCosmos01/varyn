@@ -16,6 +16,7 @@ class SocialServicesFacebook extends SocialServices
     private $appId = '';
     private $appSecret = '';
     private $isLoggedIn = false;
+    private $SDKVersion = 'v6.0';
 
     public function __construct () {
         global $socialServiceKeys; // from serverConfig.
@@ -25,7 +26,7 @@ class SocialServicesFacebook extends SocialServices
         $this->fb = new Facebook\Facebook([
             'app_id' => $this->appId,
             'app_secret' => $this->appSecret,
-            'default_graph_version' => 'v2.2'
+            'default_graph_version' => $this->SDKVersion
         ]);
         if (isset($_SESSION[FACEBOOK_SESSION_KEY])) {
             $accessToken = $_SESSION[FACEBOOK_SESSION_KEY];
