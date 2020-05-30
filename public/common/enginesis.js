@@ -28,7 +28,7 @@
     "use strict";
 
     var enginesis = {
-        VERSION: "2.4.72",
+        VERSION: "2.5.1",
         debugging: true,
         disabled: false, // use this flag to turn off communicating with the server
         isOnline: true,  // flag to determine if we are currently able to reach Enginesis servers
@@ -491,11 +491,14 @@
                 // to compute a new one.
                 debugLog("updateLoggedInUserInfo hash does not match. From server: " + userInfo.cr + ". Computed here: " + sessionMakeHash());
             }
-            
+            // after a log in save the refresh token separately from the session.
+            _saveRefreshToken(userInfo.refresh_token);
+
             // Move server authorized user data into the local cache
             enginesis.loggedInUserInfo = userInfo;
             enginesis.networkId = userInfo.network_id;
             updated = saveUserSessionInfo(userInfo);
+
 // This is what we get back from the server call:
 // {"user_id":"10240","site_id":"106","user_name":"Killer","real_name":"Varyn System",
 // "site_user_id":null,"network_id":"1","dob":"1955-08-06","gender":"M","city":"New York, NY",
@@ -508,7 +511,7 @@
 // "session_id":"0534511005bb686f4caa1c89b54aa4c0",
 // "cr":"9f484790464cc88340d99fd24d5aa8d6",
 // "authtok":"OYTfmLLEBX4\/7RWWq4piX j44uf2Ezv 8SoDTzxuZ7gXkJ1MvHFplU2Ug2mOLTlAPl5h\/PqRqLF JMs7AyxXJ6pFxQfKW0u i2mVWZAwye4IPbPHz0A1UX8t9KfP\/zYn",
-// "refreshToken":"blDRMDfGtQXZSuMMTo4hXbltsEIhS2kqcfvma\/eoBV0QNfUt1YixXucGeJL xX4\/uBCeuYnG0RE7e7zggxzcnS5L5Z4S6pPJKYlXQV1iAPWtA6d7vQH8Rau90eRV\/Gq3",
+// "refresh_token":"blDRMDfGtQXZSuMMTo4hXbltsEIhS2kqcfvma\/eoBV0QNfUt1YixXucGeJL xX4\/uBCeuYnG0RE7e7zggxzcnS5L5Z4S6pPJKYlXQV1iAPWtA6d7vQH8Rau90eRV\/Gq3",
 // "expires":"2019-03-28 21:27:01"}
         }
         return updated;
@@ -1357,6 +1360,7 @@
      */
     function clearUserSessionInfo() {
         removeObjectWithKey(enginesis.SESSION_USERINFO);
+        _clearRefreshToken();
         cookieSet(enginesis.SESSION_USERINFO, null, 0, "/", "", false);
         initializeLocalSessionInfo();
     }
@@ -1378,7 +1382,7 @@
             enginesis.sessionExpires = new Date(sessionInfo.session_expires);
             enginesis.authToken = sessionInfo.authtok;
             enginesis.authTokenExpires = new Date(sessionInfo.expires);
-            enginesis.refreshToken = sessionInfo.refreshToken;
+            enginesis.refreshToken = sessionInfo.refresh_token;
             enginesis.authTokenWasValidated = true;
             var hash = sessionMakeHash();
             var cr = enginesis.loggedInUserInfo.cr;
@@ -2386,12 +2390,22 @@
     };
 
     /**
+     * Save the user log in refresh token when it is brought in from a server-side
+     * log in process and we need to save it client-side.
+     */
+    enginesis.saveRefreshToken = function (refreshToken) {
+        _saveRefreshToken(refreshToken);
+    }
+
+    /**
      * Return true if the current device is a touch device.
      * @returns {boolean}
      */
     enginesis.isTouchDevice = function () {
         return enginesis.isTouchDeviceFlag;
     };
+
+    enginesis.queryStringToObject = queryStringToObject;
 
     /**
      * Determine if the user name is a valid format that would be accepted by the server.

@@ -589,7 +589,7 @@ function verifyStage($includePassedTests = false) {
  * @return string server host name only, e.g. www.enginesis.com.
  */
 function serverName () {
-    $serverName = isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'enginesis-l.com';
+    $serverName = isset($_SERVER['HTTP_X_FORWARDED_HOST']) ? $_SERVER['HTTP_X_FORWARDED_HOST'] : (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'enginesis-l.com');
     if (strpos($serverName, ':') !== false ) {
         $serverName = substr($serverName, 0, strpos($serverName, ':'));
     }

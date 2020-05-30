@@ -70,9 +70,12 @@ var varyn = function (parameters) {
      * @returns {null|object}
      */
     function getSavedUserInfo () {
-        var userInfo = commonUtilities.loadObjectWithKey(siteConfiguration.userInfoKey);
-        if (typeof userInfo === 'string') {
-            userInfo = JSON.parse(userInfoJSON);
+        var userInfo = null;
+        var userInfoJSON = commonUtilities.loadObjectWithKey(siteConfiguration.userInfoKey);
+        if (typeof userInfoJSON === 'string') {
+            userInfo = enginesis.queryStringToObject(userInfoJSON);
+        } else {
+            userInfo = userInfoJSON;
         }
         // TODO: verify the loaded user info has not been tampered with, at least verify the hash matches what is expected.
         // However, since this is data given to use from enginesis, enginesis must provide the API to verify this data.
@@ -879,7 +882,6 @@ var varyn = function (parameters) {
 
             return new Promise(function(resolvePromise, rejectPromise) {
                 clearSavedUserInfo();
-                enginesis.clearRefreshToken();
 
                 // TODO: To force google logout 1. load SDK, 2. wait for load complete 3. logoutSSO.
                 if (forceSignout) {
