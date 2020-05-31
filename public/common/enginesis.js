@@ -2966,8 +2966,8 @@
         return sendRequest("GameListListGamesByName", {game_list_name: gameListName}, overRideCallBackFunction);
     };
 
-    enginesis.gameListByMostPopular = function (startDate, endDate, firstItem, numItems, overRideCallBackFunction) {
-        return sendRequest("GameListByMostPopular", {start_date: startDate, end_date: endDate, first_item: firstItem, num_items: numItems}, overRideCallBackFunction);
+    enginesis.gameListByMostPopular = function (startDate, endDate, startItem, numItems, overRideCallBackFunction) {
+        return sendRequest("GameListByMostPopular", {start_date: startDate, end_date: endDate, start_item: startItem, num_items: numItems}, overRideCallBackFunction);
     };
 
     /**
@@ -3262,10 +3262,10 @@
         return sendRequest("RegisteredUserGet", {get_user_id: userId, site_user_id: siteUserId, network_id: networkId}, overRideCallBackFunction);
     };
 
-    enginesis.siteListGames = function(firstItem, numItems, gameStatusId, overRideCallBackFunction) {
+    enginesis.siteListGames = function(startItem, numItems, gameStatusId, overRideCallBackFunction) {
         // return a list of all assets assigned to the site in title order
-        if (firstItem == null || firstItem < 0) {
-            firstItem = 1;
+        if (startItem == null || startItem < 0) {
+            startItem = 1;
         }
         if (numItems == null || numItems > 500) {
             numItems = 500;
@@ -3273,7 +3273,7 @@
         if (gameStatusId == null || gameStatusId > 3) {
             gameStatusId = 2;
         }
-        return sendRequest("SiteListGames", {first_item: firstItem, num_items: numItems, game_status_id: gameStatusId}, overRideCallBackFunction);
+        return sendRequest("SiteListGames", {start_item: startItem, num_items: numItems, game_status_id: gameStatusId}, overRideCallBackFunction);
     };
 
     enginesis.siteListGamesRandom = function(numItems, overRideCallBackFunction) {

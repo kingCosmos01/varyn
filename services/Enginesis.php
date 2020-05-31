@@ -6,7 +6,7 @@
  */
 
 if ( ! defined('ENGINESIS_VERSION')) {
-    define('ENGINESIS_VERSION', '2.4.72');
+    define('ENGINESIS_VERSION', '2.5.1');
 }
 require_once('EnginesisErrors.php');
 if ( ! defined('SESSION_COOKIE')) {
@@ -80,7 +80,7 @@ class Enginesis
 
     /**
      * Set up the Enginesis environment so it is able to easily make service requests with the server.
-     * 
+     *
      * @param int $siteId Site id to represent.
      * @param string $enginesisServer which Enginesis server you want to connect with. Leave empty to match current stage.
      * @param string $developerKey Your developer key.
@@ -661,7 +661,14 @@ class Enginesis
             $refreshToken = getPostOrRequestVar('refreshToken', '');
             if (empty($refreshToken)) {
                 if (isset($_COOKIE[REFRESH_COOKIE])) {
-                    $refreshToken = $_COOKIE[REFRESH_COOKIE];
+                    $refreshTokenJSON = json_decode($_COOKIE[REFRESH_COOKIE]);
+                    if ($refreshTokenJSON != null) {
+                        $refreshToken = $refreshTokenJSON->refresh_token;
+                        $timestamp = $refreshTokenJSON->timestamp;
+                    } else {
+                        $refreshToken = null;
+                        // TODO: the saved token isn't valid, some type of logging and recovery here?
+                    }
                 } else {
                     $refreshToken = null;
                 }
@@ -673,14 +680,19 @@ class Enginesis
     }
 
     /**
-     * Allow the user to save the refresh token with this session. Then we can use it if we detect an
+     * Save the user's refresh token with this session. Then we can use it if we detect an
      * expired authentication token.
-     * @param $refreshToken
+     * 
+     * @param string $refreshToken
      * @return string
      */
     public function saveRefreshToken($refreshToken) {
         $this->m_refreshToken = $refreshToken;
-        setcookie(REFRESH_COOKIE, $refreshToken, time() + (365 * 24 * 60 * 60), '/', $this->sessionCookieDomain());
+        $timestamp = time();
+        // PHP timestamps are in seconds, JavaScript timestamps are in milliseconds. :(
+        $timestampJS = $timestamp * 1000;
+        $refreshTokenJSON = '{"refreshToken":"'. $refreshToken . '","timestamp":"' . $timestampJS . '"}';
+        setcookie(REFRESH_COOKIE, $refreshTokenJSON, $timestamp + (365 * 24 * 60 * 60), '/', $this->sessionCookieDomain());
         return $this->m_refreshToken;
     }
 
@@ -931,8 +943,8 @@ class Enginesis
                 $rc = 'CANNOT_SAVE_USERINFO';
                 $this->setLastError($rc, 'sessionUserInfoSave setcookie failed');
             }
-            if (isset($userInfo->refreshToken)) {
-                $this->saveRefreshToken($userInfo->refreshToken);
+            if (isset($userInfo->refresh_token)) {
+                $this->saveRefreshToken($userInfo->refresh_token);
             }
         } catch (Exception $e) {
             $rc = 'CANNOT_SAVE_USERINFO';
