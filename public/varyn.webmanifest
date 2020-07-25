@@ -33,13 +33,13 @@
   "start_url": "index.php",
   "display": "fullscreen",
   "background_color": "#690606",
-  "theme_color": "#690606",
+  "theme_color": "#c7254e",
   "screenshots": [{
-    "src": "/images/2048x1536.png",
+    "src": "images/2048x1536.png",
     "sizes": "2048x1536",
     "type": "image/png"
   }, {
-    "src": "/images/1200x600.png",
+    "src": "images/1200x600.png",
     "sizes": "1200x600",
     "type": "image/png"
   }]

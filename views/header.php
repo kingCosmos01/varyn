@@ -25,9 +25,9 @@ if (empty($pageOGLink)) {
     $pageOGLink = currentPageURL();
 }
 if (empty($pageSocialImage1)) {
-    $pageSocialImage1 = 'https://www.varyn.com/images/1200x900.png';
+    $pageSocialImage1 = 'https://www.varyn.com/images/1200x600.png';
     $pageSocialImageWidth = 1200;
-    $pageSocialImageHeight = 900;
+    $pageSocialImageHeight = 600;
 }
 if (empty($pageSocialImage2)) {
     $pageSocialImage2 = 'https://www.varyn.com/images/VarynIcon1080.jpg';
@@ -36,64 +36,77 @@ if (empty($pageSocialImage2)) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title><?php echo($pageTitle);?></title>
     <meta charset="utf-8">
+    <title><?php echo($pageTitle);?></title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta http-equiv="Access-Control-Allow-Origin" content="*">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta http-equiv="cache-control" content="max-age=0" />
-    <meta http-equiv="cache-control" content="no-cache" />
-    <meta http-equiv="expires" content="0" />
-    <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT" />
-    <meta http-equiv="pragma" content="no-cache" />
-    <meta name="format-detection" content="telephone=no" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta http-equiv="cache-control" content="max-age=0">
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta http-equiv="expires" content="Tue, 01 Jan 1980 1:00:00 GMT">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta name="format-detection" content="telephone=no">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="description" content="<?php echo($pageDescription);?>">
     <meta name="keywords" content="<?php echo($pageKeywords);?>">
     <meta name="url" content="<?php echo($pageOGLink);?>">
     <meta name="author" content="Varyn">
     <meta name="google-signin-client_id" content="<?php echo($socialServiceKeys[7]['app_id']);?>">
     <link rel="manifest" href="/varyn.webmanifest">
-    <link href="/common/bootstrap.min.css" rel="stylesheet">
-    <link href="/common/carousel.css" rel="stylesheet">
-    <link href="/common/varyn.css" rel="stylesheet">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" href="<?php echo($pageFavIcon);?>">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="icon" type="image/png" href="/favicon-48x48.png" sizes="48x48" />
+    <link rel="icon" type="image/png" href="/favicon-48x48.png" sizes="48x48">
     <link rel="icon" type="image/png" href="/favicon-196x196.png" sizes="196x196">
     <link rel="icon" type="image/png" href="/favicon-160x160.png" sizes="160x160">
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
     <link rel="shortcut icon" href="/favicon-48x48.png">
-    <link rel="manifest" href="/site.webmanifest">
+    <link rel="manifest" href="/varyn.webmanifest">
     <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#c7254e">
-    <meta name="msapplication-TileColor" content="#c7254e">
+    <link rel="fluid-icon" href="https://varyn.com/favicon-512x512.png" title="Varyn">
     <meta name="theme-color" content="#c7254e">
-    <meta property="fb:app_id" content="<?php echo($socialServiceKeys[2]['app_id']);?>" />
-    <meta property="fb:admins" content="<?php echo($socialServiceKeys[2]['admins']);?>" />
+    <meta name="msapplication-TileColor" content="#c7254e">
+    <meta property="fb:app_id" content="<?php echo($socialServiceKeys[2]['app_id']);?>">
+    <meta property="fb:admins" content="<?php echo($socialServiceKeys[2]['admins']);?>">
     <meta property="og:title" content="<?php echo($pageTitle);?>">
     <meta property="og:url" content="<?php echo($pageOGLink);?>">
     <meta property="og:site_name" content="Varyn">
     <meta property="og:description" content="<?php echo($pageDescription);?>">
-    <meta property="og:image" content="<?php echo($pageSocialImage1);?>"/>
-    <meta property="og:image:width" content="<?php echo($pageSocialImageWidth);?>"/>
-    <meta property="og:image:height" content="<?php echo($pageSocialImageHeight);?>"/>
-    <meta property="og:image" content="<?php echo($pageSocialImage2);?>"/>
-    <meta property="og:image" content="https://www.varyn.com/images/1200x600.png"/>
-    <meta property="og:image" content="https://www.varyn.com/images/VarynIcon640.jpg"/>
-    <meta property="og:image" content="https://www.varyn.com/images/2048x1536.png"/>
-    <meta property="og:type" content="website"/>
-    <meta name="twitter:card" content="summary_large_image"/>
-    <meta name="twitter:domain" content="varyn.com"/>
-    <meta name="twitter:site" content="@varyndev"/>
-    <meta name="twitter:url" content="<?php echo($pageOGLink);?>">
-    <meta name="twitter:creator" content="@varyndev"/>
-    <meta name="twitter:title" content="<?php echo($pageTitle);?>"/>
-    <meta name="twitter:description" content="<?php echo($pageDescription);?>"/>
-    <meta name="twitter:image" content="<?php echo($pageSocialImage1);?>"/>
+    <meta property="og:image" content="<?php echo($pageSocialImage1);?>">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="<?php echo($pageSocialImageWidth);?>">
+    <meta property="og:image:height" content="<?php echo($pageSocialImageHeight);?>">
+    <meta property="og:image" content="<?php echo($pageSocialImage2);?>">
+    <meta property="og:image" content="https://www.varyn.com/images/1200x600.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="600">
+    <meta property="og:image" content="https://www.varyn.com/images/VarynIcon640.jpg">
+    <meta property="og:image:type" content="image/jpg">
+    <meta property="og:image:width" content="640">
+    <meta property="og:image:height" content="640">
+    <meta property="og:image" content="https://www.varyn.com/images/2048x1536.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="2048">
+    <meta property="og:image:height" content="1536">
+    <meta property="og:type" content="website">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:domain" content="varyn.com">
+    <meta property="twitter:site" content="varyndev">
+    <meta property="twitter:url" content="<?php echo($pageOGLink);?>">
+    <meta property="twitter:creator" content="varyndev">
+    <meta property="twitter:title" content="<?php echo($pageTitle);?>">
+    <meta property="twitter:description" content="<?php echo($pageDescription);?>">
+    <meta property="twitter:image:src" content="<?php echo($pageSocialImage1);?>">
+    <meta property="twitter:image:width" content="<?php echo($pageSocialImageWidth);?>">
+    <meta property="twitter:image:height" content="<?php echo($pageSocialImageHeight);?>">
+    <link href="/common/bootstrap.min.css" rel="stylesheet">
+    <link href="/common/carousel.css" rel="stylesheet">
+    <link href="/common/varyn.css" rel="stylesheet">
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-41765479-1"></script>
     <script>
     window.dataLayer = window.dataLayer || [];
