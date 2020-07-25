@@ -76,6 +76,9 @@
             if (parameters.scope) {
                 _scope = parameters.scope;
             }
+            if (parameters.loadCallback) {
+                _callbackWhenLoaded = parameters.loadCallback;
+            }
             if (parameters.loginCallback) {
                 _callbackWhenLoggedIn = parameters.loginCallback;
             }
@@ -96,21 +99,31 @@
      */
     ssoApple.init = function () {
         ssoApple.clearUserInfo();
-        if (ssoApple._loaded && window.AppleID) {
-            this.debugLog("Apple SDK is loaded");
+        if (ssoApple._loaded && global.AppleID) {
             try {
-                var AppleID = window.AppleID;
+                var AppleID = global.AppleID;
                 AppleID.auth.init(_appleAuth);
                 _initialized = true;
-                if (_callbackWhenLoaded != null) {
-                    // this.getLoginStatus().then(_callbackWhenLoaded, _callbackWhenLoaded);
+                if (typeof(_callbackWhenLoaded) === "function") {
+                    var callback = _callbackWhenLoaded;
                     _callbackWhenLoaded = null;
+                    callback(null);
                 }
             } catch(appleError) {
-                this.debugLog("Apple SDK load error " + appleError.toString());
+                var loadError = "Apple SDK load error " + appleError.toString();
+                this.debugLog(loadError);
+                if (typeof(_callbackWhenLoaded) === "function") {
+                    _callbackWhenLoaded(new Error(loadError));
+                    _callbackWhenLoaded = null;
+                }
             }
         } else {
-            this.debugLog("Cannot init Apple SDK because it is not loaded.");
+            var loadError = "Cannot init Apple SDK because it is not loaded.";
+            this.debugLog(loadError);
+            if (typeof(_callbackWhenLoaded) === "function") {
+                _callbackWhenLoaded(new Error(loadError));
+                _callbackWhenLoaded = null;
+            }
         }
         return _initialized;
     };
@@ -123,12 +136,10 @@
      * to continue the sign in process.
      * Example:
      *   ssoApple.load(parameters).then(function(result) { console.log('Apple loaded'); }, function(error) { console.log('Apple load failed ' + error.message); });
-     * 
-     * @param {object} parameters to configure our Apple application (see `setParameters()`).
+     * @param parameters {object} parameters to configure our Apple application (see `setParameters()`).
      */
     ssoApple.load = function (parameters) {
         if (!_loaded) {
-            this.debugLog("loading Apple SDK");
             _loaded = false;
             _loading = true;
             this.setParameters(parameters);
@@ -221,12 +232,12 @@
     };
 
     /**
-     * Return the networks' user token expiration date as a JavaScript date object. This could be null if the token
-     * is invaid or if no user is logged in.
-     * @returns {*}
+     * Return the networks' user token expiration time as a JavaScript date object.
+     * This could be unixtimestamp(0) if the token is invaild or if no user is logged in.
+     * @returns {Date} Date the token will be expired.
      */
     ssoApple.tokenExpirationDate = function () {
-        return _appleTokenExpiration;
+        return new Date(_appleTokenExpiration * 1000);
     };
 
     /**
@@ -234,7 +245,28 @@
      * @returns {boolean}
      */
     ssoApple.isTokenExpired = function () {
-        return _appleTokenExpiration == null;
+        var timeDelta = (_appleTokenExpiration * 1000) - Date.now();
+        return timeDelta < 0;
+    };
+    /**
+     * When a user is not logged in with Apple and we would like the user
+     * to use Apple to authenticate and authorize our app, use this flow.
+     * This is an async function and will return immediately, and then call
+     * `callBackWhenComplete` when log in has completed. This function assumes
+     * `load` has already been called and it worked.
+     * 
+     * @param {Function} callBackWhenComplete the function to call once log in is complete.
+     */
+    ssoApple.login = function (callBackWhenComplete) {
+        // start the user login process.
+        if (ssoAppleInstance.isReady()) {
+            ssoAppleInstance.debugLog("Apple SDK is ready");
+            ssoAppleInstance.getLoginStatus().then(callBackWhenComplete, callBackWhenComplete);
+        } else {
+            ssoAppleInstance.debugLog("Apple SDK is not loaded");
+            _callbackWhenLoaded = callBackWhenComplete;
+            ssoAppleInstance.load(null);
+        }
     };
 
     /**

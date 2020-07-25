@@ -1,9 +1,11 @@
 <?php
 /**
- * Define sensitive data in this configuration file. If serverConfig.php is missing, then it should
- * be setup like this.
- * User: jf
- * Date: Feb-13-2016
+ * Define sensitive data in this configuration file. serverConfig.php is not checked into
+ * version control, and as a result must be managed and updated by hand.
+ * If serverConfig.php is missing, then it should be setup like this.
+ * 
+ * @author: jf
+ * @created: 13-Feb-2016
  */
 date_default_timezone_set('America/New_York');
 define('LOGFILE_PREFIX', 'enginesis_php_');
@@ -15,7 +17,7 @@ define('PUBLISHING_MASTER_PASSWORD', '');
 define('REFRESH_TOKEN_KEY', '');
 define('ADMIN_ENCRYPTION_KEY', '');
 define('COREG_TOKEN_KEY', '');
-define('ENGINESIS_DEVELOPER_TOKEN', '');
+define('ENGINESIS_DEVELOPER_API_KEY', '');
 define('SESSION_REFRESH_HOURS', 4380);     // refresh tokens are good for 6 months
 define('SESSION_REFRESH_INTERVAL', 'P6M'); // refresh tokens are good for 6 months
 define('SESSION_AUTHTOKEN', 'authtok');
@@ -28,7 +30,7 @@ $_MEMCACHE_HOSTS = [
     '-q'  => array('port'=>11215, 'host'=>'www.enginesis-q.com'),
     '-x'  => array('port'=>11215, 'host'=>'www.enginesis-x.com'),
     ''    => array('port'=>11215, 'host'=>'www.enginesis.com')
-    ];
+];
 
 // Define a list of email addresses who will get notifications of internal bug reports
 $admin_notification_list = ['support@puttputtplanet.com'];
@@ -39,7 +41,8 @@ $socialServiceKeys = [
     7  => ['service' => 'Google',   'app_id' => '', 'app_secret' => '', 'admins' =>''],
     11 => ['service' => 'Twitter',  'app_id' => '', 'app_secret' => '', 'admins' =>''],
     14 => ['service' => 'Apple',    'app_id' => '', 'app_secret' => '', 'admins' =>'']
-    ];
-$developerKey = '';
+];
+
+$developerKey = ENGINESIS_DEVELOPER_API_KEY;
 $siteId = ENGINESIS_SITE_ID;
 $languageCode = 'en';

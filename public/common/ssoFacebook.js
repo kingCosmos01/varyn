@@ -73,6 +73,9 @@
             if (parameters.scope) {
                 _scope = parameters.scope;
             }
+            if (parameters.loadCallback) {
+                _callbackWhenLoaded = parameters.loadCallback;
+            }
             if (parameters.loginCallback) {
                 _callbackWhenLoggedIn = parameters.loginCallback;
             }
@@ -90,7 +93,6 @@
      * @returns {boolean}
      */
     ssoFacebook.init = function () {
-        console.log("Facebook callback invoked");
         _loading = false;
         ssoFacebook.clearUserInfo();
         if (global.FB && _applicationId) {
@@ -98,9 +100,8 @@
             _loaded = true;
             FB.init({
                 appId: _applicationId,
-                autoLogAppEvents: true,
                 cookie: true,
-                xfbml: false,
+                xfbml: true,
                 version: _SDKVersion
             });
             _initialized = true;
@@ -184,7 +185,7 @@
      * @returns {boolean}
      */
     ssoFacebook.isReady = function () {
-        return _loaded && _initialized;
+        return _loaded && _initialized && global.FB;
     };
 
     /**
@@ -200,13 +201,13 @@
      * @returns {string} User id or empty string if no uer is logged in.
      */
     ssoFacebook.siteUserId = function () {
-        return _userInfo.siteUserId;
+        return _userInfo ? _userInfo.siteUserId : "";
     };
 
     /**
      * Return the complete user info object, of null if no user is logged in.
      * @returns {
-            networkId: number,
+            networkId: Number,
             userName: string,
             realName: string,
             email: string,
@@ -233,7 +234,7 @@
 
     /**
      * Return the networks' user token expiration time as a JavaScript date object.
-     * This could be null if the token is invaid or if no user is logged in.
+     * This could be unixtimestamp(0) if the token is invaild or if no user is logged in.
      * @returns {Date} Date the token will be expired.
      */
     ssoFacebook.tokenExpirationDate = function () {

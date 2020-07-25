@@ -21,7 +21,8 @@
         _callbackWhenLoaded = null,
         _callbackWhenLoggedIn = null,
         _callbackWhenLoggedOut = null,
-        _userInfo = null;
+        _userInfo = null,
+        _redirectPage = null;
 
     ssoTwitter.debugLog = function (message) {
         if (_debug) {
@@ -70,11 +71,17 @@
             if (parameters.scope) {
                 _scope = parameters.scope;
             }
+            if (parameters.loadCallback) {
+                _callbackWhenLoaded = parameters.loadCallback;
+            }
             if (parameters.loginCallback) {
                 _callbackWhenLoggedIn = parameters.loginCallback;
             }
             if (parameters.logoutCallback) {
                 _callbackWhenLoggedOut = parameters.logoutCallback;
+            }
+            if (parameters.redirectPage) {
+                _redirectPage = parameters.redirectPage;
             }
         }
         return errors;
@@ -88,24 +95,28 @@
         _loading = false;
         _loaded = true;
         ssoTwitter.clearUserInfo();
+        if (typeof(_callbackWhenLoaded) === "function") {
+            var callback = _callbackWhenLoaded;
+            _callbackWhenLoaded = null;
+            callback(null);
+        }
         return _initialized;
     };
 
     /**
      * Load the Twitter library. This function must be called on any page that requires knowing if a user
-     * is currently logged in with Twitter or any other Twitter services. Once loaded the Twitter SDK
-     * calls
+     * is currently logged in with Twitter or any other Twitter services. Once loaded, the Twitter SDK
+     * calls window.twitterInit which then calls the provided parameters.loadCallback function.
      * Example:
      *   ssoTwitter.load(parameters).then(function(result) { console.log('Twitter loaded'); }, function(error) { console.log('Twitter load failed ' + error.message); });
      * 
-     * @param {object} parameters to configure our Twitter application.
-     * @returns {Promise}
+     * @param {object} parameters to configure the Twitter application. See setParameters().
      */
     ssoTwitter.load = function (parameters) {
         if (!_loaded) {
             _loaded = false;
             _loading = true;
-            window.twitterInit = this.init.bind(this);
+            global.twitterInit = this.init.bind(this);
             this.setParameters(parameters);
             (function (d, s, id, scriptSource) {
                 var js, fjs;
@@ -119,6 +130,10 @@
                 js = d.createElement(s);
                 js.id = id;
                 js.src = scriptSource;
+                js.onload = function() {
+                    ssoTwitter._loaded = true;
+                    ssoTwitter.init();
+                };
                 fjs.parentNode.insertBefore(js, fjs);
             }(document, "script", "twitter-jssdk", "https://platform.twitter.com/widgets.js"));
         } else if (!_initialized) {
@@ -134,7 +149,7 @@
      * This function returns a promise that will resolve to a function that is called with the user's Twitter info
      * in the standard Enginesis object format. If the promise fails the function is called with an Error object.
      *
-     * @param {object} parameters to configure our Twitter application.
+     * @param {object} parameters same parameters you pass to load().
      * @returns {Promise}
      */
     ssoTwitter.loadThenLogin = function (parameters) {
@@ -192,10 +207,10 @@
     /**
      * Return the networks user token expiration date as a JavaScript date object. This could be null if the token
      * is invaid or if no user is logged in.
-     * @returns {*}
+     * @returns {Date} Date the token will be expired.
      */
     ssoTwitter.tokenExpirationDate = function () {
-        return _tokenExpiration;
+        return new Date(_tokenExpiration * 1000);
     };
 
     /**
@@ -203,7 +218,8 @@
      * @returns {boolean}
      */
     ssoTwitter.isTokenExpired = function () {
-        return _tokenExpiration == null;
+        var timeDelta = (_tokenExpiration * 1000) - Date.now();
+        return timeDelta < 0;
     };
 
     /**
@@ -214,11 +230,18 @@
     };
 
     /**
-     * To start a Twitter login, we are going to redirect the user to our local PHP page that makes the oauth1.0 request.
-     * Redirects to the login page.
+     * To start a Twitter login, redirect to the server page that makes the OAuth request.
+     * If the user is logged in then that page will have to redirect back to this page
+     * with the user's authentication token saved in a cookie.
+     * 
+     * @param {Function} callBackWhenComplete the function to call once log in is complete.
      */
-    ssoTwitter.login = function () {
-        document.location = "/procs/oauth.php?action=login&provider=twitter";
+    ssoTwitter.login = function (callBackWhenComplete) {
+        var oauthURL = "/procs/oauth.php?action=login&provider=twitter";
+        if (_redirectPage != null) {
+            oauthURL += "&redirect=" + _redirectPage;
+        }
+        document.location = oauthURL;
     };
 
     /**

@@ -6,7 +6,7 @@
  * Not intended for UI consumption. Instead, use the string table and localized language to
  * map the error code into a UI string.
  *
- * Date generated: 24-Nov-2018 09:54:27 PM
+ * Date generated: 21-Jun-2020 06:43:08 PM
  */
 
 abstract class EnginesisErrors {
@@ -58,6 +58,7 @@ abstract class EnginesisErrors {
     const INVALID_CONTENT = 'INVALID_CONTENT';
     const INVALID_COREG_TYPE = 'INVALID_COREG_TYPE';
     const INVALID_DATA = 'INVALID_DATA';
+    const INVALID_DEVELOPER_KEY = 'INVALID_DEVELOPER_KEY';
     const INVALID_FILE = 'INVALID_FILE';
     const INVALID_FROM_ADDRESS = 'INVALID_FROM_ADDRESS';
     const INVALID_GAME_ID = 'INVALID_GAME_ID';
@@ -169,6 +170,7 @@ $errorCodeTable = array (
     EnginesisErrors::INVALID_CONTENT => 'The content provided is not valid. Please check character and tag restrictions.',
     EnginesisErrors::INVALID_COREG_TYPE => 'The co-registration type specified is not defined.',
     EnginesisErrors::INVALID_DATA => 'The data provided is either missing, invalid, out of range, or not properly formatted.',
+    EnginesisErrors::INVALID_DEVELOPER_KEY => 'The developer key provided is not valid.',
     EnginesisErrors::INVALID_FILE => 'The content or format of the provided was not valid.',
     EnginesisErrors::INVALID_FROM_ADDRESS => 'A valid from email address must be provided.',
     EnginesisErrors::INVALID_GAME_ID => 'The game id provided is not valid, is not defined, or is not assigned to the site context.',

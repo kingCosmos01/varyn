@@ -28,7 +28,7 @@
     "use strict";
 
     var enginesis = {
-        VERSION: "2.5.1",
+        VERSION: "2.6.1",
         debugging: true,
         disabled: false, // use this flag to turn off communicating with the server
         isOnline: true,  // flag to determine if we are currently able to reach Enginesis servers
@@ -681,6 +681,19 @@
         return serviceQueue;
     }
 
+    function formatHTTPHeader() {
+        // TODO: set "multipart/form" when sending files
+        var httpHeaders = {
+            "User-Agent": "Enginesis JS client " + enginesis.VERSION,
+            "Accept": "application/json",
+            "X-DeveloperKey": enginesis.developerKey
+        };
+        if (enginesis.authTokenWasValidated) {
+            httpHeaders["Authentication"] = "Bearer " + enginesis.authToken;
+        }
+        return httpHeaders;
+    }
+
     /**
      * If we cannot use fetch() on this browser then fall back to XMLHTTPRequest.
      * @param serviceName {string}
@@ -733,11 +746,9 @@
         enginesis.nodeRequest.post({
             method: "POST",
             url: enginesis.siteResources.serviceURL,
-            form: convertParamsToFormData(enginesisParameters),
-            headers: {
-                "User-Agent": "Enginesis client",
-                "Content-Type": "application/x-www-form-urlencoded"
-            }}, function(requestError, response, body) {
+            body: convertParamsToFormData(enginesisParameters),
+            headers: formatHTTPHeader()
+        }, function(requestError, response, body) {
                 if (requestError != null) {
                     var errorMessage = "Error posting to " + enginesis.siteResources.serviceURL + ": " + requestError.toString();
                     if (setOffline()) {
@@ -791,73 +802,71 @@
                         mode: "cors",
                         cache: "no-cache",
                         credentials: "same-origin",
-                        headers: {
-                            Accept: "application/json"
-                        },
+                        headers: formatHTTPHeader(),
                         body: convertParamsToFormData(enginesisParameters)
                     })
-                        .then(function (response) {
-                            removeFromServiceQueue(enginesisParameters.state_seq);
-                            if (response.status == 200) {
-                                response.json().then(function (enginesisResult) {
-                                        var errorMessage;
-                                        if (enginesisResult == null) {
-                                            // If Enginesis fails to return a valid object then the service must have failed, possible the response was not parsable JSON (e.g. error 500)
-                                            var serverResponse = response.text();
-                                            debugLog("Enginesis service error for " + serviceName + ": " + serverResponse);
-                                            errorMessage = "Enginesis service while contacting Enginesis at " + enginesis.serverHost + " for " + serviceName;
-                                            enginesisResult = forceErrorResponseObject(serviceName, enginesisParameters.state_seq, "SERVICE_ERROR", errorMessage);
-                                        } else {
-                                            enginesisResult.fn = serviceName;
-                                        }
-                                        callbackPriority(enginesisResult, resolve, overRideCallBackFunction, enginesis.callBackFunction);
-                                    })
-                                    .catch(function (error) {
-                                        var errorMessage = "Invalid response from Enginesis at " + enginesis.serverHost + " for " + serviceName + ": " + error.toString();
-                                        var enginesisResult = forceErrorResponseObject(serviceName, enginesisParameters.state_seq, "SERVICE_ERROR", errorMessage);
-                                        debugLog(errorMessage);
-                                        callbackPriority(enginesisResult, resolve, overRideCallBackFunction, enginesis.callBackFunction);
-                                    });
-                            } else {
-                                var errorMessage = "Network error " + response.status + " while contacting Enginesis at " + enginesis.serverHost + " for " + serviceName;
-                                var enginesisResult = forceErrorResponseObject(serviceName, enginesisParameters.state_seq, "SERVICE_ERROR", errorMessage);
-                                debugLog(errorMessage);
-                                callbackPriority(enginesisResult, resolve, overRideCallBackFunction, enginesis.callBackFunction);
-                            }
-                        }, function (error) {
-
-                            // TODO: If the error is no network, then set offline and queue this request
-
-                            if (setOffline()) {
-                                errorMessage = "Enginesis Network error encountered, assuming we're offline. " + enginesis.serverHost + " for " + serviceName + ": " + error.toString();
-                            } else {
-                                errorMessage = "Enginesis is already offline, leaving this message on the queue.";
-                            }
+                    .then(function (response) {
+                        removeFromServiceQueue(enginesisParameters.state_seq);
+                        if (response.status == 200) {
+                            response.json().then(function (enginesisResult) {
+                                    var errorMessage;
+                                    if (enginesisResult == null) {
+                                        // If Enginesis fails to return a valid object then the service must have failed, possible the response was not parsable JSON (e.g. error 500)
+                                        var serverResponse = response.text();
+                                        debugLog("Enginesis service error for " + serviceName + ": " + serverResponse);
+                                        errorMessage = "Enginesis service while contacting Enginesis at " + enginesis.serverHost + " for " + serviceName;
+                                        enginesisResult = forceErrorResponseObject(serviceName, enginesisParameters.state_seq, "SERVICE_ERROR", errorMessage);
+                                    } else {
+                                        enginesisResult.fn = serviceName;
+                                    }
+                                    callbackPriority(enginesisResult, resolve, overRideCallBackFunction, enginesis.callBackFunction);
+                                })
+                                .catch(function (error) {
+                                    var errorMessage = "Invalid response from Enginesis at " + enginesis.serverHost + " for " + serviceName + ": " + error.toString();
+                                    var enginesisResult = forceErrorResponseObject(serviceName, enginesisParameters.state_seq, "SERVICE_ERROR", errorMessage);
+                                    debugLog(errorMessage);
+                                    callbackPriority(enginesisResult, resolve, overRideCallBackFunction, enginesis.callBackFunction);
+                                });
+                        } else {
+                            var errorMessage = "Network error " + response.status + " while contacting Enginesis at " + enginesis.serverHost + " for " + serviceName;
+                            var enginesisResult = forceErrorResponseObject(serviceName, enginesisParameters.state_seq, "SERVICE_ERROR", errorMessage);
                             debugLog(errorMessage);
-                            callbackPriority(
-                                forceErrorResponseObject(serviceName, enginesisParameters.state_seq, "OFFLINE", errorMessage),
-                                resolve,
-                                overRideCallBackFunction,
-                                enginesis.callBackFunction
-                            );
-                        })
-                        .catch(function (error) {
+                            callbackPriority(enginesisResult, resolve, overRideCallBackFunction, enginesis.callBackFunction);
+                        }
+                    }, function (error) {
 
-                            // TODO: If the error is no network, then set offline and queue this request
+                        // TODO: If the error is no network, then set offline and queue this request
 
-                            if (setOffline()) {
-                                errorMessage = "Enginesis Network error encountered, assuming we're offline. " + enginesis.serverHost + " for " + serviceName + ": " + error.toString();
-                            } else {
-                                errorMessage = "Enginesis is already offline, leaving this message on the queue.";
-                            }
-                            debugLog(errorMessage);
-                            callbackPriority(
-                                forceErrorResponseObject(serviceName, enginesisParameters.state_seq, "OFFLINE", errorMessage),
-                                resolve,
-                                overRideCallBackFunction,
-                                enginesis.callBackFunction
-                            );
-                        });
+                        if (setOffline()) {
+                            errorMessage = "Enginesis Network error encountered, assuming we're offline. " + enginesis.serverHost + " for " + serviceName + ": " + error.toString();
+                        } else {
+                            errorMessage = "Enginesis is already offline, leaving this message on the queue.";
+                        }
+                        debugLog(errorMessage);
+                        callbackPriority(
+                            forceErrorResponseObject(serviceName, enginesisParameters.state_seq, "OFFLINE", errorMessage),
+                            resolve,
+                            overRideCallBackFunction,
+                            enginesis.callBackFunction
+                        );
+                    })
+                    .catch(function (error) {
+
+                        // TODO: If the error is no network, then set offline and queue this request
+
+                        if (setOffline()) {
+                            errorMessage = "Enginesis Network error encountered, assuming we're offline. " + enginesis.serverHost + " for " + serviceName + ": " + error.toString();
+                        } else {
+                            errorMessage = "Enginesis is already offline, leaving this message on the queue.";
+                        }
+                        debugLog(errorMessage);
+                        callbackPriority(
+                            forceErrorResponseObject(serviceName, enginesisParameters.state_seq, "OFFLINE", errorMessage),
+                            resolve,
+                            overRideCallBackFunction,
+                            enginesis.callBackFunction
+                        );
+                    });
                 } else if (enginesis.isNodeBuild) {
                     sendNodeRequest(serviceName, enginesisParameters, function (enginesisResult) {
                         callbackPriority(enginesisResult, resolve, overRideCallBackFunction, enginesis.callBackFunction);
@@ -938,11 +947,7 @@
             response: "json"
         };
         if (enginesis.loggedInUserInfo && enginesis.authTokenWasValidated && Math.floor(enginesis.loggedInUserInfo.user_id) != 0) {
-            serverParams.logged_in_user_id = enginesis.loggedInUserInfo.user_id;
             serverParams.authtok = enginesis.authToken;
-            if (isNull(serverParams.user_id)) {
-                serverParams.user_id = enginesis.loggedInUserInfo.user_id;
-            }
         }
         if (enginesis.gameId) {
             serverParams.game_id = enginesis.gameId;
@@ -1010,7 +1015,7 @@
     /**
      * Convert a parameter object to a proper HTTP Form request.
      * @param parameterObject
-     * @returns {*}
+     * @returns {FormData}
      */
     function convertParamsToFormData (parameterObject) {
         var key;

@@ -77,6 +77,9 @@
             if (parameters.scope) {
                 _scope = parameters.scope;
             }
+            if (parameters.loadCallback) {
+                _callbackWhenLoaded = parameters.loadCallback;
+            }
             if (parameters.loginCallback) {
                 _callbackWhenLoggedIn = parameters.loginCallback;
             }
@@ -100,7 +103,7 @@
      * @returns {boolean}
      */
     ssoGoogle.init = function () {
-        var googleApi = window.gapi,
+        var googleApi = global.gapi,
             googleInstance = this;
 
         googleInstance.clearUserInfo();
@@ -127,9 +130,14 @@
                         _googleAuth.currentUser.listen(googleInstance.userChanged.bind(googleInstance));
                         if (_googleAuth.isSignedIn.get()) {
                             _googleAuth.signIn();
+                            if (typeof(_callbackWhenLoggedIn) === "function") {
+                                var callback = _callbackWhenLoggedIn;
+                                _callbackWhenLoggedIn = null;
+                                callback(null);
+                            }
                         } else {
                             googleInstance.attachGoogleLoginButton();
-                            if (_callbackWhenLoaded != null) {
+                            if (typeof(_callbackWhenLoaded) === "function") {
                                 var callback = _callbackWhenLoaded;
                                 _callbackWhenLoaded = null;
                                 callback(Error("User is not logged in with Google."));
@@ -315,10 +323,10 @@
     /**
      * Return the networks user token expiration date as a JavaScript date object. This could be null if the token
      * is invaid or if no user is logged in.
-     * @returns {*}
+     * @returns {Date} Date the token will be expired.
      */
     ssoGoogle.tokenExpirationDate = function () {
-        return _tokenExpiration;
+        return new Date(_tokenExpiration * 1000);
     };
 
     /**
@@ -326,7 +334,8 @@
      * @returns {boolean}
      */
     ssoGoogle.isTokenExpired = function () {
-        return _tokenExpiration == null;
+        var timeDelta = (_tokenExpiration * 1000) - Date.now();
+        return timeDelta < 0;
     };
 
     /**
@@ -415,9 +424,19 @@
     /**
      * Log the user in with Google + API. This currently doesn't do anything
      * because with Google we are using the attachGoogleLoginButton method.
-     * @param callBackWhenComplete
+     * This function assumes `load` has already been called and it worked.
+     * 
+     * @param {Function} callBackWhenComplete the function to call once log in is complete.
      */
     ssoGoogle.login = function (callBackWhenComplete) {
+        var googleInstance = this;
+        if (googleInstance.isReady()) {
+            googleInstance.getLoginStatus().then(callBackWhenComplete, callBackWhenComplete);
+        } else {
+            _callbackWhenLoaded = callBackWhenComplete;
+            googleInstance.debugLog("not loaded, loading first then logging in");
+            googleInstance.load(null);
+        }
     };
 
     /**
