@@ -772,6 +772,29 @@ var varyn = function (parameters) {
             return errorField == ""; // return true to submit form
         },
 
+
+        /**
+         * The submit button on the unsubscribe form was clicked. Validate user inputs on the
+         * forgot password form before we attempt to submit the request with the server. Will
+         * set focus to a field in error.
+         *
+         * @returns {boolean} true if ok to submit the form
+         */
+        formUnsubscribeClicked: function () {
+            var email = document.getElementById("unsubscribe_email_form").value.toString(),
+                errorField = "";
+
+            if ( ! this.isValidEmail(email)) {
+                this.setPopupMessage("unsubscribe-form", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
+                errorField = "unsubscribe_email_form";
+            }
+            if (errorField != "") {
+                $(errorField).removeClass("popup-form-input").addClass("popup-form-input-error");
+                document.getElementById(errorField).focus();
+            }
+            return errorField == ""; // return true to submit form
+        },
+
         /**
          * If the show password UI element is activated then toggle the state of the password input.
          * @param element

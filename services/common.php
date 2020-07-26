@@ -1022,22 +1022,22 @@ function endsWith($haystack, $needle) {
  * @return string the transformed string.
  */
 function safeForHTML ($string) {
-    $htmlEscapeMap = array(
+    $htmlEscapeMap = [
         '&' => '&amp;',
         '<' => '&lt;',
         '>' => '&gt;',
         '"' => '&quot;',
         "'" => '&#x27;',
         '/' => '&#x2F;'
-    );
-    $htmlEscapePattern = array(
+    ];
+    $htmlEscapePattern = [
         '/&/',
         '/</',
         '/>/',
         '/"/',
         '/\'/',
         '/\//'
-    );
+    ];
     return preg_replace($htmlEscapePattern, $htmlEscapeMap, $string);
 }
 

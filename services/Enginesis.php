@@ -2244,6 +2244,36 @@ class Enginesis {
     }
 
     /**
+     * Subscribe an email address to the site newsletter or newsletter based by category selected.
+     */
+    public function newsletterAddressAssign ($emailAddress, $userName = '', $companyName = '', $categories = '') {
+        $service = 'NewsletterAddressAssign';
+        $parameters = [
+            'email_address' => $emailAddress,
+            'user_name' => $userName,
+            'company_name' => $companyName,
+            'categories' => $categories
+        ];
+        $enginesisResponse = $this->callServerAPI($service, $parameters);
+        $results = $this->setLastErrorFromResponse($enginesisResponse);
+        return $results != null;
+    }
+
+    /**
+     * Unsubscribe the email address from all newsletters.
+     */
+    public function newsletterAddressDelete ($emailAddress, $newsletterAddressId = 0) {
+        $service = 'NewsletterAddressDelete';
+        $parameters = [
+            'email_address' => $emailAddress,
+            'newsletter_address_id' => $newsletterAddressId
+        ];
+        $enginesisResponse = $this->callServerAPI($service, $parameters);
+        $results = $this->setLastErrorFromResponse($enginesisResponse);
+        return $results != null;
+    }
+
+    /**
      * Return the proper URL to use to show an avatar for a given user. The default is the default size and the current user.
      * This URL should always return an image.
      * @param int $size
