@@ -1,5 +1,6 @@
 <?php
 /**
+ * *** NOT THE REAL PROFILE PAGE - using this to test SSO sign up with Apple *****
  * Varyn's profile.php handles the user's profile page. If a user is logged in we show the details about that user
  * and the profile functions such as edit, change password, etc. This page can also show the public details about
  * another user. Finally, if no user is logged in, this page handles all the prompts and details for login, SSO,
@@ -109,7 +110,7 @@ if ($action == 'login' && ! $isLoggedIn) {
     // User issued a login request we expect user-name and password
     $userName = getPostVar('login_form_username');
     $password = getPostVar('login_form_password');
-    $rememberMe = valueToBoolean(getPostVar('rememberme', false));
+    $rememberMe = valueToBoolean(getPostVar('login_form_rememberme', false));
     $thisFieldMustBeEmpty = getPostVar('login_form_email', null);
     $hackerToken = getPostVar('all-clear', ''); // this field must contain the token
     if ($userName == '' && $password == '') {
@@ -150,7 +151,7 @@ if ($action == 'login' && ! $isLoggedIn) {
     $dateOfBirth = date('Y-m-d', $date12YearsAgo);
     $gender = 'U';
     $agreement = getPostVar("register-agreement", 0);
-    $rememberMe = valueToBoolean(getPostVar('rememberme', false));
+    $rememberMe = valueToBoolean(getPostVar('register-rememberme', false));
     $parameters = array(
         'user_name' => $userName,
         'password' => $password,
@@ -214,7 +215,7 @@ if ($action == 'login' && ! $isLoggedIn) {
     $agreement = getPostVar("register_form_agreement", 0);
     $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
     $hackerToken = getPostVar("all-clear", '');
-    $rememberMe = valueToBoolean(getPostVar('rememberme', false));
+    $rememberMe = valueToBoolean(getPostVar("register_form_rememberme", false));
     $parameters = array(
         'user_name' => $userName,
         'password' => $password,
@@ -791,7 +792,7 @@ include_once(VIEWS_ROOT . 'header.php');
                                 <label for="register_form_agreement">I agree to the <a href="/tos/" target="_popup">Terms of Use</a><span class="required-field">*</span></label><br/>
                                 <span><small>No</small>&nbsp;&nbsp;<input type="range" name="register_form_agreement" class="validation-slider" id="register_form_agreement" placeholder="Slide this all the way left to agree" tabindex="13" min="0" max="2" />&nbsp;&nbsp;<small>Yes</small></span>
                             </div>
-                            <div class="form-group"><input type="submit" value="Register" name="popupregister" id="registerButton" class="btn btn-success"/><span id="rememberme-container"><input type="checkbox" tabindex="4" checked="checked" name="rememberme" id="rememberme"><label for="rememberme">Remember Me</label></span></div>
+                            <div class="form-group"><input type="submit" value="Register" name="popupregister" id="registerButton" class="btn btn-success"/><span id="rememberme-container"><input type="checkbox" tabindex="4" checked="checked" name="register_form_rememberme" id="register_form_rememberme"><label for="register_form_rememberme">Remember Me</label></span></div>
 <?php
         } else {
 ?>
@@ -845,7 +846,7 @@ include_once(VIEWS_ROOT . 'header.php');
                         <label for="login_form_username">User name:</label><input type="text" id="login_form_username" name="login_form_username" tabindex="1" maxlength="20" class="popup-form-input" value="<?php echo($userName);?>" autocorrect="off" autocomplete="username"/><br/>
                         <label for="login_form_password">Password:</label><input type="password" id="login_form_password" name="login_form_password" tabindex="2" maxlength="20" class="popup-form-input" value="<?php echo($password);?>" /><br/>
                         <input type="button" class="btn btn-success" id="login-button" title="Login" value="Login >" tabindex="3" onclick="profilePage.loginValidation();" /><input type="text" name="login_form_email" class="popup-form-address-input" /><input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
-                        <span id="rememberme-container"><input type="checkbox" tabindex="4" checked="checked" name="rememberme" id="rememberme"><label for="rememberme">Remember Me</label></span>
+                        <span id="rememberme-container"><input type="checkbox" tabindex="4" checked="checked" name="login_form_rememberme" id="login_form_rememberme"><label for="login_form_rememberme">Remember Me</label></span>
                         <a id="profile_forgot_password" href="#" tabindex="5" onclick="profilePage.forgotPassword();">Forgot password?</a><input type="hidden" name="action" value="login" />
                     </div>
                     <div class="text-center">

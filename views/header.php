@@ -186,7 +186,7 @@ if (empty($pageSocialImage2)) {
                         <div class="form-group">
                             <input type="text" name="login_email" class="popup-form-address-input" />
                             <input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
-                            <span id="rememberme-container"><input type="checkbox" tabindex="20" checked="checked" name="rememberme" id="rememberme"><label for="rememberme">Remember Me</label></span>
+                            <span id="rememberme-container"><input type="checkbox" tabindex="20" checked="checked" name="login_rememberme" id="login_rememberme"><label for="login_rememberme">Remember Me</label></span>
                             <div class="loginPopup_auxLinks">
                                 <a id="loginPopup_forgot_password" href="#" onclick="varynApp.popupCloseClicked(); varynApp.showForgotPasswordPopup(1);" tabindex="21">Forgot password?</a><br/>Not a member? <a id="loginPopup_signup" href="#" onclick="varynApp.popupCloseClicked(); varynApp.showRegistrationPopup(1);" tabindex="22">Sign up!</a>
                             </div>
@@ -236,7 +236,7 @@ if (empty($pageSocialImage2)) {
                         <div class="form-group">
                             <input type="text" name="emailaddress" class="popup-form-address-input" />
                             <input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
-                            <span id="rememberme-container"><input type="checkbox" checked="checked" name="rememberme" id="rememberme" tabindex="16"><label for="rememberme">Remember Me</label></span>
+                            <span id="rememberme-container"><input type="checkbox" checked="checked" name="register-rememberme" id="register-rememberme" tabindex="16"><label for="register-rememberme">Remember Me</label></span>
                             <input type="hidden" name="action" value="popupregister" />
                         </div>
                     </div>

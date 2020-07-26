@@ -1,4 +1,6 @@
-<?php
+<?php /** Varyn home page.
+ * 
+ */
 require_once('../services/common.php');
 $search = getPostOrRequestVar('q', null);
 if ($search != null) {
