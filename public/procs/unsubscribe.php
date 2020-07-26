@@ -22,17 +22,19 @@ if ($action == 'unsubscribe') {
             $isSuccess = $enginesis->newsletterAddressDelete($email);
             if ( ! $isSuccess) {
                 $errorCode = $enginesis->getLastErrorCode();
-                $errorDescription = $enginesis->getLastErrorDescription();
-                $errorMessage = "<p>Email $emailClean has issues. $errorCode: $errorDescription</p>";
+                if ($errorCode == EnginesisErrors::NOT_SUBSCRIBED) {
+                    $errorCode = "This email address was not subscribed.";
+                }
+                $errorMessage = "<p class=\"text-error\">Email $emailClean has issues, please check your entry. $errorCode</p>";
             } else {
-                $errorMessage = "<p>Email $emailClean has been unsubscribed.</p>";
+                $errorMessage = "<p class=\"text-success\">Email $emailClean has been unsubscribed.</p>";
             }
         } else {
-            $errorMessage = "<p>Email '$emailClean' doesn't appear to be subscribed. Try again?</p>";
+            $errorMessage = "<p class=\"text-error\">Email '$emailClean' doesn't appear to be subscribed. Try again?</p>";
         }
     } else {
         // attempted hack?
-        $errorMessage = "<p>Email $emailClean doesn't appear to be subscribed. Try again?</p>";
+        $errorMessage = "<p class=\"text-error\">Email $emailClean doesn't appear to be subscribed. Try again?</p>";
     }
 } else {
     $hackerVerification = makeInputFormHackerToken();

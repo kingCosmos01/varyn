@@ -6,7 +6,7 @@
  * Not intended for UI consumption. Instead, use the string table and localized language to
  * map the error code into a UI string.
  *
- * Date generated: 21-Jun-2020 06:43:08 PM
+ * Date generated: 25-Jul-2020 10:02:55 PM
  */
 
 abstract class EnginesisErrors {
@@ -94,6 +94,7 @@ abstract class EnginesisErrors {
     const NOT_ENOUGH_EXP = 'NOT_ENOUGH_EXP';
     const NOT_IMPLEMENTED = 'NOT_IMPLEMENTED';
     const NOT_LOGGED_IN = 'NOT_LOGGED_IN';
+    const NOT_SUBSCRIBED = 'NOT_SUBSCRIBED';
     const NOT_YOUR_COMMENT = 'NOT_YOUR_COMMENT';
     const NO_COMMENT = 'NO_COMMENT';
     const NO_CONTENT = 'NO_CONTENT';
@@ -118,12 +119,13 @@ abstract class EnginesisErrors {
     const TOO_MANY_ITEMS = 'TOO_MANY_ITEMS';
     const UNKNOWN_SERVICE = 'UNKNOWN_SERVICE';
     const UPDATED = 'UPDATED';
+    const USER_BLOCKED = 'USER_BLOCKED';
     const USER_DOES_NOT_EXIST = 'USER_DOES_NOT_EXIST';
     const VALIDATION_FAILED = 'VALIDATION_FAILED';
 }
 
 $errorCodeTable = array (
-    EnginesisErrors::ALREADY_ASSIGNED => 'The object has laready been assigned to this user.',
+    EnginesisErrors::ALREADY_ASSIGNED => 'The object was previously assigned to this user.',
     EnginesisErrors::ALREADY_CONFIRMED => 'This user previously confirmed registration.',
     EnginesisErrors::ALREADY_GIFTED => 'This user already has that gift.',
     EnginesisErrors::ALREADY_GIFTED_MAX => 'The user already has the maximum number of gifts allowed for this item.',
@@ -206,6 +208,7 @@ $errorCodeTable = array (
     EnginesisErrors::NOT_ENOUGH_EXP => 'You do not yet have enough experience to obtain this item.',
     EnginesisErrors::NOT_IMPLEMENTED => 'The requested service is not implemented at this time.',
     EnginesisErrors::NOT_LOGGED_IN => 'The requested service requires a logged in user.',
+    EnginesisErrors::NOT_SUBSCRIBED => 'The user or email address provided is not subscribed.',
     EnginesisErrors::NOT_YOUR_COMMENT => 'You do not have the access rights to alter that comment.',
     EnginesisErrors::NO_COMMENT => 'There was no comment provided.',
     EnginesisErrors::NO_CONTENT => 'There was no content provided to fullfill this operation.',
@@ -230,6 +233,7 @@ $errorCodeTable = array (
     EnginesisErrors::TOO_MANY_ITEMS => 'There are too many items in the list, or the list is an unrecognized format.',
     EnginesisErrors::UNKNOWN_SERVICE => 'The service requested is not defined.',
     EnginesisErrors::UPDATED => 'Previous score exists but this score is better.',
+    EnginesisErrors::USER_BLOCKED => 'The user is blocked from using the system.',
     EnginesisErrors::USER_DOES_NOT_EXIST => 'The information provided does not identify a user in this site context.',
     EnginesisErrors::VALIDATION_FAILED => 'Validation failed.',
 );
