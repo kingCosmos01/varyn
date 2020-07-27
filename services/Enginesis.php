@@ -2598,7 +2598,7 @@ class Enginesis {
      * Return the path to the conference assets.
      */
     public function conferenceAssetRootPath($conferenceId) {
-        return $this->getServiceRoot() . 'sites/' . $this->m_siteId . '/conf/' . $conferenceId . '/';
+        return $this->m_serviceProtocol . '://' . $this->m_serviceHost . '/sites/' . $this->m_siteId . '/conf/' . $conferenceId . '/';
     }
 
     /**
