@@ -267,7 +267,7 @@ if ($action == 'login' && ! $isLoggedIn) {
             }
         } else {
             // TODO: handle invalid fields by showing UI, but try to set the focus on the first field in error.
-            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, array('fields' => implode(', ', $invalidFields))) . '</p>';
+            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, ['fields' => implode(', ', $invalidFields)]) . '</p>';
             $inputFocusId = 'register_form_email';
             $showRegistrationForm = true;
         }

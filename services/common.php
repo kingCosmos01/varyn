@@ -1246,32 +1246,63 @@ function checkEmailAddress ($email) {
     return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
 }
 
+/**
+ * Clean extended characters out of the string. This helps sanitize strings for general
+ * display cases. For example, clean up a Microsoft Word copyied string for more general
+ * usage. Extended characters converted to their common ascii equivalent.
+ * 
+ * @param string $input A string to clean.
+ * @return string The $input string with any extended characters converted to their common ascii equivalent.
+ */
 function cleanString ($input) {
-    // clean extended chars out of the string
-    $search = array(
+    $search = [
         '/[\x60\x82\x91\x92\xb4\xb8]/i',             // single quotes
         '/[\x84\x93\x94]/i',                         // double quotes
         '/[\x85]/i',                                 // ellipsis ...
         '/[\x00-\x0d\x0b\x0c\x0e-\x1f\x7f-\x9f]/i'   // all other non-ascii
-    );
-    $replace = array(
+    ];
+    $replace = [
         '\'',
         '"',
         '...',
         ''
-    );
+    ];
     return preg_replace($search, $replace, $input);
 }
 
-function cleanFilename ($filename) {
-    return str_replace(array('\\', '/', ':', '*', '?', '"', '<', '>', '|'), '', $filename);
+/**
+ * Remove non-ASCII extended characters and convert HTML to entities.
+ * @param string $source The string to clean.
+ * @return string The source string cleaned of all bad characters.
+ */
+function fullyCleanString($source) {
+    return htmlspecialchars(cleanString($source));
 }
 
-function strip_tags_attributes ($sSource, $aAllowedTags = array(), $aDisabledAttributes = array('onclick', 'ondblclick', 'onkeydown', 'onkeypress', 'onkeyup', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'onunload')) {
-    if (empty($aDisabledEvents)) {
-        return strip_tags($sSource, implode('', $aAllowedTags));
+/**
+ * Clean a proposed file name of any undesired characters and return a nice file name.
+ * 
+ * @param {string} $fileName A proposed file name.
+ * @returns {string} Proposed file name with undesired characters removed.
+ */
+function cleanFileName ($fileName) {
+    return str_replace(['\\', '/', ':', '*', '?', '"', '<', '>', '|', '`', '\''], '', $fileName);
+}
+
+/**
+ * Strip HTML tags and javascript handlers from the source string.
+ * 
+ * @param string $source A source string to clean of any HTML tags.
+ * @param array $allowedTags An array of strings indicating any HTML tags that are allowed and should not be stripped.
+ *    Tags must be specified with the angle braces, such as "<div>". Close tags are not required.
+ * @param array $disabledAttributes An array of tag attributes that are to be stripped.
+ * @return string A version of $source with HTM tags and indicated attributes removed.
+ */
+function stripTagsAttributes ($source, $allowedTags = [], $disabledAttributes = ['onclick', 'ondblclick', 'onkeydown', 'onkeypress', 'onkeyup', 'onload', 'onmousedown', 'onmousemove', 'onmouseout', 'onmouseover', 'onmouseup', 'onunload']) {
+    if (empty($disabledAttributes)) {
+        return strip_tags($source, implode('', $allowedTags));
     } else {
-        return preg_replace('/<(.*?)>/ie', "'<' . preg_replace(array('/javascript:[^\"\']*/i', '/(" . implode('|', $aDisabledAttributes) . ")=[\"\'][^\"\']*[\"\']/i', '/\s+/'), array('', '', ' '), stripslashes('\\1')) . '>'", strip_tags($sSource, implode('', $aAllowedTags)));
+        return preg_replace('/<(.*?)>/i', "'<' . preg_replace(array('/javascript:[^\"\']*/i', '/(" . implode('|', $disabledAttributes) . ")=[\"\'][^\"\']*[\"\']/i', '/\s+/'), array('', '', ' '), stripslashes('\\1')) . '>'", strip_tags($source, implode('', $allowedTags)));
     }
 }
 

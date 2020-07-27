@@ -3,7 +3,7 @@ require_once('../../services/common.php');
 $page = 'games';
 $pageTitle = 'All games at Varyn.com';
 $pageDescription = 'Check out some of the games that are in development, betas, experiments in new game play ideas, and the research and development going on at Varyn.com.';
-$search = getPostOrRequestVar('q', '');
+$search = fullyCleanString(getPostOrRequestVar('q', ''));
 $showSubscribe = getPostOrRequestVar('s', '0');
 include_once(VIEWS_ROOT . 'header.php');
 ?>

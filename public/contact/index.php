@@ -50,7 +50,7 @@ function validateHoneyPot($timestamp, $honeypot) {
 
 include_once(VIEWS_ROOT . 'header.php');
 if ($send == 'send') {
-    $message = strip_tags($message);
+    $message = cleanString(strip_tags($message));
     if (validateMessageParameters($name, $email, $message)) {
         if (validateHoneyPot($timestamp, $honeypot)) {
             require_once('../../services/EnginesisMailer.php');
