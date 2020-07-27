@@ -507,6 +507,15 @@ class Enginesis {
     }
 
     /**
+     * Return the root URL of the service: http protocol, hot name, and root / of the website.
+     * 
+     * @return string The root URL of the service, such as "https://enginesis.com/"
+     */
+    public function getServiceRoot() {
+        return $this->m_serviceProtocol . '://' . $this->m_serviceHost . '/';
+    }
+
+    /**
      * Determine if we are runing on http or https.
      * @return string: HTTP protocol, either http or https.
      */
@@ -2598,7 +2607,7 @@ class Enginesis {
      * Return the path to the conference assets.
      */
     public function conferenceAssetRootPath($conferenceId) {
-        return $this->m_serviceProtocol . '://' . $this->m_serviceHost . '/sites/' . $this->m_siteId . '/conf/' . $conferenceId . '/';
+        return $this->getServiceRoot() . 'sites/' . $this->m_siteId . '/conf/' . $conferenceId . '/';
     }
 
     /**
