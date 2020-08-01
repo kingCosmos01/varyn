@@ -186,6 +186,27 @@ class Enginesis {
     }
 
     /**
+     * Enginesis boolean values are 1 for true or 0 for false. Coerce any
+     * boolean-like value to either 1 or 0. Accepted values for true are
+     * 1, Y, Yes, T, True, Checked, a number that evaluates to non-zero,
+     * or any non-null value. Anything else is considered false.
+     * 
+     * @param any $variable Any type will be coerced to a boolean value.
+     * @return integer Either 1 or 0.
+     */
+    function valueToBoolean($variable) {
+        if (is_string($variable)) {
+            $variable = strtoupper($variable);
+            $result =  $variable == '1' || $variable == 'Y' || $variable == 'T' || $variable == 'YES' || $variable == 'TRUE' || $variable == 'CHECKED';
+        } elseif (is_numeric($variable)) {
+            $result = ! ! $variable;
+        } else {
+            $result = $variable != null;
+        }
+        return $result ? 1 : 0;
+    }
+
+    /**
      * Determine if the $id is valid.
      * @param $id
      * @return bool
@@ -196,30 +217,36 @@ class Enginesis {
 
     /**
      * Determine if the string is valid.
-     * @param $string string to test
-     * @param $minLength int The minimum length allowed. 0 will allow both null and empty string.
-     * @param $maxLength int The maximum length allowed.
-     * @param $allowEmpty bool true then allow empty/non-existing string.
-     * @param $allowTags bool true then make sure string does not contain HTML.
-     * @return bool
+     * 
+     * @param string $string String to test, if not a string you should coerce it first.
+     * @param integer $minLength The minimum length allowed. 0 will allow both null and empty string.
+     * @param integer $maxLength The maximum length allowed.
+     * @param boolean $allowEmpty If true then allow empty/non-existing string.
+     * @param blloean $allowTags If true then make sure string does not contain HTML tags.
+     * @return boolean
      */
-    public function isValidString ($string, $minLength, $maxLength, $allowEmpty, $allowTags) {
-        if ($allowEmpty && strlen($string) == 0) {
-            return true;
+    public function isValidString ($string, $minLength, $maxLength, $allowEmpty = false, $allowTags = true) {
+        if ( ! is_string($string)) {
+            return false;
         } else {
-            if ( ! $allowTags && $string != strip_tags($string)) {
-                return false;
+            $length = strlen($string);
+            if ($allowEmpty && $length == 0) {
+                return true;
             } else {
-                $len = strlen($string);
-                return  $len >= $minLength && $len <= $maxLength;
+                if ( ! $allowTags && $length != strlen(strip_tags($string))) {
+                    return false;
+                } else {
+                    return $length >= $minLength && $length <= $maxLength;
+                }
             }
         }
     }
 
     /**
      * Determine if a user name passes basic validity checks.
-     * @param $userName
-     * @return bool
+     * 
+     * @param string $userName
+     * @return boolean
      */
     public function isValidUserName ($userName) {
         $badNames = ['null', 'undefined', 'xxx', 'shit', 'fuck', 'dick'];
@@ -228,8 +255,9 @@ class Enginesis {
 
     /**
      * Determine if a password passes basic validity checks.
+     * 
      * @param $password
-     * @return bool
+     * @return boolean
      */
     public function isValidPassword ($password) {
         return strlen(trim($password)) > 3;
@@ -237,8 +265,9 @@ class Enginesis {
 
     /**
      * Determine if we have a valid gender setting.
-     * @param $gender
-     * @return bool
+     * 
+     * @param string $gender
+     * @return boolean
      */
     public function isValidGender ($gender) {
         $acceptableGenders = ['M', 'Male', 'F', 'Female', 'U', 'Undefined'];
@@ -247,12 +276,23 @@ class Enginesis {
 
     /**
      * Determine if the date is acceptable.
+     * 
      * @param $date
      * @return bool
      */
     public function isValidDate ($date) {
         $dateParts = explode('-', $date);
         return count($dateParts) == 3 && checkdate($dateParts[1], $dateParts[2], $dateParts[0]);
+    }
+
+    /**
+     * Determine if an email address appears to be valid.
+     * 
+     * @param string $email An email address to check.
+     * @return boolean True if we think the email address looks valid, otherwise false.
+     */
+    function isValidEmailAddress ($email) {
+        return filter_var($email, FILTER_VALIDATE_EMAIL) !== false;
     }
 
     /**
@@ -1689,21 +1729,26 @@ class Enginesis {
     }
 
     /**
-     * Determine if user registration parameters are valid. If not, indicate the first parameter that is invalid.
-     * @param $user_id: id of existing user to validate, or 0/null if a new registration.
-     * @param $parameters: key/value object of registration data.
-     * @return array: keys that we think are unacceptable. null if acceptable.
-     * TODO: this is not implemented, returns null (OK) as a placeholder.
+     * Determine if user registration parameters are valid. If not, indicate each
+     * parameter that is invalid.
+     * 
+     * @param integer $user_id Id of existing user to validate, or 0/null if a new registration.
+     * @param Array $parameters Key/value object of registration data.
+     * @return Array Keys that we think are unacceptable. null if everything is acceptable.
      */
     public function userRegistrationValidation ($user_id, $parameters) {
         $errors = [];
 
+        $key = 'agreement';
+        if ( ! isset($parameters[$key]) || ! $this->valueToBoolean($parameters[$key])) {
+            array_push($errors, $key);
+        }
         $key = 'user_name';
         if ( ! isset($parameters[$key]) || ! $this->isValidUserName($parameters[$key])) {
             array_push($errors, $key);
         }
         $key = 'email_address';
-        if ( ! isset($parameters[$key]) || ! checkEmailAddress($parameters[$key])) {
+        if ( ! isset($parameters[$key]) || ! $this->isValidEmailAddress($parameters[$key])) {
             array_push($errors, $key);
         }
         if ($user_id == 0) {

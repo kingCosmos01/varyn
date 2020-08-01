@@ -152,7 +152,7 @@ if ($action == 'login' && ! $isLoggedIn) {
         $dateOfBirth = date('Y-m-d', $date12YearsAgo);
         $gender = 'U';
         $agreement = getPostVar("register-agreement", 0);
-        $rememberMe = valueToBoolean(getPostVar('register-rememberme', false));
+        $rememberMe = valueToBoolean(getPostVar('register-rememberme', 0));
         $parameters = array(
             'user_name' => $userName,
             'password' => $password,
@@ -166,10 +166,12 @@ if ($action == 'login' && ! $isLoggedIn) {
             );
         $invalidFields = $enginesis->userRegistrationValidation(0, $parameters);
         if ($invalidFields == null) {
+            debugLog("Registering a new user: " . implode(', ', $parameters));
             $userInfo = $enginesis->userRegistration($parameters);
             $error = $enginesis->getLastError();
             if ($enginesis->isError($error)) {
                 $errorCode = $error['message'];
+                debugLog("Registering a new user was error $errorCode");
                 switch ($errorCode) {
                     case EnginesisErrors::NAME_IN_USE:
                         $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NAME_IN_USE);
@@ -198,8 +200,9 @@ if ($action == 'login' && ! $isLoggedIn) {
                 $inputFocusId = 'login_form_username';
             }
         } else {
+            debugLog("Registering a new user invalid form: " . implode(', ', $invalidFields));
             // TODO: handle invalid fields by showing UI
-            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, array('fields' => implode(', ', $invalidFields))) . '</p>';
+            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, ['fields' => implode(', ', $invalidFields)]) . '</p>';
             $inputFocusId = 'register-email';
         }
     } else {
@@ -234,10 +237,12 @@ if ($action == 'login' && ! $isLoggedIn) {
         );
         $invalidFields = $enginesis->userRegistrationValidation(0, $parameters);
         if ($invalidFields == null) {
+            debugLog("Registering a new user: " . implode(', ', $parameters));
             $userInfo = $enginesis->userRegistration($parameters);
             $error = $enginesis->getLastError();
             if ($enginesis->isError($error)) {
                 $errorCode = $error['message'];
+                debugLog("Registering a new user error $errorCode");
                 switch ($errorCode) {
                     case EnginesisErrors::NAME_IN_USE:
                         $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NAME_IN_USE);
@@ -266,6 +271,7 @@ if ($action == 'login' && ! $isLoggedIn) {
                 $inputFocusId = 'login_form_username';
             }
         } else {
+            debugLog("Registering a new user bad form " . implode(', ', $invalidFields));
             // TODO: handle invalid fields by showing UI, but try to set the focus on the first field in error.
             $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, ['fields' => implode(', ', $invalidFields)]) . '</p>';
             $inputFocusId = 'register_form_email';

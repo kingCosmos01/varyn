@@ -863,7 +863,10 @@ function validateInputFormHackerToken ($token) {
  * 1. An input field that asks for an email address, but we expect it to be empty. A real user will not enter a value in this field (typically it is hidden.)
  * 2. A time-out token is placed in a hidden field in the form. If the form is submitted after this timer times out we reject the submission (took too long.)
  * 
- * @param array $inputFormNames an array of field names used on the current page form to check for the inputs. Order dependent. By default we use 'emailaddress' and 'all-clear'.
+ * @param array $inputFormNames an array of field names used on the current page form to check for the inputs.
+ *   Order dependent. By default we use 'emailaddress' and 'all-clear'.
+ *   'emailaddress' is a form input that is a honeypot, we expect this to be empty, but a hacker would be compelled to fill in a value.
+ *   'all-clear' is a form field that holds the timeout token generated from `makeInputFormHackerToken()`.
  * @return boolean a `true` value indicates the form passes the checks, and `false` indicates a possible hack attempt.
  */
 function verifyFormHacks($inputFormNames) {
@@ -871,8 +874,10 @@ function verifyFormHacks($inputFormNames) {
         $inputFormNames = ['emailaddress', 'all-clear'];
     }
     $thisFieldMustBeEmpty = isset($_POST[$inputFormNames[0]]) ? $_POST[$inputFormNames[0]] : 'hacker';
-    $hackerToken  = isset($_POST[$inputFormNames[1]]) ? $_POST[$inputFormNames[1]] : '0';
-    return $thisFieldMustBeEmpty === '' && validateInputFormHackerToken($hackerToken);
+    $hackerToken = isset($_POST[$inputFormNames[1]]) ? $_POST[$inputFormNames[1]] : '0';
+    $isVerified = $thisFieldMustBeEmpty === '' && validateInputFormHackerToken($hackerToken);
+    debugLog("verifyFormHacks token=$hackerToken (try " . makeInputFormHackerToken() . ") honeypot='$thisFieldMustBeEmpty' result " . ($isVerified ? 'OK' : 'HACK!'));
+    return $isVerified;
 }
 
 /**
