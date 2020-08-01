@@ -153,7 +153,7 @@ if ($action == 'login' && ! $isLoggedIn) {
         $gender = 'U';
         $agreement = getPostVar("register-agreement", 0);
         $rememberMe = valueToBoolean(getPostVar('register-rememberme', 0));
-        $parameters = array(
+        $parameters = [
             'user_name' => $userName,
             'password' => $password,
             'email_address' => $email,
@@ -163,7 +163,7 @@ if ($action == 'login' && ! $isLoggedIn) {
             'dob' => $dateOfBirth,
             'gender' => $gender,
             'agreement' => $agreement
-            );
+        ];
         $invalidFields = $enginesis->userRegistrationValidation(0, $parameters);
         if ($invalidFields == null) {
             debugLog("Registering a new user: " . implode(', ', $parameters));
@@ -189,7 +189,7 @@ if ($action == 'login' && ! $isLoggedIn) {
                         $errorFieldId = 'register_form_username';
                         break;
                     default:
-                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERROR, array('error' => $errorCode));
+                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERROR, ['error' => $errorCode]);
                         $inputFocusId = 'register_form_email';
                         break;
                 }
@@ -224,7 +224,7 @@ if ($action == 'login' && ! $isLoggedIn) {
         $gender = getPostVar("register_form_gender", 'U');
         $agreement = getPostVar("register_form_agreement", 0);
         $rememberMe = valueToBoolean(getPostVar('register_form_rememberme', false));
-        $parameters = array(
+        $parameters = [
             'user_name' => $userName,
             'password' => $password,
             'email_address' => $email,
@@ -234,7 +234,7 @@ if ($action == 'login' && ! $isLoggedIn) {
             'dob' => $dateOfBirth,
             'gender' => $gender,
             'agreement' => $agreement
-        );
+        ];
         $invalidFields = $enginesis->userRegistrationValidation(0, $parameters);
         if ($invalidFields == null) {
             debugLog("Registering a new user: " . implode(', ', $parameters));
@@ -260,7 +260,7 @@ if ($action == 'login' && ! $isLoggedIn) {
                         $errorFieldId = 'register_form_username';
                         break;
                     default:
-                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERROR, array('error' => $errorCode));
+                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERROR, ['error' => $errorCode]);
                         $inputFocusId = 'register_form_email';
                         break;
                 }
@@ -326,7 +326,7 @@ if ($action == 'login' && ! $isLoggedIn) {
             // TODO: security fields updated?
             if ( ! ($thisFieldMustBeEmpty === '' && validateInputFormHackerToken($hackerToken))) {
                 $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REG_INFO_INCOMPLETE, null) . '</p>';
-                debugLog("profile.php error in user update fails hacker test: " . implode(',', array($thisFieldMustBeEmpty, $hackerToken, validateInputFormHackerToken($hackerToken))));
+                debugLog("profile.php error in user update fails hacker test: " . implode(',', [$thisFieldMustBeEmpty, $hackerToken, validateInputFormHackerToken($hackerToken)]));
                 $inputFocusId = 'register_form_email';
             } else {
                 $userRegistrationDataChanged = true; // TODO: set for when we want to optimize these updates and only save when something changed.
@@ -342,7 +342,7 @@ if ($action == 'login' && ! $isLoggedIn) {
                     $gender = getPostVar("register_form_gender", 'U');
                     $cellphone = getPostVar("register_form_phone", '');
                     $aboutMe = getPostVar("register_form_aboutme", '');
-                    $parameters = array(
+                    $parameters = [
                         'user_name' => $userName,
                         'email_address' => $email,
                         'real_name' => $fullname,
@@ -357,7 +357,7 @@ if ($action == 'login' && ! $isLoggedIn) {
                         'im_id' => '',
                         'about_me' => $aboutMe,
                         'additional_info' => ''
-                    );
+                    ];
                     $invalidFields = $enginesis->userRegistrationValidation($userId, $parameters);
                     if ($invalidFields == null) {
                         $updateResult = $enginesis->registeredUserUpdate($parameters); // this is {user_id: 9999} if successful and the session should be updated.
@@ -382,7 +382,7 @@ if ($action == 'login' && ! $isLoggedIn) {
                                         $errorFieldId = 'register_form_username';
                                         break;
                                     default:
-                                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERROR, array('error' => $errorCode));
+                                        $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERROR, ['error' => $errorCode]);
                                         $inputFocusId = 'register_form_email';
                                         break;
                                 }
@@ -418,7 +418,7 @@ if ($action == 'login' && ! $isLoggedIn) {
                         // TODO: handle invalid fields by showing UI, set focus to first field in error
                         $showRegistrationForm = true;
                         $inputFocusId = 'register_form_email';
-                        $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, array('fields' => implode(', ', $invalidFields))) . '</p>';
+                        $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, ['fields' => implode(', ', $invalidFields)]) . '</p>';
                     }
                 }
                 if ($inputFocusId == '' && $userSecurityDataChanged) {
@@ -434,7 +434,7 @@ if ($action == 'login' && ! $isLoggedIn) {
                             // handle invalid fields by showing UI
                             $showRegistrationForm = true;
                             $inputFocusId = 'register_form_email';
-                            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, array('fields' => implode(', ', $invalidFields))) . '</p>';
+                            $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, ['fields' => implode(', ', $invalidFields)]) . '</p>';
                         }
                     } else {
                         $showRegistrationForm = true;
@@ -470,30 +470,23 @@ if ($action == 'login' && ! $isLoggedIn) {
         if ($result == null) {
             $error = $enginesis->getLastError();
             $errorCode = $error['message'];
-            if ($errorCode == 'SYSTEM_ERROR') {
-                $errorMessage = '<p class="text-error">' . errorToLocalString($errorCode) . '</p>';
-            } else {
-                $info = '';
-                if ( ! empty($userName) && ! empty($email)) {
-                    $info = $userName . ', ' . $email;
-                } else {
-                    if ( ! empty($userName)) {
-                        $info = $userName;
-                    }
-                    if ( ! empty($email)) {
-                        $info = ($info == '' ? '' : ', ') . $email;
-                    }
-                }
-                $info = htmlentities($info);
-                $info .= $info == '' ? '' : '. ';
-                $errorMessage = '<p class="text-error">' . errorToLocalString($errorCode) . '<br/>' . $info . 'Please check your entry.</p>';
+            $info = '';
+            if ( ! empty($userName)) {
+                $info = $userName;
             }
+            if ( ! empty($email)) {
+                $info = ($info == '' ? '' : ', ') . $email;
+            }
+            if ($info != '') {
+                $info = '(' . htmlentities($info) . ')';
+            }
+            $errorMessage = '<p class="text-error">' . errorToLocalString($errorCode) . '<br/>Please check your entry ' . $info . ' or contact support.</p>';
             $inputFocusId = 'profile_forgot_password';
         }
     } else {
         debugLog("profile.php forgotpassword form submission failed the hacker test.");
-        $errorCode = SERVICE_ERROR;
-        $errorMessage = '<p class="text-error">' . errorToLocalString($errorCode) . '<br/>' . $info . 'Please check your entry.</p>';
+        $errorCode = EnginesisErrors::SERVICE_ERROR;
+        $errorMessage = '<p class="text-error">' . errorToLocalString($errorCode) . '<br/>Please check your entry or contact support.</p>';
         $inputFocusId = 'profile_forgot_password';
     }
 } elseif ($action == 'resetpassword') {
@@ -505,7 +498,7 @@ if ($action == 'login' && ! $isLoggedIn) {
     } else {
         $error = $enginesis->getLastError();
         $errorCode = $error['message'];
-        if ($errorCode == 'SYSTEM_ERROR') {
+        if ($errorCode == EnginesisErrors::SYSTEM_ERROR) {
             $errorMessage = '<p class="text-error">' . errorToLocalString($errorCode) . '</p>';
         } else {
             $info = '';
@@ -557,8 +550,8 @@ if ($action == 'login' && ! $isLoggedIn) {
     $debug = 1;
     $testInfo = [
         'add items to this array to display test results',
-        $stringTable->lookup(EnginesisUIStrings::MISSING_STRING, array('key' => 'user_id')),
-        $stringTable->lookup(EnginesisUIStrings::REG_INFO_UPDATED, array('key' => 'user_id'))
+        $stringTable->lookup(EnginesisUIStrings::MISSING_STRING, ['key' => 'user_id']),
+        $stringTable->lookup(EnginesisUIStrings::REG_INFO_UPDATED, ['key' => 'user_id'])
     ];
 } else {
     if ($action == 'regconfirm') {
@@ -619,7 +612,7 @@ function appendParamIfNotEmpty($params, $key, $value) {
 }
 
 function createResendConfirmEmailLink($errorCode, $user_id, $user_name, $email, $confirmation_token) {
-    $regConfirmErrors = array(EnginesisErrors::REGISTRATION_NOT_CONFIRMED, EnginesisErrors::INVALID_SECONDARY_PASSWORD, EnginesisErrors::PASSWORD_EXPIRED);
+    $regConfirmErrors = [EnginesisErrors::REGISTRATION_NOT_CONFIRMED, EnginesisErrors::INVALID_SECONDARY_PASSWORD, EnginesisErrors::PASSWORD_EXPIRED];
     if (in_array($errorCode, $regConfirmErrors)) {
         $params = '';
         appendParamIfNotEmpty($params, 'u', $user_id);
