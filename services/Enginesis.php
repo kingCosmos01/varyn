@@ -2,7 +2,7 @@
 /**
  * Enginesis service object for PHP clients. Support for each Enginesis API and additional helper functions.
  * @author: varyn
- * @date: 2/13/16
+ * @date: 13-Feb-2016
  */
 
 if ( ! defined('ENGINESIS_VERSION')) {
@@ -190,7 +190,7 @@ class Enginesis {
      * boolean-like value to either 1 or 0. Accepted values for true are
      * 1, Y, Yes, T, True, Checked, a number that evaluates to non-zero,
      * or any non-null value. Anything else is considered false.
-     * 
+     *
      * @param any $variable Any type will be coerced to a boolean value.
      * @return integer Either 1 or 0.
      */
@@ -217,7 +217,7 @@ class Enginesis {
 
     /**
      * Determine if the string is valid.
-     * 
+     *
      * @param string $string String to test, if not a string you should coerce it first.
      * @param integer $minLength The minimum length allowed. 0 will allow both null and empty string.
      * @param integer $maxLength The maximum length allowed.
@@ -244,7 +244,7 @@ class Enginesis {
 
     /**
      * Determine if a user name passes basic validity checks.
-     * 
+     *
      * @param string $userName
      * @return boolean
      */
@@ -255,7 +255,7 @@ class Enginesis {
 
     /**
      * Determine if a password passes basic validity checks.
-     * 
+     *
      * @param $password
      * @return boolean
      */
@@ -265,7 +265,7 @@ class Enginesis {
 
     /**
      * Determine if we have a valid gender setting.
-     * 
+     *
      * @param string $gender
      * @return boolean
      */
@@ -276,7 +276,7 @@ class Enginesis {
 
     /**
      * Determine if the date is acceptable.
-     * 
+     *
      * @param $date
      * @return bool
      */
@@ -287,7 +287,7 @@ class Enginesis {
 
     /**
      * Determine if an email address appears to be valid.
-     * 
+     *
      * @param string $email An email address to check.
      * @return boolean True if we think the email address looks valid, otherwise false.
      */
@@ -442,7 +442,7 @@ class Enginesis {
     /**
      * Return the server name of the instance we are running on. This should return a
      * host domain, not a URL. For example, www.varyn.com.
-     * 
+     *
      * @return string Server name.
      */
     public function getServerName() {
@@ -548,7 +548,7 @@ class Enginesis {
 
     /**
      * Return the root URL of the service: http protocol, hot name, and root / of the website.
-     * 
+     *
      * @return string The root URL of the service, such as "https://enginesis.com/"
      */
     public function getServiceRoot() {
@@ -576,7 +576,7 @@ class Enginesis {
      * of figuring out the matching domain to the hosting website and the matching stage. For example, if
      * this is running on https://www.varyn.com and the stage is -q, then the expected Enginesis service is
      * running at https://enginesis.varyn-q.com/.
-     * 
+     *
      * @param string|null $enginesisServer The intended stage, a full domain, or empty.
      *     - if empty or "*", match the current domain: www.varyn-q.com becomes enginesis.varyn-q.com. This should be the most common usage.
      *     - a stage designation, match to current domain but on that stage: specifying -q while currently on www.vary.com becomes enginesis.varyn-q.com.
@@ -749,7 +749,7 @@ class Enginesis {
     /**
      * Save the user's refresh token with this session. Then we can use it if we detect an
      * expired authentication token.
-     * 
+     *
      * @param string $refreshToken
      * @return string
      */
@@ -1024,7 +1024,7 @@ class Enginesis {
 
     /**
      * Restore the user info data from cookie.
-     * 
+     *
      * @return null|object
      */
     public function sessionUserInfoGet() {
@@ -1186,7 +1186,7 @@ class Enginesis {
      * to consolidate and handle logging. There is no default for this, so if this function is not set then
      * this Enginesis SDK will not perform any logging even if it is turned on.
      * The function signature is `function debugCallback($message)`.
-     * 
+     *
      * @param function $debugFunction A function reference.
      * @return function|null The prior function that was set is returned.
      */
@@ -1199,7 +1199,7 @@ class Enginesis {
     /**
      * Turn debugging on or off. Debugging is logged to the function set with `setDebugFunction`,
      * otherwise this has no effect.
-     * 
+     *
      * @param boolean $flag A value to evaluate to either `true` to turn on or `false` to turn off.
      * @return boolean The current value of the debugging flag.
      */
@@ -1519,7 +1519,7 @@ class Enginesis {
      * Return the URL of the request game image. This takes the parameters supplied and requests
      * from the back end the best fit image.
      * TODO: this really needs to call a server-side service to perform this resolution as we need to use PHP to determine which files are available and the closest match.
-     * 
+     *
      * @param string gameName game folder on server where the game assets are stored. Most of the game queries
      *    (GameGet, GameList, etc) return game_name and this is used as the game folder.
      * @param integer width optional width, use null to ignore. Server will choose common width.
@@ -1547,7 +1547,7 @@ class Enginesis {
 
     /**
      * The general public site get - returns a minimum set of public attributes about a site.
-     * 
+     *
      * @param integer $siteId an integer indicating a site_id.
      * @return object A site info object containing only the public attributes.
      */
@@ -1731,7 +1731,7 @@ class Enginesis {
     /**
      * Determine if user registration parameters are valid. If not, indicate each
      * parameter that is invalid.
-     * 
+     *
      * @param integer $user_id Id of existing user to validate, or 0/null if a new registration.
      * @param Array $parameters Key/value object of registration data.
      * @return Array Keys that we think are unacceptable. null if everything is acceptable.

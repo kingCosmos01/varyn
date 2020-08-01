@@ -28,7 +28,7 @@
     "use strict";
 
     var enginesis = {
-        VERSION: "2.6.1",
+        VERSION: "2.6.2",
         debugging: true,
         disabled: false, // use this flag to turn off communicating with the server
         isOnline: true,  // flag to determine if we are currently able to reach Enginesis servers
@@ -167,7 +167,7 @@
     }
 
     /**
-     * Coerce a value to its boolean equivelent, causing the value to be interpreted as its 
+     * Coerce a value to its boolean equivelent, causing the value to be interpreted as its
      * boolean intention. This works very different that the JavaScript coercion. For example,
      * "0" == true and "false" == true in JavaScript but here "0" == false and "false" == false.
      * @param {*} value A value to test.
@@ -329,7 +329,7 @@
      * When the server responds, intercept any result we get so we can preprocess it before
      * sending it off to the callback function. This may require different logic for different
      * services.
-     * @param {Object} enginesisResult 
+     * @param {Object} enginesisResult
      */
     function preprocessEnginesisResult(enginesisResult) {
         var serviceEndPoint = enginesisResult.fn;
@@ -352,7 +352,7 @@
 
     /**
      * Verify the hash provided in the response matches the response.
-     * @param {object} sessionInfo 
+     * @param {object} sessionInfo
      */
     function validateGameSessionHash(sessionInfo) {
         var cr = sessionInfo.cr || "";
@@ -519,7 +519,7 @@
 
     /**
      * After a successful logout clear everything we know about the user.
-     * @param {object} enginesisResult 
+     * @param {object} enginesisResult
      */
     function clearLoggedInUserInfo(enginesisResult) {
         if (enginesisResult && enginesisResult.results && enginesisResult.results.result.row) {
@@ -557,7 +557,7 @@
 
         // s=106&u=undefined&d=9079&n=undefined&g=1105&i=&l=undefined&m=0&k=null
         // TODO: siteKey is null, where is that coming from????
-        
+
         var dayStamp = userInfo.dayStamp || sessionDayStamp();
         var siteMark = 0;
         if (isNull(siteUserId)) {
@@ -916,7 +916,7 @@
                     enginesisResult = forceErrorResponseObject(serviceName, 0, "DISABLED", "Enginesis is disabled.");
                 } else {
                     enginesisResult = forceErrorResponseObject(serviceName, 0, "VALIDATION_FAILED", "Enginesis internal state failed validation.");
-                }                
+                }
                 callbackPriority(enginesisResult, resolve, overRideCallBackFunction, enginesis.callBackFunction);
             }
         });
@@ -1420,7 +1420,7 @@
 
     /**
      * When reloading the game we can see if a prior user login was in the cache so we can
-     * restore the session. If the session expires we can use a session refresh instead of 
+     * restore the session. If the session expires we can use a session refresh instead of
      * asking the user to log in again.
      * @returns {boolean} true if the save was successful, otherwise false.
      */
@@ -1533,7 +1533,7 @@
     }
 
     /**
-     * Save a refresh token in local storage. We use this token to refresh a login if we 
+     * Save a refresh token in local storage. We use this token to refresh a login if we
      * have a logged in user but the authentication token expired.
      * @param refreshToken
      */
@@ -1793,7 +1793,7 @@
         var base64={};
         var p="=";
         var tab="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    
+
         base64.encode=function(ba){
             var s=[], l=ba.length;
             var rm=l%3;
@@ -1825,7 +1825,7 @@
             }
             return s.join("");
         };
-    
+
         base64.decode=function(str){
             var s=str.split(""), out=[];
             var l=s.length;
@@ -1842,7 +1842,7 @@
             while(out[out.length-1]==0){ out.pop(); }
             return out;
         };
-    
+
         function arrayMapWithHoles(arr, callback, thisObject, Ctr){
             var i = 0, l = arr && arr.length || 0, out = new (Ctr || Array)(l);
             if(l && typeof arr == "string") arr = arr.split("");
@@ -1858,7 +1858,7 @@
             }
             return out;
         };
-    
+
         function stringTranslate(string, undesired, desired) {
             var i, char, found, length, result = "";
             if (typeof string !== "string" || string.length < 1 || ! Array.isArray(undesired) || ! Array.isArray(desired) || undesired.length != desired.length) {
@@ -2024,26 +2024,26 @@
                     0x90d4f869, 0xa65cdea0, 0x3f09252d, 0xc208e69f, 0xb74e6132, 0xce77e25b, 0x578fdfe3, 0x3ac372e6
                 ]
             }
-    
+
             function add(x,y){
                 return (((x>>0x10)+(y>>0x10)+(((x&0xffff)+(y&0xffff))>>0x10))<<0x10)|(((x&0xffff)+(y&0xffff))&0xffff);
             }
-    
+
             function xor(x,y){
                 return (((x>>0x10)^(y>>0x10))<<0x10)|(((x&0xffff)^(y&0xffff))&0xffff);
             }
-    
+
             function $(v, box){
                 var d=box.s3[v&0xff]; v>>=8;
                 var c=box.s2[v&0xff]; v>>=8;
                 var b=box.s1[v&0xff]; v>>=8;
                 var a=box.s0[v&0xff];
-        
+
                 var r = (((a>>0x10)+(b>>0x10)+(((a&0xffff)+(b&0xffff))>>0x10))<<0x10)|(((a&0xffff)+(b&0xffff))&0xffff);
                 r = (((r>>0x10)^(c>>0x10))<<0x10)|(((r&0xffff)^(c&0xffff))&0xffff);
                 return (((r>>0x10)+(d>>0x10)+(((r&0xffff)+(d&0xffff))>>0x10))<<0x10)|(((r&0xffff)+(d&0xffff))&0xffff);
             }
-    
+
             function eb(o, box){
                 var l=o.left;
                 var r=o.right;
@@ -2067,7 +2067,7 @@
                 o.right=l;
                 o.left=xor(r,box.p[17]);
             }
-    
+
             function db(o, box){
                 var l=o.left;
                 var r=o.right;
@@ -2091,7 +2091,7 @@
                 o.right=l;
                 o.left=xor(r,box.p[0]);
             }
-    
+
             function init(key){
                 var k=key, pos=0, data=0, res={ left:0, right:0 }, i, j, l;
                 var box = {
@@ -2117,7 +2117,7 @@
                 }
                 return box;
             }
-    
+
             this.hexStringToByteArray=function(hexString) {
                 if (hexString.length % 2 == 1) {
                     hexString += "0";
@@ -2127,18 +2127,18 @@
                 }
                 return bytes;
             }
-        
+
             this.getIV=function(){
                 return base64.encode(iv);
             };
-    
+
             this.setIV=function(data){
                 var ba=base64.decode(data);
                 iv={};
                 iv.left=ba[0]*POW24|ba[1]*POW16|ba[2]*POW8|ba[3];
                 iv.right=ba[4]*POW24|ba[5]*POW16|ba[6]*POW8|ba[7];
             };
-    
+
             this.encryptString = function(plaintext, key){
                 var bx = init(this.hexStringToByteArray(key)), padding = 8-(plaintext.length&7);
                 for (var i=0; i<padding; i++){ plaintext+=String.fromCharCode(padding); }
@@ -2165,7 +2165,7 @@
                 }
                 return stringTranslate(base64.encode(cipher), ["+", "/", "="], ["-", "_", "~"]);
             };
-    
+
             this.decryptString = function(ciphertext, key){
                 var bx = init(this.hexStringToByteArray(key));
                 var pt=[];
@@ -2309,7 +2309,7 @@
 
     /**
      * Return the error code of a response.
-     * @param {object} enginesisResult 
+     * @param {object} enginesisResult
      * @returns {string} An Enginesis error code.
      */
     enginesis.error = function(enginesisResult) {
@@ -2320,7 +2320,7 @@
      * Generate an enginesis error that looks the same as an error response from the server.
      * This may be helpful to applications with error event handling to consolodate the code
      * so it looks the same as real error responses.
-     * 
+     *
      * @param {string} serviceName The official Enginesis service endpoint that was invoked.
      * @param {int} stateSeq Session serial number.
      * @param {string} errorCode An Enginesis error code.
@@ -2375,8 +2375,8 @@
     };
 
     /**
-     * Return an object of user information. If no user is logged in a valid object is still returned 
-     * but with invalid user info. Note we do not hand out `loggedInUserInfo` because there are 
+     * Return an object of user information. If no user is logged in a valid object is still returned
+     * but with invalid user info. Note we do not hand out `loggedInUserInfo` because there are
      * certain properties we do not want clients to access or change.
      * @returns {object}
      */
@@ -2492,7 +2492,7 @@
      * Each site registers a set of resources apps may need to do certain things that are site-specific.
      * These host names are also configured to the current stage and protocol. This set of URLs/resources
      * is configured on the server for each site and the server should be queried the first time to get
-     * them. They rarely change so caching should be fine. This function returns 
+     * them. They rarely change so caching should be fine. This function returns
      * an object populated with the following urls:
      *  .root = the root of the website
      *  .profile = the page that holds the user's profile page when they are logged in
@@ -2519,7 +2519,7 @@
                 profile: urlBase + siteResources.profileURL,
                 register: urlBase + siteResources.registerURL,
                 terms: urlBase + siteResources.termsURL
-            };    
+            };
         } else {
             // TODO: if SessionBegin was not called we won't have this information. We need an alternative in this scenario. Maybe force a call to SessionBegin?
             // TODO: using varyn.com as the default makes no sense here.
@@ -3023,7 +3023,7 @@
     /**
      * Submit a final game score to the server. This requires a logged in user and a prior
      * call to SessionBegin to establish a game session with the server.
-     * @param {int|null} gameId if 0/null provided we use the gameId set on the Enginesis object. A 
+     * @param {int|null} gameId if 0/null provided we use the gameId set on the Enginesis object. A
      *    game id is mandatory for sumitting a score.
      * @param {int} score a value within the range established for the game.
      * @param {string} gameData option data regarding the game play. This is data specific to the
