@@ -34,13 +34,13 @@ include_once(VIEWS_ROOT . 'header.php');
 <div id="section-Games">
   <h3>Games</h3>
   <ul>
-<li><a href="/allgames/">All Games at Varyn.com</a> Discover the games we offer or search for the game you are looking for.</li>
+<li><a href="/allgames/">All games at Varyn.com</a> Discover the games we offer or search for the game you are looking for.</li>
 
 <li><a href="/faq/">Frequently asked questions</a> Here are the questions asked most by our users at Varyn.com.</li>
 
 <li><a href="/featured/">Hot games, contests, and tournaments</a> Discover the most recent content added to the site. We offer games, contests for prizes, and tournaments.</li>
 
-<li><a href="/games/">Experimental Games at Varyn.com</a> Check out some of the games that are in development, betas, experiments in new game play ideas, and the research and development going on at Varyn.com.</li>
+<li><a href="/games/">All games at Varyn.com</a> Check out some of the games that are in development, betas, experiments in new game play ideas, and the research and development going on at Varyn.com.</li>
 
 <li><a href="/profile/">Profile</a> View your player profile or review other followers and players at Varyn.com.</li>
 
@@ -77,8 +77,6 @@ include_once(VIEWS_ROOT . 'header.php');
 <li><a href="/play/?id=1017">Vector Boom</a> Your space station against a vast incoming armada of spacecraft. Fortunately you've got an awesome weapon on board.</li>
 
 <li><a href="/play/?id=1018">Money Seize</a> Sir Reginald MoneySeize II, Esq. must collect coins to fund construction of the tallest tower in the world!</li>
-
-<li><a href="/play/?id=1021">The Enginesis Test Game</a> This game will help test any services provided by Enginesis.</li>
 
 <li><a href="/play/?id=1023">Street Fighter II: Champion Edition</a> Select and fight your opponent in martial arts matches around the world. Win your fight and move on to the next stage.</li>
 

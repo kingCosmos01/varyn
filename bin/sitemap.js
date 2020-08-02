@@ -16,7 +16,7 @@ var enginesis = require("../public/common/enginesis");
 
 let pathToPublicRoot = "./public";
 let siteRoot = "https://varyn.com";
-let devSiteRoot = "http://varyn-l.com";
+let devSiteRoot = "https://varyn-l.com";
 let sitemapSource = "./public/sitemap/sitemap.json";
 let sitemapPage = "./public/sitemap/index.php";
 let sitemapPageTemplate = "./views/pageTemplate.php";
@@ -27,7 +27,7 @@ let enginesisParameters = {
     gameGroupId: 0,
     serverStage: "enginesis.varyn-l.com",
     authToken: "",
-    developerKey: "B3E06F9352AEA898E",
+    developerKey: "34A9EBE91B578504",
     languageCode: "en",
     callBackFunction: null
 };
@@ -178,7 +178,7 @@ function processPage(pageKey, sitemapItem) {
 function processPageQuery(key, section, sitemapSection) {
 
     console.log(Chalk.green("  Processing a page query for " + key + " for " + section.plugin));
-    if (key == "Games") {
+    if (section.plugin == "enginesis" && key == "Games") {
         enginesis.init(enginesisParameters);
         enginesis.siteListGames(1, 100, 2, null).then(function (enginesisResponse) {
             if (enginesisResponse != null && enginesisResponse.fn != null) {
@@ -213,10 +213,10 @@ function processPageQuery(key, section, sitemapSection) {
                 console.log(Chalk.red("  Enginesis request failed with no information"));
             }
         }, function(enginesisError) {
-            console.log(Chalk.red("  Enginesis error " + enginesisError.toString()));
+            console.log(Chalk.red("  Enginesis siteListGames error " + enginesisError.toString()));
         })
         .catch(function(enginesisError) {
-            console.log(Chalk.red("  Enginesis exception " + enginesisError.toString()));
+            console.log(Chalk.red("  Enginesis siteListGames exception " + enginesisError.toString()));
         });
     }
 }
