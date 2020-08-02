@@ -1,10 +1,6 @@
 <?php
 require_once('../services/common.php');
-$search = getPostOrRequestVar('q', null);
-if ($search != null) {
-    header('location:/games/?q=' . $search);
-    exit;
-}
+processSearchRequest();
 $page = 'home';
 $showSubscribe = getPostOrRequestVar('s', '0');
 $extendedMessage = getPostOrRequestVar('m', null);

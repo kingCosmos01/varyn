@@ -22,11 +22,7 @@ require_once('../../services/common.php');
 require_once('../../services/SocialServices.php');
 require_once('../../services/strings.php');
 
-$search = getPostOrRequestVar('q', null);
-if ($search != null) {
-    header('location:/games/?q=' . $search);
-    exit;
-}
+processSearchRequest();
 $stringTable = new EnginesisStringTable($siteId, $languageCode);
 $debug = (int) strtolower(getPostOrRequestVar('debug', 0));
 $page = 'profile';
@@ -131,8 +127,12 @@ if ($action == 'login' && ! $isLoggedIn) {
         $inputFocusId = 'login_form_username';
     } else {
         $isLoggedIn = true;
+        $cr = $userInfo->cr;
+        // TODO: Verify hash matches, otherwise we should not trust this info.
         $authToken = $userInfo->authtok;
-        $refreshToken = $userInfo->refreshToken;
+        $refreshToken = $userInfo->refresh_token;
+        $tokenExpires = $userInfo->expires;
+        $sessionExpires = $userInfo->session_expires;
         $userId = $userInfo->user_id;
     }
 } elseif ($action == 'signup' && ! $isLoggedIn) {
@@ -685,7 +685,7 @@ include_once(VIEWS_ROOT . 'header.php');
                 <table class="profile-login-table">
                     <tr>
                         <td><label>Site Rank</label></td>
-                        <td><?php echo($userInfo->user_rank); ?></td>
+                        <td class="text-large"><mark><?php echo($userInfo->user_rank); ?></mark></td>
                     </tr>
                     <tr>
                         <td><label>EXP</label></td>
@@ -727,7 +727,7 @@ include_once(VIEWS_ROOT . 'header.php');
                 <table class="profile-login-table">
                     <tr>
                         <td><label>Site Rank</label></td>
-                        <td><?php echo($otherUserInfo->user_rank); ?></td>
+                        <td class="text-large"><mark><?php echo($otherUserInfo->user_rank); ?></mark></td>
                     </tr>
                     <tr>
                         <td><label>EXP</label></td>

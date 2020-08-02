@@ -1,10 +1,6 @@
 <?php
 require_once('../../services/common.php');
-$search = getPostOrRequestVar('q', null);
-if ($search != null) {
-    header('location:/games/?q=' . $search);
-    exit;
-}
+processSearchRequest();
 $page = 'home';
 $pageTitle = 'Contact Varyn';
 $pageDescription = 'Contact us if you have something to say, you need help, or if you are interested in more information about what we do.';

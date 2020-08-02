@@ -1,10 +1,6 @@
 <?php
 require_once('../../services/common.php');
-$search = getPostOrRequestVar('q', null);
-if ($search != null) {
-    header('location:/games/?q=' . $search);
-    exit;
-}
+processSearchRequest();
 $page = 'home';
 $pageTitle = 'Privacy Policy';
 $pageDescription = 'Varyn privacy policy. Varyn is concerned for your privacy and protecting your data. We put forward this policy on data privacy to help you understand what we do and what control you have.';

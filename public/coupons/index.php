@@ -1,9 +1,9 @@
 <?php
 require_once('../../services/common.php');
+processSearchRequest();
 $page = 'offers';
 $pageTitle = 'Coupons and Offers';
 $pageDescription = 'Get Coupons and Offers at Varyn! We partner with some great companies and retailers to offer you discounts on the products you want.';
-$search = getPostOrRequestVar('q', '');
 include_once(VIEWS_ROOT . 'header.php');
 ?>
 <div class="container marketing">

@@ -1,10 +1,6 @@
 <?php
 require_once('../../services/common.php');
-$search = getPostOrRequestVar('q', null);
-if ($search != null) {
-    header('location:/games/?q=' . $search);
-    exit;
-}
+processSearchRequest();
 $page = 'featured';
 $pageTitle = 'Hot games, contests, and tournaments';
 $pageDescription = 'Discover the most recent content added to the site. We offer games, contests for prizes, and tournaments.';

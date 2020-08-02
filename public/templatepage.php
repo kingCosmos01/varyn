@@ -1,10 +1,6 @@
 <?php
 require_once('../services/common.php');
-$search = getPostOrRequestVar('q', null);
-if ($search != null) {
-    header('location:/games/?q=' . $search);
-    exit;
-}
+processSearchRequest();
 $showSubscribe = getPostOrRequestVar('s', '0');
 $page = 'template';
 $pageTitle = 'Varyn: Great games you can play anytime, anywhere';

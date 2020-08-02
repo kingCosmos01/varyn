@@ -23,11 +23,7 @@ require_once('../../services/common.php');
 require_once('../../services/SocialServices.php');
 require_once('../../services/strings.php');
 
-$search = getPostOrRequestVar('q', null);
-if ($search != null) {
-    header('location:/games/?q=' . $search);
-    exit;
-}
+processSearchRequest();
 $stringTable = new EnginesisStringTable($siteId, $languageCode);
 $debug = (int) strtolower(getPostOrRequestVar('debug', 0));
 $page = 'profile';

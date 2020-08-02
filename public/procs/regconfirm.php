@@ -8,11 +8,7 @@
  */
 require_once('../../services/common.php');
 $page = 'profile';
-$search = getPostOrRequestVar('q', null);
-if ($search != null) {
-    header('location:/games/?q=' . $search);
-    exit;
-}
+processSearchRequest();
 processTrackBack();
 $user_id = getPostOrRequestVar('u', 0);
 $site_id = getPostOrRequestVar('s', 0);

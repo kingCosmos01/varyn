@@ -5,11 +5,7 @@
  * @Date: 1/11/16
  */
 require_once('../../services/common.php');
-$search = getPostOrRequestVar('q', null);
-if ($search != null) {
-    header('location:/games/?q=' . $search);
-    exit;
-}
+processSearchRequest();
 $debug = (int) getPostOrRequestVar('debug', 0);
 $page = 'forgotpass';
 $pageTitle = 'Varyn: Great games you can play anytime, anywhere';

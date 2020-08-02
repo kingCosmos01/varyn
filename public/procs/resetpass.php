@@ -11,11 +11,7 @@
     require_once('../../services/common.php');
     $debug = (int) strtolower(getPostOrRequestVar('debug', 0));
     $page = 'resetpass';
-    $search = getPostOrRequestVar('q', null);
-    if ($search != null) {
-        header('location:/games/?q=' . $search);
-        exit;
-    }
+    processSearchRequest();
     processTrackBack();
     $showSubscribe = 0;
     $user_id = getPostOrRequestVar('u', 0);

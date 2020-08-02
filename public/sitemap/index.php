@@ -1,10 +1,6 @@
 <?php
 require_once('../../services/common.php');
-$search = getPostOrRequestVar('q', null);
-if ($search != null) {
-    header('location:/games/?q=' . $search);
-    exit;
-}
+processSearchRequest();
 $page = 'home';
 $pageTitle = 'Site Map';
 $pageDescription = 'Site map index for Varyn.com';

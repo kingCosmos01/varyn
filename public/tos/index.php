@@ -1,10 +1,6 @@
 <?php
 require_once('../../services/common.php');
-$search = getPostOrRequestVar('q', null);
-if ($search != null) {
-    header('location:/games/?q=' . $search);
-    exit;
-}
+processSearchRequest();
 $page = 'home';
 $pageTitle = 'Terms of Use';
 $pageDescription = 'Varyn terms of service regarding the use of this website. Please review these terms of use before using this website.';

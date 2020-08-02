@@ -1,10 +1,6 @@
 <?php
 require_once('../../services/common.php');
-$search = getPostOrRequestVar('q', null);
-if ($search != null) {
-    header('location:/games/?q=' . $search);
-    exit;
-}
+processSearchRequest();
 $page = 'play';
 $showSubscribe = getPostOrRequestVar('s', '0');
 $gameId = getPostOrRequestVar(['id', 'gameid', 'game_id', 'gameId', 'gameName', 'g'], '');
@@ -43,7 +39,7 @@ if ($gameInfo != null) {
     $gameLink = currentPageURL();
     $pageOGLink = currentPageURL();
     $pageDescription = $gameInfo->short_desc;
-    $pageKeywords = $gameInfo->search_terms;
+    $pageKeywords = $gameInfo->keywords;
     $gameContainerHTML = setGameContainer($gameInfo, $enginesis->getServiceRoot(), $siteId, $gameId);
 } else {
     // TODO: It may be better to go to /games/ with a search string ?q=$gameId but with an error message "Game not found"

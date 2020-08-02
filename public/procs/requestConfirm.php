@@ -9,11 +9,7 @@
     require_once('../../services/common.php');
     $debug = (int) strtolower(getPostOrRequestVar('debug', 0));
     $page = 'requestConfirmation';
-    $search = getPostOrRequestVar('q', null);
-    if ($search != null) {
-        header('location:/games/?q=' . $search);
-        exit;
-    }
+    processSearchRequest();
     processTrackBack();
     $user_id = getPostOrRequestVar('u', 0);
     $site_id = getPostOrRequestVar('s', 0);
