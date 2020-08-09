@@ -78,6 +78,7 @@
         nodeRequest: null,
         gameInfo: null,
         favoriteGames: new Set(),
+        favoriteGamesLastCheck: 0,
         supportedNetworks: {
             Enginesis: 1,
             Facebook:  2,
@@ -3488,9 +3489,10 @@
      * @returns {boolean}
      */
     enginesis.isUserFavoriteGame = function (game_id, callBackFunction) {
-        game_id = game_id || enginesis.gameId;
+        game_id = parseInt(game_id, 10) || enginesis.gameId;
         var isFavorite = enginesis.favoriteGames.has(game_id);
-        if ( ! isNull(callBackFunction) && typeof callBackFunction === "function") {
+        if (typeof callBackFunction === "function" && enginesis.favoriteGamesLastCheck < Date.now()) {
+            enginesis.favoriteGamesLastCheck = Date.now() + 60000;
             sendRequest("UserFavoriteGamesList", {}, null)
             .then(function(enginesisResult) {
                 callBackFunction(game_id, enginesis.favoriteGames.has(game_id));

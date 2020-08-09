@@ -1344,27 +1344,70 @@ var varyn = function (parameters) {
 
         /**
          * makeGameModule will generate the HTML for a standard game card.
-         * @param gameId {int}
-         * @param gameName {string}
-         * @param gameDescription {string}
-         * @param gameImg {string}
-         * @param gameLink {string}
-         * @param isFavorite {boolean}
-         * @returns {string} the HTML
+         * @param {int} gameId Unique game identifier.
+         * @param {string} gameName Game name, also unique.
+         * @param {string} gameDescription Short description of the game.
+         * @param {string} gameImg URL to the game thumbnail image.
+         * @param {string} gameLink URL to link to when the game is clicked.
+         * @param {boolean} isFavorite Is this one of the user's favorite games?
+         * @returns {string} The HTML to render in the DOM.
          */
         makeGameModule: function (gameId, gameName, gameDescription, gameImg, gameLink, isFavorite) {
-            var innerHtml,
-                favoriteImgSrc,
-                title;
+            var innerHtml;
+            var favoriteImgSrc;
+            var title;
+            var id;
 
             title = "Play " + gameName + " Now!";
+            id = 'gameid-' + gameId;
             favoriteImgSrc = isFavorite ? "/images/favorite-button-on-196.png" : "/images/favorite-button-off-196.png";
-            innerHtml = "<div class=\"gameModule thumbnail\">";
+            innerHtml = "<div id=\"" + id + "\" class=\"gameModule thumbnail\">";
             innerHtml += "<a href=\"" + gameLink + "\" title=\"" + title + "\"><img class=\"thumbnail-img\" src=\"" + gameImg + "\" alt=\"" + gameName + "\"/></a>";
-            innerHtml += "<div class=\"gameModuleInfo\"><a href=\"" + gameLink + "\" class=\"btn btn-md btn-success\" role=\"button\" title=\"" + title + "\" alt=\"" + title + "\">Play Now!</a><img class=\"favorite-button\" src=\"" + favoriteImgSrc + "\" data-game-id=\"" + gameId + "\" alt=\"Add " + gameName + " to your favorite games\"></div>";
+            innerHtml += "<div class=\"gameModuleInfo\"><a href=\"" + gameLink + "\" class=\"btn btn-md btn-success\" role=\"button\" title=\"" + title + "\" alt=\"" + title + "\">Play Now!</a><img class=\"favorite-button\" src=\"" + favoriteImgSrc + "\" data-gameid=\"" + gameId + "\" data-favorite=\"" + isFavorite + "\" alt=\"Add " + gameName + " to your favorite games\" onclick=\"varynApp.favoriteButtonClicked(this);\"></div>";
             innerHtml += "<div class=\"caption\"><a class=\"gameTitle\" href=\"" + gameLink + "\" title=\"" + title + "\"><h3>" + gameName + "</h3></a><p class=\"gamedescription\">" + gameDescription + "</p>";
             innerHtml += "</div></div>";
             return innerHtml;
+        },
+
+        /**
+         * Handle clicking on a favorite game button. Determine the current state of the button,
+         * send the update event to Enginesis, wait for the reply, and update the button to the
+         * new state.
+         * 
+         * @param {Element} buttonElement This is the DOM element of the button that was clicked.
+         */
+        favoriteButtonClicked: function(buttonElement) {
+            if (buttonElement) {
+
+                function setFavoriteGameButton(imgElement, isFavorite) {
+                    imgElement.src = isFavorite ? "/images/favorite-button-on-196.png" : "/images/favorite-button-off-196.png";
+                    imgElement.dataset.favorite = isFavorite ? "true" : "false";
+                };
+
+                var gameId = parseInt(buttonElement.dataset.gameid);
+                if (gameId) {
+                    var isFavorite = buttonElement.dataset.favorite == "true";
+                    if (isFavorite) {
+                        enginesisSession.userFavoriteGamesUnassign(gameId, function (response) {
+                            var favoriteGameList = response.results.result;
+                            var errorCode = response.results.status.message;
+                            if (errorCode == "" && favoriteGameList.indexOf(gameId) == -1) {
+                                setFavoriteGameButton(buttonElement, ! isFavorite);
+                            } else {
+                                // TODO: Error
+                            }
+                        });
+                    } else {
+                        enginesisSession.userFavoriteGamesAssign(gameId, function (response) {
+                            var favoriteGameList = response.results.result;
+                            var errorCode = response.results.status.message;
+                            if (errorCode == "" && favoriteGameList.indexOf(gameId) != -1) {
+                                setFavoriteGameButton(buttonElement, ! isFavorite);
+                            }
+                        });
+                    }
+                }
+            }
         },
 
         /**
@@ -1438,7 +1481,9 @@ var varyn = function (parameters) {
                         continue; // only show HTML5 or embed games on touch devices
                     }
                     countOfGamesShown ++;
-                    isFavorite = false;
+                    isFavorite = enginesisSession.isUserFavoriteGame(gameItem.game_id, function(response) {
+                        console.log(JSON.stringify(response));
+                    });
                     itemHtml = this.makeGameModule(gameItem.game_id, gameItem.title, gameItem.short_desc, baseURL + gameItem.game_name + "/images/300x225.png", "/play/?id=" + gameItem.game_id, isFavorite);
                     newDiv = document.createElement('div');
                     newDiv.className = "col-sm-6 col-md-4";
