@@ -1370,6 +1370,18 @@ var varyn = function (parameters) {
         },
 
         /**
+         * 
+         * @param {Element} imgElement DOM element of a favorite game button, expected to be an <img>.
+         * @param {boolean} isFavorite True if considered a favorite.
+         */
+        setFavoriteGameButton: function(imgElement, isFavorite) {
+            if (imgElement) {
+                imgElement.src = isFavorite ? "/images/favorite-button-on-196.png" : "/images/favorite-button-off-196.png";
+                imgElement.dataset.favorite = isFavorite ? "true" : "false";
+            }
+        },
+
+        /**
          * Handle clicking on a favorite game button. Determine the current state of the button,
          * send the update event to Enginesis, wait for the reply, and update the button to the
          * new state.
@@ -1378,12 +1390,6 @@ var varyn = function (parameters) {
          */
         favoriteButtonClicked: function(buttonElement) {
             if (buttonElement) {
-
-                function setFavoriteGameButton(imgElement, isFavorite) {
-                    imgElement.src = isFavorite ? "/images/favorite-button-on-196.png" : "/images/favorite-button-off-196.png";
-                    imgElement.dataset.favorite = isFavorite ? "true" : "false";
-                };
-
                 var gameId = parseInt(buttonElement.dataset.gameid);
                 if (gameId) {
                     var isFavorite = buttonElement.dataset.favorite == "true";
@@ -1391,8 +1397,8 @@ var varyn = function (parameters) {
                         enginesisSession.userFavoriteGamesUnassign(gameId, function (response) {
                             var favoriteGameList = response.results.result;
                             var errorCode = response.results.status.message;
-                            if (errorCode == "" && favoriteGameList.indexOf(gameId) == -1) {
-                                setFavoriteGameButton(buttonElement, ! isFavorite);
+                            if (errorCode == "" && ! enginesisSession.isUserFavoriteGame(gameId)) {
+                                varynApp.setFavoriteGameButton(buttonElement, ! isFavorite);
                             } else {
                                 // TODO: Error
                             }
@@ -1401,10 +1407,38 @@ var varyn = function (parameters) {
                         enginesisSession.userFavoriteGamesAssign(gameId, function (response) {
                             var favoriteGameList = response.results.result;
                             var errorCode = response.results.status.message;
-                            if (errorCode == "" && favoriteGameList.indexOf(gameId) != -1) {
-                                setFavoriteGameButton(buttonElement, ! isFavorite);
+                            if (errorCode == "" && enginesisSession.isUserFavoriteGame(gameId)) {
+                                varynApp.setFavoriteGameButton(buttonElement, ! isFavorite);
                             }
                         });
+                    }
+                }
+            }
+        },
+
+        /**
+         * When the list of favorite games changes, since this is something that may update
+         * from another device or process, we are required to iterate over all the game modules
+         * and update them.
+         * 
+         * @param {string} containerId The DOM id of the container element holding all the game modules to update.
+         */
+        updateFavoriteGamesInContainer: function(containerId) {
+            var gamesContainer = document.getElementById(containerId);
+            var isFavorite;
+            var imgElement;
+            var gameModule;
+            var gameId;
+            var index;
+
+            if (gamesContainer != null) {
+                for (index = 0; index < gamesContainer.children.length; index ++) {
+                    gameModule = gamesContainer.children[index];
+                    imgElement = gameModule.querySelector("img.favorite-button");
+                    if (imgElement != null) {
+                        gameId = parseInt(imgElement.dataset.gameid, 10);
+                        isFavorite = enginesisSession.isUserFavoriteGame(gameId);
+                        this.setFavoriteGameButton(imgElement, isFavorite);
                     }
                 }
             }
@@ -1449,6 +1483,7 @@ var varyn = function (parameters) {
          * @param elementId {string}: element to insert game modules HTML
          * @param maxItems {int}: no more than this number of games
          * @param sortProperty {string}: sort the list of games by this property
+         * @return {integer} Total number of game modules created, including ads.
          */
         gameListGamesResponse: function (results, elementId, maxItems, sortProperty) {
             // results is an array of games
@@ -1458,7 +1493,7 @@ var varyn = function (parameters) {
                 gamesContainer = document.getElementById(elementId),
                 newDiv,
                 itemHtml,
-                countOfGamesShown,
+                countOfGamesShown = 0,
                 baseURL = document.location.protocol + "//" + enginesisSession.serverBaseUrlGet() + "/games/",
                 isTouchDevice = enginesisSession.isTouchDevice(),
                 isFavorite,
@@ -1472,7 +1507,6 @@ var varyn = function (parameters) {
                 if (maxItems == null || maxItems < 1) {
                     maxItems = results.length;
                 }
-                countOfGamesShown = 0;
                 adsShownCounter = 0;
                 numberOfAdSpots = adsDisplayPositions.length;
                 for (i = 0; i < results.length && countOfGamesShown < maxItems; i ++) {
@@ -1503,9 +1537,57 @@ var varyn = function (parameters) {
                         gamesContainer.appendChild(newDiv);
                     }
                 }
-            } else {
+            // } else {
                 // no games!
             }
+            return countOfGamesShown + adsShownCounter;
+        },
+
+        /**
+         * Handles the server reply from UserFavoriteGamesList and generate the game modules.
+         * 
+         * @param {EnginesisResponse} results The Enginesis server response object.
+         * @param {string} elementId DOM element to insert game modules HTML.
+         * @param {integer} maxItems Show no more than this number of games.
+         * @param {string} sortProperty Sort the list of games by this property.
+         * @return {integer} The number of game modules created.
+         */
+        gameListFavoriteGamesResponse: function (results, elementId, maxItems, sortProperty) {
+            var i,
+                gameItem,
+                gamesContainer = document.getElementById(elementId),
+                newDiv,
+                itemHtml,
+                countOfGamesShown = 0,
+                baseURL = document.location.protocol + "//" + enginesisSession.serverBaseUrlGet() + "/games/",
+                isTouchDevice = enginesisSession.isTouchDevice();
+
+            while (gamesContainer != null && gamesContainer.firstChild) {
+                gamesContainer.firstChild.remove();
+            }
+            if (results != null && results.length > 0 && gamesContainer != null) {
+                if (sortProperty) {
+                    results.sort(this.compareTitle);
+                }
+                if (maxItems == null || maxItems < 1) {
+                    maxItems = results.length;
+                }
+                for (i = 0; i < results.length && countOfGamesShown < maxItems; i ++) {
+                    gameItem = results[i];
+                    if (isTouchDevice && ! (gameItem.game_plugin_id == "10" || gameItem.game_plugin_id == "9")) {
+                        continue; // only show HTML5 or embed games on touch devices
+                    }
+                    countOfGamesShown ++;
+                    itemHtml = this.makeGameModule(gameItem.game_id, gameItem.title, gameItem.short_desc, baseURL + gameItem.game_name + "/images/300x225.png", "/play/?id=" + gameItem.game_id, true);
+                    newDiv = document.createElement('div');
+                    newDiv.className = "col-sm-6 col-md-4";
+                    newDiv.innerHTML = itemHtml;
+                    gamesContainer.appendChild(newDiv);
+                }
+            // } else {
+                // no games!
+            }
+            return countOfGamesShown;
         },
 
         /**
@@ -1587,6 +1669,20 @@ var varyn = function (parameters) {
                         }
                         break;
 
+                    case 'UserFavoriteGamesList':
+                        if (succeeded == 1) {
+                            var gamesShown = varynApp.gameListFavoriteGamesResponse(results.result, "FavoriteGames", null, "title");
+                            var favoriteGamesDiv = document.getElementById("FavoriteGamesContainer");
+                            if (favoriteGamesDiv != null) {
+                                favoriteGamesDiv.style.display = gamesShown > 0 ? "block" : "none";
+                            }
+                            varynApp.updateFavoriteGamesInContainer("HomePageTopGames");
+                            varynApp.updateFavoriteGamesInContainer("HomePageNewGames");
+                            varynApp.updateFavoriteGamesInContainer("AllGamesArea");
+                            varynApp.updateFavoriteGamesInContainer("AboutPageHotGames");
+                        }
+                        break;
+        
                     default:
                         console.log("Unhandled Enginesis reply for " + enginesisResponse.fn);
                         break;

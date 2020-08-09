@@ -61,6 +61,16 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
                     }
                     break;
 
+                case 'UserFavoriteGamesList':
+                    if (succeeded == 1) {
+                        var gamesShown = varynApp.gameListFavoriteGamesResponse(results.result, "FavoriteGames", null, "title");
+                        var favoriteGamesDiv = document.getElementById("FavoriteGamesContainer");
+                        if (favoriteGamesDiv != null) {
+                            favoriteGamesDiv.style.display = gamesShown > 0 ? "block" : "none";
+                        }
+                    }
+                    break;
+
                 default:
                     break;
             }
@@ -84,6 +94,8 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             }
             if (!enginesisSession.isUserLoggedIn()) {
                 this.setupUserLogin();
+            } else {
+                enginesisSession.userFavoriteGamesList(this.enginesisCallBack);
             }
             if (varynApp.isLogout()) {
                 this.enableLoginButtons(false);

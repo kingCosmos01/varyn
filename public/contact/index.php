@@ -202,7 +202,7 @@ include_once(VIEWS_ROOT . 'footer.php');
         varynApp = varyn(siteConfiguration);
         varynApp.initApp(varynContactPage, pageParameters);
     });
-    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/varyn.js");
+    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js");
 </script>
 </body>
 </html>

@@ -885,19 +885,24 @@ include_once(VIEWS_ROOT . 'header.php');
 ?>
     </div>
     <div class="container marketing">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
 <?php
     if ($isLoggedIn) {
 ?>
-                <h3 class="panel-title">Favorite Games</h3>
-<?php
-    } else {
-?>
-                <h3 class="panel-title">Top Games</h3>
+        <div id="FavoriteGamesContainer">
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <h3 class="panel-title">Favorite Games</h3>
+                </div>
+            </div>
+            <div id="FavoriteGames" class="row">
+            </div>
+        </div>
 <?php
     }
 ?>
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Top Games</h3>
             </div>
         </div>
         <div id="HomePageTopGames" class="row">
