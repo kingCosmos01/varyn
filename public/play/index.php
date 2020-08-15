@@ -90,10 +90,17 @@ include_once(VIEWS_ROOT . 'header.php');
                 <div id="gameInfo">
                 <?php
                 if ($receivedGameInfo) {
+                    if (isset($gameInfo->is_favorite)) {
+                        $isFavorite = ((int) $gameInfo->is_favorite) != 0;
+                    } else {
+                        $isFavorite = false;
+                    }
+                    $favoriteImgSrc = $isFavorite ? '/images/favorite-button-on-196.png' : '/images/favorite-button-off-196.png';
+                    $favoriteHTML = '<li><img class="favorite-button" src="' . $favoriteImgSrc . '" data-gameid="' . $gameId . '" data-favorite="' . boolToString($isFavorite) . '" alt="Add ' . $gameInfo->game_name . ' to your favorite games" onclick="varynApp.favoriteButtonClicked(this);"></li>';
                     $shareFacebook = '<li><a href="https://www.facebook.com/sharer/sharer.php?u=' . $pageOGLink . '" target="_blank" title="Share ' . $title . ' with your Facebook network"><div class="facebook-small"></div></a></li>';
                     $shareTwitter = '<li><a href="https://twitter.com/share?text=Play ' . $title . ' on varyn.com:&url=' . $gameLink . '&via=varyn" target="_blank" title="Share ' . $title . ' with your Twitter followers"><div class="twitter-small"></div></a></li>';
                     $shareEmail = '<li><a href="mailto:?subject=Check out ' . $title . ' on varyn.com&body=I played ' . $title . ' on varyn.com and thought you would like to check it out: ' . $gameLink . '" title="Share ' . $title . ' by email"><div class="email-small"></div></a></li>';
-                    echo('<div class="social-game-info"><ul>' . $shareFacebook . $shareTwitter . $shareEmail . '</ul></div><h2>' . $title . '</h2><p>' . $gameInfo->long_desc . '</p>');
+                    echo('<div class="social-game-info"><ul>' . $favoriteHTML . $shareFacebook . $shareTwitter . $shareEmail . '</ul></div><h2>' . $title . '</h2><p>' . $gameInfo->long_desc . '</p>');
                 } else {
                     echo('<p>No information regarding your request. Please check your entry.</p>');
                 }
