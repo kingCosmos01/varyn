@@ -14,7 +14,7 @@ const rename = require("gulp-rename");
 const chalk = require("chalk");
 const prettyBytes = require("pretty-bytes");
 const ImageMin = require("imagemin");
-const UglifyJS = require("uglify-js");
+const { minify } = require("terser");
 const fsExtra = require('fs-extra');
 
 // Local module variables
@@ -39,7 +39,7 @@ var configuration = {
     imagesFileSpec: "{jpg,jpeg,png,gif}",
     unoptimizedFileSpec: "{eot,ttf,woff,woff2,svg,mp3,ogg,wav,json}",
     pageManifest: {
-        about: [
+        varyn: [
             "varyn.js"
         ],
         allgames: [
@@ -48,6 +48,10 @@ var configuration = {
         ],
         blog: [
             "varynBlog.js"
+        ],
+        homepage: [
+            "varyn.js",
+            "varynIndexPage.js"
         ],
         play: [
             "varyn.js",
@@ -76,11 +80,10 @@ var configuration = {
     jsFilesToIgnore: [ // a list of files in the js folder to skip
     ],
     libsToCopy: [
+        "bootstrap.min.js",
         "head.min.js",
         "modernizr.js",
-        "createjs.min.js",
-        "jquery.min.js",
-        "screenfull.min.js"
+        "jquery.min.js"
     ],
     libsToCombine: [
         "commonUtilities.js",
@@ -293,96 +296,101 @@ function copyImages(sourcePath, destinationPath, imagesGlobSpec) {
 }
 
 /**
- * Optimize all js files found in sourcePath and copy the optimized version to destinationPath.
- * @param sourcePath {string} path to the root folder under which to find js files.
- * @param destinationPath {string} path where to copy optimized files.
+ * Optimize all js files found in configuration.pageManifest and copy the optimized
+ * version to configuration.destinationFolder.
+ * 
+ * @param {object} varynConfiguration Configuration properties.
  */
-function optimizeJS(sourcePath, destinationPath, packageName) {
-    logInfo(chalk.green("ᗘ Starting JavaScript optimization for app files"));
-    var globSpec = path.join(sourcePath, "*.js");
+function optimizeJS(varynConfiguration) {
+    logInfo(chalk.green("ᗘ Starting JavaScript optimization for Varyn app files"));
+    let sourceFolder = varynConfiguration.sourceFolder;
+    let destinationFolder = varynConfiguration.destinationFolder;
+    const fileGroups = varynConfiguration.pageManifest;
     var totalBytesConsidered = 0;
     var totalBytesCopied = 0;
-    var uglifyJSCode = {};
-    var uglifyJSOptions = {
+    var minifyJSCode = {};
+    var minifyJSOptions = {
         warnings: true,
         toplevel: false,
         compress: {},
         mangle: {}
     };
 
-    function compressJSFile(file) {
-        var fileName = path.basename(file);
+    function prepareJSFile(file) {
+        const fileName = path.basename(file);
+        const filePath = path.join(sourceFolder, file);
         var fileSize;
         var fileContents;
+        logInfo(chalk.green("ᗘ ") + chalk.gray("JS compress source " + filePath));
+
         if (configuration.jsFilesToIgnore.indexOf(fileName) < 0) {
-            fileContents = fsExtra.readFileSync(file, { encoding: "utf8", flag: "r" });
+            fileContents = fsExtra.readFileSync(filePath, { encoding: "utf8", flag: "r" });
             if (fileContents != null && fileContents.length > 0) {
-                compressionStats.totalFiles++;
+                compressionStats.totalFiles ++;
                 fileSize = Buffer.byteLength(fileContents);
                 totalBytesConsidered += fileSize;
                 compressionStats.totalBytesConsidered += fileSize;
-                uglifyJSCode[fileName] = fileContents;
+                minifyJSCode[fileName] = fileContents;
             } else {
-                logError("Error reading js file " + file);
+                logError("prepareJSFile Error reading file " + filePath);
             }
         }
     }
 
-    function completeJSCompression(packageName) {
-        var destinationFile = path.join(destinationPath, packageName);
-        var uglifyJSResult = UglifyJS.minify(uglifyJSCode, uglifyJSOptions);
-        if (uglifyJSResult != null && typeof uglifyJSResult.code !== "undefined" && uglifyJSResult.code !== null) {
-            if (!fsExtra.existsSync(destinationPath)) {
-                fsExtra.mkdirSync(destinationPath);
-            }
-            fsExtra.writeFileSync(destinationFile, uglifyJSResult.code);
-            totalBytesCopied = Buffer.byteLength(uglifyJSResult.code);
-            compressionStats.totalBytesCompressed += totalBytesCopied;
-            var bytesSaved = totalBytesConsidered - totalBytesCopied;
-            var statusMessage;
-            if (bytesSaved > 9) {
-                statusMessage = "JS compression saved " + prettyBytes(bytesSaved) + " (" + ((bytesSaved / totalBytesConsidered) * 100).toFixed() + "%)";
+    async function completeJSCompression(packageName) {
+        const destinationFile = path.join(destinationFolder, packageName);
+        logInfo(chalk.green("ᗘ ") + chalk.gray("JS compress save as " + destinationFile));
+        try {
+            const compressedJSCode = await minify(minifyJSCode, minifyJSOptions);
+            if (compressedJSCode != null && compressedJSCode.code !== null) {
+                if (!fsExtra.existsSync(destinationFolder)) {
+                    fsExtra.mkdirSync(destinationFolder);
+                }
+                fsExtra.writeFileSync(destinationFile, compressedJSCode.code);
+                totalBytesCopied = Buffer.byteLength(compressedJSCode.code);
+                compressionStats.totalBytesCompressed += totalBytesCopied;
+                const bytesSaved = totalBytesConsidered - totalBytesCopied;
+                let statusMessage;
+                if (bytesSaved > 9) {
+                    statusMessage = "JS compression saved " + prettyBytes(bytesSaved) + " (" + ((bytesSaved / totalBytesConsidered) * 100).toFixed() + "%)";
+                } else {
+                    statusMessage = "JS is optimized";
+                }
+                logInfo(chalk.green("ᗘ ") + chalk.gray("JS compressed to " + destinationFile) + " -- " + statusMessage);
             } else {
-                statusMessage = "JS is optimized";
+                logError("completeJSCompression something wrong with Terser " + compressedJSCode.error);
             }
-            logInfo(chalk.green("ᗘ ") + chalk.gray("JS compressed to " + destinationFile) + " -- " + statusMessage);
-        } else {
-            logError("completeJSCompression something wrong with uglifyJS " + uglifyJSResult.error);
+        } catch (compressError) {
+            logError("completeJSCompression Compress error " + compressError.toString());
         }
     }
 
     return new Promise(function (resolve, reject) {
-        if (typeof configuration.appManifest === "undefined" || configuration.appManifest == null || configuration.appManifest.length == 0) {
-            glob(globSpec, function (error, files) {
-                if (error != null) {
-                    return reject(error);
-                } else {
-                    files.forEach(compressJSFile);
-                    completeJSCompression(packageName);
-                    return resolve();
-                }
-            });
-        } else {
-            configuration.appManifest.forEach(function (file) {
-                file = path.join(sourcePath, file);
-                compressJSFile(file);
-            });
+        for (const fileGroup in fileGroups) {
+            const fileList = fileGroups[fileGroup];
+            const fileParts = path.parse(fileList[fileList.length - 1]);
+            const packageName = fileParts.name + ".min.js";
+            for (let index = 0; index < fileList.length; index ++) {
+                prepareJSFile(fileList[index]);
+            }
             completeJSCompression(packageName);
-            return resolve();
         }
+        return resolve();
     });
 }
 
 /**
- * Create the libraries.
- * @param sourcePath {string} path to the root folder under which to find js files.
- * @param destinationPath {string} path where to copy optimized files.
+ * Create the compressed libraries.
+ * 
+ * @param {object} varynConfiguration Configuration properties.
  */
-function optimizeJSLibs(sourcePath, destinationPath) {
-    logInfo(chalk.green("ᗘ Starting JavaScript optimization for libs"));
-    var totalBytesConsidered = 0;
-    var uglifyJSCode = {};
-    var uglifyJSOptions = {
+async function optimizeJSLibs(varynConfiguration) {
+    logInfo(chalk.green("ᗘ Starting JavaScript optimization for libraries"));
+    let totalBytesConsidered = 0;
+    let minifyJSCode = {};
+    const sourcePath = varynConfiguration.sourceFolder;
+    const destinationPath = varynConfiguration.destinationFolder;
+    const minifyJSOptions = {
         warnings: true,
         toplevel: false,
         compress: {},
@@ -392,7 +400,7 @@ function optimizeJSLibs(sourcePath, destinationPath) {
     return new Promise(function (resolve, reject) {
         fsExtra.ensureDir(destinationPath)
             .then(function () {
-                async.map(configuration.libsToCopy, function (file) {
+                async.map(varynConfiguration.libsToCopy, function (file) {
                     var fileName = path.join(sourcePath, file);
                     fsExtra.stat(fileName, function (error, fileStat) {
                         if (error) {
@@ -416,8 +424,8 @@ function optimizeJSLibs(sourcePath, destinationPath) {
                 });
             })
             .then(function (result) {
-                var destinationFile = path.join(destinationPath, configuration.combinedLibFileName);
-                configuration.libsToCombine.forEach(function (file) {
+                var destinationFile = path.join(destinationPath, varynConfiguration.combinedLibFileName);
+                varynConfiguration.libsToCombine.forEach(function (file) {
                     var fileName = path.join(sourcePath, file);
                     var fileSize;
                     var fileContents = fsExtra.readFileSync(fileName, { encoding: "utf8", flag: "r" });
@@ -426,22 +434,32 @@ function optimizeJSLibs(sourcePath, destinationPath) {
                         fileSize = Buffer.byteLength(fileContents);
                         compressionStats.totalBytesConsidered += fileSize;
                         totalBytesConsidered += fileSize;
-                        uglifyJSCode[file] = fileContents;
+                        minifyJSCode[file] = fileContents;
                     }
                 });
-                var uglifyJSResult = UglifyJS.minify(uglifyJSCode, uglifyJSOptions);
-                fsExtra.writeFileSync(destinationFile, uglifyJSResult.code);
-                var totalBytesCopied = Buffer.byteLength(uglifyJSResult.code);
-                compressionStats.totalBytesCompressed += totalBytesCopied;
-                var bytesSaved = totalBytesConsidered - totalBytesCopied;
-                var statusMessage;
-                if (bytesSaved > 9) {
-                    statusMessage = "JS compression saved " + prettyBytes(bytesSaved) + "(" + ((bytesSaved / totalBytesConsidered) * 100).toFixed() + "%)";
-                } else {
-                    statusMessage = "JS is optimized";
-                }
-                logInfo(chalk.green("ᗘ ") + chalk.gray("Lib JS compressed to " + destinationFile) + " -- " + statusMessage);
-                return resolve(result);
+                minify(minifyJSCode, minifyJSOptions)
+                .then(function(compressedJSCode) {
+                    fsExtra.writeFileSync(destinationFile, compressedJSCode.code);
+                    var totalBytesCopied = Buffer.byteLength(compressedJSCode.code);
+                    compressionStats.totalBytesCompressed += totalBytesCopied;
+                    var bytesSaved = totalBytesConsidered - totalBytesCopied;
+                    var statusMessage;
+                    if (bytesSaved > 9) {
+                        statusMessage = "JS compression saved " + prettyBytes(bytesSaved) + "(" + ((bytesSaved / totalBytesConsidered) * 100).toFixed() + "%)";
+                    } else {
+                        statusMessage = "JS is optimized";
+                    }
+                    logInfo(chalk.green("ᗘ ") + chalk.gray("Lib JS compressed to " + destinationFile) + " -- " + statusMessage);
+                    return resolve(result);    
+                }, function(error) {
+                    logError("Minify error " + error.toString());
+                })
+                .catch(function(exception) {
+                    logError("Minify exception " + exception.toString());
+                });
+            })
+            .catch(function(exception) {
+                logError("fsExtra.ensureDir exception " + exception.toString());
             });
     });
 }
@@ -465,11 +483,13 @@ function handleImages(sourcePath, destinationPath, imagesGlobSpec) {
  * Display end of build statistics.
  */
 function showStats() {
-    logInfo(chalk.green("ᙘ ") + chalk.yellow("Build stats:"));
-    var dateDiff = (compressionStats.endTime.getTime() - compressionStats.startTime.getTime()) / 1000;
-    var bytesSaved = compressionStats.totalBytesConsidered - compressionStats.totalBytesCompressed;
-    var bytesRatio = ((bytesSaved / compressionStats.totalBytesConsidered) * 100).toFixed();
-    logInfo(chalk.green("ᙘ Completed build in " + dateDiff + "s: " + compressionStats.totalFiles + " files, originally " + prettyBytes(compressionStats.totalBytesConsidered) + ", now " + prettyBytes(compressionStats.totalBytesCompressed) + " saving " + prettyBytes(bytesSaved) + " (" + bytesRatio + "%)."));
+    if (compressionStats.endTime != null) {
+        logInfo(chalk.green("ᙘ ") + chalk.yellow("Build stats:"));
+        var dateDiff = (compressionStats.endTime.getTime() - compressionStats.startTime.getTime()) / 1000;
+        var bytesSaved = compressionStats.totalBytesConsidered - compressionStats.totalBytesCompressed;
+        var bytesRatio = ((bytesSaved / compressionStats.totalBytesConsidered) * 100).toFixed();
+        logInfo(chalk.green("ᙘ Completed build in " + dateDiff + "s: " + compressionStats.totalFiles + " files, originally " + prettyBytes(compressionStats.totalBytesConsidered) + ", now " + prettyBytes(compressionStats.totalBytesCompressed) + " saving " + prettyBytes(bytesSaved) + " (" + bytesRatio + "%)."));
+    }
 }
 
 /**
@@ -481,8 +501,8 @@ function showStats() {
  */
 function runBuild() {
     Promise.all([
-        optimizeJS(configuration.sourceFolder + "/js", configuration.destinationFolder + "/js", configuration.packageName),
-        optimizeJSLibs(configuration.sourceFolder, configuration.destinationFolder),
+        optimizeJS(configuration),
+        optimizeJSLibs(configuration),
         handleImages(configuration.sourceFolder, configuration.destinationFolder, configuration.imagesFileSpec)
     ]).then(function (result) {
         logInfo(chalk.green("ᙘ All builds complete"));
