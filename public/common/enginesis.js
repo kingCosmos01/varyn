@@ -689,7 +689,6 @@
     function formatHTTPHeader() {
         // TODO: set "multipart/form" when sending files
         var httpHeaders = {
-            "User-Agent": "Enginesis JS client " + enginesis.VERSION,
             "Accept": "application/json",
             "X-DeveloperKey": enginesis.developerKey
         };
@@ -1270,7 +1269,7 @@
      *   max age, in seconds. String indicates GMT date. Date is converted to GMT date.
      * @param path {string} Cookie URL path.
      * @param domain {string} Cookie domain.
-     * @param isSecure {boolean} Set cookie secure flag.
+     * @param isSecure {boolean} Set cookie secure flag. Default is true.
      * @return {boolean} true if set, false if error.
      */
     function cookieSet (key, value, expiration, path, domain, isSecure) {
@@ -1279,6 +1278,9 @@
 
         if (typeof global.document === "undefined") {
             return false;
+        }
+        if (typeof isSecure === "undefined") {
+            isSecure = true;
         }
         if ( ! key || /^(?:expires|max\-age|path|domain|secure)$/i.test(key)) {
             return false;
@@ -1307,7 +1309,7 @@
                 } else {
                     expires = neverExpires;
                 }
-                global.document.cookie = encodeURIComponent(key) + "=" + encodeURIComponent(value) + expires + (domain ? "; domain=" + domain : "") + (path ? "; path=" + path : "") + (isSecure ? "; secure" : "");
+                global.document.cookie = encodeURIComponent(key) + "=" + encodeURIComponent(value) + expires + (domain ? "; SameSite=Strict; domain=" + domain : "") + (path ? "; path=" + path : "") + (isSecure ? "; Secure" : "");
             }
             return true;
         }
@@ -3488,7 +3490,7 @@
      * return an answer right away by looking at the cached list of games. If a call back function is
      * provided, the server will be queried for a updated list of favorite games and the test
      * will be done asynchronously.
-     * 
+     *
      * @param {integer} game_id A game id to check, or null/0 to check the current game id.
      * @param {function} callBackFunction If provided, query the server then call this function with the result.
      * @returns {boolean} True if the requested game_id is a favorite game for this user.
