@@ -131,6 +131,25 @@
     };
 
     /**
+     * Internal logging function. All logging should call this function to abstract and control the interface.
+     * @param message
+     * @param level
+     */
+    function debugLog(message, level) {
+        if (enginesis.debugging) {
+            if (level == null) {
+                level = 15;
+            }
+            if ((enginesis.errorLevel & level) > 0) { // only show this message if the error level is on for the level we are watching
+                console.log(message);
+            }
+            if (level == 9) {
+                alert(message);
+            }
+        }
+    }
+
+    /**
      * Review the current state of the enginesis object to make sure we have enough information
      * to properly communicate with the server. The decision may change over time, but for now Enginesis requires:
      *   1. Developer key - the developer's API key is required to make API calls.
@@ -240,6 +259,45 @@
             }
         }
         return result;
+    }
+
+    /**
+     * Save an object in local storage given a key.
+     * @param key
+     * @param object
+     */
+    function saveObjectWithKey(key, object) {
+        if (key != null && object != null && typeof global.localStorage !== "undefined") {
+            global.localStorage[key] = JSON.stringify(object);
+        }
+    }
+
+    /**
+     * Delete a local storage key.
+     * @param key
+     */
+    function removeObjectWithKey(key) {
+        if (key != null && typeof global.localStorage !== "undefined") {
+            global.localStorage.removeItem(key);
+        }
+    }
+
+    /**
+     * Restore an object previously saved in local storage.
+     * @param string key A key to look up in local storage.
+     * @returns {object} The data that was saved under key. If key was never previously saved then null is returned.
+     */
+    function loadObjectWithKey(key) {
+        var jsonData,
+            object = null;
+
+        if (key != null && typeof global.localStorage !== "undefined") {
+            jsonData = global.localStorage[key];
+            if (jsonData != null) {
+                object = JSON.parse(jsonData);
+            }
+        }
+        return object;
     }
 
     /**
@@ -1359,7 +1417,6 @@
      */
     function restoreUserFromAuthToken (authToken) {
         var queryParameters;
-        var userInfo;
         var wasRestored = false;
         var loggedInUserInfo = null;
 
@@ -1378,7 +1435,7 @@
                 }
                 if (isEmpty(authToken)) {
                     loggedInUserInfo = loadObjectWithKey(enginesis.SESSION_USERINFO);
-                    if (loggedInUserInfo.authToken) {
+                    if (loggedInUserInfo != null && loggedInUserInfo.authToken) {
                         authToken = loggedInUserInfo.authToken;
                         debugLog("restoreUserFromAuthToken from prior session: " + authToken);
                     }
@@ -1652,64 +1709,6 @@
      */
     function _clearRefreshToken() {
         removeObjectWithKey(enginesis.refreshTokenStorageKey);
-    }
-
-    /**
-     * Internal logging function. All logging should call this function to abstract and control the interface.
-     * @param message
-     * @param level
-     */
-    function debugLog(message, level) {
-        if (enginesis.debugging) {
-            if (level == null) {
-                level = 15;
-            }
-            if ((enginesis.errorLevel & level) > 0) { // only show this message if the error level is on for the level we are watching
-                console.log(message);
-            }
-            if (level == 9) {
-                alert(message);
-            }
-        }
-    }
-
-    /**
-     * Save an object in local storage given a key.
-     * @param key
-     * @param object
-     */
-    function saveObjectWithKey(key, object) {
-        if (key != null && object != null && typeof global.localStorage !== "undefined") {
-            global.localStorage[key] = JSON.stringify(object);
-        }
-    }
-
-    /**
-     * Delete a local storage key.
-     * @param key
-     */
-    function removeObjectWithKey(key) {
-        if (key != null && typeof global.localStorage !== "undefined") {
-            global.localStorage.removeItem(key);
-        }
-    }
-
-    /**
-     * Restore an object previously saved in local storage
-     * @param key
-     * @returns {object}
-     */
-    function loadObjectWithKey(key) {
-        var jsonData,
-            object = null;
-
-        if (key != null && typeof global.localStorage !== "undefined") {
-            jsonData = global.localStorage[key];
-            if (jsonData != null) {
-                object = JSON.parse(jsonData);
-            }
-        }
-        return object;
     }
 
     /**
