@@ -32,6 +32,53 @@ if (empty($pageSocialImage1)) {
 if (empty($pageSocialImage2)) {
     $pageSocialImage2 = 'https://www.varyn.com/images/VarynIcon1080.jpg';
 }
+if ($page == 'play') {
+    // the game play page has additional requirements:
+    $gameDiscoveryTag = '
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "VideoGame",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "https://google.com/videogame"
+      },
+      "name": "' . $pageTitle . '",
+      "description": "' . $pageDescription . '",
+      "url": "' . $pageOGLink . '",
+      "genre": "' . $gameCategory . '",
+      "accessibilityControl": "touch",
+      "operatingSystem": "web",
+      "icon": "' . $pageFavIcon . '",
+      "gameBanner": "' . $pageSocialImage1 . '",
+      "about": "' . $pageOGLink . '",
+      "privacyPolicyURL": "https://varyn.com/privacy/",
+      “gameExecutionMode”: “clientside”,
+      "image": [
+        "https://varyn.com/screenshot/1.jpg",
+        "https://varyn.com/screenshot/2.jpg",
+        "https://varyn.com/screenshot/3.jpg"
+       ],
+      "author": {
+        "@type": "Organization",
+        "name": "Varyn",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://varyn.com/favicon-512x512.png"
+        }
+      },
+       "publisher": {
+        "@type": "Organization",
+        "name": "Varyn",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://varyn.com/favicon-512x512.png"
+        }
+      }
+    }
+    </script>
+    ';
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -107,6 +154,7 @@ if (empty($pageSocialImage2)) {
     <link href="/common/bootstrap.min.css" rel="stylesheet">
     <link href="/common/carousel.css" rel="stylesheet">
     <link href="/common/varyn.css" rel="stylesheet">
+    <?php if (isset($gameDiscoveryTag)) { echo($gameDiscoveryTag); } ?>
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-41765479-1"></script>
     <script>
     window.dataLayer = window.dataLayer || [];

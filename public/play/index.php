@@ -11,6 +11,7 @@ $gameWidth = 1024;
 $gameHeight = 768;
 $pageDescription = '';
 $gameInfo = null;
+$gameCategory = '';
 $receivedGameInfo = false;
 $gameContainerHTML = '';
 $isPlayBuzzSpecialCase = false;
@@ -40,6 +41,7 @@ if ($gameInfo != null) {
     $pageOGLink = currentPageURL();
     $pageDescription = $gameInfo->short_desc;
     $pageKeywords = $gameInfo->keywords;
+    $gameCategory = $gameInfo->game_style_category_name;
     $gameContainerHTML = setGameContainer($gameInfo, $enginesis->getServiceRoot(), $siteId, $gameId);
 } else {
     // TODO: It may be better to go to /games/ with a search string ?q=$gameId but with an error message "Game not found"
