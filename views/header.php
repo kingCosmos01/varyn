@@ -34,6 +34,7 @@ if (empty($pageSocialImage2)) {
 }
 if ($page == 'play') {
     // the game play page has additional requirements:
+    $screenShots = implode(",\n", $gameScreenShots);
     $gameDiscoveryTag = '
     <script type="application/ld+json">
     {
@@ -51,28 +52,24 @@ if ($page == 'play') {
       "operatingSystem": "web",
       "icon": "' . $pageFavIcon . '",
       "gameBanner": "' . $pageSocialImage1 . '",
-      "about": "' . $pageOGLink . '",
+      "about": "https://varyn.com/about/",
       "privacyPolicyURL": "https://varyn.com/privacy/",
       “gameExecutionMode”: “clientside”,
-      "image": [
-        "https://varyn.com/screenshot/1.jpg",
-        "https://varyn.com/screenshot/2.jpg",
-        "https://varyn.com/screenshot/3.jpg"
-       ],
+      "image": [' . $screenShots . '],
       "author": {
         "@type": "Organization",
         "name": "Varyn",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://varyn.com/favicon-512x512.png"
+          "url": "https://varyn.com/favicon-1024x1024.png"
         }
       },
        "publisher": {
         "@type": "Organization",
-        "name": "Varyn",
+        "name": "Enginesis",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://varyn.com/favicon-512x512.png"
+          "url": "https://enginesis.com/favicon-196x196.png"
         }
       }
     }
