@@ -99,6 +99,9 @@ if ($page == 'play') {
     <meta name="url" content="<?php echo($pageOGLink);?>">
     <meta name="author" content="Varyn">
     <meta name="google-signin-client_id" content="<?php echo($socialServiceKeys[7]['app_id']);?>">
+    <meta itemprop="name" content="<?php echo($pageTitle);?>">
+    <meta itemprop="description" content="<?php echo($pageDescription);?>">
+    <meta itemprop="image" content="<?php echo($pageSocialImage1);?>">
     <link rel="manifest" href="/varyn.webmanifest">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" href="<?php echo($pageFavIcon);?>">
@@ -351,7 +354,7 @@ if ($page == 'play') {
 ?>
 <div class="navbar-wrapper" id="varyn-navbar">
     <div class="container">
-        <nav class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="navbar navbar-default navbar-static-top" role="navigation">
             <div class="container">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -377,6 +380,6 @@ if ($page == 'play') {
                     </form>
                 </div>
             </div>
-        </nav>
+        </div>
     </div>
 </div>
