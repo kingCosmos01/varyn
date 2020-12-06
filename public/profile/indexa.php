@@ -63,7 +63,7 @@ $cellphone = '';
 $securityQuestion = '';
 $securityAnswer = '';
 $aboutMe = '';
-$agreement = false;
+$agreement = false; // User agrees to the terms and conditions
 $networkId = getPostOrRequestVar('network_id', 0);
 if ($networkId > 1) {
     // if we are passed a networkId then another page performed SSO and redirected here to finish. we should
@@ -146,7 +146,7 @@ if ($action == 'login' && ! $isLoggedIn) {
     $date12YearsAgo = strtotime('-12 year');
     $dateOfBirth = date('Y-m-d', $date12YearsAgo);
     $gender = 'U';
-    $agreement = getPostVar("register-agreement", 0);
+    $agreement = checkPostedAgreement("register-agreement");
     $rememberMe = valueToBoolean(getPostVar('register-rememberme', false));
     $parameters = array(
         'user_name' => $userName,
@@ -193,6 +193,8 @@ if ($action == 'login' && ! $isLoggedIn) {
             $inputFocusId = 'login_form_username';
         }
     } else {
+        debugLog("Registering a new user invalid form: " . implode(', ', $invalidFields));
+        debugLog("Registering a new user parameters: " . implode(', ', $parameters));
         // TODO: handle invalid fields by showing UI
         $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, array('fields' => implode(', ', $invalidFields))) . '</p>';
         $inputFocusId = 'register-email';
@@ -208,7 +210,7 @@ if ($action == 'login' && ! $isLoggedIn) {
     $tagline = getPostVar("register_form_tagline", '');
     $dateOfBirth = getPostVar("register_form_dob", '');
     $gender = getPostVar("register_form_gender", 'U');
-    $agreement = getPostVar("register_form_agreement", 0);
+    $agreement = checkPostedAgreement("register_form_agreement");
     $thisFieldMustBeEmpty = getPostVar("emailaddress", null);
     $hackerToken = getPostVar("all-clear", '');
     $rememberMe = valueToBoolean(getPostVar("register_form_rememberme", false));
@@ -257,6 +259,8 @@ if ($action == 'login' && ! $isLoggedIn) {
             $inputFocusId = 'login_form_username';
         }
     } else {
+        debugLog("Registering a new user bad form " . implode(', ', $invalidFields));
+        debugLog("Registering a new user parameters: " . implode(', ', $parameters));
         // TODO: handle invalid fields by showing UI, but try to set the focus on the first field in error.
         $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, array('fields' => implode(', ', $invalidFields))) . '</p>';
         $inputFocusId = 'register_form_email';
@@ -584,6 +588,16 @@ if ($action == 'login' && ! $isLoggedIn) {
         $authToken = $userInfo->authtok;
         $userId = $userInfo->user_id;
     }
+}
+
+/**
+ * Convert the POSTed UI version of the agreement to a boolean value: true if accepted.
+ * @param {string} $parameterKey Indicates the POST parameter to read.
+ * @return {boolean} true is agreed, false if no agreement.
+ */
+function checkPostedAgreement($parameterKey) {
+    $agreement = (int) getPostVar($parameterKey, 0);
+    return $agreement == 2;
 }
 
 function appendParamIfNotEmpty($params, $key, $value) {

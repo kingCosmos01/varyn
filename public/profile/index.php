@@ -62,7 +62,7 @@ $cellphone = '';
 $securityQuestion = '';
 $securityAnswer = '';
 $aboutMe = '';
-$agreement = false;
+$agreement = false; // User agrees to the terms and conditions
 $networkId = getPostOrRequestVar('network_id', 0);
 if ($networkId > 1) {
     // if we are passed a networkId then another page performed SSO and redirected here to finish. we should
@@ -151,7 +151,7 @@ if ($action == 'login' && ! $isLoggedIn) {
         $date12YearsAgo = strtotime('-12 year');
         $dateOfBirth = date('Y-m-d', $date12YearsAgo);
         $gender = 'U';
-        $agreement = getPostVar("register-agreement", 0);
+        $agreement = checkPostedAgreement("register-agreement");
         $rememberMe = valueToBoolean(getPostVar('register-rememberme', 0));
         $parameters = [
             'user_name' => $userName,
@@ -201,6 +201,7 @@ if ($action == 'login' && ! $isLoggedIn) {
             }
         } else {
             debugLog("Registering a new user invalid form: " . implode(', ', $invalidFields));
+            debugLog("Registering a new user parameters: " . implode(', ', $parameters));
             // TODO: handle invalid fields by showing UI
             $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, ['fields' => implode(', ', $invalidFields)]) . '</p>';
             $inputFocusId = 'register-email';
@@ -222,7 +223,7 @@ if ($action == 'login' && ! $isLoggedIn) {
         $tagline = getPostVar("register_form_tagline", '');
         $dateOfBirth = getPostVar("register_form_dob", '');
         $gender = getPostVar("register_form_gender", 'U');
-        $agreement = getPostVar("register_form_agreement", 0);
+        $agreement = checkPostedAgreement("register_form_agreement");
         $rememberMe = valueToBoolean(getPostVar('register_form_rememberme', false));
         $parameters = [
             'user_name' => $userName,
@@ -272,6 +273,7 @@ if ($action == 'login' && ! $isLoggedIn) {
             }
         } else {
             debugLog("Registering a new user bad form " . implode(', ', $invalidFields));
+            debugLog("Registering a new user parameters: " . implode(', ', $parameters));
             // TODO: handle invalid fields by showing UI, but try to set the focus on the first field in error.
             $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, ['fields' => implode(', ', $invalidFields)]) . '</p>';
             $inputFocusId = 'register_form_email';
@@ -604,6 +606,16 @@ if ($action == 'login' && ! $isLoggedIn) {
     }
 }
 
+/**
+ * Convert the POSTed UI version of the agreement to a boolean value: true if accepted.
+ * @param {string} $parameterKey Indicates the POST parameter to read.
+ * @return {boolean} true is agreed, false if no agreement.
+ */
+function checkPostedAgreement($parameterKey) {
+    $agreement = (int) getPostVar($parameterKey, 0);
+    return $agreement == 2;
+}
+
 function appendParamIfNotEmpty($params, $key, $value) {
     if ( ! empty($value)) {
         $params .= '&' . $key . '=' . $value;
@@ -804,7 +816,7 @@ include_once(VIEWS_ROOT . 'header.php');
 ?>
                             <div class="validation-slider-area" style="max-width: 380px;">
                                 <label for="register_form_agreement">I agree to the <a href="/tos/" target="_popup">Terms of Use</a><span class="required-field">*</span></label><br/>
-                                <span><small>No</small>&nbsp;&nbsp;<input type="range" name="register_form_agreement" class="validation-slider" id="register_form_agreement" placeholder="Slide this all the way left to agree" tabindex="13" min="0" max="2" />&nbsp;&nbsp;<small>Yes</small></span>
+                                <span><small>No</small>&nbsp;&nbsp;<input type="range" name="register_form_agreement" class="validation-slider" id="register_form_agreement" placeholder="Slide this to Yes (all the way left) to agree" alt="Slide this to Yes (all the way left) to agree" tabindex="13" min="0" max="2" />&nbsp;&nbsp;<small>Yes</small></span>
                             </div>
                             <div class="form-group"><input type="submit" value="Register" name="popupregister" id="registerButton" class="btn btn-success"/><span class="rememberme-container"><input type="checkbox" tabindex="4" checked="checked" name="register_form_rememberme" id="register_form_rememberme"><label for="register_form_rememberme">Remember Me</label></span></div>
 <?php
