@@ -4,7 +4,7 @@ if ( ! isset($showSubscribe)) {
 }
 ?>
 <hr/>
-<footer class="container footer">
+<div class="container footer">
     <div class="panel panel-default">
         <div class="panel-heading">
             <span class="pull-left"><img src="/images/logosmall.png" border="0"/></span>
@@ -40,7 +40,7 @@ if ( ! isset($showSubscribe)) {
             </div>
         </div>
     </div>
-</footer>
+</div>
 <div id="fb-root"></div>
 <script>
     var siteConfiguration = {
