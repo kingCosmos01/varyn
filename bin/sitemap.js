@@ -188,7 +188,7 @@ function processPageQuery(key, section, sitemapSection) {
                     results = results.result;
                     for (let i = 0; i < results.length; i++) {
                         let gameItem = results[i];
-                        let gameURL = "/play/?id=" + gameItem.game_id;
+                        let gameURL = "/play/" + gameItem.game_name;
                         let title = gameItem.title;
                         let description = gameItem.short_desc;
                         let lastModified = new Date().toISOString();
