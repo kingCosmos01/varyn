@@ -1624,7 +1624,7 @@ class Enginesis {
         }
         // When refreshing the token we need to remind the server who the user is
         $parameters = [
-            'authtok' => $refreshToken,
+            'refresh_token' => $refreshToken,
             'logged_in_user_id' => $this->m_userId,
             'game_id' => $this->m_gameId,
             'gamekey' => gameKeyMake($this->m_siteId, $this->m_gameId)

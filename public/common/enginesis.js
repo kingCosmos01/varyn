@@ -2815,7 +2815,7 @@
         if ( ! enginesis.isUserLoggedIn()) {
             siteMark = enginesis.anonymousUser.userId;
         }
-        return sendRequest(serviceName, {token: refreshToken, game_id: game_id, gamekey: gameKey, site_mark: siteMark}, overRideCallBackFunction);
+        return sendRequest(serviceName, {refresh_token: refreshToken, game_id: game_id, gamekey: gameKey, site_mark: siteMark}, overRideCallBackFunction);
     };
 
     /**
