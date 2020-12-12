@@ -505,13 +505,13 @@ if ($action == 'login' && ! $isLoggedIn) {
     }
 } elseif ($action == 'resendconfirm') {
     // User did not confirm registration or it expired, issue a new registration confirmation request.
-    $userName = getPostOrRequestVar('u');
-    // TODO: 1. verify user-name is in waiting for confirm state. 2. call RegisteredUserResetSecondaryPassword
+    // TODO: 1. verify timestamp 2. verify user-name is in waiting for confirm state. 3. call RegisteredUserResetSecondaryPassword
     $_user_id = getPostOrRequestVar('u', 0);
     $_user_name = getPostOrRequestVar('n', '');
     $_email = getPostOrRequestVar('e', '');
     $_token = getPostOrRequestVar('t', '');
-    $result = $enginesis->RegisteredUserResetSecondaryPassword($userName, $email);
+    $_timestamp = getPostOrRequestVar('d', 0);
+    $result = $enginesis->registeredUserResetSecondaryPassword($_user_id, $_user_name, $_email, $_token);
     $redirectedStatusMessage = $stringTable->lookup(EnginesisUIStrings::REDIRECT_CONFIRM_MESSAGE, null);
 } elseif ($action == 'logout') {
     // User requested Logout.

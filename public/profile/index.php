@@ -114,6 +114,7 @@ if ($action == 'login' && ! $isLoggedIn) {
     if ($userName == '' && $password == '') {
         $userName = getPostVar('login_username');
         $password = getPostVar('login_password');
+        $rememberMe = valueToBoolean(getPostVar('login_rememberme', false));
     }
     $userInfo = $enginesis->userLogin($userName, $password, $rememberMe);
     if ($userInfo == null) {
@@ -521,13 +522,13 @@ if ($action == 'login' && ! $isLoggedIn) {
     }
 } elseif ($action == 'resendconfirm') {
     // User did not confirm registration or it expired, issue a new registration confirmation request.
-    $userName = getPostOrRequestVar('u');
-    // TODO: 1. verify user-name is in waiting for confirm state. 2. call RegisteredUserResetSecondaryPassword
+    // TODO: 1. verify timestamp 2. verify user-name is in waiting for confirm state. 3. call RegisteredUserResetSecondaryPassword
     $_user_id = getPostOrRequestVar('u', 0);
     $_user_name = getPostOrRequestVar('n', '');
     $_email = getPostOrRequestVar('e', '');
     $_token = getPostOrRequestVar('t', '');
-    $result = $enginesis->RegisteredUserResetSecondaryPassword($userName, $email);
+    $_timestamp = getPostOrRequestVar('d', 0);
+    $result = $enginesis->registeredUserResetSecondaryPassword($_user_id, $_user_name, $_email, $_token);
     $redirectedStatusMessage = $stringTable->lookup(EnginesisUIStrings::REDIRECT_CONFIRM_MESSAGE, null);
 } elseif ($action == 'logout') {
     // User requested Logout.
@@ -576,7 +577,8 @@ if ($action == 'login' && ! $isLoggedIn) {
             $linkToResendToken = createResendConfirmEmailLink($code, $user_user_id, $userName, '', $confirmation_token);
             $redirectedStatusMessage = errorToLocalString($code);
         }
-    } else { // $action == '' || $action == 'completelogin'
+    } else {
+        // $action == '' || $action == 'completelogin'
         $errorCode = getPostOrRequestVar('code', null);
         if ($errorCode != null) {
             $errorMessage = '<p class="text-info">' . $stringTable->lookup($errorCode, null) . '</p>';
@@ -616,22 +618,29 @@ function checkPostedAgreement($parameterKey) {
     return $agreement == 2;
 }
 
-function appendParamIfNotEmpty($params, $key, $value) {
+/**
+ * Append a URL parameter if the value is not empty.
+ */
+function appendParamIfNotEmpty( & $params, $key, $value) {
     if ( ! empty($value)) {
         $params .= '&' . $key . '=' . $value;
     }
     return $params;
 }
 
-function createResendConfirmEmailLink($errorCode, $user_id, $user_name, $email, $confirmation_token) {
+/**
+ * Create a URL that a user can link to in order to resend the confirmation email.
+ */
+function createResendConfirmEmailLink($errorCode, $userId, $userName, $email, $confirmationToken) {
     $regConfirmErrors = [EnginesisErrors::REGISTRATION_NOT_CONFIRMED, EnginesisErrors::INVALID_SECONDARY_PASSWORD, EnginesisErrors::PASSWORD_EXPIRED];
     if (in_array($errorCode, $regConfirmErrors)) {
         $params = '';
-        appendParamIfNotEmpty($params, 'u', $user_id);
-        appendParamIfNotEmpty($params, 'n', $user_name);
+        appendParamIfNotEmpty($params, 'u', $userId);
+        appendParamIfNotEmpty($params, 'n', $userName);
         appendParamIfNotEmpty($params, 'e', $email);
-        appendParamIfNotEmpty($params, 't', $confirmation_token);
-        return '<a href=/profile/?action=resendconfirm' . $params . '>Resend confirmation</a>';
+        appendParamIfNotEmpty($params, 't', $confirmationToken);
+        $params .= '&d=' . time();
+        return '<a href="/profile/?action=resendconfirm' . $params . '">Resend confirmation</a>';
     } else {
         return '';
     }
