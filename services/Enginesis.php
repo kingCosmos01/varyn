@@ -1322,6 +1322,7 @@ class Enginesis {
                 $serverParams['language_code'] = $this->m_languageCode;
             }
         } else {
+            $serverParams['fn'] = $serviceName;
             $serverParams['site_id'] = $this->m_siteId;
             $serverParams['user_id'] = $this->m_userId;
             $serverParams['response'] = $this->m_responseFormat;
