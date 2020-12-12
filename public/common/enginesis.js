@@ -28,7 +28,7 @@
     "use strict";
 
     var enginesis = {
-        VERSION: "2.6.5",
+        VERSION: "2.6.6",
         debugging: true,
         disabled: false, // use this flag to turn off communicating with the server
         isOnline: true,  // flag to determine if we are currently able to reach Enginesis servers
