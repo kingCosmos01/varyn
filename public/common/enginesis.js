@@ -3320,13 +3320,21 @@
     /**
      * this function generates the email that is sent to the email address matching user_id if the secondary password matches.
      * This is used when the secondary password is attempted but expired (such as user lost the reset email).
-     * @param user_id - the user in question.
-     * @param secondary_password - the original secondary password generated in forgot password flow.
-     * @param overRideCallBackFunction
+     *
+     * @param {integer} user_id - the user in question, required if using secondary password flow, optional if using user_name or email_address.
+     * @param {string} user_name - the user in question if you do not know the user_id
+     * @param {string} email_address - identify the user by email address
+     * @param {string} secondary_password - the original secondary password generated in forgot password flow.
+     * @param {function} overRideCallBackFunction
      * @returns {boolean}
      */
-    enginesis.registeredUserResetSecondaryPassword = function (user_id, secondary_password, overRideCallBackFunction) {
-        return sendRequest("RegisteredUserResetSecondaryPassword", {user_id: userid, secondary_password: secondary_password}, overRideCallBackFunction);
+    enginesis.registeredUserResetSecondaryPassword = function (user_id, user_name, email_address, secondary_password, overRideCallBackFunction) {
+        return sendRequest("RegisteredUserResetSecondaryPassword", {
+            user_id: user_id,
+            user_name: user_name,
+            email_address: email_address,
+            secondary_password: secondary_password
+        }, overRideCallBackFunction);
     };
 
     enginesis.registeredUserRequestPasswordChange = function (overRideCallBackFunction) {

@@ -605,6 +605,7 @@ class Enginesis {
         }
         $this->m_serviceHost = $enginesisServiceHost;
         $this->m_serviceProtocol = $protocol;
+        $this->debugInfo("Using host $protocol $enginesisServiceHost", __FILE__, __LINE__);
         return $this->m_serviceHost;
     }
 
@@ -1379,7 +1380,7 @@ class Enginesis {
         $isLocalhost = serverStage() == '-l';
         $url = $this->m_serviceEndPoint;
         $setSSLCertificate = startsWith(strtolower($url), 'https://');
-        $this->debugInfo("Calling $serviceName with " . json_encode($parameters), __FILE__, __LINE__);
+        $this->debugInfo("Calling $serviceName on $url with " . json_encode($parameters), __FILE__, __LINE__);
         $ch = curl_init($url);
         if ($ch) {
             $referrer = $this->m_serviceProtocol . '://' . $this->getServerName() . $this->currentPagePath();
@@ -2135,15 +2136,18 @@ class Enginesis {
 
     /**
      * If the secondary password expires or the user lost it, we come here to generate a new one and send a new email.
-     * site-id, user-id, and previous token must match otherwise generates INVALID_USER_ID error. At least two
-     * of the parameters must be provided to identify the user.
-     * @param $userId
-     * @param $secondaryPassword
-     * @return bool
+     * site-id, one of [userId, userName, email] to identify the user, and previous token must match otherwise
+     * returns INVALID_USER_ID error.
+     *
+     * @param integer $userId
+     * @param string $userName
+     * @param string $email
+     * @param string $secondaryPassword
+     * @return boolean
      */
-    public function registeredUserResetSecondaryPassword ($userId, $secondaryPassword) {
+    public function registeredUserResetSecondaryPassword ($userId, $userName, $email, $secondaryPassword) {
         $service = 'RegisteredUserResetSecondaryPassword';
-        $parameters = ['user_id' => $userId, 'secondary_password' => $secondaryPassword];
+        $parameters = ['user_id' => $userId, 'user_name' => $userName, 'email' => $email, 'secondary_password' => $secondaryPassword];
         $enginesisResponse = $this->callServerAPI($service, $parameters);
         return $this->setLastErrorFromResponse($enginesisResponse);
     }
