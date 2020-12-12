@@ -28,7 +28,7 @@
     "use strict";
 
     var enginesis = {
-        VERSION: "2.6.2",
+        VERSION: "2.6.5",
         debugging: true,
         disabled: false, // use this flag to turn off communicating with the server
         isOnline: true,  // flag to determine if we are currently able to reach Enginesis servers
@@ -513,7 +513,7 @@
                 saveUserSessionInfo(sessionInfo, true);
             } else {
                 enginesis.sessionId = sessionInfo.session_id;
-                enginesis.sessionExpires = Date.now() + (24 * 60 * 60 * 1000); // have it expire in 1 day.    
+                enginesis.sessionExpires = Date.now() + (24 * 60 * 60 * 1000); // have it expire in 1 day.
                 if (sessionInfo.site_mark && sessionInfo.site_mark != enginesis.anonymousUser.userId) {
                     enginesis.anonymousUser.userId = sessionInfo.site_mark;
                     anonymousUserSave();
@@ -3575,7 +3575,7 @@
      * return an answer right away by looking at the cached list of games. If a call back function is
      * provided, the server will be queried for a updated list of favorite games and the test
      * will be done asynchronously.
-     * 
+     *
      * @param {integer} game_id A game id to check, or null/0 to check the current game id.
      * @param {function} callBackFunction If provided, query the server then call this function with the result.
      * @returns {boolean} True if the requested game_id is a favorite game for this user.
