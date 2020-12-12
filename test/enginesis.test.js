@@ -22,7 +22,7 @@ test('Expect enginesis version to be #.#.#', function () {
 test('Expect enginesis isBrowserBuild', function () {
     expect(window).toBeDefined(); // Jest defines the window object
     expect(enginesis.isBrowserBuild).toBeDefined();
-    expect(enginesis.isBrowserBuild).toBeTruthy();
+    expect(enginesis.isBrowserBuild).toBeFalsy(); // running in Node.
 
     expect(process).toBeDefined(); // Node defines the process object
     expect(enginesis.isNodeBuild).toBeDefined();
