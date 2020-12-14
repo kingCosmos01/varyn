@@ -155,12 +155,12 @@ if ($page == 'play') {
     <link href="/common/carousel.css" rel="stylesheet">
     <link href="/common/varyn.css" rel="stylesheet">
     <?php if (isset($gameDiscoveryTag)) { echo($gameDiscoveryTag); } ?>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-41765479-1"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YL1KFE561M"></script>
     <script>
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'UA-41765479-1');
+    gtag('config', 'G-YL1KFE561M');
     </script>
     <script src="/common/head.load.min.js"></script>
 </head>
