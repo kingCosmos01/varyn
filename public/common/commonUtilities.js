@@ -15,6 +15,7 @@
 (function commonUtilities (global) {
     "use strict";
 
+    /** @exports commonUtilities */
     var commonUtilities = {
         version: "1.3.1"
     },
@@ -23,9 +24,10 @@
 
     /**
      * Private function to validate HTML5 local or session storage.
-     * @param storageType - either localStorage or sessionStorage, default is localStorage
-     * @param robustCheck - true for the more robust but un-performant test
-     * @returns {boolean} - true if supported.
+     * @access private
+     * @param {string} storageType - either "localStorage" or "sessionStorage", default is "localStorage".
+     * @param {boolean} robustCheck - true for the more robust but un-performant test.
+     * @returns {boolean} True if the storage type is supported.
      */
     function browserStorageAvailable (storageType, robustCheck) {
         var hasSupport = false,
@@ -50,19 +52,22 @@
     }
 
     /**
-     * Return the provided object as a string in key: value; format.
+     * Return the provided object represented as a string in "key: value;" format. Typically
+     * used for debug and user display. For serialization it is preferred to convert
+     * objects to JSON.
      *
-     * @param {object} obj The object to convert to a string representation.
+     * @access public
+     * @param {object} object The object to convert to a string representation.
      * @return {string} string The object converted to a string representation.
      */
-    commonUtilities.objectToString = function (obj) {
+    commonUtilities.objectToString = function (object) {
         var result,
             prop;
-        if (obj) {
+        if (object) {
             result = "";
-            for (prop in obj) {
-                if (obj.hasOwnProperty(prop)) {
-                    result += (result.length > 0 ? " " : "") + prop + ": " + obj[prop] + ";";
+            for (prop in object) {
+                if (object.hasOwnProperty(prop)) {
+                    result += (result.length > 0 ? " " : "") + prop + ": " + object[prop] + ";";
                 }
             }
         } else {
@@ -435,22 +440,32 @@
     };
 
     /**
-     * Convert any string into a string that can be used as a DOM id (aka slug). For example, the string
+     * Convert any string into a string that can be used as a DOM id (aka slug). Rules:
+     *   * Only allow A-Z, a-z, 0-9, dash, space.
+     *   * Trim any leading or trailing space.
+     *   * Only lowercase characters.
+     *   * Max length 50.
+     *
+     * For example, the string
      *    "This is   +a TEST" is changed to "this-is-a-test". Spaces and multiple spaces change
      *    to -, special chars are removed, and the string is all lowercase.
      *
-     * @param {string} label the string to consider.
-     * @returns {string} the converted string.
+     * @param {string} label A string to consider.
+     * @returns {string} The converted string.
      */
     commonUtilities.makeSafeForId = function (label) {
-        if (label !== null && label.length > 0) {
-            return label.replace(/-/g, " ").replace(/[^\w\s]/g, "").replace(/\s\s+/g, " ").replace(/\s/g, "-").toLowerCase();
-        } else {
-            if (typeof label === "number") {
-                return label.toString();
+        if (typeof label !== "string") {
+            if (label !== undefined && label !== null) {
+                label = label.toString();
             } else {
-                return "id";
+                label = "id";
             }
+        }
+        label = label.trim();
+        if (label.length > 0) {
+            return label.replace(/-/g, " ").replace(/[^\w\s]/g, "").replace(/\s\s+/g, " ").replace(/\s/g, "-").toLowerCase().substr(0, 50);
+        } else {
+            return "id";
         }
     };
 
@@ -1092,20 +1107,6 @@
             return allowed.indexOf("<" + $1.toLowerCase() + ">") > -1 ? $0 : ""
         });
     };
-
-    /**
-     * Convert a string to a "slug". The result string can be used as a DOM id, a path part, or a safe string.
-     * Rules:
-     *   * Only allow A-Z, a-z, 0-9, dash, space.
-     *   * Trim any leading or trailing space.
-     *   * Only lowercase characters.
-     *   * Max length 50.
-     * @param string {string} A string to process.
-     * @return {string} Result string.
-     */
-    commonUtilities.stringToSlug = function (string) {
-        return string.replace(/[^ \w-]/g, '').trim().replace(/\s+/g, '-').toLowerCase().substr(0, 50);
-    }
 
     /**
      * Determine if a string looks like a valid email address.
