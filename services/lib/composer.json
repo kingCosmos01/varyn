@@ -1,8 +1,10 @@
 {
     "require": {
-        "mailgun/mailgun-php": "^3.0",
+        "mailgun/mailgun-php": "^3.2",
         "facebook/graph-sdk": "^5.7",
         "php-http/guzzle6-adapter": "^2.0",
-        "php-http/message": "^1.8"
+        "php-http/message": "^1.8",
+        "kriswallsmith/buzz": "^1.2",
+        "nyholm/psr7": "^1.3"
     }
 }

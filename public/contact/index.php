@@ -9,30 +9,45 @@ $showSubscribe = getPostOrRequestVar('s', '0');
 // These variables should only be accepted via POST:
 $send = strtolower(getPostVar('send', ''));
 $name = getPostVar('name', '');
-$email = getPostVar('email', '');
+$emailFrom = getPostVar('email', '');
 $message = getPostVar('message', '');
 $honeypot = getPostVar('industry', '');
-$timestamp = getPostVar('accept', 0);
+$timestamp = intval(getPostVar('accept', 0));
 $errorMessage = '';
 $errCode = '';
 $messageSent = false;
 $serverStage = $enginesis->getServerStage();
+$emailTo = $admin_notification_list[0];
+$emailSubject= 'Contact form from varyn.com';
 
 /**
  * Validate the info provided by the user and make sure it is something we can accept.
- * @return {boolean} true if acceptable, otherwise false.
+ * @return boolean true if acceptable, otherwise false.
  */
-function validateMessageParameters ($name, $email, $message) {
+function validateMessageParameters ($name, $emailFrom, $message) {
     $isValidName = (strlen($name) > 0) && (strlen($name) < 51);
-    $isValidEmail = checkEmailAddress($email);
+    $isValidEmail = checkEmailAddress($emailFrom);
     $isValidMessage = strlen($message) > 0 && strlen($message) < 351;
     return $isValidName && $isValidEmail && $isValidMessage;
 }
 
 /**
+ * Get information about the logged in user to include in the message.
+ * @return string If there is a logged in user, something we know to identify this user, otherwise an empty string.
+ */
+function getLoggedInUserInfo() {
+    global $enginesis;
+    $userInfo = '';
+    if (isset($enginesis) && $enginesis->isLoggedInUser()) {
+        $userInfo = $enginesis->getUserName() . ' {' . $enginesis->getSiteId() . ':' . $enginesis->getUserId() . '}';
+    }
+    return $userInfo;
+}
+
+/**
  * Verify the timestamp is valid and the honeypot is valid.
  * We expect the honeypot to be empty and the timestamp to be within 4 hours.
- * @return {boolean} true if acceptable, false if unacceptable.
+ * @return boolean true if acceptable, false if unacceptable.
  */
 function validateHoneyPot($timestamp, $honeypot) {
     $timeNow = time();
@@ -47,14 +62,17 @@ function validateHoneyPot($timestamp, $honeypot) {
 include_once(VIEWS_ROOT . 'header.php');
 if ($send == 'send') {
     $message = cleanString(strip_tags($message));
-    if (validateMessageParameters($name, $email, $message)) {
+    if (validateMessageParameters($name, $emailFrom, $message)) {
         if (validateHoneyPot($timestamp, $honeypot)) {
             require_once('../../services/EnginesisMailer.php');
             $message = "The following message was submitted on the contact form on Varyn.com $serverStage\n\n$message";
-            $enginesisMailer = new EnginesisMailer($email, 'support@varyn.com', 'Contact form from varyn.com', $message);
+            $userInfo = getLoggedInUserInfo();
+            if ($userInfo != '') {
+                $message .= "\n\nUser logged in as $userInfo";
+            }
+            $enginesisMailer = new EnginesisMailer($siteId, 0, $emailFrom, $emailTo, $emailSubject, $message);
             $enginesisMailer->setServerStage($serverStage);
             $enginesisMailer->setFromName($name);
-            $enginesisMailer->setLogger('debugLog');
             $errCode = $enginesisMailer->send();
             if ($errCode != '') {
                 $errorMessage = "There was an issue trying to send your message ($errCode). The issue has been logged with technical support. Please try again later.<br/>" . $enginesisMailer->getExtendedStatusInfo();
@@ -63,11 +81,11 @@ if ($send == 'send') {
             $messageSent = true;
         } else {
             $messageSent = true;
-            debugLog("Contact form fails on honeypot/timestamp by hacker " . $email);
+            debugLog("Contact form fails on honeypot/timestamp by hacker " . $emailFrom);
         }
     } else {
         $errorMessage = "There was an issue with your message: please check your entry and try again.";
-        debugLog("Contact form fails on name/email/message by hacker " . $email);
+        debugLog("Contact form fails on name/email/message by hacker " . $emailFrom);
     }
 }
 $timestamp = time();

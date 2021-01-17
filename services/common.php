@@ -1381,13 +1381,13 @@ function MySQLDateToHumanDate ($mysqlDate) {
 function HumanDateToMySQLDate ($humanDate) {
     // Convert mm/dd/yyyy into yyyy-mm-dd
     $dateParts = explode('/', $humanDate, 3);
-    if(strlen($dateParts[0]) < 2) {
+    if (strlen($dateParts[0]) < 2) {
         $dateParts[0] = '0' . $dateParts[0];
     }
-    if(strlen($dateParts[1]) < 2) {
+    if (strlen($dateParts[1]) < 2) {
         $dateParts[1] = '0' . $dateParts[1];
     }
-    if(strlen($dateParts[2]) < 3) {
+    if (strlen($dateParts[2]) < 3) {
         if ((int) $dateParts[2] < 76) { // we are having Y2K issues
             $dateParts[2] = '20' . $dateParts[2];
         } else {
@@ -1722,5 +1722,8 @@ if ($isLoggedIn) {
 } else {
     $userId = 0;
     $authToken = '';
+}
+if (isset($_MAIL_HOSTS)) {
+    ini_set('SMTP', $_MAIL_HOSTS[$serverStage]['host']);
 }
 processTrackBack();

@@ -149,15 +149,18 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
         },
 
         setupUserNameChangeHandler: function () {
-            $('#register_form_username').on('change', varynApp.onChangeRegisterUserName.bind(varynApp));
-            $('#register_form_username').on('input', varynApp.onChangeRegisterUserName.bind(varynApp));
-            $('#register_form_username').on('propertychange', varynApp.onChangeRegisterUserName.bind(varynApp));
-            varynApp.setupRegisterUserNameOnChangeHandler();
-            varynApp.onChangeRegisterUserName($('#register_form_username').get(0), 'register_user_name_unique'); // in case field is pre-populated
-            var emailFormField = document.getElementById("register_form_email");
-            if (emailFormField != null) {
-                emailFormField.addEventListener("change", varynApp.onChangeEmail.bind(varynApp));
-                emailFormField.addEventListener("input", varynApp.onChangeEmail.bind(varynApp));
+            var registerFormUserName = document.getElementById("register_form_username");
+            if (registerFormUserName != null) {
+                registerFormUserName.addEventListener("change", varynApp.onChangeRegisterUserName.bind(varynApp));
+                registerFormUserName.addEventListener("input", varynApp.onChangeRegisterUserName.bind(varynApp));
+                registerFormUserName.addEventListener("propertychange", varynApp.onChangeRegisterUserName.bind(varynApp));
+                varynApp.setupRegisterUserNameOnChangeHandler();
+                varynApp.onChangeRegisterUserName(registerFormUserName, 'register_user_name_unique'); // in case field is pre-populated
+                var emailFormField = document.getElementById("register_form_email");
+                if (emailFormField != null) {
+                    emailFormField.addEventListener("change", varynApp.onChangeEmail.bind(varynApp));
+                    emailFormField.addEventListener("input", varynApp.onChangeEmail.bind(varynApp));
+                }
             }
         },
 

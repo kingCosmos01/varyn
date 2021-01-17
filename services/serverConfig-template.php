@@ -33,7 +33,7 @@ $_MEMCACHE_HOSTS = [
 ];
 
 // Define a list of email addresses who will get notifications of internal bug reports
-$admin_notification_list = ['support@puttputtplanet.com'];
+$admin_notification_list = ['support@varyn.com'];
 
 // API Keys for the website app
 $socialServiceKeys = [
@@ -41,6 +41,14 @@ $socialServiceKeys = [
     7  => ['service' => 'Google',   'app_id' => '', 'app_secret' => '', 'admins' =>''],
     11 => ['service' => 'Twitter',  'app_id' => '', 'app_secret' => '', 'admins' =>''],
     14 => ['service' => 'Apple',    'app_id' => '', 'app_secret' => '', 'admins' =>'']
+];
+
+$_MAIL_HOSTS = [
+    '-l' => ['domain' => '', 'host' => '', 'port' => 465, 'ssl' => true, 'tls' => true, 'user' => '', 'password' => '', 'apikey' => ''],
+    '-d' => ['domain' => '', 'host' => '', 'port' => 465, 'ssl' => true, 'tls' => true, 'user' => '', 'password' => '', 'apikey' => ''],
+    '-q' => ['domain' => '', 'host' => '', 'port' => 465, 'ssl' => true, 'tls' => true, 'user' => '', 'password' => '', 'apikey' => ''],
+    '-x' => ['domain' => '', 'host' => '', 'port' => 465, 'ssl' => true, 'tls' => true, 'user' => '', 'password' => '', 'apikey' => ''],
+    ''   => ['domain' => '', 'host' => '', 'port' => 465, 'ssl' => true, 'tls' => true, 'user' => '', 'password' => '', 'apikey' => '']
 ];
 
 $developerKey = ENGINESIS_DEVELOPER_API_KEY;

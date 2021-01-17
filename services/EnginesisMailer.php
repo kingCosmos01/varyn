@@ -136,10 +136,10 @@ class EnginesisMailer {
             $this->setToEmail($recipientList);
         }
         $this->setSubject($emailSubject);
-        if ($textBody != null && $textBody != '') {
+        if (!empty($textBody)) {
             $this->setTextMessage($textBody);
         }
-        if ($htmlBody != null && $htmlBody != '') {
+        if (!empty($htmlBody)) {
             $this->setHTMLMessage($htmlBody);
         }
         $this->setStatus(EnginesisErrors::NO_ERROR, '');
@@ -175,7 +175,7 @@ class EnginesisMailer {
 
     /**
      * Send email if the user is authenticated, using the user's name, email as from.
-     * TODO: Note yet implemented.
+     * TODO: Note yet implemented. Requires verifying the logged in user.
      * 
      * @return string send status, EnginesisErrors::NO_ERROR if OK, otherwise error id.
      */
@@ -308,7 +308,7 @@ class EnginesisMailer {
         $this->setStatus(EnginesisErrors::NO_ERROR, '');
         $mailConfig = $this->m_mailConfig;
         $thisServer = '';
-        $mailGun = new Mailgun($mailConfig['apikey']);
+        $mailGun = Mailgun::create($mailConfig['apikey']);
         if ($mailGun != null) {
             if (! $this->canSendEmail()) {
                 return $this->setStatus(EnginesisErrors::SEND_DISABLED, 'This server is not configured to send email.');
@@ -317,9 +317,9 @@ class EnginesisMailer {
             $from = $this->getFromName() . ' <' . $this->m_fromEmail . '>';
             if ( ! empty($message)) {
                 if ($useHTML) {
-                    $this->setHTMLMessage($htmlBody);
+                    $this->setHTMLMessage($message);
                 } else {
-                    $this->setTextMessage($textBody);
+                    $this->setTextMessage($message);
                 }
             }
             $mailParameters = [
@@ -334,32 +334,19 @@ class EnginesisMailer {
             try {
                 foreach ($this->m_toList as $toAddress) {
                     $mailParameters['to'] = $toAddress;
-                    $result = $mailGun->sendMessage($mailDomain, $mailParameters);
-                    if ($result && isset($result->http_response_code)) {
-                        if ($result->http_response_code != 200) {
-                            $resultStr = json_encode($result);
-                            $this->setStatus(EnginesisErrors::SYSTEM_ERROR, $resultStr);
-                            $this->log("SendTextEmailViaMailGun error " . $resultStr . " sending to $toAddress through $mailDomain", LogMessageLevel::Error, $this->m_mailLogCategory, __FILE__, __LINE__);
-                        } else {
-                            if (isset($result->http_response_body) && isset($result->http_response_body)) {
-                                $this->m_emailId = $result->http_response_body->id;
-                            }
-                            $this->setStatus(EnginesisErrors::NO_ERROR, '');
-                            $this->logSuccessfulSend($toAddress);
-                        }
-                    } else {
-                        $errorMessage = "SendTextEmailViaMailGun error NO RESPONSE sending to $mailDomain on stage $thisServer";
-                        $this->setStatus(EnginesisErrors::SEND_ERROR, $errorMessage);
-                        $this->log($errorMessage, LogMessageLevel::Error, $this->m_mailLogCategory, __FILE__, __LINE__);
-                    }
+                    $this->log("SendEmailViaMailGun parameters " . json_encode($mailParameters), LogMessageLevel::Info, $this->m_mailLogCategory, __FILE__, __LINE__);
+                    $sendResponse = $mailGun->messages()->send($mailDomain, $mailParameters);
+                    // $sendResponse is message and id
+                    $this->log("SendEmailViaMailGun result " . json_encode($sendResponse), LogMessageLevel::Info, $this->m_mailLogCategory, __FILE__, __LINE__);
+                    $this->logSuccessfulSend($toAddress);
                 }
             } catch (Exception $e) {
-                $errorMessage = "SendTextEmailViaMailGun error $e on $thisServer sending to $mailDomain";
+                $errorMessage = "SendEmailViaMailGun error $e on $thisServer sending to $mailDomain";
                 $this->setStatus(EnginesisErrors::SEND_ERROR, $errorMessage);
                 $this->log($errorMessage, LogMessageLevel::Error, $this->m_mailLogCategory, __FILE__, __LINE__);
             }
         } else {
-            $errorMessage = "SendTextEmailViaMailGun Cannot open connection to MailGun Service on $thisServer";
+            $errorMessage = "SendEmailViaMailGun Cannot open connection to MailGun Service on $thisServer";
             $this->setStatus(EnginesisErrors::SEND_ERROR, $errorMessage);
                 $this->log($errorMessage, LogMessageLevel::Error, $this->m_mailLogCategory, __FILE__, __LINE__);
         }
@@ -382,7 +369,7 @@ class EnginesisMailer {
         $thisServer = '';
         $mailDomain = $mailConfig['domain'];
         $from = $this->getFromName() . ' <' . $this->m_fromEmail . '>';
-        $mailGun = new Mailgun($mailConfig['apikey']);
+        $mailGun = Mailgun::create($mailConfig['apikey']);
         if ($mailGun != null) {
             if (! $this->canSendEmail()) {
                 return $this->setStatus(EnginesisErrors::SYSTEM_ERROR, 'This server is not configured to send email.');
@@ -402,24 +389,11 @@ class EnginesisMailer {
                         'html'    => $this->getHTMLMessage(),
                         'text'    => $this->getTextMessage()
                     ];
-                    $result = $mailGun->sendMessage($mailDomain, $parameters);
-                    if ($result && isset($result->http_response_code)) {
-                        if ($result->http_response_code != 200) {
-                            $resultStr = json_encode($result);
-                            $this->setStatus(EnginesisErrors::SEND_ERROR, $resultStr);
-                            $this->log("SendMultipartEmailViaMailGun error " . $resultStr . " sending to $toAddress through $mailDomain", LogMessageLevel::Error, $this->m_mailLogCategory, __FILE__, __LINE__);
-                        } else {
-                            if (isset($result->http_response_body) && isset($result->http_response_body)) {
-                                $this->m_emailId = $result->http_response_body->id;
-                            }
-                            $this->setStatus(EnginesisErrors::NO_ERROR, '');
-                            $this->logSuccessfulSend($toAddress);
-                        }
-                    } else {
-                        $errorMessage = "SendMultipartEmailViaMailGun error NO RESPONSE sending to $mailDomain on stage $thisServer";
-                        $this->setStatus(EnginesisErrors::SEND_ERROR, $errorMessage);
-                        $this->log($errorMessage, LogMessageLevel::Error, $this->m_mailLogCategory, __FILE__, __LINE__);
-                    }
+                    $this->log("SendMultipartEmailViaMailGun parameters " . json_encode($parameters), LogMessageLevel::Info, $this->m_mailLogCategory, __FILE__, __LINE__);
+                    $sendResponse = $mailGun->messages()->send($mailDomain, $parameters);
+                    // $sendResponse is message and id
+                    $this->log("SendMultipartEmailViaMailGun result " . json_encode($sendResponse), LogMessageLevel::Info, $this->m_mailLogCategory, __FILE__, __LINE__);
+                    $this->logSuccessfulSend($toAddress);
                 }
             } catch (Exception $e) {
                 $errorMessage = "SendMultipartEmailViaMailGun error $e on $thisServer sending to $mailDomain";
@@ -512,6 +486,9 @@ class EnginesisMailer {
         }
         $email_notification_type_id = $this->m_emailNotificationTypeId;
         $this->log("Mail sent site=$site_id, user=$user_id, from=$from, to=$toAddress, type=$email_notification_type_id, parameters=$email_parameters", LogMessageLevel::Info, $this->m_mailLogCategory, __FILE__, __LINE__);
+        if ( ! defined('DATABASE_ENGINESIS')) {
+            return $this->m_status;
+        }
         $databaseConnection = Database::getDatabaseConnection(DATABASE_ENGINESIS);
         if ($databaseConnection->isValid()) {
             $status = 0;
@@ -794,6 +771,9 @@ class EnginesisMailer {
      */
     private function queryUserNameAndEmail() {
         $userData = null;
+        if ( ! defined('DATABASE_ENGINESIS')) {
+            return null;
+        }
         $databaseConnection = Database::getDatabaseConnection(DATABASE_ENGINESIS);
         if ($databaseConnection->isValid()) {    
             $sql = 'select email_address, user_name from users where site_id=? and user_id=?';
@@ -1035,6 +1015,9 @@ class EnginesisMailer {
     public function sendEmailNotification($game_id, $parameters) {
         global $site_data;
 
+        if ( ! defined('DATABASE_ENGINESIS')) {
+            return EnginesisErrors::DATABASE_CONNECT_ERROR;
+        }
         $errorCode = EnginesisErrors::NO_ERROR;
         $errorMessage = '';
         $this->setStatus($errorCode, $errorMessage);
