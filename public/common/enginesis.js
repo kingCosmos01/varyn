@@ -20,7 +20,7 @@
 
     /** @exports enginesis */
     var enginesis = {
-        VERSION: "2.6.7",
+        VERSION: "2.6.8",
         debugging: true,
         disabled: false, // use this flag to turn off communicating with the server
         isOnline: true,  // flag to determine if we are currently able to reach Enginesis servers
@@ -1798,7 +1798,7 @@
             subscriberEmail: "",
             userId: 0,
             userName: "",
-            favoriteGames: new Set(),
+            favoriteGames: null,
             gamesPlayed: new Set(),
             cr: ""
         };
@@ -1820,7 +1820,8 @@
                     enginesis.anonymousUser = anonymousUserInitialize();
                 }
                 if (Array.isArray(enginesis.anonymousUser.favoriteGames)) {
-                    enginesis.anonymousUser.favoriteGames = new Set(enginesis.anonymousUser.favoriteGames);
+                    enginesis.favoriteGames = new Set(enginesis.anonymousUser.favoriteGames);
+                    enginesis.anonymousUser.favoriteGames = null;
                 }
                 if (Array.isArray(enginesis.anonymousUser.gamesPlayed)) {
                     enginesis.anonymousUser.gamesPlayed = new Set(enginesis.anonymousUser.gamesPlayed);
@@ -1836,11 +1837,11 @@
     function anonymousUserSave() {
         if (enginesis.anonymousUser != null) {
             var anonymousUser = enginesis.anonymousUser;
-            anonymousUser.favoriteGames = Array.from(anonymousUser.favoriteGames);
+            anonymousUser.favoriteGames = Array.from(enginesis.favoriteGames);
             anonymousUser.gamesPlayed = Array.from(anonymousUser.gamesPlayed);
             anonymousUser.cr = anonymousUserHash();
             saveObjectWithKey(enginesis.anonymousUserKey, anonymousUser);
-            anonymousUser.favoriteGames = new Set(anonymousUser.favoriteGames);
+            anonymousUser.favoriteGames = null;
             anonymousUser.gamesPlayed = new Set(anonymousUser.gamesPlayed);
         }
     }
@@ -3897,7 +3898,7 @@
         game_id = parseInt(game_id, 10) || enginesis.gameId;
         var isFavorite = enginesis.favoriteGames.has(game_id);
         if (typeof callBackFunction === "function" && enginesis.favoriteGamesNextCheck < Date.now()) {
-            sendRequest("UserFavoriteGamesList", {}, null)
+            enginesis.userFavoriteGamesList()
             .then(function(enginesisResult) {
                 callBackFunction(game_id, enginesis.favoriteGames.has(game_id));
             });
@@ -3911,7 +3912,7 @@
      * @returns {Promise}
      */
     enginesis.userFavoriteGamesList = function (overRideCallBackFunction) {
-        // @todo: wait until timer expires? Or do it now because called wants it now?
+        // @todo: wait until timer expires? Or do it now because caller wants it now?
         // if (enginesis.favoriteGamesNextCheck < Date.now()) {
         enginesis.favoriteGamesNextCheck = Date.now() + 60000;
         return sendRequest("UserFavoriteGamesList", {}, overRideCallBackFunction);
@@ -3926,7 +3927,18 @@
     enginesis.userFavoriteGamesAssign = function(game_id, overRideCallBackFunction) {
         game_id = game_id || enginesis.gameId;
         enginesis.favoriteGames.add(game_id);
-        return sendRequest("UserFavoriteGamesAssign", {game_id: game_id}, overRideCallBackFunction);
+        var serviceName = "UserFavoriteGamesAssign";
+        var serviceParameters = {
+            game_id: game_id
+        };
+        if ( ! enginesis.isUserLoggedIn()) {
+            var errorCode = "NOT_AUTHENTICATED";
+            var errorMessage = "You must log in to update your favorite games.";
+            anonymousUserSave();
+            return immediateErrorResponse(serviceName, serviceParameters, errorCode, errorMessage, overRideCallBackFunction)
+        } else {
+            return sendRequest(serviceName, serviceParameters, overRideCallBackFunction);
+        }
     };
 
     /**
@@ -3940,7 +3952,19 @@
         for (var i = 0; i < gameIdList.length; i ++) {
             enginesis.favoriteGames.add(gameIdList[i]);
         }
-        return sendRequest("UserFavoriteGamesAssignList", {game_id_list: game_id_list, delimiter: ','}, overRideCallBackFunction);
+        var serviceName = "UserFavoriteGamesAssignList";
+        var serviceParameters = {
+            game_id_list: game_id_list,
+            delimiter: ','
+        };
+        if ( ! enginesis.isUserLoggedIn()) {
+            var errorCode = "NOT_AUTHENTICATED";
+            var errorMessage = "You must log in to update your favorite games.";
+            anonymousUserSave();
+            return immediateErrorResponse(serviceName, serviceParameters, errorCode, errorMessage, overRideCallBackFunction)
+        } else {
+            return sendRequest(serviceName, serviceParameters, overRideCallBackFunction);
+        }
     };
 
     /**
@@ -3952,7 +3976,18 @@
     enginesis.userFavoriteGamesUnassign = function(game_id, overRideCallBackFunction) {
         game_id = game_id || enginesis.gameId;
         enginesis.favoriteGames.delete(game_id);
-        return sendRequest("UserFavoriteGamesUnassign", {game_id: game_id}, overRideCallBackFunction);
+        var serviceName = "UserFavoriteGamesUnassign";
+        var serviceParameters = {
+            game_id: game_id
+        };
+        if ( ! enginesis.isUserLoggedIn()) {
+            var errorCode = "NOT_AUTHENTICATED";
+            var errorMessage = "You must log in to update your favorite games.";
+            anonymousUserSave();
+            return immediateErrorResponse(serviceName, serviceParameters, errorCode, errorMessage, overRideCallBackFunction)
+        } else {
+            return sendRequest(serviceName, serviceParameters, overRideCallBackFunction);
+        }
     };
 
     /**
@@ -3966,7 +4001,19 @@
         for (var i = 0; i < gameIdList.length; i ++) {
             enginesis.favoriteGames.delete(gameIdList[i]);
         }
-        return sendRequest("UserFavoriteGamesUnassignList", {game_id_list: game_id_list, delimiter: ','}, overRideCallBackFunction);
+        var serviceName = "UserFavoriteGamesUnassignList";
+        var serviceParameters = {
+            game_id_list: game_id_list,
+            delimiter: ','
+        };
+        if ( ! enginesis.isUserLoggedIn()) {
+            var errorCode = "NOT_AUTHENTICATED";
+            var errorMessage = "You must log in to update your favorite games.";
+            anonymousUserSave();
+            return immediateErrorResponse(serviceName, serviceParameters, errorCode, errorMessage, overRideCallBackFunction)
+        } else {
+            return sendRequest(serviceName, serviceParameters, overRideCallBackFunction);
+        }
     };
 
     /**

@@ -1391,25 +1391,21 @@ var varyn = function (parameters) {
         favoriteButtonClicked: function(buttonElement) {
             if (buttonElement) {
                 var gameId = parseInt(buttonElement.dataset.gameid);
-                if (gameId) {
+                if (gameId > 0) {
                     var isFavorite = buttonElement.dataset.favorite == "true";
                     if (isFavorite) {
                         enginesisSession.userFavoriteGamesUnassign(gameId, function (response) {
-                            var favoriteGameList = response.results.result;
                             var errorCode = response.results.status.message;
-                            if (errorCode == "" && ! enginesisSession.isUserFavoriteGame(gameId)) {
-                                varynApp.setFavoriteGameButton(buttonElement, ! isFavorite);
-                            } else {
-                                // TODO: Error
-                            }
+                            // @TODO: not much we can do here if we get an error, but log it anyway.
+                            console.log("Enginesis error " + errorCode + " for favoriteGamesUnassign");
+                            varynApp.setFavoriteGameButton(buttonElement, enginesisSession.isUserFavoriteGame(gameId));
                         });
                     } else {
                         enginesisSession.userFavoriteGamesAssign(gameId, function (response) {
-                            var favoriteGameList = response.results.result;
                             var errorCode = response.results.status.message;
-                            if (errorCode == "" && enginesisSession.isUserFavoriteGame(gameId)) {
-                                varynApp.setFavoriteGameButton(buttonElement, ! isFavorite);
-                            }
+                            // @TODO: not much we can do here if we get an error, but log it anyway.
+                            console.log("Enginesis error " + errorCode + " for favoriteGamesAssign");
+                            varynApp.setFavoriteGameButton(buttonElement, enginesisSession.isUserFavoriteGame(gameId));
                         });
                     }
                 }
@@ -1488,11 +1484,11 @@ var varyn = function (parameters) {
         gameListGamesResponse: function (results, elementId, maxItems, sortProperty) {
             // results is an array of games
             var i,
+                varynPageContext = this,
                 adsShownCounter,
                 gameItem,
                 gamesContainer = document.getElementById(elementId),
-                newDiv,
-                itemHtml,
+                gameModule,
                 countOfGamesShown = 0,
                 baseURL = document.location.protocol + "//" + enginesisSession.serverBaseUrlGet() + "/games/",
                 isTouchDevice = enginesisSession.isTouchDevice(),
@@ -1502,7 +1498,7 @@ var varyn = function (parameters) {
 
             if (results != null && results.length > 0 && gamesContainer != null) {
                 if (sortProperty) {
-                    results.sort(this.compareTitle);
+                    results.sort(varynPageContext.compareTitle);
                 }
                 if (maxItems == null || maxItems < 1) {
                     maxItems = results.length;
@@ -1512,29 +1508,33 @@ var varyn = function (parameters) {
                 for (i = 0; i < results.length && countOfGamesShown < maxItems; i ++) {
                     gameItem = results[i];
                     if (isTouchDevice && ! (gameItem.game_plugin_id == "10" || gameItem.game_plugin_id == "9")) {
-                        continue; // only show HTML5 or embed games on touch devices
+                        // only show HTML5 or embed games on touch devices
+                        continue;
                     }
                     countOfGamesShown ++;
-                    isFavorite = enginesisSession.isUserFavoriteGame(gameItem.game_id, function(response) {
-                        console.log(JSON.stringify(response));
+                    gameModule = document.createElement('div');
+                    gameModule.className = "col-sm-6 col-md-4";
+                    isFavorite = enginesisSession.isUserFavoriteGame(gameItem.game_id, function(gameId, isFavorite) {
+                        console.log("Game ID " + gameId + " favorite: " + (isFavorite ? "YES" : "NO"));
+                        var imgElement = gameModule.querySelector("img.favorite-button");
+                        if (imgElement != null) {
+                            varynPageContext.setFavoriteGameButton(imgElement, isFavorite);
+                        }
                     });
-                    itemHtml = this.makeGameModule(gameItem.game_id, gameItem.title, gameItem.short_desc, baseURL + gameItem.game_name + "/images/300x225.png", "/play/?id=" + gameItem.game_id, isFavorite);
-                    newDiv = document.createElement('div');
-                    newDiv.className = "col-sm-6 col-md-4";
-                    newDiv.innerHTML = itemHtml;
-                    gamesContainer.appendChild(newDiv);
+                    gameModule.innerHTML = varynPageContext.makeGameModule(gameItem.game_id, gameItem.title, gameItem.short_desc, baseURL + gameItem.game_name + "/images/300x225.png", "/play/?id=" + gameItem.game_id, isFavorite);
+                    gamesContainer.appendChild(gameModule);
                     if (adsShownCounter < numberOfAdSpots && i + 1 == adsDisplayPositions[adsShownCounter]) {
                         // Time to show an ad module
                         adsShownCounter ++;
-                        newDiv = document.createElement('div');
-                        newDiv.className = "col-sm-6 col-md-4";
+                        gameModule = document.createElement('div');
+                        gameModule.className = "col-sm-6 col-md-4";
                         if (adsShownCounter == 1) {
-                            newDiv.innerHTML = this.makeCouponModule();
+                            gameModule.innerHTML = varynPageContext.makeCouponModule();
                         } else {
-                            newDiv.innerHTML = this.makeAdModule();
+                            gameModule.innerHTML = varynPageContext.makeAdModule();
                         }
-                        newDiv.id = 'AdSpot' + adsShownCounter;
-                        gamesContainer.appendChild(newDiv);
+                        gameModule.id = 'AdSpot' + adsShownCounter;
+                        gamesContainer.appendChild(gameModule);
                     }
                 }
             // } else {
