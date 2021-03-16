@@ -299,7 +299,7 @@ if ($action == 'login' && ! $isLoggedIn) {
             $userInfo = $enginesis->registeredUserGetEx($userId);
             if ($userInfo == null) {
                 // TODO: Need to handle any errors by looking at the error code returned from the server, showing a proper error message, and putting focus in the relevant field
-                $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::SYSTEM_ERROR) . ' ' . $enginesis->getLastErrorDescription() . '</p>';
+                $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisErrors::SYSTEM_ERROR) . ' ' . $enginesis->getLastErrorDescription() . '</p>';
             } else {
                 // [user_id] => 10241 [site_id] => 106 [user_name] => varyn2 [real_name] => varyn2 [site_user_id] => [dob] => 2004-04-10 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-04-10 20:07:55 [date_updated] => [source_site_id] => 106 [last_login] => 2016-04-16 14:09:27 [login_count] => 24 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 2 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [friend_count] => 0 [comment_count] => 0 [notification_count] => 0 ) ) [outparams] => Array ( ) [status] => stdClass Object ( [success] => 1 [message] => ) [passthru] => stdClass Object ( [fn] => RegisteredUserGetEx [site_id] => 106 [logged_in_user_id] => 10241 [get_user_id] => NULL [site_user_id] => NULL [language_code] => en [state_seq] => 1 ) ) ) stdClass Object ( [user_id] => 10241 [site_id] => 106 [user_name] => varyn2 [real_name] => varyn2 [site_user_id] => [dob] => 2004-04-10 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-04-10 20:07:55 [date_updated] => [source_site_id] => 106 [last_login] => 2016-04-16 14:09:27 [login_count] => 24 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 2 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [friend_count] => 0 [comment_count] => 0 [notification_count] => 0
                 $showRegistrationForm = true;
@@ -320,7 +320,7 @@ if ($action == 'login' && ! $isLoggedIn) {
                     $securityAnswer = $securityInfo->security_answer;
                 } else {
                     // TODO: error handle if the API fails. This is probably a soft error as the user update was ok.
-                    $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::SYSTEM_ERROR) . ' ' . $enginesis->getLastErrorDescription() . '</p>';
+                    $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisErrors::SYSTEM_ERROR) . ' ' . $enginesis->getLastErrorDescription() . '</p>';
                 }
             }
         } else {
@@ -560,7 +560,7 @@ if ($action == 'login' && ! $isLoggedIn) {
     if ($action == 'regconfirm') {
         // redirect from regconfirm.php so we can display the error message
         $code = getPostOrRequestVar('code', '');
-        if ($code == 'SUCCESS' || $code == '') {
+        if ($code == 'NO_ERROR' || $code == 'SUCCESS' || $code == '') {
             $redirectedStatusMessage = $stringTable->lookup(EnginesisUIStrings::WELCOME_MESSAGE, null);
             // TODO: Verify the cookie/token matches this user
             // TODO: There should be a safeguard if a hacker comes with action+code but is really not the user we think he is spoofing

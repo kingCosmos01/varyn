@@ -8,3 +8,6 @@
 require_once('../../services/common.php');
 setErrorReporting(true);
 debugLog('deauth called with ' . implode(',', $_POST));
+$debug = true;
+$errorCode = EnginesisErrors::NO_ERROR;
+$network_id = EnginesisNetworks::Facebook;
