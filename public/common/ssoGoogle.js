@@ -161,19 +161,6 @@
         var cookieExpireMinutes = 30;
         timeNow.setTime(timeNow.getTime() + (cookieExpireMinutes * 60 * 1000));
         commonUtilities.cookieSet(_authCookieCode, authCode, timeNow.toUTCString(), "/", "", false);
-        //var url = '/procs/oauth.php';
-        //var parameters = {
-        //    provider: 'gapi',
-        //    action: 'login',
-        //    idtoken: authCode
-        //};
-        //post(url, parameters).then(function(response) {
-        //    if (response.success) {
-        //        login_complete();
-        //    } else {
-        //        login_failed();
-        //    }
-        //});
     };
 
     /**
@@ -207,17 +194,6 @@
                     if (_callbackWhenLoggedIn != null) {
                         _callbackWhenLoggedIn(_userInfo);
                     }
-                    // I cant get this code to work, Google crashes if we try to get the grantOfflineAccess so that never works.
-                    //authResponse.grantOfflineAccess({
-                    //    scope: _scope
-                    //}).then(function(response) {
-                    //    googleInstance.setLoginCookie(currentGoogleUser, response.code);
-                    //    _loginPending = false;
-                    //    if (_callbackWhenLoggedIn != null) {
-                    //        googleInstance.debugLog('calling callback for logged in user ' + _userInfo.userName);
-                    //        _callbackWhenLoggedIn(_userInfo, _networkId);
-                    //    }
-                    //});
                 }, function (error) {
                     googleInstance.debugLog("error: " + (JSON.stringify(error, undefined, 2)));
                 });
@@ -226,11 +202,11 @@
 
     /**
      * Load the Google SDK. This function must be called on any page that requires knowing if a user
-     * is currently logged in with Google or any other Google services. Once loaded the Google SDK
-     * calls its init() function.
-     * Replaces <script src="https://apis.google.com/js/client:platform.js?onload=initGoogle"></script>
+     * is currently logged in with Google or any other Google services. Once loaded, the Google SDK
+     * calls ssoGoogleInit() function, which must be defined in the global namespace.
+     * Replaces <script src="https://apis.google.com/js/client:platform.js?onload=ssoGoogleInit"></script>
      * Example:
-     *   ssoGoogle.load(parameters).then(function(result) { console.log('Facebook loaded'); }, function(error) { console.log('Facebook load failed ' + error.message); });
+     *   ssoGoogle.load(parameters).then(function(result) { console.log('Google API loaded'); }, function(error) { console.log('Facebook load failed ' + error.message); });
      * 
      * @param {object} parameters to configure our Google application.
      */
@@ -374,36 +350,6 @@
             if (_googleAuth.isSignedIn.get()) {
                 this.debugLog("update sign in state change for a logged in user");
                 // TODO: Not sure yet what to do here. We could check to see if any user info has changed since last time we saw this user.
-                // if ( ! _loginPending && _callbackWhenLoggedOut == null) {
-                    //var currentGoogleUser = googleAuthInstance.currentUser.get(),
-                    //    basicProfile = currentGoogleUser.getBasicProfile(),
-                    //    authResponse = currentGoogleUser.getAuthResponse();
-                    //_userInfo = {
-                    //    networkId: _networkId,
-                    //    userName: basicProfile.getName(),
-                    //    realName: basicProfile.getGivenName() + ' ' + basicProfile.getFamilyName(),
-                    //    email: basicProfile.getEmail(),
-                    //    siteUserId: basicProfile.getId(),
-                    //    siteUserIdToken: authResponse.id_token,
-                    //    gender: 'U',
-                    //    dob: commonUtilities.MySQLDate(commonUtilities.subtractYearsFromNow(13)),
-                    //    avatarURL: basicProfile.getImageUrl(),
-                    //    scope: _scope
-                    //};
-                    //ssoGoogle.setLoginCookie(currentGoogleUser, authResponse.id_token);
-                    //if (_callbackWhenLoggedIn != null) {
-                    //    ssoGoogle.debugLog('calling callback for logged in user ' + _userInfo.userName);
-                    //    _callbackWhenLoggedIn(_userInfo);
-                    //} else {
-                    //    ssoGoogle.debugLog('no callback for logged in user ' + _userInfo.userName);
-                    //}
-                //} else {
-                //    if (_callbackWhenLoggedOut != null) {
-                //        ssoGoogle.debugLog('A logout is currently pending so ignoring login state change');
-                //    } else {
-                //        ssoGoogle.debugLog('A login is currently pending so ignoring login state change until offline access is granted');
-                //    }
-                //}
             } else {
                 this.debugLog("update sign in state change for a signout");
                 // TODO: perform signout, this was in response to a logout() call and the server replied.

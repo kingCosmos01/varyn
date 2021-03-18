@@ -1060,12 +1060,15 @@ function safeForHTML ($string) {
 }
 
 /**
- * Determine if a string has any character of a string of select characters.
- * @param $string string to check
- * @param $selectChars string of individual character to check if contained in $string
+ * Determine if a string has any single character of a string of select characters.
+ *
+ * @param string $string string to check
+ * @param string|Array $selectChars string of individual characters to check if contained in $string.
+ *     If an array of strings, checks each string to determine if the entire string (case sensitive) is contained in $string.
  * @param int $start start position in $string to begin checking, default is the beginning.
  * @param int $length ending position in $string to stop checking, default is the end.
- * @return bool true if at least one character in $selectChars is also in $string, false if none.
+ * @return boolean true if at least one character in $selectChars is also in $string, otherwise
+ *     false if none of $selectChars are in $string.
  */
 function str_contains_char ($string, $selectChars, $start = 0, $length = 0) {
     if ($length == 0) {
@@ -1074,9 +1077,18 @@ function str_contains_char ($string, $selectChars, $start = 0, $length = 0) {
     if ($start < 0) {
         $start = 0;
     }
-    for ($i = $start; $i < $length; $i ++) {
-        if (strpos($selectChars, $string[$i]) !== false) {
-            return true;
+    if (is_string($selectChars)) {
+        for ($i = $start; $i < $length; $i ++) {
+            if (strpos($selectChars, $string[$i]) !== false) {
+                return true;
+            }
+        }
+    } elseif (is_array($selectChars)) {
+        // TODO: End is not considered
+        for ($i = 0; $i < count($selectChars); $i ++) {
+            if (strpos($string, $selectChars[$i], $start) !== false) {
+                return true;
+            }
         }
     }
     return false;

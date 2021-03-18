@@ -1,13 +1,17 @@
 <?php
-    /**
-     * String table lookup helper functions and string key definitions.
-     * In order to support localization in the PHP code we use a string lookup table that
-     * defaults to English if the look up for the language code fails.
-     *
-     * @date: 7/29/2017
-     */
+/**
+ * String table lookup helper functions and string key definitions. These are for
+ * messages that will go in the UI and be seen by users, such that they can be
+ * translated to the user's current language. Error codes are separate and come from
+ * EnginesisErrors.
+ *
+ * In order to support localization in the PHP code we use a string lookup table that
+ * defaults to English if the look up for the language code fails.
+ *
+ * @date: 7/29/2017
+ */
 
-    require_once('locale/en/strings_en.php'); // TODO: should actually be the $this->_defaultLanguageCode
+require_once('locale/en/strings_en.php'); // TODO: should actually be the $this->_defaultLanguageCode
 
     /**
      * Class EnginesisUIStrings
@@ -28,7 +32,6 @@
         const REG_INFO_UPDATED             = 'REG_INFO_UPDATED';
         const MUST_BE_LOGGED_IN            = 'MUST_BE_LOGGED_IN';
         const PROFILE_PAGE_SALUTATION      = 'PROFILE_PAGE_SALUTATION';
-        const SYSTEM_ERROR                 = 'SYSTEM_ERROR';
         const REFRESH_TOKEN_ERROR          = 'REFRESH_TOKEN_ERROR';
         const REGISTRATION_ERRORS_FIELDS   = 'REGISTRATION_ERRORS_FIELDS';
         const SECURITY_ERRORS_FIELDS       = 'SECURITY_ERRORS_FIELDS';
@@ -37,7 +40,6 @@
         const REG_COMPLETE_RESET_MESSAGE   = 'REG_COMPLETE_RESET_MESSAGE';
         const REDIRECT_CONFIRM_MESSAGE     = 'REDIRECT_CONFIRM_MESSAGE';
         const LOGOUT_COMPLETE              = 'LOGOUT_COMPLETE';
-        const SSO_EXCEPTION                = 'SSO_EXCEPTION';
     }
 
     class EnginesisStringTable
@@ -134,7 +136,12 @@
                     $string = $this->_defaultStringTable[$stringKey];
                 }
                 if ($string == null) {
-                    $string = $this->_defaultStringTable[EnginesisUIStrings::MISSING_STRING];
+                    // if not found it UI string table see if it matches an error code.
+                    $string = errorToLocalString($stringKey);
+                    if ($string == null) {
+                        $string = $this->_defaultStringTable[EnginesisUIStrings::MISSING_STRING];
+                        $string = tokenReplace($string, ['key' => $stringKey]);
+                    }
                 }
             }
             return $string;

@@ -26,7 +26,9 @@
             clientId: "",
             scope: "",
             redirectURI: "",
-            state: "signin"
+            state: "signin",
+            nonce: "",
+            usePopup: false
         };
 
     ssoApple.debugLog = function (message) {
