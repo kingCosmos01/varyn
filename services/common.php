@@ -1067,7 +1067,7 @@ function safeForHTML ($string) {
  * @param int $length ending position in $string to stop checking, default is the end.
  * @return bool true if at least one character in $selectChars is also in $string, false if none.
  */
-function str_contains ($string, $selectChars, $start = 0, $length = 0) {
+function str_contains_char ($string, $selectChars, $start = 0, $length = 0) {
     if ($length == 0) {
         $length = strlen($string);
     }
