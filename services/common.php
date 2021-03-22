@@ -412,7 +412,7 @@ function verifyHashPassword ($password, $hashStoredInDatabase) {
  * @param string is the URL to contact without any query string (use $get_params)
  * @param array GET parameters are key => value arrays
  * @param array POST parameters as a key => value array.
- * @returns string the web page content as a string.
+ * @return string|null the web page content as a string. Returns null if the request failed.
  */
 function getURLContents ($url, $get_params = null, $post_params = null) {
     $post_string = '';
@@ -440,6 +440,10 @@ function getURLContents ($url, $get_params = null, $post_params = null) {
     }
     $page = curl_exec($ch);
     curl_close($ch);
+    if ($page === false) {
+        // the curl call itself failed, usually due to no network or SSL cert failure.
+        $page = null;
+    }
     return $page;
 }
 
