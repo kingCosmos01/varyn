@@ -164,16 +164,10 @@ $timestamp = time();
 </div><!-- /.container -->
 <div class="container marketing">
     <div id="bottomAd" class="row">
-        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-        <!-- Varyn Responsive -->
-        <ins class="adsbygoogle"
-             style="display:block"
-             data-ad-client="ca-pub-9118730651662049"
-             data-ad-slot="5571172619"
-             data-ad-format="auto"></ins>
-        <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
+    <?php
+    $adProvider = 'google';
+    include_once(VIEWS_ROOT . 'ad-spot.php');
+    ?>
     </div>
 </div>
 <?php

@@ -17,7 +17,10 @@ include_once(VIEWS_ROOT . 'header.php');
         </div>
         <div id="ad300" class="col-sm-4 col-md-2">
             <div id="boxAd300" class="ad300">
-                <iframe src="<?php echo($webServer);?>/common/ad300.html" frameborder="0" scrolling="no" style="width: 300px; height: 250px; overflow: hidden; z-index: 9999; left: 0px; bottom: 0px; display: inline-block;"></iframe>
+            <?php
+            $adProvider = 'cpmstar';
+            include_once(VIEWS_ROOT . 'ad-spot.php');
+            ?>
             </div>
             <p id="ad300-subtitle" class="text-right"><small>Advertisement</small></p>
         </div>
@@ -174,16 +177,10 @@ include_once(VIEWS_ROOT . 'header.php');
         </div>
     </div>
     <div id="bottomAd" class="row">
-        <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-        <!-- Varyn Responsive -->
-        <ins class="adsbygoogle"
-                style="display:block"
-                data-ad-client="ca-pub-9118730651662049"
-                data-ad-slot="5571172619"
-                data-ad-format="auto"></ins>
-        <script>
-            (adsbygoogle = window.adsbygoogle || []).push({});
-        </script>
+    <?php
+    $adProvider = 'google';
+    include_once(VIEWS_ROOT . 'ad-spot.php');
+    ?>
     </div>
 </div><!-- /.marketing -->
 <?php
