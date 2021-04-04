@@ -1,6 +1,9 @@
 <?php
 /**
  * PHP include file to help standardize and abstract our advertising providers.
+ * Ad providers supported are:
+ * 'google'
+ * 'cpmstar'|'gsn'
  */
 if ( ! isset($adProvider)) {
     $adProvider = 'google';
