@@ -1,1 +1,3 @@
-Disallow: /cloak/
+User-agent: *
+Allow: /
+Sitemap: http://www.varyn.com/sitemap/sitemap.json
