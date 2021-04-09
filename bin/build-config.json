@@ -1,0 +1,8 @@
+{
+    "destination": "./distrib",
+    "dryrun": false,
+    "logfile": "./build.log",
+    "optimizeImages": true,
+    "source": "./public",
+    "verbose": true
+}
