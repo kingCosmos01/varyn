@@ -54,7 +54,7 @@ if ($gameInfo != null) {
 }
 
 /**
- * generate the necessary HTML to setup the game container div.
+ * Generate the necessary HTML to setup the game container div.
  */
 function setGameContainer ($gameInfo, $enginesisServer, $siteId, $gameId) {
     global $authToken;
@@ -65,21 +65,26 @@ function setGameContainer ($gameInfo, $enginesisServer, $siteId, $gameId) {
     $pluginId = $gameInfo->game_plugin_id;
     $allowScroll = $gameInfo->popup == 0 ? 'no' : 'yes';
     $gameContainerHTML = '<!-- debug: plugin=' . $pluginId . ' w/h=' . $width . 'x' . $height . '-->';
-    if ($pluginId == 9) { // embed
+    if ($pluginId == 9) {
+        // embed games go inside a <div> on the page rendered on this server
         $gameContainerHTML .= '<div id="gameContainer-iframe" style="position: relative; margin: 0 auto; width: 100%; height: 100%;">' . $gameInfo->game_link . '</div>';
     } else {
-        if ($pluginId == 10) { // canvas
+        if ($pluginId == 10) {
+            // canvas games go inside an <iframe>
             if (strpos($gameInfo->game_link, '://') > 0) {
                 // if the link specifies a protocol then it is a full URL to a webpage
                 $gameLink = $gameInfo->game_link;
             } else {
-                // otherwise it is a file in the game folder on the matching Enginesis stage
+                // otherwise it is a file in the games folder on the matching Enginesis server stage
                 $gameLink = $enginesisServer . 'games/' . $gameInfo->game_name . '/' . $gameInfo->game_link;
             }
         } else {
+            // all other types of game plugin games go inside an <iframe> to the matching Enginesis server stage
             $gameLink = $enginesisServer . 'games/play.php?site_id=' . $siteId . '&game_id=' . $gameId;
         }
-        $gameLink = appendQueryParameter($gameLink, 'authtok', $authToken);
+        if ( ! empty($authToken)) {
+            $gameLink = appendQueryParameter($gameLink, 'authtok', $authToken);
+        }
         $gameContainerHTML .= '<iframe id="gameContainer-iframe" src="' . $gameLink . '" allowfullscreen scrolling="' . $allowScroll . '"></iframe>';
     }
     return $gameContainerHTML;

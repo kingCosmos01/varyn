@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tests>
+  <test className="EnginesisSDKTest" methodName="testConstructor" prettifiedClassName="Enginesis SDK" prettifiedMethodName="Constructor" status="0" time="0.0004074" size="-1" groups="default">
+    <group name="default"/>
+  </test>
+</tests>

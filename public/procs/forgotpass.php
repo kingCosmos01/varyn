@@ -87,7 +87,7 @@ include_once(VIEWS_ROOT . 'footer.php');
                 gameGroupId: 0,
                 serverStage: "<?php echo($serverStage);?>",
                 languageCode: navigator.language || navigator.userLanguage,
-                developerKey: '<?php echo($developerKey);?>',
+                developerKey: '<?php echo(ENGINESIS_DEVELOPER_API_KEY);?>',
                 facebookAppId: '<?php echo($socialServiceKeys[2]['app_id']);?>',
                 googleAppId: '<?php echo($socialServiceKeys[7]['app_id']);?>',
                 twitterAppId: '<?php echo($socialServiceKeys[11]['app_id']);?>',

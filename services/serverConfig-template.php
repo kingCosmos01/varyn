@@ -18,6 +18,7 @@ define('REFRESH_TOKEN_KEY', '');
 define('ADMIN_ENCRYPTION_KEY', '');
 define('COREG_TOKEN_KEY', '');
 define('ENGINESIS_DEVELOPER_API_KEY', '');
+define('ENGINESIS_CMS_API_KEY', '');
 define('SESSION_REFRESH_HOURS', 4380);     // refresh tokens are good for 6 months
 define('SESSION_REFRESH_INTERVAL', 'P6M'); // refresh tokens are good for 6 months
 define('SESSION_AUTHTOKEN', 'authtok');
@@ -35,6 +36,11 @@ $_MEMCACHE_HOSTS = [
 // Define a list of email addresses who will get notifications of internal bug reports
 $admin_notification_list = ['support@varyn.com'];
 
+// Define which CMS users will act as site admin for secured requests
+$CMSUserLogins = [
+    ['user_name' => '', 'user_id' => 0, 'password' => '']
+];
+
 // API Keys for the website app
 $socialServiceKeys = [
     2  => ['service' => 'Facebook', 'app_id' => '', 'app_secret' => '', 'admins' =>''],
@@ -51,6 +57,5 @@ $_MAIL_HOSTS = [
     ''   => ['domain' => '', 'host' => '', 'port' => 465, 'ssl' => true, 'tls' => true, 'user' => '', 'password' => '', 'apikey' => '']
 ];
 
-$developerKey = ENGINESIS_DEVELOPER_API_KEY;
 $siteId = ENGINESIS_SITE_ID;
 $languageCode = 'en';

@@ -165,11 +165,12 @@ class EnginesisMailer {
         global $_MAIL_HOSTS;
         if (isset($_MAIL_HOSTS[$this->m_serverStage])) {
             $this->m_serverStage = $serverStage;
+            $this->m_mailConfig = $_MAIL_HOSTS[$this->m_serverStage];
         } else {
             // if the stage provided is invalid then assume live.
             $this->m_serverStage = '';
+            $this->m_mailConfig = null;
         }
-        $this->m_mailConfig = $_MAIL_HOSTS[$this->m_serverStage];
         return $this->m_serverStage;
     }
 

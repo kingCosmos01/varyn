@@ -23,6 +23,7 @@ class SocialServicesFacebook extends SocialServices
         $this->appId = $socialServiceKeys[EnginesisNetworks::Facebook]['app_id'];
         $this->appSecret = $socialServiceKeys[EnginesisNetworks::Facebook]['app_secret'];
         $this->setNetworkId(EnginesisNetworks::Facebook);
+        $this->m_networkName = 'Facebook';
         $this->fb = new Facebook\Facebook([
             'app_id' => $this->appId,
             'app_secret' => $this->appSecret,
@@ -33,6 +34,27 @@ class SocialServicesFacebook extends SocialServices
             $this->m_accessToken = (string) $accessToken;
             $this->fb->setDefaultAccessToken($this->m_accessToken);
         }
+    }
+
+    public function parseSignedRequest($signed_request) {
+        list($encoded_signature, $payload) = explode('.', $signed_request, 2);
+        $signature = base64URLDecode($encoded_signature);
+
+        // confirm the signature
+        $expected_signature = hash_hmac('sha256', $payload, $this->appSecret, $raw = true);
+        $isValid = $signature === $expected_signature;
+        if ($isValid) {
+            $data = json_decode(base64URLDecode($payload), true);
+        } else {
+            $data = null;
+        }
+        return $data;
+    }
+
+    public function testSignRequest($payload) {
+        $payload = base64URLEncode($payload);
+        $signature = hash_hmac('sha256', $payload, $this->appSecret, $raw = true);
+        return base64URLEncode($signature) . '.' . $payload;
     }
 
     /**

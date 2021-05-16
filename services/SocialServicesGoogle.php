@@ -39,6 +39,7 @@
             $this->appId = $socialServiceKeys[EnginesisNetworks::Google]['app_id'];
             $this->appSecret = $socialServiceKeys[EnginesisNetworks::Google]['app_secret'];
             $this->setNetworkId(EnginesisNetworks::Google);
+            $this->m_networkName = 'Google';
             $this->googleAPI = new Google_Client(['client_id' => $this->appId]);
             $this->googleAPI->setDeveloperKey(GOOGLEAPI_API_KEY);
             if (isset($_SESSION[GOOGLEAPI_SESSION_KEY])) {

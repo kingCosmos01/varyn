@@ -69,29 +69,33 @@ function setErrorReporting ($reportingFlag) {
  */
 function reportError($msg, $file = '', $line = 0, $fn = '') {
     global $enginesisLogger;
-    $stackTrace = null;
+    if ($enginesisLogger != null) {
+        $stackTrace = null;
 
-    if (strlen($file) == 0) {
-        $stackTrace = debug_backtrace(FALSE, 1);
-        $file = $stackTrace[1]['file'];
-    }
-    if ($line < 1) {
-        if ($stackTrace == null) {
+        if (strlen($file) == 0) {
             $stackTrace = debug_backtrace(FALSE, 1);
+            $file = $stackTrace[1]['file'];
         }
-        $line = $stackTrace[1]['line'];
+        if ($line < 1) {
+            if ($stackTrace == null) {
+                $stackTrace = debug_backtrace(FALSE, 1);
+            }
+            $line = $stackTrace[1]['line'];
+        }
+        if (strlen($fn) > 0) {
+            $msg = "$fn | " . $msg;
+        }
+        $enginesisLogger->log($msg, LogMessageLevel::Error, 'System', $file, $line);
     }
-    if (strlen($fn) > 0) {
-        $msg = "$fn | " . $msg;
-    }
-    $enginesisLogger->log($msg, LogMessageLevel::Error, 'System', $file, $line);
     return $msg;
 }
 
 function dieIfNotLive($msg) {
     global $enginesisLogger;
     if ( ! isLive()) {
-        $enginesisLogger->log("dieIfNotLive $msg", LogMessageLevel::Error, 'System', __FILE__, __LINE__);
+        if ($enginesisLogger != null) {
+            $enginesisLogger->log("dieIfNotLive $msg", LogMessageLevel::Error, 'System', __FILE__, __LINE__);
+        }
         echo $msg;
         exit;
     }
@@ -100,7 +104,9 @@ function dieIfNotLive($msg) {
 function dieIfLive($msg) {
     global $enginesisLogger;
     if (isLive()) {
-        $enginesisLogger->log("dieIfLive $msg", LogMessageLevel::Error, 'System', __FILE__, __LINE__);
+        if ($enginesisLogger != null) {
+            $enginesisLogger->log("dieIfLive $msg", LogMessageLevel::Error, 'System', __FILE__, __LINE__);
+        }
         echo $msg;
         exit;
     }
@@ -252,6 +258,44 @@ function getPostOrRequestVar ($varName, $defaultValue = NULL) {
  */
 function getPostVar ($varName, $defaultValue = NULL) {
     return isset($_POST[$varName]) ? $_POST[$varName] : $defaultValue;
+}
+
+/**
+ * Return the HTTP header value for a specified header key. For example,
+ * if the header set is "Authentication: Bearer token", then calling
+ * getHTTPHeader('Authentication') should return "Bearer token".
+ * 
+ * @param string $headerName The name of an expected entry in the HTTP headers sent by a client request.
+ * @return string|null The header value is returned, if found. If not found, null is returned.
+ */
+function getHTTPHeader ($headerName) {
+    $headerValue = null;
+    $httpHeaders = getallheaders();
+    if (is_array($httpHeaders) && count($httpHeaders) > 0) {
+        $headerName = strtolower($headerName);
+        foreach ($httpHeaders as $name => $value) {
+            if ($headerName == strtolower($name)) {
+                $headerValue = $value;
+                break;
+            }
+        }
+    }
+    return $headerValue;
+}
+
+/**
+ * Determine the origin of the request.
+ * @return string Request origin.
+ */
+function getHTTPOrigin() {
+    if (array_key_exists('HTTP_ORIGIN', $_SERVER)) {
+        $origin = $_SERVER['HTTP_ORIGIN'];
+    } elseif (array_key_exists('HTTP_REFERER', $_SERVER)) {
+        $origin = $_SERVER['HTTP_REFERER'];
+    } else {
+        $origin = $_SERVER['REMOTE_ADDR'];
+    }
+    return $origin;
 }
 
 /**
@@ -1726,7 +1770,8 @@ $enginesisLogger = new LogMessage([
 ]);
 $page = '';
 $webServer = '';
-$enginesis = new Enginesis($siteId, null, $developerKey, 'reportError');
+$enginesis = new Enginesis($siteId, null, ENGINESIS_DEVELOPER_API_KEY, 'reportError');
+$enginesis->setCMSKey(ENGINESIS_CMS_API_KEY);
 $serverName = $enginesis->getServerName();
 $serverStage = $enginesis->getServerStage();
 // turn on errors for all stages except LIVE TODO: Remove from above when we are going live.

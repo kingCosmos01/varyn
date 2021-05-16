@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tests>
+  <test className="CommonTest" methodName="testServerStage" prettifiedClassName="Common" prettifiedMethodName="Server stage" status="0" time="0.0001577" size="-1" groups="default">
+    <group name="default"/>
+  </test>
+  <test className="CommonTest" methodName="testRandomString" prettifiedClassName="Common" prettifiedMethodName="Random string" status="0" time="7.08E-5" size="-1" groups="default">
+    <group name="default"/>
+  </test>
+</tests>

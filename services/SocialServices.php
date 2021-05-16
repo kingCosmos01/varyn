@@ -16,6 +16,7 @@ class SocialServices
 {
     // All property access is private, use accessor functions.
     protected $m_networkId = EnginesisNetworks::Enginesis;
+    protected $m_networkName = 'Enginesis';
     protected $m_lastErrorCode = '';
     protected $m_lastErrorMessage = '';
     protected $m_accessToken = null;
@@ -57,6 +58,10 @@ class SocialServices
 
     public function getNetworkId () {
         return $this->m_networkId;
+    }
+
+    public function getNetworkName () {
+        return $this->m_networkName;
     }
 
     public function getSiteUserId () {

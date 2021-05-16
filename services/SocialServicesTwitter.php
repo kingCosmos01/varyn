@@ -21,6 +21,7 @@
         public function __construct () {
             global $socialServiceKeys; // from serverConfig.
             $this->setNetworkId(EnginesisNetworks::Twitter);
+            $this->m_networkName = 'Twitter';
             $this->appId = $socialServiceKeys[EnginesisNetworks::Twitter]['app_id'];
             $this->appSecret = $socialServiceKeys[EnginesisNetworks::Twitter]['app_secret'];
             if (isset($_SESSION[TWITTER_SESSION_KEY])) {
