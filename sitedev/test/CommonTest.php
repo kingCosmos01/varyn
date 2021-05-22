@@ -55,10 +55,17 @@ final class CommonTest extends TestCase {
         global $CMSUserLogins;
         global $_MAIL_HOSTS;
         global $socialServiceKeys;
+        global $developerKey;
         global $siteId;
         global $languageCode;
 
-        // verify all defines are defined and have a value
+        // verify all globals and defines are defined and have a value
+        $this->assertNotEmpty(SERVER_ROOT);
+        $this->assertNotEmpty(SERVER_DATA_PATH);
+        $this->assertNotEmpty(SERVER_PRIVATE_PATH);
+        $this->assertNotEmpty(SERVICE_ROOT);
+        $this->assertNotEmpty(VIEWS_ROOT);
+
         $this->assertNotEmpty(LOGFILE_PREFIX);
         $this->assertNotEmpty(LOGFILE_PREFIX);
         $this->assertNotEmpty(ENGINESIS_SITE_NAME);
@@ -98,6 +105,7 @@ final class CommonTest extends TestCase {
         $this->assertArrayHasKey('-q', $_MAIL_HOSTS);
         $this->assertArrayHasKey('', $_MAIL_HOSTS);
 
+        $this->assertNotEmpty($developerKey);
         $this->assertNotEmpty($siteId);
         $this->assertNotEmpty($languageCode);
     }
@@ -108,6 +116,7 @@ final class CommonTest extends TestCase {
         $this->assertEquals('-', $stage[0], 'Must be in the format -[x|d|q|l].');
     }
 
+    // Verify operation for randomString()
     public function testRandomString() {
         $length = 16;
         $maxCodePoint = 32;
@@ -125,5 +134,27 @@ final class CommonTest extends TestCase {
         $valuex = randomString($length, $maxCodePoint, $reseed);
         $this->assertEquals($length, strlen($value));
         $this->assertNotEquals($value, $valuex);
+    }
+
+    public function testTokenReplace() {
+        $text = 'This %food% is a %meat% %food%.';
+        $parameters = ["food" => "sandwich", "meat" => "turkey"];
+        $expected = 'This sandwich is a turkey sandwich.';
+        $result = tokenReplace($text, $parameters);
+        $this->assertEquals($expected, $result);
+    }
+
+    // verify makeErrorResponse() returns expected Enginesis response object
+    public function testMakeErrorResponse() {
+        $errorCode = EnginesisErrors::CANNOT_COMMENT_YOURSELF;
+        $errorMessage = 'You cannot assign a comment to yourself.';
+        $parameters = ['fn' => 'CommentAssign', 'two' => 2, 'three' => 3];
+        $response = makeErrorResponse($errorCode, $errorMessage, $parameters);
+        $this->assertNotEmpty($response);
+        $result = json_decode($response);
+        $this->assertEquals('0', $result->results->status->success);
+        $this->assertEquals(EnginesisErrors::CANNOT_COMMENT_YOURSELF, $result->results->status->message);
+        $this->assertNotEmpty($result->results->status->extended_info);
+        $this->assertEquals('CommentAssign', $result->results->passthru->fn);
     }
 }
