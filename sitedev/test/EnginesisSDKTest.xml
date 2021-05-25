@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tests>
-  <test className="EnginesisSDKTest" methodName="testConstructor" prettifiedClassName="Enginesis SDK" prettifiedMethodName="Constructor" status="0" time="0.0004074" size="-1" groups="default">
+  <test className="EnginesisSDKTest" methodName="testConstructor" prettifiedClassName="Enginesis SDK" prettifiedMethodName="Constructor" status="0" time="0.000162995" size="-1" groups="default">
+    <group name="default"/>
+  </test>
+  <test className="EnginesisSDKTest" methodName="testCMSAuthentication" prettifiedClassName="Enginesis SDK" prettifiedMethodName="C m s authentication" status="3" time="0.011234578" size="-1" groups="default" exceptionLine="71" exceptionMessage="Expect a response.&#10;Failed asserting that a NULL is not empty.">
     <group name="default"/>
   </test>
 </tests>

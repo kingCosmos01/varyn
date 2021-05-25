@@ -547,12 +547,15 @@ var varyn = function (parameters) {
          * showForgotPasswordPopup show the popup form initiate forgot password flow.
          */
         showForgotPasswordPopup: function (showFlag) {
-            if (showFlag) {
-                $('#modal-forgot-password').modal('show');
-                this.setPopupMessage('modal-forgot-password', '', null);
-                this.trackEvent('forgotpassword', 'prompt', currentPage);
-            } else {
-                $('#modal-forgot-password').modal('hide');
+            var forgotPasswordModal = document.getElementById('modal-forgot-password');
+            if (forgotPasswordModal != null) {
+                if (showFlag) {
+                    forgotPasswordModal.modal('show');
+                    this.setPopupMessage('modal-forgot-password', '', null);
+                    this.trackEvent('forgotpassword', 'prompt', currentPage);
+                } else {
+                    forgotPasswordModal.modal('hide');
+                }
             }
         },
 

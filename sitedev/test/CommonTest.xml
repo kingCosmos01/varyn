@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tests>
-  <test className="CommonTest" methodName="testServerStage" prettifiedClassName="Common" prettifiedMethodName="Server stage" status="0" time="0.0001577" size="-1" groups="default">
+  <test className="CommonTest" methodName="testConfiguration" prettifiedClassName="Common" prettifiedMethodName="Configuration" status="0" time="0.000645068" size="-1" groups="default">
     <group name="default"/>
   </test>
-  <test className="CommonTest" methodName="testRandomString" prettifiedClassName="Common" prettifiedMethodName="Random string" status="0" time="7.08E-5" size="-1" groups="default">
+  <test className="CommonTest" methodName="testServerStage" prettifiedClassName="Common" prettifiedMethodName="Server stage" status="0" time="0.000115094" size="-1" groups="default">
+    <group name="default"/>
+  </test>
+  <test className="CommonTest" methodName="testRandomString" prettifiedClassName="Common" prettifiedMethodName="Random string" status="0" time="8.8195E-5" size="-1" groups="default">
+    <group name="default"/>
+  </test>
+  <test className="CommonTest" methodName="testTokenReplace" prettifiedClassName="Common" prettifiedMethodName="Token replace" status="0" time="6.389E-5" size="-1" groups="default">
+    <group name="default"/>
+  </test>
+  <test className="CommonTest" methodName="testMakeErrorResponse" prettifiedClassName="Common" prettifiedMethodName="Make error response" status="0" time="8.0723E-5" size="-1" groups="default">
     <group name="default"/>
   </test>
 </tests>

@@ -36,10 +36,9 @@ define('SERVICE_ROOT', $serverRootPath . 'services/');
 define('VIEWS_ROOT', $serverRootPath . 'views/');
 
 /**
- * @description
- *   Turn on or off all error reporting. Typically we want this on for development, off for production.
- * @param {bool} true to turn on error reporting, false to turn it off.
- * @return {bool} just echos back the flag.
+ * Turn on or off all error reporting. Typically we want this on for development, off for production.
+ * @param boolean True to turn on error reporting, false to turn it off.
+ * @return boolean The current setting of the error reporting flag.
  */
 function setErrorReporting ($reportingFlag) {
     if ($reportingFlag) {
@@ -120,7 +119,7 @@ function makeErrorResponse($errorCode, $errorMessage, $parameters) {
     $service = isset($parameters['fn']) ? $parameters['fn'] : 'UNKNOWN';
     $stateSequence = isset($parameters['stateSeq']) ? $parameters['stateSeq'] : 0;
     $contents = '{"results":{"status":{"success":"0","message":"' . $errorCode . '","extended_info":"' . $errorMessage . '"},"passthru":{"fn":"' . $service . '","state_seq":' . $stateSequence . '}}}';
-    return $response;
+    return $contents;
 }
 
 // =================================================================
@@ -961,8 +960,8 @@ function verifySessionIsValid($userId, $token) {
  * as there are references in $text. Example:
  *    $updatedText = tokenArgsReplace ( "This %1% is a %2% %1%.", "sandwich", "turkey" )
  * will return "This sandwich is a turkey sandwich."
- * @param $text
- * @return string replaced text
+ * @param string $text String of text to search and replace.
+ * @return string Replaced text
  */
 function tokenArgsReplace ($text) {
     $args  = func_get_args();
@@ -978,15 +977,15 @@ function tokenArgsReplace ($text) {
 /**
  * Search $text for tokens in the form %token% and replace them with their respective parameter value.
  * Example:
- *    $updatedText = ReplaceTokenArgs ( "This %food% is a %meat% %food%.", array("food" => "sandwich", "meat" => "turkey" )
+ *    $updatedText = tokenReplace ( "This %food% is a %meat% %food%.", ["food" => "sandwich", "meat" => "turkey"] )
  * will return "This sandwich is a turkey sandwich."
- * @param $text
- * @param $paramsArray
- * @return string replaced text
+ * @param string $text String of text to search and replace.
+ * @param Array $parameters Array of key/value pairs to replace in $text.
+ * @return string Replaced text
  */
-function tokenReplace ($text, $paramsArray) {
-    if ( ! empty($text) && is_array($paramsArray) && count($paramsArray) > 0) {
-        foreach ($paramsArray as $token => $value) {
+function tokenReplace ($text, $parameters) {
+    if ( ! empty($text) && is_array($parameters) && count($parameters) > 0) {
+        foreach ($parameters as $token => $value) {
             $token = "%$token%";
             if (stripos($text, $token) !== false) {
                 $text = str_replace($token, $value, $text);
@@ -998,7 +997,7 @@ function tokenReplace ($text, $paramsArray) {
 
 /**
  * Convert an array into a string.
- * @param $array
+ * @param Array $array
  * @return string
  */
 function arrayToString ($array) {

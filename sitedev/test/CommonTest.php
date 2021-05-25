@@ -105,7 +105,7 @@ final class CommonTest extends TestCase {
         $this->assertArrayHasKey('-q', $_MAIL_HOSTS);
         $this->assertArrayHasKey('', $_MAIL_HOSTS);
 
-        $this->assertNotEmpty($developerKey);
+        $this->assertTrue(! isset($developerKey));
         $this->assertNotEmpty($siteId);
         $this->assertNotEmpty($languageCode);
     }

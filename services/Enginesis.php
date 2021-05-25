@@ -474,7 +474,7 @@ class Enginesis {
             if ($refreshTokenExpireTime === false || $timeNow > $refreshTokenExpireTime) {
                 // need to do a full login, we expect the parameters to be passed in
                 $CMSAccountCredentials = $this->m_cmsCredentials;
-                echo("CMS creds " . json_encode($CMSAccountCredentials));
+//                echo("CMS creds " . json_encode($CMSAccountCredentials));
                 if (empty($CMSAccountCredentials) || empty($CMSAccountCredentials['user_name']) || empty($CMSAccountCredentials['password'])) {
                     $errorCode = EnginesisErrors::INVALID_LOGIN;
                     $errorMessage = 'User login failed, check user credentials.';
@@ -1522,13 +1522,11 @@ class Enginesis {
             if ( ! empty($this->m_cmsCredentials) && ! empty($authenticationToken)) {
                 $headers[] = 'X-CMSKey: ' . $this->m_cmsCredentials['cms_key'];
                 $headers[] = 'Authentication: Bearer ' . $authenticationToken;
-                echo("secure request header set\n");
             } else {
                 // invalid request to a secured service
                 $errorInfo = 'Invalid secure transaction, missing CMS key or CMS admin user authentication.';
                 $this->debugCallback($errorInfo, __FILE__, __LINE__);
                 $contents = $this->makeErrorResponse('SYSTEM_ERROR', $errorInfo, $parameters);
-                echo("Failed secure request\n");
                 return $contents;
             }
         } else {
@@ -1545,7 +1543,7 @@ class Enginesis {
         $url = $this->m_serviceEndPoint;
         $setSSLCertificate = startsWith(strtolower($url), 'https://');
         $this->debugInfo("Calling $serviceName on $url with " . json_encode($parameters), __FILE__, __LINE__);
-        echo("Calling $serviceName on $url with " . json_encode($parameters));
+//        echo("Calling $serviceName on $url with " . json_encode($parameters));
         $ch = curl_init($url);
         if ($ch) {
             $referrer = $this->m_serviceProtocol . '://' . $this->getServerName() . $this->currentPagePath();
@@ -1584,7 +1582,7 @@ class Enginesis {
             $contents = $this->makeErrorResponse('SYSTEM_ERROR', $errorInfo, $parameters);
         }
         $this->debugInfo("callServerAPI response from $serviceName: $contents", __FILE__, __LINE__);
-        echo("\n\ncallServerAPI response from $serviceName: $contents \n\n");
+//        echo("\n\ncallServerAPI response from $serviceName: $contents \n\n");
         if ($response == 'json') {
             $contentsObject = json_decode($contents);
             if ($contentsObject === null) {
@@ -1908,7 +1906,7 @@ class Enginesis {
             'user_name' => $userName,
             'password' => $password
         ];
-        echo("callServerAPI $service $userName, $password\n");
+//        echo("callServerAPI $service $userName, $password\n");
         $enginesisResponse = $this->callServerAPI($service, $parameters, $isSecure);
         $results = $this->setLastErrorFromResponse($enginesisResponse);
         if ($results != null) {

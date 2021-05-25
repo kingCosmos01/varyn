@@ -882,7 +882,7 @@ include_once(VIEWS_ROOT . 'header.php');
                         <label for="login_form_password">Password:</label><input type="password" id="login_form_password" name="login_form_password" tabindex="2" maxlength="20" class="popup-form-input" value="<?php echo($password);?>" /><br/>
                         <input type="button" class="btn btn-success" id="login-button" title="Login" value="Login >" tabindex="3" onclick="profilePage.loginValidation();" /><input type="text" name="login_form_email" class="popup-form-address-input" /><input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
                         <span class="rememberme-container"><input type="checkbox" tabindex="4" checked="checked" name="login_form_rememberme" id="login_form_rememberme"><label for="login_form_rememberme">Remember Me</label></span>
-                        <a id="profile_forgot_password" href="#" tabindex="5" onclick="profilePage.forgotPassword();">Forgot password?</a><input type="hidden" name="action" value="login" />
+                        <a id="profile_forgot_password" href="#" tabindex="5" data-toggle="modal" data-target="#modal-forgot-password" onclick="profilePage.forgotPassword();">Forgot password?</a><input type="hidden" name="action" value="login" />
                     </div>
                     <div class="text-center">
                         <a class="sub-link-group" href="/privacy/"><span class="glyphicon glyphicon-eye-open"></span> Privacy</a>
@@ -945,9 +945,9 @@ if (empty($refreshToken)) {
 }
 ?>
 <script>
-    var varynApp,
-        profilePage,
-        debug = true;
+    var varynApp;
+    var profilePage;
+    var debug = true;
 
     head.ready(function() {
         var siteConfiguration = {
@@ -974,9 +974,9 @@ if (empty($refreshToken)) {
         profilePage = varynApp.initApp(varynProfilePage, profilePageParameters);<?php echo($refreshTokenJavaScript);?>
     });
     if (debug) {
-        head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.min.js', '/common/enginesis.js', '/common/ShareHelper.js', '/common/commonUtilities.js', '/common/ssoFacebook.js', '/common/ssoGoogle.js', '/common/ssoTwitter.js', '/common/varyn.js', '/common/varynProfilePage.js');
+        head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.js', '/common/enginesis.js', '/common/ShareHelper.js', '/common/commonUtilities.js', '/common/ssoFacebook.js', '/common/ssoGoogle.js', '/common/ssoTwitter.js', '/common/varyn.js', '/common/varynProfilePage.js');
     } else {
-        head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.min.js', '/common/enginesis.min.js', '/common/varynProfilePage.min.js');
+        head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.js', '/common/enginesis.min.js', '/common/varynProfilePage.min.js');
     }
 </script>
 </body>

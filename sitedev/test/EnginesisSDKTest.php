@@ -14,13 +14,13 @@ use PHPUnit\Framework\TestCase;
 final class EnginesisSDKTest extends TestCase {
     public static $setup;
     protected $stage;
-    protected $enginesisHost;
-    protected $developerAPIKey;
     protected $errorLogger;
     protected $siteId;
     protected $userId;
     protected $gameId;
     protected $languageCode;
+    private $developerAPIKey;
+    private $enginesisHost;
 
     /**
      * Initial test setup
@@ -30,6 +30,9 @@ final class EnginesisSDKTest extends TestCase {
     }
 
     protected function setUp (): void {
+        $this->stage = '-l';
+        $this->enginesisHost = 'enginesis-l.com';
+        $this->developerAPIKey = ENGINESIS_DEVELOPER_API_KEY;
         $this->siteId = 106;
         $this->userId = 10248;
         $this->languageCode = 'en';
@@ -40,13 +43,46 @@ final class EnginesisSDKTest extends TestCase {
             ini_set('memory_limit', '32M');
             set_time_limit(280);
             $runDate = date('l F jS Y h:i:s A');
-            $this->enginesisHost = 'https://www.enginesis' . $this->stage . '.com/index.php';	// define testing server for nonsecure and authenticated procedures
         }
     }
 
     public function testConstructor() {
         $enginesis = new Enginesis($this->siteId, $this->enginesisHost, $this->developerAPIKey, $this->errorLogger);
         $this->assertNotNull($enginesis, 'Can construct.');
+    }
+
+    public function testSetServiceHost() {
+        $enginesis = new Enginesis($this->siteId, $this->enginesisHost, $this->developerAPIKey, $this->errorLogger);
+        $enginesisServer = null;
+        $host = $enginesis->setServiceHost($enginesisServer);
+        $this->assertNotEmpty($host);
+        $expected = 'enginesis.';
+        $this->assertStringStartsWith($expected, $host);
+        $enginesisServer = '*';
+        $host = $enginesis->setServiceHost($enginesisServer);
+        $this->assertNotEmpty($host);
+        $expected = 'enginesis.';
+        $this->assertStringStartsWith($expected, $host);
+        $enginesisServer = '-l';
+        $host = $enginesis->setServiceHost($enginesisServer);
+        $this->assertNotEmpty($host);
+        $expected = 'enginesis.';
+        $this->assertStringStartsWith($expected, $host);
+        $expected = '-l.';
+        $this->assertStringContainsString($expected, $host);
+    
+        $enginesisServer = 'enginesis-l.com';
+        $host = $enginesis->setServiceHost($enginesisServer);
+        $this->assertNotEmpty($host);
+        $expected = 'enginesis-l.com';
+        $this->assertEquals($expected, $host);
+    }
+
+    public function testServerStage() {
+        $stage = serverStage();
+        echo("\n\nStage: $stage\n\n");
+        $this->assertNotEquals('', $stage, 'Cannot run unit tests on a live server.');
+        $this->assertEquals('-', $stage[0], 'Must be in the format -[x|d|q|l].');
     }
 
     public function testCMSAuthentication() {
