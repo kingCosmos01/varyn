@@ -24,7 +24,7 @@ require_once('../../services/strings.php');
 
 processSearchRequest();
 $stringTable = new EnginesisStringTable($siteId, $languageCode);
-$debug = (int) strtolower(getPostOrRequestVar('debug', 0));
+$debug = (int) getPostOrRequestVar('debug', 0);
 $page = 'profile';
 $pageTitle = 'Profile';
 $pageDescription = 'View your player profile or review other followers and players at Varyn.com.';
@@ -100,7 +100,9 @@ if ($networkId > 1) {
         $userId = $userInfo->user_id;
         $networkId = $enginesis->getNetworkId();
         $socialServices = SocialServices::create($networkId);
-        $userInfoSSO = $socialServices->connectSSO();
+        if ($socialServices != null) {
+            $userInfoSSO = $socialServices->connectSSO();
+        }
     } else {
         $isLoggedIn = false;
     }
@@ -111,6 +113,10 @@ if ($action == 'login' && ! $isLoggedIn) {
     $userName = getPostVar('login_form_username');
     $password = getPostVar('login_form_password');
     $rememberMe = valueToBoolean(getPostVar('login_form_rememberme', false));
+    // @TODO: verify the honeypot and form generation to help avoid bot attacks
+    // if (verifyFormHacks(['login_form_email', 'all-clear'])) {
+    // $thisFieldMustBeEmpty = getPostVar('login_form_email', null);
+    // $hackerToken = getPostVar('all-clear', ''); // this field must contain the token
     if ($userName == '' && $password == '') {
         $userName = getPostVar('login_username');
         $password = getPostVar('login_password');
@@ -129,7 +135,7 @@ if ($action == 'login' && ! $isLoggedIn) {
     } else {
         $isLoggedIn = true;
         $cr = $userInfo->cr;
-        // TODO: Verify hash matches, otherwise we should not trust this info.
+        // @TODO: Verify hash matches, otherwise we should not trust this info.
         $authToken = $userInfo->authtok;
         $refreshToken = $userInfo->refresh_token;
         $tokenExpires = $userInfo->expires;
@@ -184,7 +190,7 @@ if ($action == 'login' && ! $isLoggedIn) {
                         $inputFocusId = 'register_form_email';
                         $errorFieldId = 'register_form_email';
                         break;
-                    case EnginesisErrors::INVALID_USER_NAME:
+                    case EnginesisErrors::REGISTRATION_INVALID:
                         $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_INVALID);
                         $inputFocusId = 'register_form_username';
                         $errorFieldId = 'register_form_username';
@@ -256,7 +262,7 @@ if ($action == 'login' && ! $isLoggedIn) {
                         $inputFocusId = 'register_form_email';
                         $errorFieldId = 'register_form_email';
                         break;
-                    case EnginesisErrors::INVALID_USER_NAME:
+                    case EnginesisErrors::REGISTRATION_INVALID:
                         $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_INVALID);
                         $inputFocusId = 'register_form_username';
                         $errorFieldId = 'register_form_username';
@@ -379,7 +385,7 @@ if ($action == 'login' && ! $isLoggedIn) {
                                         $inputFocusId = 'register_form_email';
                                         $errorFieldId = 'register_form_email';
                                         break;
-                                    case EnginesisErrors::INVALID_USER_NAME:
+                                    case EnginesisErrors::REGISTRATION_INVALID:
                                         $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_INVALID);
                                         $inputFocusId = 'register_form_username';
                                         $errorFieldId = 'register_form_username';
@@ -426,8 +432,8 @@ if ($action == 'login' && ! $isLoggedIn) {
                 }
                 if ($inputFocusId == '' && $userSecurityDataChanged) {
                     $securityQuestionId = 1;
-                    $securityQuestion = getPostVar("register_form_question", '');
-                    $securityAnswer = getPostVar("register_form_answer", '');
+                    $securityQuestion = getPostVar('register_form_question', '');
+                    $securityAnswer = getPostVar('register_form_answer', '');
                     if (isValidSecurityQuestion($securityQuestion, $securityAnswer)) {
                         $invalidFields = $enginesis->registeredUserSecurityValidation($userId, $cellphone, $securityQuestionId, $securityQuestion, $securityAnswer);
                         if ($invalidFields == null) {
@@ -646,10 +652,17 @@ function createResendConfirmEmailLink($errorCode, $userId, $userName, $email, $c
     }
 }
 
+/**
+ * Determine if the user's selection of a security question and the answer are valid.
+ * @param string $securityQuestion The quesiton chosen by the user.
+ * @param string $securityAnswer The answer given by the user.
+ * @return boolean True if a valid security question/answer combination.
+ */
 function isValidSecurityQuestion($securityQuestion, $securityAnswer) {
     $isValid = strlen(trim($securityQuestion)) > 3 && strlen(trim($securityAnswer)) > 2;
     return $isValid;
 }
+
 include_once(VIEWS_ROOT . 'header.php');
 ?>
 <div class="container marketing">
@@ -930,10 +943,10 @@ include_once(VIEWS_ROOT . 'header.php');
         </div>
     </div>
     <div id="bottomAd" class="row">
-    <?php
+<?php
     $adProvider = 'google';
     include_once(VIEWS_ROOT . 'ad-spot.php');
-    ?>
+?>
     </div>
 </div>
 <?php

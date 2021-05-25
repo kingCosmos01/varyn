@@ -1,34 +1,29 @@
 <?php
-    /**
-     * The Google Plus implementation of our SocialServices base class.
-     * @author: jf
-     * @date: 7/16/2017
-     */
+/**
+ * The Google implementation of our SocialServices base class.
+ * @author: jf
+ * @date: 7/16/2017
+ */
 
-    require_once 'lib/vendor/google/vendor/autoload.php';
+require_once 'lib/vendor/google/vendor/autoload.php';
 
-    define ('GOOGLEAPI_SESSION_KEY', 'enggapisession');
-    define ('GOOGLEAPI_COOKIE_KEY', 'enggapicode');
-    define ('GOOGLEAPI_API_KEY', 'AIzaSyBVtePrW-dW6uRfWvWcHp5fVaWITVfMsOo'); // TODO: Move to config file
+define ('GOOGLEAPI_SESSION_KEY', 'enggapisession');
+define ('GOOGLEAPI_COOKIE_KEY', 'enggapicode');
 
 /*
- *     {"web":
-    {"client_id":"1065156255426-al1fbn6kk4enqfq1f9drn8q1111optvt.apps.googleusercontent.com",
-    "client_secret":"10xMn5CfHOVSpH8FWyOqyB5a",
+ *  {"web":
+    {"client_id":"xxx",
+    "client_secret":"xxx",
     "project_id":"varyn-website",
     "auth_uri":"https://accounts.google.com/o/oauth2/auth",
     "token_uri":"https://accounts.google.com/o/oauth2/token",
     "auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs",
     "redirect_uris":["https://www.varyn.com/procs/oauth.php"],
     "javascript_origins":["https://www.varyn.com","http://varyn-l.com","http://varyn-q.com","http://www.varyn-l.com","http://www.varyn-q.com","https://varyn.com","http://varyn-d.com","http://www.varyn-d.com"]}}
-
  */
 
-    class SocialServicesGoogle extends SocialServices
-    {
+    class SocialServicesGoogle extends SocialServices {
         private $googleAPI = null;
-        private $appId = '';
-        private $appSecret = '';
         private $appAccessCode = '';
         private $isLoggedIn = false;
         private $userInfo = null;
@@ -36,12 +31,12 @@
 
         public function __construct () {
             global $socialServiceKeys; // from serverConfig.
-            $this->appId = $socialServiceKeys[EnginesisNetworks::Google]['app_id'];
-            $this->appSecret = $socialServiceKeys[EnginesisNetworks::Google]['app_secret'];
+            $appId = $socialServiceKeys[EnginesisNetworks::Google]['app_id'];
+            $googleAPIKey = $socialServiceKeys[EnginesisNetworks::Google]['app_key'];
             $this->setNetworkId(EnginesisNetworks::Google);
             $this->m_networkName = 'Google';
-            $this->googleAPI = new Google_Client(['client_id' => $this->appId]);
-            $this->googleAPI->setDeveloperKey(GOOGLEAPI_API_KEY);
+            $this->googleAPI = new Google_Client(['client_id' => $appId]);
+            $this->googleAPI->setDeveloperKey($googleAPIKey);
             if (isset($_SESSION[GOOGLEAPI_SESSION_KEY])) {
                 $accessToken = $_SESSION[GOOGLEAPI_SESSION_KEY];
                 $this->m_accessToken = (string) $accessToken;

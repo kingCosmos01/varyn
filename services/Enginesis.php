@@ -1543,7 +1543,6 @@ class Enginesis {
         $url = $this->m_serviceEndPoint;
         $setSSLCertificate = startsWith(strtolower($url), 'https://');
         $this->debugInfo("Calling $serviceName on $url with " . json_encode($parameters), __FILE__, __LINE__);
-//        echo("Calling $serviceName on $url with " . json_encode($parameters));
         $ch = curl_init($url);
         if ($ch) {
             $referrer = $this->m_serviceProtocol . '://' . $this->getServerName() . $this->currentPagePath();
@@ -1582,7 +1581,6 @@ class Enginesis {
             $contents = $this->makeErrorResponse('SYSTEM_ERROR', $errorInfo, $parameters);
         }
         $this->debugInfo("callServerAPI response from $serviceName: $contents", __FILE__, __LINE__);
-//        echo("\n\ncallServerAPI response from $serviceName: $contents \n\n");
         if ($response == 'json') {
             $contentsObject = json_decode($contents);
             if ($contentsObject === null) {
@@ -2205,7 +2203,7 @@ class Enginesis {
      * @param $security_question_id int
      * @param $security_question string
      * @param $security_answer string
-     * @return object: null if all acceptable. key/value pairs that we think are unacceptable. key is the field in error, value is the error message.
+     * @return array|null Null if all acceptable, otherwise an array of key/value pairs that we think are unacceptable. key is the field in error, value is the error message.
      */
     public function registeredUserSecurityValidation ($user_id, $mobile_number, $security_question_id, $security_question, $security_answer) {
         $errors = [];
