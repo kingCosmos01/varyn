@@ -10,6 +10,7 @@ require_once 'Enginesis.php';
 require_once 'SocialServicesFacebook.php';
 require_once 'SocialServicesTwitter.php';
 require_once 'SocialServicesGoogle.php';
+require_once 'SocialServicesApple.php';
 
 
 class SocialServices
@@ -40,6 +41,12 @@ class SocialServices
                 break;
             case EnginesisNetworks::Twitter:
                 return new SocialServicesTwitter($networkId);
+                break;
+            case EnginesisNetworks::Apple:
+                return new SocialServicesApple($networkId);
+                break;
+            default:
+                return null;
                 break;
         }
     }

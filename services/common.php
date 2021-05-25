@@ -115,12 +115,16 @@ function dieIfLive($msg) {
 /**
  * Create a failed response for cases when we are going to fail locally without transaction
  * with the server.
+ * @param string $errorCode The EnginesisErrors error code.
+ * @param string $errorMessage The additional error message information to further explain $errorCode.
+ * @param array|null $parameters Parameters that were supplied to the service to be echoed back as the service passthru information.
+ * @return string A JSON string representing the error response.
  */
 function makeErrorResponse($errorCode, $errorMessage, $parameters) {
     $service = isset($parameters['fn']) ? $parameters['fn'] : 'UNKNOWN';
     $stateSequence = isset($parameters['stateSeq']) ? $parameters['stateSeq'] : 0;
     $contents = '{"results":{"status":{"success":"0","message":"' . $errorCode . '","extended_info":"' . $errorMessage . '"},"passthru":{"fn":"' . $service . '","state_seq":' . $stateSequence . '}}}';
-    return $response;
+    return $contents;
 }
 
 // =================================================================
@@ -220,9 +224,9 @@ function getServiceProtocol () {
 /**
  * Return a variable that was posted from a form, or in the REQUEST object (GET or COOKIES), or a default if not found.
  * This way POST is the primary concern but if not found will fallback to the other methods.
- * @param $varName {string|Array} variable to read from request. If array, iterates array of strings until the first entry returns a result.
- * @param null $defaultValue
- * @return null
+ * @param string|array $varName variable to read from request. If array, iterates array of strings until the first entry returns a result.
+ * @param mixed $defaultValue A value to return if the parameter is not provided in teh request.
+ * @return mixed The value of the parameter.
  */
 function getPostOrRequestVar ($varName, $defaultValue = NULL) {
     $value = null;
@@ -489,78 +493,6 @@ function getURLContents ($url, $get_params = null, $post_params = null) {
         $page = null;
     }
     return $page;
-}
-
-/**
- * Make an Enginesis API request over HTTP using cURL.
- * @param $fn string the API to call
- * @param $serverURL string is the URL to contact without any query string (use $paramArray)
- * @param $paramArray array key => value array of parameters e.g. array('site_id' => 100);
- * @return array|mixed|string response from server or null if failed.
- */
-function callEnginesisAPI ($fn, $serverURL, $paramArray) {
-    global $enginesisLogger;
-
-    if ( ! isset($paramArray['response'])) {
-        $paramArray['response'] = 'json';
-    }
-    $response = $paramArray['response'];
-    if ( ! isset($paramArray['state_seq'])) {
-        $paramArray['state_seq'] = 1;
-    }
-    if ( ! isset($paramArray['fn'])) {
-        $paramArray['fn'] = $fn;
-    }
-    $response = $parameters['response'];
-    $setSSLCertificate = false;
-    $isLocalhost = serverStage() == '-l';
-    $setSSLCertificate = startsWith(strtolower($serverURL), 'https://');
-    $ch = curl_init($serverURL);
-    if ($ch) {
-        $referrer = serverName() . currentPagePath();
-        curl_setopt($ch, CURLOPT_USERAGENT, 'Enginesis PHP SDK');
-        curl_setopt($ch, CURLOPT_REFERER, $referrer);
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
-        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 1);
-        curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 600);
-        if ($isLocalhost) {
-            curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4 );
-        }
-        if ($setSSLCertificate) {
-            $certPath = $this->m_serverPaths['PRIVATE'] . 'cacert.pem';
-            if (file_exists($certPath)) {
-                curl_setopt($ch, CURLOPT_CAINFO, $certPath);
-                curl_setopt($ch, CURLOPT_CAPATH, $certPath);
-            } else {
-                $enginesisLogger->log("Cant locate SSL certs $certPath", LogMessageLevel::Error, 'callEnginesisAPI', __FILE__, __LINE__);
-            }
-        }
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $this->encodeURLParams($parameters));
-        $contents = curl_exec($ch);
-        if (empty($contents)) {
-            $errorInfo = 'System error: ' . $this->m_serviceEndPoint . ' replied with no data. ' . curl_error($ch);
-            $enginesisLogger->log($errorInfo, LogMessageLevel::Error, 'callEnginesisAPI', __FILE__, __LINE__);
-            $contents = makeErrorResponse('SYSTEM_ERROR', $errorInfo, $parameters);
-        }
-        curl_close($ch);
-    } else {
-        $contents = makeErrorResponse('SYSTEM_ERROR', 'System error: unable to contact ' . $serverURL . ' or the server did not respond.', $parameters);
-    }
-    if ($enginesisLogger) {
-        $enginesisLogger->log("parameters for $fn: " . $this->encodeURLParams($parameters), LogMessageLevel::Info, 'callEnginesisAPI', __FILE__, __LINE__);
-        $enginesisLogger->log("response from $fn: $contents", LogMessageLevel::Info, 'callEnginesisAPI', __FILE__, __LINE__);
-    }
-    if ($response == 'json') {
-        $contentsObject = json_decode($contents);
-        // TODO: We should verify the response is a valid EnginesisReponse object
-        if ($contentsObject == null) {
-            $enginesisLogger->log("callServerAPI could not parse JSON into an object: $contents", LogMessageLevel::Error, 'callEnginesisAPI', __FILE__, __LINE__);
-        }
-    }
-    return $contentsObject;
 }
 
 // =================================================================
@@ -1360,8 +1292,8 @@ function fullyCleanString($source) {
 /**
  * Clean a proposed file name of any undesired characters and return a nice file name.
  * 
- * @param {string} $fileName A proposed file name.
- * @returns {string} Proposed file name with undesired characters removed.
+ * @param string $fileName A proposed file name.
+ * @return string Proposed file name with undesired characters removed.
  */
 function cleanFileName ($fileName) {
     return str_replace(['\\', '/', ':', '*', '?', '"', '<', '>', '|', '`', '\''], '', $fileName);
@@ -1627,21 +1559,6 @@ function imageFileReceive ($saveItHere, $imageType) {
     return $rc;
 }
 
-function loginUrlMake ($site_id, $game_id = null) {
-    // was generateLoginUrl
-    global $redirect_urls;
-    $url = $redirect_urls[$site_id]['login'];
-    if ($site_id > 0 && $game_id > 0) {
-        $sql = dbQuery('select IF(length(trim(site_specific_game_id)) > 0 and site_specific_game_id > 0, site_specific_game_id, game_id) as game_id from site_games	where game_id = ? and site_id = ?', array($game_id, $site_id));
-        $row = dbFetch($sql);
-        if (isset($row)) {
-            $game_id = $row['game_id'];
-            $url = str_replace("%game_id%", $game_id, $url);
-        }
-    }
-    return $url;
-}
-
 /**
  * Parse a string of tags into individual tags array, making sure each tag is properly formatted.
  * A tag must be at least 1 character and no more than 50, without any leading or trailing whitespace,
@@ -1759,6 +1676,15 @@ function showBooleanChecked($flag) {
 function debugLog($message) {
     global $enginesisLogger;
     $enginesisLogger->log($message, LogMessageLevel::Info, 'System');
+}
+
+/**
+ * Return a printable version of a variable, array, or object.
+ * @param Any $value Any PHP variable to consider.
+ * @return string A string representation of $value.
+ */
+function debugToString($value) {
+    return json_encode($value);
 }
 
 // "Global" PHP variables available to all scripts. See also serverConfig.php.
