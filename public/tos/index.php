@@ -30,9 +30,9 @@ include_once(VIEWS_ROOT . 'header.php');
                 <li>Personal attacks.</li>
                 <li>Public or private harassment.</li>
                 <li>Publishing other's private information, such as physical or electronic addresses, without explicit permission.</li>
-                <li>Other unethical or unprofessional conduct.</li>
                 <li>Impersonating another person or individual in an effort to deceive or coerce other members.</li>
-                <li>You may not use bots or scripts to automate any usage of the services provided.<li>
+                <li>You may not use bots or scripts to automate any usage of the services provided.</li>
+                <li>Unethical or unprofessional conduct.</li>
             </ul>
         </div>
         <p class="indent-2">Any member caught violating the code of conduct will be expelled from the site and all personal data will be removed.</p>
