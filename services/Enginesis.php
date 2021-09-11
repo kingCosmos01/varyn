@@ -1558,12 +1558,11 @@ class Enginesis {
                 curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4 );
             }
             if ($setSSLCertificate) {
-                $certPath = $this->m_serverPaths['PRIVATE'] . 'cacert.pem';
-                if (file_exists($certPath)) {
-                    curl_setopt($ch, CURLOPT_CAINFO, $certPath);
-                    curl_setopt($ch, CURLOPT_CAPATH, $certPath);
+                $sslCertificate = $this->m_serverPaths['PRIVATE'] . 'cacert.pem';
+                if (file_exists($sslCertificate)) {
+                    curl_setopt($ch, CURLOPT_CAINFO, $sslCertificate);
                 } else {
-                    $this->debugCallback("callServerAPI Cant locate private certs $certPath", __FILE__, __LINE__);
+                    $this->debugCallback("callServerAPI Cant locate private cert $sslCertificate", __FILE__, __LINE__);
                 }
             }
             curl_setopt($ch, CURLOPT_POST, 1);
