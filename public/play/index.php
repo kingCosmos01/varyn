@@ -43,9 +43,10 @@ if ($gameInfo != null) {
     $pageKeywords = $gameInfo->keywords;
     $gameCategory = $gameInfo->game_style_category_name;
     $gameContainerHTML = setGameContainer($gameInfo, $enginesis->getServiceRoot(), $siteId, $gameId);
-    // @todo: Discover what screenshot image files are available for this game
+    // @todo: Discover what screenshot image files are available for this game, requires a query to get the game images
     $gameScreenShots = [
-        'https://enginesis.varyn.com/games/' . $gameName . '/images/ss_1.jpg'
+        'https://enginesis.varyn.com/games/' . $gameName . '/images/ss_1.jpg',
+        'https://enginesis.varyn.com/games/' . $gameName . '/images/ss_2.jpg'
     ];
 } else {
     // TODO: It may be better to go to /games/ with a search string ?q=$gameId but with an error message "Game not found"

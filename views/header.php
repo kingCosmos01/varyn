@@ -34,7 +34,12 @@ if (empty($pageSocialImage2)) {
 }
 if ($page == 'play') {
     // the game play page has additional requirements:
-    $screenShots = implode(",\n", $gameScreenShots);
+    $screenShots = '';
+    if (count($gameScreenShots) > 0) {
+        foreach($gameScreenShots as $imagePath) {
+            $screenShots .= ($screenShots == '' ? '' : ',') . '"' . $imagePath . '"';
+        }
+    }
     $gameDiscoveryTag = '
     <script type="application/ld+json">
     {
@@ -54,7 +59,7 @@ if ($page == 'play') {
       "gameBanner": "' . $pageSocialImage1 . '",
       "about": "https://varyn.com/about/",
       "privacyPolicyURL": "https://varyn.com/privacy/",
-      “gameExecutionMode”: “clientside”,
+      "gameExecutionMode": "clientside",
       "image": [' . $screenShots . '],
       "author": {
         "@type": "Organization",
@@ -64,7 +69,7 @@ if ($page == 'play') {
           "url": "https://varyn.com/favicon-1024x1024.png"
         }
       },
-       "publisher": {
+      "publisher": {
         "@type": "Organization",
         "name": "Enginesis",
         "logo": {
