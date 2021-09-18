@@ -7,7 +7,7 @@ if ( ! isset($showSubscribe)) {
 <div class="container footer">
     <div class="panel panel-default">
         <div class="panel-heading">
-            <span class="pull-left"><img src="/images/logosmall.png" border="0"/></span>
+            <span class="pull-left"><img src="/images/logosmall.png" alt="Varyn small logo"/></span>
             <p class="pull-right"><a href="#">Back to top</a></p>
             <div class="social">
                 <ul>

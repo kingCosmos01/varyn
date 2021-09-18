@@ -368,7 +368,7 @@ if ($page == 'play') {
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="/"><img src="/images/logosmall.png" border="0" /></a>
+                    <a class="navbar-brand" href="/"><img src="/images/logosmall.png" alt="Varyn small logo" /></a>
                 </div>
                 <div id="navbar" class="navbar-collapse collapse">
                     <ul class="nav navbar-nav">
