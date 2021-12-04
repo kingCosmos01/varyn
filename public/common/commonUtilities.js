@@ -17,7 +17,7 @@
 
     /** @exports commonUtilities */
     var commonUtilities = {
-        version: "1.3.1"
+        version: "1.3.2"
     },
     _base64KeyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
     _testNumber = 0;
@@ -172,10 +172,33 @@
     };
 
     /**
+     * Append an existing URL with additional query paremters.
+     * @param {String} url A well-formed URL. It may or may not have "?" query parameter(s).
+     * @param {Object} parameters Expected object of key/value properties. Does not work for nested objects.
+     * @returns {String} The url with query string parameters appended.
+     */
+    commonUtilities.appendQueryParametersToURL = function (url, parameters) {
+        var queryPos = url.indexOf("?");
+        var safeParameters = [];
+        for (var parameter in parameters) {
+            if (parameters.hasOwnProperty(parameter)) {
+                safeParameters.push(encodeURIComponent(parameter) + "=" + encodeURIComponent(parameters[parameter]));
+            }
+        }
+        if (queryPos > 0 && queryPos < url.length - 1) {
+            url += "&";
+        } else if (queryPos == -1) {
+            url += "?";
+        }
+        url += safeParameters.join("&");
+        return url;
+    };
+
+    /**
      * Extend an object with properties copied from other objects. Takes a variable number of arguments:
-     *  If no arguments, and empty object is returned.
+     *  If no arguments, an empty object is returned.
      *  If one argument, that object is returned unchanged.
-     *  If more than one argument, each object is copied to the first object one property at a time. When
+     *  If more than one argument, each object in l-2-r order is copied to the first object one property at a time. When
      *    properties conflict the last property is the one retained.
      * @returns {object}
      */
@@ -209,8 +232,8 @@
     /**
      * Determine if at least one string in the array matches the pattern. Since we are using regex pattern
      * to match we cannot use Array.indexOf(). If the pattern were a simple string, use Array.indexOf().
-     * @param pattern a regex pattern to match.
-     * @param arrayOfStrings strings to test each against the pattern.
+     * @param {Regex} pattern a regex pattern to match.
+     * @param {Array} arrayOfStrings strings to test each against the pattern.
      * @returns {number} index of first string in the array that matches the pattern, -1 when no match.
      */
     commonUtilities.matchInArray = function (pattern, arrayOfStrings) {
@@ -421,8 +444,8 @@
 
     /**
      * Convert a string into one that has no HTML vunerabilities such that it can be rendered inside an HTML tag.
-     * @param string
-     * @returns {string}
+     * @param {string} string A string to check for HTML vunerabilities.
+     * @returns {string} A copy of the input string with any HTML vunerabilities removed.
      */
     commonUtilities.safeForHTML = function (string) {
         var htmlEscapeMap = {
@@ -474,7 +497,7 @@
      * ----------------------------------------------------------------------------------*/
     /**
      * Determine if the current invokation environment is a mobile device.
-     * TODO: Really would rather use modernizr.js as you really do not want isMobile(), you want isTouchDevice()
+     * @todo: Really would rather use modernizr.js as you really do not want isMobile(), you want isTouchDevice()
      *
      * @return {bool} true if we think this is a mobile device, false if we think otherwise.
      *
@@ -682,8 +705,8 @@
 
     /**
      * Round a number to the requested number of decimal places.
-     * @param value {number} the number to round.
-     * @param decimalPlaces {number} the number of decimal places.
+     * @param {number} value the number to round.
+     * @param {integer} decimalPlaces the number of decimal places.
      * @returns {number} Rounded value.
      */
     commonUtilities.roundTo = function (value, decimalPlaces) {
@@ -756,9 +779,9 @@
     /**
      * Remove a cookie indexed by the specified key.
      *
-     * @param key {string} Indicate which cookie to remove.
-     * @param path {string} Cookie URL path.
-     * @param domain {string} Cookie domain.
+     * @param {string} key Indicate which cookie to remove.
+     * @param {string} path Cookie URL path.
+     * @param {string} domain Cookie domain.
      * @return {boolean} true if removed, false if doesn't exist.
      */
     commonUtilities.cookieRemove = function (key, path, domain) {
@@ -773,7 +796,7 @@
     /**
      * Determine if the cookie exists.
      *
-     * @param key {string} Key to test if exists.
+     * @param {string} key Key to test if exists.
      * @return {boolean} true if exists, false if doesn't exist.
      */
     commonUtilities.cookieExists = function (key) {
@@ -824,9 +847,9 @@
      * Look up an item's value in a local or session storage and return it. If it is
      * stored as JSON then we parse it and return an object.
      *
-     * @param key {string} the key to look up and return its respective value from the storage object indicated. The expectation
+     * @param {string} key the key to look up and return its respective value from the storage object indicated. The expectation
      * is you previously saved it with commonUtilities.storageSave(key, value);
-     * @param storageObject {object} use either localStorage, sessionStorage, or null will default to 'localStorage'
+     * @param {Object} storageObject use either localStorage, sessionStorage, or null will default to 'localStorage'
      * @returns {string|*}
      */
     commonUtilities.storageGet = function (key, storageObject) {
@@ -849,8 +872,8 @@
     /**
      * Save an item in local storage. If the value is null, it will attempt to remove the item if it was
      * previously saved.
-     * @param key {string} the key to store a respective value in the storage object indicated.
-     * @param object {*} any data you want to store. Note Objects and Arrays are saved as JSON and loadObjectWithKey will
+     * @param {string} key the key to store a respective value in the storage object indicated.
+     * @param {any} object any data you want to store. Note Objects and Arrays are saved as JSON and loadObjectWithKey will
      * re-hydrate the object. Other types are converted to string so loadObjectWithKey will return a string.
      * @return {boolean} true if saved or removed. false for an error.
      */
@@ -882,8 +905,8 @@
 
     /**
      * Return object from local storage that was saved with saveObjectWithKey.
-     * @param key {string}
-     * @returns {*} object that was saved with saveObjectWithKey
+     * @param {string} key The key property name to look up.
+     * @returns {any} object that was saved with saveObjectWithKey().
      */
     commonUtilities.loadObjectWithKey = function (key) {
         var maybeJsonData,
@@ -975,10 +998,10 @@
      * A very basic function performance tester. Will track the time it takes to run the
      *        function for the specified number of iterations.
      *
-     * @param testFunction {function} a function to test. This function takes no parameters. If you
+     * @param {function} testFunction a function to test. This function takes no parameters. If you
      *        require parameters then wrap into a function that takes no parameters.
-     * @param testId {string} any id you want to assign to the test. Not used, but returned.
-     * @param totalIterations {int} number of times to call this function.
+     * @param {string} testId any id you want to assign to the test. Not used, but returned.
+     * @param {integer} totalIterations number of times to call this function.
      * @return {object} test results object including test number, test function id, duration,
      *         duration units, and total iterations.
      */
@@ -1005,16 +1028,16 @@
     };
 
     /**
-     * Convert a date into a MySQL compatible date string.
+     * Convert a date into a MySQL compatible date string (YYYY-MM-DD).
      * If the date provided is a string we will attempt to convert it to a date object using the available
      * Date() constructor. If no date is provided we will use the current date. If none of these conditions
      * then we expect the date provided to be a valid Date object.
-     * @param date one of null, a string, or a Date object
+     * @param {null|string|Date} date one of null, a string, or a Date object
      * @returns {string}
      */
     commonUtilities.MySQLDate = function (date) {
         var mysqlDateString;
-        if (date == undefined) {
+        if (date == undefined || date == null) {
             date = new Date();
         } else if (! (date instanceof Date)) {
             date = new Date(date);
@@ -1025,7 +1048,7 @@
 
     /**
      * Return the date it was years from today.
-     * @param years {int} number of years before today.
+     * @param {integer} years Number of years before today.
      * @returns {Date}
      */
     commonUtilities.subtractYearsFromNow = function (years) {
@@ -1793,9 +1816,9 @@
 
     /**
      * Given a user email, generate the Gravatar URL for the image.
-     * @param email
-     * @param size
-     * @returns {string} - URL.
+     * @param {string} email An email address. This is not validated.
+     * @param {integer} size THe size of the avatar image to return, width and height are equal.
+     * @returns {string} - A URL.
      */
     commonUtilities.getGravatarURL = function (email, size) {
         var size = size || 80;

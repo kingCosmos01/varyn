@@ -2,11 +2,11 @@
 /**
  * Enginesis service object for PHP clients. Support for each Enginesis API and additional helper functions.
  * @author: varyn
- * @date: 13-Feb-2016
+ * @since: 13-Feb-2016
  */
 
 if ( ! defined('ENGINESIS_VERSION')) {
-    define('ENGINESIS_VERSION', '2.6.8');
+    define('ENGINESIS_VERSION', '2.6.11');
 }
 require_once('EnginesisErrors.php');
 if ( ! defined('SESSION_COOKIE')) {
