@@ -157,4 +157,30 @@ final class CommonTest extends TestCase {
         $this->assertNotEmpty($result->results->status->extended_info);
         $this->assertEquals('CommentAssign', $result->results->passthru->fn);
     }
+
+    public function testGetURLContents() {
+        $url = 'https://www.killerquiz.com/';
+        $response = getURLContents($url, null, null);
+        $this->assertNotEmpty($response);
+        $this->assertStringContainsString('trivia skills', $response);
+
+        $url = 'https://www.enginesis.com/index.php';
+        $get_params = ['fn' => 'CommentAssign', 'site_id' => 100, 'id' => 3, 'response' => 'json'];
+        $response = getURLContents($url, $get_params, null);
+        $this->assertNotEmpty($response);
+        $result = json_decode($response);
+        $this->assertEquals('0', $result->results->status->success);
+        $this->assertEquals(EnginesisErrors::INVALID_SERVICE_REQUEST, $result->results->status->message);
+        $this->assertNotEmpty($result->results->status->extended_info);
+        $this->assertEquals('CommentAssign', $result->results->passthru->fn);
+
+        $post_params = ['fn' => 'CommentAssign', 'site_id' => 100, 'id' => 3, 'response' => 'json'];
+        $response = getURLContents($url, null, $post_params);
+        $this->assertNotEmpty($response);
+        $result = json_decode($response);
+        $this->assertEquals('0', $result->results->status->success);
+        $this->assertEquals(EnginesisErrors::INVALID_SERVICE_REQUEST, $result->results->status->message);
+        $this->assertNotEmpty($result->results->status->extended_info);
+        $this->assertEquals('CommentAssign', $result->results->passthru->fn);
+    }
 }

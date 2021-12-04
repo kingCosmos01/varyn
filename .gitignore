@@ -25,3 +25,5 @@ public/lab/
 public/resources/
 
 services/lib/vendor
+
+sitedev/test/*.xml

@@ -478,17 +478,36 @@ function getURLContents ($url, $get_params = null, $post_params = null) {
         }
     }
     $ch = curl_init($url);
-    curl_setopt($ch, CURLOPT_HEADER, 0);
-    curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-    if ($post_string != '') {
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $post_string);
-    }
-    $page = curl_exec($ch);
-    curl_close($ch);
-    if ($page === false) {
-        // the curl call itself failed, usually due to no network or SSL cert failure.
+    if ($ch) {
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 20);
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);
+        curl_setopt($ch, CURLOPT_DNS_CACHE_TIMEOUT, 600);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Varyn ' . VARYN_VERSION);
+        curl_setopt($ch, CURLOPT_REFERER, 'https://varyn.com/');
+        if ($post_string != '') {
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $post_string);
+        }
+        if (startsWith(strtolower($url), 'https://')) {
+            $sslCertificate = dirname(__FILE__) . '/../private/cacert.pem';
+            if (file_exists($sslCertificate)) {
+                curl_setopt($ch, CURLOPT_CAINFO, $sslCertificate);
+            } else {
+                reportError("Cant locate private cert $sslCertificate", __FILE__, __LINE__, 'getURLContents');
+            }
+        }
+        $page = curl_exec($ch);
+        $curlError = curl_errno($ch);
+        curl_close($ch);
+        if ($curlError != 0 || $page === false) {
+            echo('Network error ' . $curlError . ': ' . curl_strerror($curlError) . ' requesting ' . $url);
+            // the curl call itself failed, usually due to no network or SSL cert failure.
+            reportError('Network error ' . $curlError . ': ' . curl_strerror($curlError) . ' requesting ' . $url, __FILE__, __LINE__, 'getURLContents');
+            $page = null;
+        }
+    } else {
         $page = null;
     }
     return $page;
