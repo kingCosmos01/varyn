@@ -567,11 +567,11 @@ class Enginesis {
     /**
      * Return the domain name and TLD only (remove server name, protocol, anything else) e.g. this function
      * converts http://www.games.com into games.com or http://services.games-q.com into games-q.com
-     * @param string|null $proposedServerName a proposed domain. If null, the current domain.
+     * @param string $proposedServerName a proposed domain. If empty, use the current domain.
      * @return string The last two components of the proposed domain.
      */
     public function serverTail($proposedServerName = '') {
-        if (strlen($proposedServerName) == 0) {
+        if (empty($proposedServerName)) {
             $proposedServerName = $this->getServerName();
         }
         if ($proposedServerName != 'localhost') {
@@ -1230,10 +1230,10 @@ class Enginesis {
         $this->m_isLoggedIn = false;
         $this->m_refreshedUserInfo = null;
         if ( ! headers_sent()) {
-            if (setcookie(SESSION_COOKIE, null, time() - $sessionExpireTime, '/', $this->sessionCookieDomain()) === false) {
+            if (setcookie(SESSION_COOKIE, '', time() - $sessionExpireTime, '/', $this->sessionCookieDomain()) === false) {
                 $rc = 'CANNOT_SET_SESSION';
             }
-            setcookie(SESSION_USERINFO, null, time() - $sessionExpireTime, '/', $this->sessionCookieDomain());
+            setcookie(SESSION_USERINFO, '', time() - $sessionExpireTime, '/', $this->sessionCookieDomain());
         }
         $_COOKIE[SESSION_COOKIE] = null;
         $_COOKIE[SESSION_USERINFO] = null;

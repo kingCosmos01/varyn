@@ -690,13 +690,13 @@ function domainForTargetPlatform ($targetPlatform, $hostName = null) {
 
 /**
  * Parse the given host name to determine which stage we are currently running on.
- * @param $hostName string - host name or domain name to parse. If null we try the current `serverName()`.
+ * @param string $hostName Host name or domain name to parse. If null we try the current `serverName()`.
  * @return string the -l, -d, -q, -x part, or '' for live.
  */
 function serverStage($hostName = null) {
     // assume live until we prove otherwise
     $targetPlatform = '';
-    if (strlen($hostName) == 0) {
+    if (empty($hostName)) {
         $hostName = serverName();
     }
     if (preg_match('/-[dlqx]\./i', $hostName, $matchedStage)) {
