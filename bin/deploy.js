@@ -1,20 +1,6 @@
 /**
  * Deploy the local site to -d or -q
  * See https://www.npmjs.com/package/rsync for info on rsync
- * rsync flags:
- *  o - owner
- *  g - group
- *  a - archive
- *  u - update if newer date
- *  l - recreate symlinks
- *  p - permissions copied from source (use chmod when off)
- *  z - compress
- *  r - recursive
- *  t - keep modification time
- *  c - checksum file compare
- *  v - verbose
- *  P - ?
- *  --delete remove files from dest that are not in source
  *  rsync error codes: https://lxadm.com/Rsync_exit_codes
  * Run deploy with `npm run deploy` or `npm run deploy -- --no-dryrun`
  */
@@ -282,13 +268,12 @@ function immediateLog(message, error = true) {
 function updateBuildInfoFile() {
     var path = require('path'),
         buildFileName = 'build-info.json',
-        dateFormat = require('dateformat'),
         buildFolder = './public',
         user = env['USER'],
         package_name = env['npm_package_name'],
         version = env['npm_package_version'],
         buildFile = path.join(buildFolder, buildFileName),
-        currentDateTime = dateFormat('isoDateTime'),
+        currentDateTime = (new Date()).toISOString(),
         buildInfo = {
             packageName: package_name,
             version: version,
