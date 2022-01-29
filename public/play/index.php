@@ -1,4 +1,4 @@
-<?php
+<?php // the /play/?id=xxx URL which requires a game identifier
 require_once('../../services/common.php');
 processSearchRequest();
 $page = 'play';
@@ -15,9 +15,11 @@ $gameCategory = '';
 $receivedGameInfo = false;
 $gameContainerHTML = '';
 $isPlayBuzzSpecialCase = false;
+$enginesisGameRoot = 'https://enginesis.varyn.com/games/';
 
 // get game info: we need the game info immediately in order to build the page
-// GameGet only works for numeric game_id, if game name we need to call GameGetByName
+// gameGet only works for numeric game_id, if game_name then call GameGetByName
+// @todo: how does this work for games with a numeric name like "2048"?
 if (is_numeric($gameId)) {
     $gameInfo = $enginesis->gameGet($gameId);
 } elseif ( ! empty($gameId)) {
@@ -31,12 +33,12 @@ if ($gameInfo != null) {
     $gameId = $gameInfo->game_id;
     $gameName = $gameInfo->game_name;
     $title = $gameInfo->title;
-    $pageSocialImage1 = 'https://enginesis.varyn.com/games/' . $gameName . '/images/600x450.png';
+    $pageSocialImage1 = $enginesisGameRoot . $gameName . '/images/600x450.png';
     $pageSocialImageWidth = 600;
     $pageSocialImageHeight = 450;
-    $pageSocialImage2 = 'https://enginesis.varyn.com/games/' . $gameName . '/images/586x308.png';
-    $pageFavIcon = 'https://enginesis.varyn.com/games/' . $gameName . '/images/50x50.png';
-    $pageIcon = 'https://enginesis.varyn.com/games/' . $gameName . '/images/50x50.png';
+    $pageSocialImage2 = $enginesisGameRoot . $gameName . '/images/586x308.png';
+    $pageFavIcon = $enginesisGameRoot . $gameName . '/images/50x50.png';
+    $pageIcon = $enginesisGameRoot . $gameName . '/images/50x50.png';
     $gameLink = currentPageURL();
     $pageOGLink = currentPageURL();
     $pageDescription = $gameInfo->short_desc;
@@ -45,11 +47,11 @@ if ($gameInfo != null) {
     $gameContainerHTML = setGameContainer($gameInfo, $enginesis->getServiceRoot(), $siteId, $gameId);
     // @todo: Discover what screenshot image files are available for this game, requires a query to get the game images
     $gameScreenShots = [
-        'https://enginesis.varyn.com/games/' . $gameName . '/images/ss_1.jpg',
-        'https://enginesis.varyn.com/games/' . $gameName . '/images/ss_2.jpg'
+        $enginesisGameRoot . $gameName . '/images/ss_1.jpg',
+        $enginesisGameRoot . $gameName . '/images/ss_2.jpg'
     ];
 } else {
-    // TODO: It may be better to go to /games/ with a search string ?q=$gameId but with an error message "Game not found"
+    // @todo: It may be better to go to /games/ with a search string ?q=$gameId but with an error message "Game not found"
     header("Location: /missing.php?m=" . urlencode("No information found for $gameId."));
     exit(0);
 }
