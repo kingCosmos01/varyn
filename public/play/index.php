@@ -3,8 +3,9 @@ require_once('../../services/common.php');
 processSearchRequest();
 $page = 'play';
 $showSubscribe = getPostOrRequestVar('s', '0');
-$gameId = getPostOrRequestVar(['id', 'gameid', 'game_id', 'gameId', 'gameName', 'g'], '');
-if ($gameId == '') {
+$gameName = getPostOrRequestVar(['name', 'game', 'game_name', 'gamename', 'gameName'], '');
+$gameId = intval(getPostOrRequestVar(['id', 'gameid', 'game_id', 'gameId', 'g'], 0));
+if ($gameId == 0 && $gameName == '') {
     header("Location: /games/");
 }
 $gameWidth = 1024;
@@ -19,14 +20,10 @@ $enginesisGameRoot = 'https://enginesis.varyn.com/games/';
 
 // get game info: we need the game info immediately in order to build the page
 // gameGet only works for numeric game_id, if game_name then call GameGetByName
-// @todo: how does this work for games with a numeric name like "2048"?
-if (is_numeric($gameId)) {
+if ($gameId > 0) {
     $gameInfo = $enginesis->gameGet($gameId);
-} elseif ( ! empty($gameId)) {
-    $gameInfo = $enginesis->gameGetByName($gameId);
-} else {
-    header("Location: /games/");
-    exit(0);
+} elseif ( ! empty($gameName)) {
+    $gameInfo = $enginesis->gameGetByName($gameName);
 }
 if ($gameInfo != null) {
     $receivedGameInfo = true;
@@ -51,8 +48,13 @@ if ($gameInfo != null) {
         $enginesisGameRoot . $gameName . '/images/ss_2.jpg'
     ];
 } else {
-    // @todo: It may be better to go to /games/ with a search string ?q=$gameId but with an error message "Game not found"
-    header("Location: /missing.php?m=" . urlencode("No information found for $gameId."));
+    $searchFor = $gameId > 0 ? $gameId : $gameName;
+    if (empty($searchFor)) {
+        $redirectTo = "Location: /games/";
+    } else {
+        $redirectTo = "Location: /games/?q=" . $searchFor;
+    }
+    header($redirectTo);
     exit(0);
 }
 

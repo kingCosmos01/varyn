@@ -7,37 +7,37 @@ var varyn = function (parameters) {
     "use strict";
 
     var siteConfiguration = {
-            debug: true,
-            originWhiteList: ['www.enginesis.com', 'games.enginesis.com', 'metrics.enginesis.com', 'www.enginesis-l.com', 'games.enginesis-l.com', 'metrics.enginesis-l.com', 'www.enginesis-q.com', 'games.enginesis-q.com', 'metrics.enginesis-q.com'],
-            varynUserInfoCookieName: 'varynuser',
-            userInfoKey: 'varynuserinfo',
-            developerKey: parameters.developerKey,
-            siteId: parameters.siteId,
-            gameId: parameters.gameId,
-            gameGroupId: parameters.gameGroupId,
-            serverStage: parameters.serverStage,
-            serverHostDomain: 'varyn' + parameters.serverStage + '.com',
-            languageCode: parameters.languageCode,
-            gameListIdTop: parameters.gameListIdTop || 4,
-            gameListIdNew: parameters.gameListIdNew || 5,
-            homePagePromoId: parameters.homePagePromoId || 3,
-            blogPagePromoId: parameters.blogPagePromoId || 4,
-            gameListState: 1,
-            userInfo: parameters.userInfo,
-            authToken: parameters.authToken,
+        debug: true,
+        originWhiteList: ['www.enginesis.com', 'games.enginesis.com', 'metrics.enginesis.com', 'www.enginesis-l.com', 'games.enginesis-l.com', 'metrics.enginesis-l.com', 'www.enginesis-q.com', 'games.enginesis-q.com', 'metrics.enginesis-q.com'],
+        varynUserInfoCookieName: 'varynuser',
+        userInfoKey: 'varynuserinfo',
+        developerKey: parameters.developerKey,
+        siteId: parameters.siteId,
+        gameId: parameters.gameId,
+        serverStage: parameters.serverStage,
+        serverHostDomain: 'varyn' + parameters.serverStage + '.com',
+        languageCode: parameters.languageCode,
+        gameGroupId: parameters.gameGroupId || 0,
+        gameListIdTop: parameters.gameListIdTop || 4,
+        gameListIdNew: parameters.gameListIdNew || 5,
+        homePagePromoId: parameters.homePagePromoId || 3,
+        blogPagePromoId: parameters.blogPagePromoId || 4,
+        gameListState: 1,
+        userInfo: parameters.userInfo,
+        authToken: parameters.authToken,
 
-            minPasswordLength: 4,
-            minUserNameLength: 3,
-            minimumAge: 13,
-            ssoParameters: parameters
-        },
-        unconfirmedNetworkId = 1,
-        currentPage = '',
-        waitingForUserNameReply = false,
-        domImage,
-        enginesisSession = window.enginesis,
-        pageViewParameters = null,
-        _isLogout = false;
+        minPasswordLength: 4,
+        minUserNameLength: 3,
+        minimumAge: 13,
+        ssoParameters: parameters
+    },
+    unconfirmedNetworkId = 1,
+    currentPage = '',
+    waitingForUserNameReply = false,
+    domImage,
+    enginesisSession = window.enginesis,
+    pageViewParameters = null,
+    _isLogout = false;
 
     /**
      * Network id is set by the Enginesis server based on what type of SSO user login was performed.
@@ -1365,7 +1365,7 @@ var varyn = function (parameters) {
             id = 'gameid-' + gameId;
             favoriteImgSrc = isFavorite ? "/images/favorite-button-on-196.png" : "/images/favorite-button-off-196.png";
             innerHtml = "<div id=\"" + id + "\" class=\"gameModule thumbnail\">";
-            innerHtml += "<a href=\"" + gameLink + "\" title=\"" + title + "\"><img class=\"thumbnail-img\" src=\"" + gameImg + "\" alt=\"" + gameName + "\"/></a>";
+            innerHtml += "<a href=\"" + gameLink + "\" title=\"" + title + "\"><img class=\"thumbnail-img\" src=\"" + gameImg + "\" alt=\"" + gameName + "\" loading=\"lazy\" width=\"300\" height=\"225\" /></a>";
             innerHtml += "<div class=\"gameModuleInfo\"><a href=\"" + gameLink + "\" class=\"btn btn-md btn-success\" role=\"button\" title=\"" + title + "\" alt=\"" + title + "\">Play Now!</a><img class=\"favorite-button\" src=\"" + favoriteImgSrc + "\" data-gameid=\"" + gameId + "\" data-favorite=\"" + isFavorite + "\" alt=\"Add " + gameName + " to your favorite games\" onclick=\"varynApp.favoriteButtonClicked(this);\"></div>";
             innerHtml += "<div class=\"caption\"><a class=\"gameTitle\" href=\"" + gameLink + "\" title=\"" + title + "\"><h3>" + gameName + "</h3></a><p class=\"gamedescription\">" + gameDescription + "</p>";
             innerHtml += "</div></div>";
