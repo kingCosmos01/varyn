@@ -20,7 +20,7 @@
 
     /** @exports enginesis */
     var enginesis = {
-        VERSION: "2.6.9",
+        VERSION: "2.6.12",
         debugging: true,
         disabled: false, // use this flag to turn off communicating with the server
         isOnline: true,  // flag to determine if we are currently able to reach Enginesis servers
