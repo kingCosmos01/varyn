@@ -3,6 +3,7 @@ require_once('../services/common.php');
 ?>
 <!DOCTYPE html>
 <html lang="en-us">
+
 <head>
     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -20,10 +21,10 @@ require_once('../services/common.php');
     <meta name="msapplication-TileColor" content="#c7254e">
     <meta name="theme-color" content="#c7254e">
     <link rel="image_src" href="/images/VarynCardLogo.png" />
-    <META NAME="Description" CONTENT="Varyn"/>
-    <META NAME="Keywords" CONTENT="Varyn"/>
-    <META NAME="Author" content="Varyn"/>
-    <META NAME="Copyright" content="Copyright � 2013 Varyn. All rights reserved."/>
+    <META NAME="Description" CONTENT="Varyn" />
+    <META NAME="Keywords" CONTENT="Varyn" />
+    <META NAME="Author" content="Varyn" />
+    <META NAME="Copyright" content="Copyright © 2013 Varyn. All rights reserved." />
     <meta name="google-site-verification" content="" />
     <meta property="og:title" content="Varyn" />
     <meta property="og:description" content="Varyn" />
@@ -42,20 +43,22 @@ require_once('../services/common.php');
     <link rel="stylesheet" href="/common/main.css" type="text/css" media="screen" />
     <script type="text/javascript" src="/common/head.min.js"></script>
 </head>
+
 <body>
-<div id="page_container" data-role="dialog">
-    <div data-role="header">
-        <h1>Register</h1>
+    <div id="page_container" data-role="dialog">
+        <div data-role="header">
+            <h1>Register</h1>
+        </div>
+        <div data-role="content" data-theme="c">
+            <p>User Name: <input type="text" name="username" /></p>
+            <p>Password: <input type="password" name="password" /></p>
+            <p>Your Email: <input type="email" name="email" /></p>
+            <p>Your Name: <input type="text" name="fullname" /></p>
+            <p>Your Location: <input type="text" name="location" /></p>
+            <p>Your tag line: <input type="text" name="tagline" /></p>
+            <a href="/profile/" data-role="button">Submit</a><a href="#" data-rel="back" data-role="button">Cancel</a>
+        </div>
     </div>
-    <div data-role="content" data-theme="c">
-        <p>User Name: <input type="text" name="username" /></p>
-        <p>Password: <input type="password" name="password" /></p>
-        <p>Your Email: <input type="email" name="email" /></p>
-        <p>Your Name: <input type="text" name="fullname" /></p>
-        <p>Your Location: <input type="text" name="location" /></p>
-        <p>Your tag line: <input type="text" name="tagline" /></p>
-        <a href="/profile/" data-role="button">Submit</a><a href="#" data-rel="back" data-role="button">Cancel</a>
-    </div>
-</div><!-- page_container -->
 </body>
+
 </html>
