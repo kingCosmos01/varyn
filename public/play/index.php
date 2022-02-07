@@ -1,7 +1,16 @@
-<?php // the /play/?id=xxx URL which requires a game identifier
+<?php /* the /play/?id=xxx URL which requires a game identifier
+* Can also provide v=view to specify a specific view. Views are:
+    `play`: show the game play view
+    `about`: show info about the game
+    `help`: show game help, how to play
+    `reviews`: show game reviews
+    `comments`: show user comments about this game
+    `leaderboard`: show the game leader board
+*/
 require_once('../../services/common.php');
 processSearchRequest();
 $page = 'play';
+$pageView = getPostOrRequestVar(['v', 'view'], 'play');
 $showSubscribe = getPostOrRequestVar('s', '0');
 $gameName = getPostOrRequestVar(['name', 'game', 'game_name', 'gamename', 'gameName'], '');
 $gameId = intval(getPostOrRequestVar(['id', 'gameid', 'game_id', 'gameId', 'g'], 0));
