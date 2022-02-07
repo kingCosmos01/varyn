@@ -17,7 +17,7 @@
 
     /** @exports commonUtilities */
     var commonUtilities = {
-        version: "1.3.2"
+        version: "1.4.1"
     },
     _base64KeyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
     _testNumber = 0;
@@ -49,6 +49,16 @@
             hasSupport = false;
         }
         return hasSupport;
+    }
+
+    /**
+     * Coerce a boolean value to its string representation, either "true" or "false". The input
+     * parameter is expected to be a boolean but if it isn't it is coerced to its boolean representation.
+     * @param {boolean} value Expected boolean value to be converted to a printable string, either "true" or "false".
+     * @returns {string} Either "true" or "false".
+     */
+    commonUtilities.booleanToString = function(value) {
+        return ( ! ! value) ? "true" : "false";
     }
 
     /**
@@ -369,7 +379,7 @@
     }
 
     /**
-     * Coerce a value to its boolean equivelent, causing the value to be interpreted as its 
+     * Coerce a value to its boolean equivalent, causing the value to be interpreted as its 
      * boolean intention. This works very different that the JavaScript coercion. For example,
      * "0" == true and "false" == true in JavaScript but here "0" == false and "false" == false.
      * @param {*} value A value to test.

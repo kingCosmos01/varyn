@@ -20,7 +20,7 @@
 
     /** @exports enginesis */
     var enginesis = {
-        VERSION: "2.6.8",
+        VERSION: "2.6.9",
         debugging: true,
         disabled: false, // use this flag to turn off communicating with the server
         isOnline: true,  // flag to determine if we are currently able to reach Enginesis servers
@@ -162,16 +162,16 @@
      * Determine if a given variable is considered an empty value. A value is considered empty if it is any one of
      * `null`, `undefined`, `false`, `NaN`, an empty string, an empty array, or 0. Note this does not consider an
      * empty object `{}` to be empty.
-     * @param {any} field The parameter to be tested for emptiness.
-     * @returns {boolean} `true` if `field` is considered empty.
+     * @param {any} value The parameter to be tested for emptiness.
+     * @returns {boolean} `true` if the value is considered empty.
      */
-    function isEmpty (field) {
-        return field === undefined
-        || field === null
-        || field === false
-        || (typeof field === "string" && (field === "" || field === "undefined"))
-        || (field instanceof Array && field.length == 0)
-        || (typeof field === "number" && (isNaN(field) || field === 0));
+    function isEmpty (value) {
+        return value === undefined
+        || value === null
+        || value === false
+        || (typeof value === "string" && (value === "" || value === "undefined"))
+        || (value instanceof Array && value.length == 0)
+        || (typeof value === "number" && (isNaN(value) || value === 0));
     }
 
     /**
@@ -307,6 +307,61 @@
     }
 
     /**
+     * Determine if the request failed because the users authentication has expired.
+     * @param {object} enginesisResult Enginesis server result object.
+     * @returns {boolean} true if the server response is the users token is expired.
+     */
+    function resultIsExpiredToken(enginesisResult) {
+        return enginesisResult && enginesisResult.results && enginesisResult.results.status && enginesisResult.results.status.success == "0" && enginesisResult.results.status.message == "TOKEN_EXPIRED";
+    }
+
+    /**
+     * When a service request fails due to an expired token, it may be possible to refresh
+     * the users authentication and reissue the original request. This function attempts to do that by:
+     *   1. Determine if we have the refresh token. if so, call SessionRefresh. if not, resolve with original result object.
+     *   2. If SessionRefresh fails, resolve with original result object.
+     *   3. If SessionRefresh succeeds, reissue the original request and resolve with its response.
+     * @param {object} enginesisResult Enginesis server result object of the original request.
+     * @returns {Promise} Resolves when session is refreshed and original request is complete, or resolves
+     *   with any error that occurred in the process.
+     */
+    function refreshTokenAndReissueRequest(enginesisResult) {
+        return new Promise(function(resolve) {
+            if (_getRefreshToken() !== null) {
+                enginesis.sessionRefresh(enginesis.refreshToken, null);
+                enginesis.sessionRefresh(_getRefreshToken(), null)
+                .then(function(sessionRefreshResult) {
+                    debugLog("refreshTokenAndReissueRequest users authentication has been refreshed. " + sessionRefreshResult.toString());
+                    // Reissue original request
+                    var serviceName = enginesisResult.results.passthru.fn;
+                    var parameters = enginesisResult.results.passthru;
+                    sendRequest(serviceName, parameters, null)
+                    .then(function(reissueResult) {
+                        resolve(reissueResult);
+                    }, function(enginesisError) {
+                        debugLog("refreshTokenAndReissueRequest refresh error " + enginesisError.toString());
+                        resolve(enginesisResult);
+                    })
+                    .catch(function(exception) {
+                        debugLog("refreshTokenAndReissueRequest refresh exception " + exception.toString());
+                        resolve(enginesisResult);
+                    });
+                }, function(enginesisError) {
+                    debugLog("refreshTokenAndReissueRequest refresh error " + enginesisError.toString());
+                    resolve(enginesisResult);
+                })
+                .catch(function(exception) {
+                    debugLog("refreshTokenAndReissueRequest refresh exception " + exception.toString());
+                    resolve(enginesisResult);
+                });
+            } else {
+                // We cannot refresh the token so respond with the original error.
+                resolve(enginesisResult);
+            }
+        });
+    }
+
+    /**
      * Return the error code associated with an enginesis service request. Successful requests
      * usually return an empty string for the error code.
      * @param {object} enginesisResult Enginesis server result object.
@@ -341,6 +396,7 @@
      * @param {string} errorCode EnginesisErrors error code.
      * @param {string} errorMessage Extended error information.
      * @param {Object|Array} passthruParameters Key/value parameters to include in passthru
+     * @returns {Object} An EnginesisResponse object.
      */
     function makeErrorResponse(errorCode, errorMessage, passthruParameters) {
         return {
@@ -404,30 +460,42 @@
     /**
      * When the server responds, intercept any result we get so we can preprocess it before
      * sending it off to the callback function. This may require different logic for different
-     * services.
-     * @param {Object} enginesisResult
+     * services. In most cases a service call will result in some form of internal state update,
+     * such as a refresh auth token or updated game info. In some cases, the server responds with
+     * an error that we can resolve with further service calls.
+     * @param {Object} enginesisResult Enginesis result object from the service response.
+     * @returns {Promise} Resolves with an enginesisResult object when the result pre-process is complete.
      */
     function preprocessEnginesisResult(enginesisResult) {
-        var serviceEndPoint = enginesisResult.fn;
-        if (resultIsSuccess(enginesisResult) && serviceEndPoint) {
-            // @todo: find a better place to define this dispatch table
-            var dispatchTable = {
-                SessionBegin: updateGameSessionInfo,
-                SessionRefresh: refreshSessionInfo,
-                UserLogin: updateLoggedInUserInfo,
-                UserLogout: clearLoggedInUserInfo,
-                GameGet: updateGameInfo,
-                UserFavoriteGamesList: updateFavoriteGames,
-                UserFavoriteGamesAssign: updateFavoriteGames,
-                UserFavoriteGamesAssignList: updateFavoriteGames,
-                UserFavoriteGamesUnassign: updateFavoriteGames,
-                UserFavoriteGamesUnassignList: updateFavoriteGames
-            };
-            var dispatchFunction = dispatchTable[serviceEndPoint];
-            if ( ! isNull(dispatchFunction)) {
-                dispatchFunction(enginesisResult);
+        return new Promise(function(resolve, reject) {
+            var serviceEndPoint = enginesisResult.fn;
+            // Handle an expired token here, issue a SessionRefresh, and then re-issue the original request
+            if (resultIsExpiredToken(enginesisResult)) {
+                refreshTokenAndReissueRequest(enginesisResult)
+                .then(function(reissueResult) {
+                    resolve(reissueResult);
+                });
+            } else if (resultIsSuccess(enginesisResult) && serviceEndPoint) {
+                // @todo: find a better place to define this dispatch table
+                var dispatchTable = {
+                    SessionBegin: updateGameSessionInfo,
+                    SessionRefresh: refreshSessionInfo,
+                    UserLogin: updateLoggedInUserInfo,
+                    UserLogout: clearLoggedInUserInfo,
+                    GameGet: updateGameInfo,
+                    UserFavoriteGamesList: updateFavoriteGames,
+                    UserFavoriteGamesAssign: updateFavoriteGames,
+                    UserFavoriteGamesAssignList: updateFavoriteGames,
+                    UserFavoriteGamesUnassign: updateFavoriteGames,
+                    UserFavoriteGamesUnassignList: updateFavoriteGames
+                };
+                var dispatchFunction = dispatchTable[serviceEndPoint];
+                if ( ! isNull(dispatchFunction)) {
+                    dispatchFunction(enginesisResult);
+                }
             }
-        }
+            resolve(enginesisResult);
+        });
     }
 
     /**
@@ -549,10 +617,11 @@
 
     /**
      * Capture the session begin session id so we can use it for communicating with the server.
-     * Called from `sessionBegin`.
+     * We end up here after a call to `sessionBegin` and this is the server response.
      * @param {object} enginesisResult Enginesis server response object
      */
     function updateGameSessionInfo(enginesisResult) {
+        // @todo: check if token expired then call sessionrefresh
         var sessionInfo = enginesisResult.results.result[0];
         if (sessionVerifyGameHash(sessionInfo)) {
             updateGameInfo(enginesisResult);
@@ -724,24 +793,26 @@
     }
 
     /**
-     * Helper function to determine if we call the over-ride function over the global function,
+     * Helper function to determine if we call the override function over the global function,
      * or neither if none are set.
-     * @param {object} enginesisResult {object} The enginesis service response.
+     * @param {object} enginesisResult The enginesis service response.
      * @param {function} resolve A Promise resolve function that is always called, or null to not call a resolve function.
      * @param {function} overRideCallBackFunction if not null this function is called with enginesisResult.
      * @param {function} enginesisCallBackFunction if not null and overRideCallBackFunction was
-     *        not called then this function is called with enginesisResult.
+     *   not called then this function is called with enginesisResult.
      */
     function callbackPriority(enginesisResult, resolve, overRideCallBackFunction, enginesisCallBackFunction) {
-        preprocessEnginesisResult(enginesisResult);
-        if (overRideCallBackFunction != null) {
-            overRideCallBackFunction(enginesisResult);
-        } else if (enginesisCallBackFunction != null) {
-            enginesisCallBackFunction(enginesisResult);
-        }
-        if (resolve != null) {
-            resolve(enginesisResult);
-        }
+        preprocessEnginesisResult(enginesisResult)
+        .then(function(updatedEnginesisResult) {
+            if (overRideCallBackFunction != null) {
+                overRideCallBackFunction(updatedEnginesisResult);
+            } else if (enginesisCallBackFunction != null) {
+                enginesisCallBackFunction(updatedEnginesisResult);
+            }
+            if (resolve != null) {
+                resolve(updatedEnginesisResult);
+            }
+        });
     }
 
     /**
@@ -1567,7 +1638,7 @@
      * @param {Object|null} sessionInfo the parameters that define the user session, otherwise saves
      *   what is already set on the current session.
      *   sessionInfo.expires is a UTC date when this info should expire.
-     * @param boolean fromGameSession True if sessionInfo was derived from a game session (SessionBegin), false if it is from a user session (UserLogin)
+     * @param {boolean} fromGameSession True if sessionInfo was derived from a game session (SessionBegin), false if it is from a user session (UserLogin)
      * @returns {boolean} true if the save was successful, otherwise false.
      */
     function saveUserSessionInfo(sessionInfo, fromGameSession) {
@@ -1660,14 +1731,17 @@
                 debugLog("restoreUserSessionInfo hash does not match. From server: " + userInfoSaved.cr + ". Computed here: " + hash);
             }
             enginesis.loggedInUserInfo = userInfoSaved;
-            enginesis.networkId = userInfoSaved.networkId;
-            enginesis.sessionId = userInfoSaved.sessionId;
-            enginesis.sessionExpires = new Date(userInfoSaved.sessionExpires);
+            if (isEmpty(userInfoSaved.session_id)) {
+                debugLog("*** enginesis.restoreUserSessionInfo unexpected server response from " + JSON.stringify(userInfoSaved));
+            }
+            enginesis.networkId = userInfoSaved.network_id;
+            enginesis.sessionId = userInfoSaved.session_id;
+            enginesis.sessionExpires = new Date(userInfoSaved.session_expires);
             enginesis.authToken = userInfoSaved.authToken;
-            enginesis.authTokenExpires = new Date(userInfoSaved.authTokenExpires);
+            enginesis.authTokenExpires = new Date(userInfoSaved.session_expires);
             enginesis.authTokenWasValidated = true; // @todo: We should actually validate it (check expired, check hash, verify user_id matches)
-            enginesis.refreshToken = userInfoSaved.refreshToken;
-            enginesis.refreshTokenExpires = null; // new Date(userInfoSaved.refreshTokenExpires); At this time refresh token expiration is not here.
+            enginesis.refreshToken = userInfoSaved.refresh_token;
+            enginesis.refreshTokenExpires = new Date(userInfoSaved.expires);
             debugLog("enginesis.restoreUserSessionInfo " + enginesis.sessionId + " from " + JSON.stringify(userInfoSaved));
         } else if (enginesis.isUserLoggedIn()) {
             // if a user was not cached and we trust the authtok then we need to load this user
@@ -1770,12 +1844,8 @@
             restoreUserSessionInfo();
             refreshToken = enginesis.refreshToken;
             if (isEmpty(refreshToken)) {
-                return null;
-            } else {
-                return refreshToken;
+                refreshToken = null;
             }
-        } else {
-            return refreshToken;
         }
         return refreshToken;
     }
@@ -3039,16 +3109,17 @@
     /**
      * Call Enginesis SessionBegin which is used to start any conversation with the server. Must call before beginning a game.
      * @param {string} gameKey service provided game key matching gameId
-     * @param {integer|null} gameId The game id. If null/0 then assumes the gameId was set in teh constructor or with gameIdSet()
-     * @param {function} overRideCallBackFunction Call when server replies.
-     * @returns {boolean}
+     * @param {integer|null} gameId The game id. If null/0 then assumes the gameId was set in the constructor or with gameIdSet()
+     * @param {function} overRideCallBackFunction Function called when server replies.
+     * @returns {Promise} Resolved with enginesisResult when the server replies.
      */
     enginesis.sessionBegin = function (gameKey, gameId, overRideCallBackFunction) {
+        var serviceName = "SessionBegin";
         var siteMark = 0;
-        if (typeof gameId === "undefined" || gameId === 0 || gameId === null) {
+        if (isEmpty(gameId)) {
             gameId = enginesis.gameIdGet();
         }
-        if (typeof gameKey === "undefined" || gameKey === "" || gameKey === null) {
+        if (isEmpty(gameKey)) {
             gameKey = enginesis.gameKey;
         } else {
             enginesis.gameKey = gameKey;
@@ -3057,7 +3128,12 @@
             cookieSet(enginesis.anonymousUserKey, enginesis.anonymousUser, 60 * 60 * 24, "/", "", false);
             siteMark = enginesis.anonymousUser.userId;
         }
-        return sendRequest("SessionBegin", {game_id: gameId, gamekey: gameKey, site_mark: siteMark}, overRideCallBackFunction);
+        var parameters = {
+            game_id: gameId,
+            gamekey: gameKey,
+            site_mark: siteMark
+        };
+        return sendRequest(serviceName, parameters, overRideCallBackFunction);
     };
 
     /**
@@ -3083,12 +3159,18 @@
         if ( ! enginesis.isUserLoggedIn()) {
             siteMark = enginesis.anonymousUser.userId;
         }
-        return sendRequest(serviceName, {refresh_token: refreshToken, game_id: game_id, gamekey: gameKey, site_mark: siteMark}, overRideCallBackFunction);
+        var parameters = {
+            refresh_token: refreshToken,
+            game_id: game_id,
+            gamekey: gameKey,
+            site_mark: siteMark
+        };
+        return sendRequest(serviceName, parameters, overRideCallBackFunction);
     };
 
     /**
      * Proactive check to see if the user's session has expired, and if so, refresh it.
-     * @returns {Promise} A Promise that will resolve if the session if OK or if the session has been refreshed.
+     * @returns {Promise} A Promise that will resolve if the session is OK or if the session has been refreshed.
      *   If this rejects, it usually means a session doesn't exist, the user is not truly logged in, or the
      *   session information we have in the cache has been compromised.
      */
@@ -3102,7 +3184,7 @@
      * @param {string} voteGroupURI The URI group used to sub-group keys, for example you are voting on the best of 5 images.
      * @param {integer} voteValue The value of the vote. This depends on the voting system set by the URI key/group (for example a rating vote may range from 1 to 5.)
      * @param {function} overRideCallBackFunction
-     * @returns {boolean}
+     * @returns {Promise}
      */
     enginesis.voteForURIUnauth = function (voteURI, voteGroupURI, voteValue, securityKey, overRideCallBackFunction) {
         return sendRequest("VoteForURIUnauth", {uri: voteURI, vote_group_uri: voteGroupURI, vote_value: voteValue, security_key: securityKey}, overRideCallBackFunction);
@@ -3113,7 +3195,7 @@
      * @param {string} voteGroupURI voting group that collects all the items to be voted on
      * @param {function} overRideCallBackFunction
      * @returns {Promise}
-     * @seealso: addOrUpdateVoteByURI
+     * @see: addOrUpdateVoteByURI
      */
     enginesis.voteCountPerURIGroup = function (voteGroupURI, overRideCallBackFunction) {
         return sendRequest("VoteCountPerURIGroup", {vote_group_uri: voteGroupURI}, overRideCallBackFunction);
@@ -3283,9 +3365,17 @@
      * @returns {Promise}
      */
     enginesis.gameTrackingRecord = function (category, action, label, hitData, overRideCallBackFunction) {
-        if (enginesis.isBrowserBuild && global.ga != undefined) {
-            // use Google Analytics if it is there (send, event, category, action, label, value)
-            ga("send", "event", category, action, label, hitData);
+        if (enginesis.isBrowserBuild) {
+            try {
+                // use Google Analytics or Tag Manager if it is there (send, event, category, action, label, value)
+                if (global.dataLayer != undefined) {
+                    global.dataLayer.push({"event": category, "action": action, "label": label, "value": hitData});
+                } else if (global.ga != undefined) {
+                    global.ga("send", "event", category, action, label, hitData);
+                }
+            } catch (exception) {
+                debugLog("Analytics exception " + exception.toString());
+            }    
         }
         return sendRequest("GameTrackingRecord", {hit_type: "REQUEST", hit_category: category, hit_action: action, hit_label: label, hit_data: hitData}, overRideCallBackFunction);
     };
