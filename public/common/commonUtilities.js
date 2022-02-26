@@ -10,26 +10,25 @@
  *   base64, url and query string processing, data validation, and storage handling.
  *
  * @since 1.0
+ * @exports commonUtilities
  */
 
 (function commonUtilities (global) {
     "use strict";
 
-    /** @exports commonUtilities */
     var commonUtilities = {
-        version: "1.4.1"
-    },
-    _base64KeyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
-    _testNumber = 0;
+        version: "1.4.2"
+    };
+    var _base64KeyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    var _testNumber = 0;
 
     /**
-     * Private function to validate HTML5 local or session storage.
-     * @access private
+     * Determine if HTML5 local or session storage is available.
      * @param {string} storageType - either "localStorage" or "sessionStorage", default is "localStorage".
      * @param {boolean} robustCheck - true for the more robust but un-performant test.
      * @returns {boolean} True if the storage type is supported.
      */
-    function browserStorageAvailable (storageType, robustCheck) {
+    commonUtilities.browserStorageAvailable = function(storageType, robustCheck) {
         var hasSupport = false,
             storage,
             testKey;
@@ -66,7 +65,6 @@
      * used for debug and user display. For serialization it is preferred to convert
      * objects to JSON.
      *
-     * @access public
      * @param {object} object The object to convert to a string representation.
      * @return {string} string The object converted to a string representation.
      */
@@ -102,10 +100,10 @@
                 value = array[key];
                 if (typeof(value) == "undefined") {
                     value = "undefined";
+                } else if (Array.isArray(value)) {
+                    value = this.arrayToString(value);
                 } else if (typeof(value) == "object") {
                     value = this.objectStringify(value);
-                } else if (typeof(value) == "array") {
-                    value = this.arrayToString(value);
                 }
                 result += (result.length > 1 ? ", " : "") + key + ": " + value;
             }
@@ -206,6 +204,7 @@
 
     /**
      * Extend an object with properties copied from other objects. Takes a variable number of arguments:
+     * @param {any} ...arguments
      *  If no arguments, an empty object is returned.
      *  If one argument, that object is returned unchanged.
      *  If more than one argument, each object in l-2-r order is copied to the first object one property at a time. When
@@ -379,7 +378,7 @@
     }
 
     /**
-     * Coerce a value to its boolean equivalent, causing the value to be interpreted as its 
+     * Coerce a value to its boolean equivalent, causing the value to be interpreted as its
      * boolean intention. This works very different that the JavaScript coercion. For example,
      * "0" == true and "false" == true in JavaScript but here "0" == false and "false" == false.
      * @param {*} value A value to test.
@@ -842,7 +841,7 @@
      * @returns {boolean}
      */
     commonUtilities.haveSessionStorage = function () {
-        return browserStorageAvailable("sessionStorage", true);
+        return this.browserStorageAvailable("sessionStorage", true);
     };
 
     /**
@@ -850,7 +849,7 @@
      * @returns {boolean}
      */
     commonUtilities.haveLocalStorage = function () {
-        return browserStorageAvailable("localStorage", true);
+        return this.browserStorageAvailable("localStorage", true);
     };
 
     /**
@@ -892,7 +891,7 @@
             itemValueRaw,
             saved = false;
 
-        if (browserStorageAvailable("localStorage", false) && key != null) {
+        if (this.browserStorageAvailable("localStorage", false) && key != null) {
             try {
                 storageObject = global.localStorage;
                 if (object != null) {
@@ -923,7 +922,7 @@
             storageObject,
             object = null;
 
-        if (browserStorageAvailable("localStorage", false) && key != null) {
+        if (this.browserStorageAvailable("localStorage", false) && key != null) {
             try {
                 storageObject = global.localStorage;
                 maybeJsonData = storageObject[key];
@@ -948,7 +947,7 @@
     commonUtilities.removeObjectWithKey = function (key) {
         var removed = false;
 
-        if (browserStorageAvailable("localStorage", false) && key != null) {
+        if (this.browserStorageAvailable("localStorage", false) && key != null) {
             try {
                 global.localStorage.removeItem(key);
                 removed = true;
@@ -1069,7 +1068,7 @@
 
     /**
      * Inserts a new script element into the DOM on the indicated tag.
-     * 
+     *
      * @param id {string} The id attribute, so that the script element can be referenced.
      * @param src {string} The src attribute, usually a file reference or URL to a script to load.
      * @param tagName {string} optional tag you want to insert this script to. Defaults to "script"
@@ -1308,7 +1307,7 @@
      * Works on either a domain name (e.g. www.host.com) or a URL (e.g.
      * https://www.host.com/path). In either case this function should return
      * the domain the server is a member of, e.g. `host.com`.
-     * 
+     *
      * @param {String} proposedHost A proposed URL or domain name to parse.
      * @returns {String} The proposed host domain with the server removed.
      */
@@ -1419,7 +1418,7 @@
         var base64={};
         var p="=";
         var tab="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    
+
         base64.encode=function(ba){
             var s=[], l=ba.length;
             var rm=l%3;
@@ -1451,7 +1450,7 @@
             }
             return s.join("");
         };
-    
+
         base64.decode=function(str){
             var s=str.split(""), out=[];
             var l=s.length;
@@ -1468,7 +1467,7 @@
             while(out[out.length-1]==0){ out.pop(); }
             return out;
         };
-    
+
         function arrayMapWithHoles(arr, callback, thisObject, Ctr){
             var i = 0, l = arr && arr.length || 0, out = new (Ctr || Array)(l);
             if(l && typeof arr == "string") arr = arr.split("");
@@ -1484,7 +1483,7 @@
             }
             return out;
         };
-    
+
         function stringTranslate(string, undesired, desired) {
             var i, char, found, length, result = "";
             if (typeof string !== "string" || string.length < 1 || ! Array.isArray(undesired) || ! Array.isArray(desired) || undesired.length != desired.length) {
@@ -1650,26 +1649,26 @@
                     0x90d4f869, 0xa65cdea0, 0x3f09252d, 0xc208e69f, 0xb74e6132, 0xce77e25b, 0x578fdfe3, 0x3ac372e6
                 ]
             }
-    
+
             function add(x,y){
                 return (((x>>0x10)+(y>>0x10)+(((x&0xffff)+(y&0xffff))>>0x10))<<0x10)|(((x&0xffff)+(y&0xffff))&0xffff);
             }
-    
+
             function xor(x,y){
                 return (((x>>0x10)^(y>>0x10))<<0x10)|(((x&0xffff)^(y&0xffff))&0xffff);
             }
-    
+
             function $(v, box){
                 var d=box.s3[v&0xff]; v>>=8;
                 var c=box.s2[v&0xff]; v>>=8;
                 var b=box.s1[v&0xff]; v>>=8;
                 var a=box.s0[v&0xff];
-        
+
                 var r = (((a>>0x10)+(b>>0x10)+(((a&0xffff)+(b&0xffff))>>0x10))<<0x10)|(((a&0xffff)+(b&0xffff))&0xffff);
                 r = (((r>>0x10)^(c>>0x10))<<0x10)|(((r&0xffff)^(c&0xffff))&0xffff);
                 return (((r>>0x10)+(d>>0x10)+(((r&0xffff)+(d&0xffff))>>0x10))<<0x10)|(((r&0xffff)+(d&0xffff))&0xffff);
             }
-    
+
             function eb(o, box){
                 var l=o.left;
                 var r=o.right;
@@ -1693,7 +1692,7 @@
                 o.right=l;
                 o.left=xor(r,box.p[17]);
             }
-    
+
             function db(o, box){
                 var l=o.left;
                 var r=o.right;
@@ -1717,7 +1716,7 @@
                 o.right=l;
                 o.left=xor(r,box.p[0]);
             }
-    
+
             function init(key){
                 var k=key, pos=0, data=0, res={ left:0, right:0 }, i, j, l;
                 var box = {
@@ -1743,7 +1742,7 @@
                 }
                 return box;
             }
-    
+
             this.hexStringToByteArray=function(hexString) {
                 if (hexString.length % 2 == 1) {
                     hexString += "0";
@@ -1753,18 +1752,18 @@
                 }
                 return bytes;
             }
-        
+
             this.getIV=function(){
                 return base64.encode(iv);
             };
-    
+
             this.setIV=function(data){
                 var ba=base64.decode(data);
                 iv={};
                 iv.left=ba[0]*POW24|ba[1]*POW16|ba[2]*POW8|ba[3];
                 iv.right=ba[4]*POW24|ba[5]*POW16|ba[6]*POW8|ba[7];
             };
-    
+
             this.encryptString = function(plaintext, key){
                 var bx = init(this.hexStringToByteArray(key)), padding = 8-(plaintext.length&7);
                 for (var i=0; i<padding; i++){ plaintext+=String.fromCharCode(padding); }
@@ -1791,7 +1790,7 @@
                 }
                 return stringTranslate(base64.encode(cipher), ["+", "/", "="], ["-", "_", "~"]);
             };
-    
+
             this.decryptString = function(ciphertext, key){
                 var bx = init(this.hexStringToByteArray(key));
                 var pt=[];

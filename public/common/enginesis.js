@@ -1,15 +1,14 @@
 /**
  * @module: enginesis - JavaScript interface for Enginesis SDK
  * @author: jf, Varyn, Inc.
- * @date: 7/25/13
+ * @since: 7/25/13
  * @summary: A JavaScript interface to the Enginesis API. This is designed to be a singleton
  *  object, only one should ever exist. It represents the data model and service/event model
  *  to converse with the server, and provides an overridable callback function to get the server response.
  *  This is also only intended to be a browser-based client library and expects a window object
  *  to be available.
+ * @exports enginesis
  **/
-
-"use strict";
 
 /**
  * Construct the singleton Enginesis object with initial parameters. Call `init` before any other function.
@@ -18,9 +17,8 @@
 (function enginesis (global) {
     "use strict";
 
-    /** @exports enginesis */
     var enginesis = {
-        VERSION: "2.6.12",
+        VERSION: "2.6.13",
         debugging: true,
         disabled: false, // use this flag to turn off communicating with the server
         isOnline: true,  // flag to determine if we are currently able to reach Enginesis servers
@@ -56,7 +54,7 @@
         platform: "",
         locale: "en-US",
         isNativeBuild: false,
-        isBrowserBuild: typeof global.window !== "undefined" && typeof global.window.document !== "undefined" && typeof global.window.location !== "undefined",
+        isBrowserBuild: typeof global !== "undefined" && global !== null && typeof global.document !== "undefined" && typeof global.location !== "undefined",
         isNodeBuild: typeof process !== "undefined" && process.versions != null && process.versions.node != null,
         isTouchDeviceFlag: false,
         SESSION_COOKIE: "engsession",
@@ -170,7 +168,7 @@
         || value === null
         || value === false
         || (typeof value === "string" && (value === "" || value === "undefined"))
-        || (value instanceof Array && value.length == 0)
+        || (Array.isArray(value) && value.length == 0)
         || (typeof value === "number" && (isNaN(value) || value === 0));
     }
 
@@ -938,18 +936,18 @@
     }
 
     /**
-     * When running as a Node.js process we can use request(). request must be required separately.
+     * Issue an HTTP request when running as a Node.js process.
+     * `enginesis.nodeRequest` must be set separately with a compatible request module such as Axios.
      * @param {string} serviceName The Enginesis service to call.
      * @param {object} enginesisParameters Parameters required for the service, assumes this object was created or verified with serverParamObjectMake().
      * @param {function} overRideCallBackFunction Callback function to call when the request completes.
      * @return {boolean} True if a request is sent, false if the request was not sent.
+     * @throws {Error} When a request module is not set.
      */
     function sendNodeRequest(serviceName, enginesisParameters, overRideCallBackFunction) {
         if (enginesis.nodeRequest == null) {
-            enginesis.nodeRequest = require('request');
-            if (enginesis.nodeRequest == null) {
-                throw new Error("request() is not defined in the node.js environment");
-            }
+            // @todo jf 2-17-22: enginesis.nodeRequest must be set outside
+            throw new Error("request() is not defined in the node.js environment");
         }
         enginesis.nodeRequest.post({
             method: "POST",
@@ -3375,7 +3373,7 @@
                 }
             } catch (exception) {
                 debugLog("Analytics exception " + exception.toString());
-            }    
+            }
         }
         return sendRequest("GameTrackingRecord", {hit_type: "REQUEST", hit_category: category, hit_action: action, hit_label: label, hit_data: hitData}, overRideCallBackFunction);
     };
