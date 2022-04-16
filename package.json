@@ -1,6 +1,6 @@
 {
   "name": "varyn",
-  "version": "2.3.7",
+  "version": "2.3.8",
   "description": "Varyn website",
   "main": "bin/build.js",
   "scripts": {
@@ -31,18 +31,18 @@
     "async": "^3.2.3",
     "chalk": "^4.1.2",
     "cheerio": "^1.0.0-rc.10",
-    "fs-extra": "^10.0.0",
+    "fs-extra": "^10.1.0",
     "glob": "^7.2.0",
     "gulp-rename": "^2.0.0",
-    "imagemin": "^8.0.1",
-    "jest": "^27.4.7",
+    "imagemin": "^7.0.1",
+    "jest": "^27.5.1",
     "os": "^0.1.2",
     "path": "^0.12.7",
     "pretty-bytes": "^5.6.0",
     "request": "^2.88.2",
     "rsync": "^0.6.1",
     "shelljs": "^0.8.5",
-    "terser": "^5.10.0",
-    "yargs": "^17.3.1"
+    "terser": "^5.12.1",
+    "yargs": "^17.4.1"
   }
 }
