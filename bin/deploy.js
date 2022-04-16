@@ -291,6 +291,7 @@ function deploy(configuration) {
     const dryRunFlag = "n";
     let sshCommand = "ssh";
     let destinationPath;
+    let logMessage = "Deploying " + site + " to " + configuration.targetstage + " on " + (new Date).toISOString();
 
     if (configuration.destinationUser.length > 0 && configuration.destinationHost.length > 0) {
         destinationPath = configuration.destinationUser + "@" + configuration.destinationHost + ":" + configuration.destinationPath;
@@ -302,14 +303,14 @@ function deploy(configuration) {
     }
     if (isDryRun) {
         rsyncFlags += dryRunFlag;
-        immediateLog("This is a DRY RUN - no files will be copied.", false);
+        logMessage += " -- This is a DRY RUN - no files will be copied."
     } else {
         updateBuildInfoFile();
     }
     if (configuration.sshKeyFile) {
         sshCommand += " -i " + configuration.sshKeyFile;
     }
-
+    immediateLog(logMessage, false);
     immediateLog("Syncing " + site + " " + sourcePath + " with target stage " + configuration.targetstage + " " + configuration.destinationPath, false);
     debugLog("sourcePath " + sourcePath);
     debugLog("destinationPath " + destinationPath);
