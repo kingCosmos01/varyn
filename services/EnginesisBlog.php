@@ -207,7 +207,7 @@ class EnginesisBlog
 
     public function promotionAssetURL($promotionItem) {
         $assetId = $promotionItem->promotion_item_thumb_img;
-        if (strlen($assetId) < 1) {
+        if (empty($assetId)) {
             $assetId = $promotionItem->promotion_item_img;
         }
         if (startsWith($assetId, '/') || startsWith($assetId, 'http')) {

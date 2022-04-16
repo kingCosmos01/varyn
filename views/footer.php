@@ -36,7 +36,7 @@ if ( ! isset($showSubscribe)) {
             </div>
             <div class="legalcopy"><br />
                 <p class="copyright small text-center">Third-party trademarks are used solely for distributing the games herein and no license or affiliation is implied. All copyrights are held by the respective owners.</p>
-                <p class="copyright small text-center">Copyright &copy; 2021 <a href="https://www.varyn.com">Varyn, Inc.</a>.  All rights reserved.</p>
+                <p class="copyright small text-center">Copyright &copy; 2022 <a href="https://www.varyn.com">Varyn, Inc.</a>.  All rights reserved.</p>
             </div>
         </div>
     </div>
@@ -54,7 +54,7 @@ if ( ! isset($showSubscribe)) {
         showSubscribe: "<?php echo($showSubscribe);?>"
     };
 </script>
-<?php if (strlen($search) > 0) { ?>
+<?php if ( ! empty($search)) { ?>
 <script type="text/javascript">
 gtag({"event": "search", "q": "'<?php echo($search);?>'"});
 </script>
