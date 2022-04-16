@@ -150,6 +150,9 @@ input [type="radio"] {
     margin-left: 20px;
     padding-left: 20px;
 }
+.text-padded {
+    padding: .5rem;
+}
 
 .div-padded {
     padding: 2em;
