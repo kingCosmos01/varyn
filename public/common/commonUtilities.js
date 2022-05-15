@@ -17,7 +17,7 @@
     "use strict";
 
     var commonUtilities = {
-        version: "1.4.2"
+        version: "1.4.3"
     };
     var _base64KeyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
     var _testNumber = 0;
@@ -728,13 +728,13 @@
      * ----------------------------------------------------------------------------------*/
 
     /**
-     * Return the contents fo the cookie indexed by the specified key.
+     * Return the contents of the cookie indexed by the specified key.
      *
      * @param {string} key Indicate which cookie to get.
-     * @return {string} value Contents of cookie stored with key.
+     * @return {string|null} Contents of cookie stored with key.
      */
     commonUtilities.cookieGet = function (key) {
-        if (key) {
+        if (key && document && document.cookie) {
             return decodeURIComponent(document.cookie.replace(new RegExp("(?:(?:^|.*;)\\s*" + encodeURIComponent(key).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1")) || null;
         } else {
             return null;
@@ -744,45 +744,67 @@
     /**
      * Set a cookie indexed by the specified key.
      *
-     * @param key {string} Indicate which cookie to set.
-     * @param value {String|Object} Value to store under key.
-     * @param expiration {Number|String|Date} When the cookie should expire.
-     * @param path {string} Cookie URL path.
-     * @param domain {string} Cookie domain.
-     * @param isSecure {boolean} Set cookie secure flag.
-     * @return {boolean} true if set, false if error.
+     * @param {string} key Indicate which cookie to set.
+     * @param {object} value Value to store under key. If null, expire the prior cookie.
+     * @param {Number|String|Date} expiration When the cookie should expire. Number indicates
+     *   max age, in seconds. String indicates GMT date. Date is converted to GMT date.
+     * @param {string} path Cookie URL path.
+     * @param {string} domain Cookie domain.
+     * @param {boolean} isSecure Set cookie secure flag. Default is true.
+     * @return {boolean|string} true if set, false if error. Returns string if not running in
+     *   a browser environment, such as Node.
      */
-    commonUtilities.cookieSet = function (key, value, expiration, path, domain, isSecure) {
-        var expires = "";
-        var neverExpires = "; expires=Fri, 31 Dec 9999 23:59:59 GMT";
+     commonUtilities.cookieSet = function (key, value, expiration, path, domain, isSecure) {
+        var expires;
+        var neverExpires;
+        var sameSite;
 
         if ( ! key || /^(?:expires|max\-age|path|domain|secure)$/i.test(key)) {
+            // This is an invalid cookie key.
             return false;
-        } else {
-            if (typeof value === "object") {
-                value = JSON.stringify(value);
-            }
-            if (expiration) {
-                switch (expiration.constructor) {
-                case Number:
-                    expires = expiration === Infinity ? neverExpires : "; max-age=" + expiration;
-                    break;
-                case String:
-                    expires = "; expires=" + expiration;
-                    break;
-                case Date:
-                    expires = "; expires=" + expiration.toUTCString();
-                    break;
-                default:
-                    expires = neverExpires;
-                    break;
-                }
-            } else {
-                expires = neverExpires;
-            }
-            document.cookie = encodeURIComponent(key) + "=" + encodeURIComponent(value) + expires + (domain ? "; domain=" + domain : "") + (path ? "; path=" + path : "") + (isSecure ? "; secure" : "");
-            return true;
         }
+        if (value === null || typeof value === "undefined") {
+            return commonUtilities.cookieRemove(key, path, domain);
+        }
+        expires = "";
+        neverExpires = "expires=Fri, 31 Dec 9999 23:59:59 GMT";
+        sameSite = "samesite=LAX";
+        if (typeof isSecure === "undefined") {
+            isSecure = true;
+        }
+        if (typeof value === "object") {
+            value = JSON.stringify(value);
+        }
+        if (expiration) {
+            switch (expiration.constructor) {
+            case Number:
+                expires = expiration === Infinity ? neverExpires : "; max-age=" + expiration;
+                break;
+            case String:
+                expires = "expires=" + expiration;
+                break;
+            case Date:
+                expires = "expires=" + expiration.toUTCString();
+                break;
+            default:
+                expires = neverExpires;
+                break;
+            }
+        } else {
+            expires = neverExpires;
+        }
+        var cookieData = encodeURIComponent(value) + "; "
+            + expires + "; "
+            + (domain ? ("domain=" + domain + "; ") : "")
+            + (path ? ("path=" + path + "; ") : "")
+            + sameSite + "; "
+            + (isSecure ? "Secure;" : "");
+        if (typeof global.document === "undefined" || typeof global.document.cookie === "undefined") {
+            // If the document object is undefined then we are running in Node.
+            return cookieData;
+        }
+        global.document.cookie = encodeURIComponent(key) + "=" + cookieData;
+        return true;
     };
 
     /**
@@ -809,7 +831,7 @@
      * @return {boolean} true if exists, false if doesn't exist.
      */
     commonUtilities.cookieExists = function (key) {
-        if (key) {
+        if (key && global.document) {
             return (new RegExp("(?:^|;\\s*)" + encodeURIComponent(key).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=")).test(document.cookie);
         } else {
             return false;
@@ -822,6 +844,9 @@
      * @return {Array} Array of all stored cookie keys.
      */
     commonUtilities.cookieGetKeys = function () {
+        if (! global.document) {
+            return [];
+        }
         var allKeys = document.cookie.replace(/((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, "").split(/\s*(?:\=[^;]*)?;\s*/),
             count = allKeys.length,
             index = 0;
