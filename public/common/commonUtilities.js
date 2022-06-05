@@ -17,7 +17,7 @@
     "use strict";
 
     var commonUtilities = {
-        version: "1.4.3"
+        version: "1.4.4"
     };
     var _base64KeyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
     var _testNumber = 0;
@@ -170,8 +170,10 @@
                 return decodeURIComponent(s.replace(/\+/g, " "));
                 },
             result = {};
-        if ( ! urlParameterString) {
+        if ( ! urlParameterString && window) {
             urlParameterString = window.location.search.substring(1);
+        } else {
+            urlParameterString = "";
         }
         while (match = search.exec(urlParameterString)) {
             result[decode(match[1])] = decode(match[2]);
@@ -394,67 +396,39 @@
     }
 
     /**
-     * Coerce a value to the first non-empty value of a given set of parameters. It is expected the last
-     * parameter is a non-empty value and is the expected result when all arguments are empty values. If
-     * for some reason this function is called with an unexpected number of parameters it returns `null`.
-     * See `isEmpty()` for the meaning of "empty".
-     * @param {any} arguments Any number of parameters, at least the last one is expected to be not empty.
-     * @returns {any} The first parameter encountered, in order, that is not an empty value.
+     * Given a list of parameters, return the first parameter that is considered not empty.
+     * See `commonUtilities.isEmpty` for the meaning of "empty".
+     * @param  {...any} parameters An arbitrary set of function parameters to test for emptiness.
+     * @returns {any} The first function parameter that is considered not empty.
      */
-    commonUtilities.coerceNotEmpty = function() {
-        var result;
-        var numberOfArguments = arguments.length;
-        if (numberOfArguments == 0) {
-            result = null;
-        } else if (numberOfArguments == 1) {
-            result = arguments[0];
-        } else {
-            for (var i = 0; i < numberOfArguments; i++) {
-                if (! commonUtilities.isEmpty(arguments[i])) {
-                    result = arguments[i];
-                    break;
-                }
-            }
-            if (result === undefined) {
-                result = arguments[numberOfArguments - 1];
-            }
+    commonUtilities.coalesceNotEmpty = function(...parameters) {
+        if ( ! parameters || parameters.length < 1) {
+            return undefined;
         }
-        return result;
+        return parameters.find(function(value) {
+            return ! commonUtilities.isEmpty(value);
+        });
     }
 
     /**
-     * Coerce a value to the first non-null value of a given set of parameters. It is expected the last
-     * parameter is a non-null value and is the expected result when all arguments are null values. If
-     * for some reason this function is called with an unexpected number of parameters it returns `null`.
-     * See `isNull()` for the meaning of "null".
-     * @param {any} arguments Any number of parameters, at least the last one is expected to be not null.
-     * @returns {any} The first parameter encountered, in order, that is not a null value.
+     * Given a list of parameters, return the first parameter that is considered not null.
+     * See `commonUtilities.isNull` for the meaning of null.
+     * @param  {...any} parameters An arbitrary set of function parameters to test for nullness.
+     * @returns {any} The first function parameter that is considered not null.
      */
-    commonUtilities.coerceNotNull = function() {
-        var result;
-        var numberOfArguments = arguments.length;
-        if (numberOfArguments == 0) {
-            result = null;
-        } else if (numberOfArguments == 1) {
-            result = arguments[0] === undefined ? null : arguments[0];
-        } else {
-            for (var i = 0; i < numberOfArguments; i++) {
-                if (! commonUtilities.isNull(arguments[i])) {
-                    result = arguments[i];
-                    break;
-                }
-            }
-            if (result === undefined) {
-                result = arguments[numberOfArguments - 1];
-            }
+     commonUtilities.coalesceNotNull = function(...parameters) {
+        if ( ! parameters || parameters.length < 1) {
+            return undefined;
         }
-        return result;
+        return parameters.find(function(value) {
+            return ! commonUtilities.isNull(value);
+        });
     }
 
     /**
-     * Convert a string into one that has no HTML vunerabilities such that it can be rendered inside an HTML tag.
-     * @param {string} string A string to check for HTML vunerabilities.
-     * @returns {string} A copy of the input string with any HTML vunerabilities removed.
+     * Convert a string into one that has no HTML vulnerabilities such that it can be rendered inside an HTML tag.
+     * @param {string} string A string to check for HTML vulnerabilities.
+     * @returns {string} A copy of the input string with any HTML vulnerabilities removed.
      */
     commonUtilities.safeForHTML = function (string) {
         var htmlEscapeMap = {
@@ -505,32 +479,42 @@
      * Platform and feature detection
      * ----------------------------------------------------------------------------------*/
     /**
-     * Determine if the current invokation environment is a mobile device.
-     * @todo: Really would rather use modernizr.js as you really do not want isMobile(), you want isTouchDevice()
+     * Determine if the current UA environment is a touch device.
+     *
+     * @return {bool} true if we think this device has a touch screen, false if we think otherwise.
+     *
+     */
+    commonUtilities.isTouchDevice = function () {
+        if (window && (('ontouchstart' in window) || window.TouchEvent || (window.DocumentTouch && document instanceof DocumentTouch))) {
+            return true;
+        }
+        return false;
+    };
+
+    /**
+     * Determine if the current UA environment is a mobile device.
      *
      * @return {bool} true if we think this is a mobile device, false if we think otherwise.
      *
      */
-    commonUtilities.isMobile = function () {
-        return (commonUtilities.isMobileAndroid() || commonUtilities.isMobileBlackberry() || commonUtilities.isMobileIos() || commonUtilities.isMobileWindows());
+     commonUtilities.isMobile = function () {
+        return (commonUtilities.isMobileAndroid() || commonUtilities.isMobileIos());
     };
 
     commonUtilities.isMobileAndroid = function () {
-        return navigator.userAgent.match(/Android/i);
-        // NOTE: tolower+indexof is about 10% slower than regex
-        // return navigator.userAgent.toLowerCase().indexOf("android") != -1;
-    };
-
-    commonUtilities.isMobileBlackberry = function () {
-        return navigator.userAgent.match(/BlackBerry/i) ? true : false;
+        if (navigator && navigator.userAgent.match(/Android/i)) {
+            // NOTE: tolower+indexof is about 10% slower than regex
+            // return navigator.userAgent.toLowerCase().indexOf("android") != -1;
+            return true;
+        }
+        return false;
     };
 
     commonUtilities.isMobileIos = function () {
-        return navigator.userAgent.match(/iPhone|iPad|iPod/i) ? true : false;
-    };
-
-    commonUtilities.isMobileWindows = function () {
-        return navigator.userAgent.match(/IEMobile/i) ? true : false;
+        if (navigator && navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+            return true;
+        }
+        return false;
     };
 
     /**
