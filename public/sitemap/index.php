@@ -86,7 +86,7 @@ include_once(VIEWS_ROOT . 'header.php');
 
 <li><a href="/play/morningstar">Morningstar</a> Point 'n click adventure, escape a distant planet after crashing into it's surface.</li>
 
-<li><a href="/play/airTrafficChief">Air Traffic Chief</a> Control the busy skies and guide planes and helicopters to safe landing.</li>
+<li><a href="/play/airtower">Air Tower</a> Take control of the air tower and land the airplanes safely. Don't let the pressure get to you and don't crash!</li>
 
 <li><a href="/play/PuttPuttPlanetTeaser">Putt Putt Planet</a> Grab your putter and pick your color - it's time to play Mini Golf! It's as much fun as the amusement park, only online.</li>
 

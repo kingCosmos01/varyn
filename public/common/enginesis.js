@@ -434,7 +434,8 @@
      * Internal function to handle completed service request and convert the JSON response to
      * an object and then invoke the call back function.
      * @param {Number} stateSequenceNumber The state identifier corresponding to this transaction.
-     * @param {EnginesisResponse} enginesisResponseData The Enginesis response object.
+     * @param {EnginesisResponse} enginesisResponseData The Enginesis response object. This is either
+     *   a JSON string returned from the server or the JSON parsed object.
      * @param {Function} overRideCallBackFunction Optional function to call when complete.
      */
     function requestCompleteXMLHTTP (stateSequenceNumber, enginesisResponseData, overRideCallBackFunction) {
@@ -442,7 +443,11 @@
 
         removeFromServiceQueue(stateSequenceNumber);
         try {
-            enginesisResponseObject = JSON.parse(enginesisResponseData);
+            if (typeof enginesisResponseData === "string") {
+                enginesisResponseObject = JSON.parse(enginesisResponseData);
+            } else {
+                enginesisResponseObject = enginesisResponseData;
+            }
         } catch (exception) {
             enginesisResponseObject = forceErrorResponseObject(null, 0, "SERVICE_ERROR", "Error: " + exception.message + "; " + enginesisResponseData.toString(), null);
             debugLog("Enginesis requestComplete exception " + JSON.stringify(enginesisResponseObject));
@@ -888,14 +893,17 @@
 
     /**
      * Create a set of HTTP headers to communicate with the Enginesis server.
+     * @param {object} additionalHeaders key/values to set for this request.
      * @returns {Object} HTTP header to be used on an HTTP request object.
      */
-    function formatHTTPHeader() {
+    function formatHTTPHeader(additionalHeaders) {
         // @todo: set "multipart/form" when sending files
-        var httpHeaders = {
-            "Accept": "application/json",
-            "X-DeveloperKey": enginesis.developerKey
-        };
+        var httpHeaders = Object.assign(
+            {
+                "Accept": "application/json",
+                "X-DeveloperKey": enginesis.developerKey
+            },
+            additionalHeaders);
         if (enginesis.authTokenWasValidated) {
             httpHeaders["Authentication"] = "Bearer " + enginesis.authToken;
         }
@@ -949,26 +957,33 @@
             // @todo jf 2-17-22: enginesis.nodeRequest must be set outside
             throw new Error("request() is not defined in the node.js environment");
         }
-        enginesis.nodeRequest.post({
+        enginesis.nodeRequest({
             method: "POST",
             url: enginesis.siteResources.serviceURL,
-            headers: formatHTTPHeader(),
-            formData: convertParamsToFormData(enginesisParameters)
-        }, function(requestError, response, body) {
-                if (requestError != null) {
-                    var errorMessage = "Error posting to " + enginesis.siteResources.serviceURL + ": " + requestError.toString();
-                    if (setOffline()) {
-                        errorMessage = "Enginesis network error encountered, assuming we're offline. " + enginesis.siteResources.serviceURL + " for " + serviceName + ": " + requestError.toString();
-                    } else {
-                        errorMessage = "Enginesis is already offline, leaving this message on the queue.";
-                    }
-                    debugLog(errorMessage);
-                    requestCompleteXMLHTTP(enginesisParameters.state_seq, forceErrorResponseString(serviceName, enginesisParameters.state_seq, "OFFLINE", errorMessage), overRideCallBackFunction);
+            headers: formatHTTPHeader({ "Content-Type": "application/json"}),
+            data: convertParamsToFormData(enginesisParameters)
+        }).then(function(response) {
+            if (response.status != 200) {
+                var errorMessage = "Error posting to " + enginesis.siteResources.serviceURL + ": " + requestError.toString();
+                if (setOffline()) {
+                    errorMessage = "Enginesis network error encountered, assuming we're offline. " + enginesis.siteResources.serviceURL + " for " + serviceName + ": " + requestError.toString();
                 } else {
-                    requestCompleteXMLHTTP(enginesisParameters.state_seq, body, overRideCallBackFunction);
+                    errorMessage = "Enginesis is already offline, leaving this message on the queue.";
                 }
+                debugLog(errorMessage);
+                requestCompleteXMLHTTP(enginesisParameters.state_seq, forceErrorResponseString(serviceName, enginesisParameters.state_seq, "OFFLINE", errorMessage), overRideCallBackFunction);
+            } else {
+                requestCompleteXMLHTTP(enginesisParameters.state_seq, response.data, overRideCallBackFunction);
             }
-        );
+        })
+        .catch(function(requestError) {
+            var errorMessage = "Error posting to " + enginesis.siteResources.serviceURL + ": " + requestError.toString();
+            if (requestError.response) {
+                // server responded with a status != 2xx, not sure what to do here
+            }
+            debugLog(errorMessage);
+            requestCompleteXMLHTTP(enginesisParameters.state_seq, forceErrorResponseString(serviceName, enginesisParameters.state_seq, "OFFLINE", errorMessage), overRideCallBackFunction);
+        });
         return true;
     }
 
