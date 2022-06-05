@@ -1450,7 +1450,7 @@
      */
     function setPlatform () {
         if (enginesis.isBrowserBuild) {
-            enginesis.platform = navigator.platform;
+            enginesis.platform = "browser";
             enginesis.locale = navigator.language;
             enginesis.isNativeBuild = global.location.protocol == "file:";
             enginesis.isTouchDeviceFlag = touchDevice();
