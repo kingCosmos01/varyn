@@ -1456,18 +1456,6 @@ var varyn = function (parameters) {
         },
 
         /**
-         * makeCouponModule will generate the HTML for a standard Coupons.com module.
-         * @returns {string} the HTML
-         */
-        makeCouponModule: function () {
-            var innerHtml;
-
-            innerHtml = '<div class="gameModule thumbnail"><div class="row"><div class="col-sm-4 col-md-2 adContainer412"><div id="boxAd300" class="ad300x412">';
-            innerHtml += '<iframe src="/common/couponModule.html" frameborder="0" scrolling="no" style="width: 300px; height: 412px; overflow: hidden; z-index: 9999; left: 0px; bottom: 0px; display: inline-block;"></iframe></div></div></div></div>';
-            return innerHtml;
-        },
-
-        /**
          * Determine if a string looks like a certain type of URL.
          * @param string
          * @returns bool true if it meets our criteria: //, http://, or https://.
@@ -1531,11 +1519,7 @@ var varyn = function (parameters) {
                         adsShownCounter ++;
                         gameModule = document.createElement('div');
                         gameModule.className = "col-sm-6 col-md-4";
-                        if (adsShownCounter == 1) {
-                            gameModule.innerHTML = varynPageContext.makeCouponModule();
-                        } else {
-                            gameModule.innerHTML = varynPageContext.makeAdModule();
-                        }
+                        gameModule.innerHTML = varynPageContext.makeAdModule();
                         gameModule.id = 'AdSpot' + adsShownCounter;
                         gamesContainer.appendChild(gameModule);
                     }

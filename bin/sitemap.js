@@ -2,17 +2,17 @@
  * Build the sitemap from ./public/sitemap/sitemap.json to ./public/sitemap/index.html and ./public/sitemap.xml.
  * The concept here is an external process maintains the JSON format for the site index, such as a CMS. We can't
  * just have a process that scans the entire source of the site as there are probably folders and files we want
- * excluded from the site map and just overall better control over what goes in to it. The JSON file drives the
- * complete construction of two files. There is the sitemap.xml that is provided to search engines, and there is
- * sitemap.html that is used on teh site as a complete site index for users.
+ * excluded from the site map and overall better control over what goes in to it (such as games and promos). The
+ * JSON file drives the complete construction of two files. There is the sitemap.xml that is provided to search
+ * engines, and there is sitemap.html that is used on the site as a complete site index for users.
  */
 const Chalk = require("chalk");
 const fs = require("fs");
 const shell = require("shelljs");
-const request = require('request');
+const axios = require('axios').default;
 const cheerio = require('cheerio');
 const commonUtilities = require("../public/common/commonUtilities");
-var enginesis = require("../public/common/enginesis");
+const enginesis = require("../public/common/enginesis");
 
 let pathToPublicRoot = "./public";
 let siteRoot = "https://varyn.com";
@@ -84,16 +84,18 @@ function renderSectionHTML(section) {
             let fullURL = devSiteRoot + url;
             let title = "";
             let description = "";
-            request(fullURL, function (requestError, response, body) {
-                if (requestError) {
-                    reject(requestError);
-                } else if (response.statusCode != 200) {
+            axios({
+                url: fullURL,
+                method: "get"
+            })
+            .then(function(response) {
+                if (response.status != 200) {
                     reject(new Error("Request for " + fullURL + " gives status " + response.statusCode + ": this is not supported."));
                 } else {
-                    const $ = cheerio.load(body);
-                    if ($) {
-                        title = $("title").text();
-                        description = $("meta[name=description]").attr("content");
+                    const webPage = cheerio.load(response.data);
+                    if (webPage) {
+                        title = webPage("title").text();
+                        description = webPage("meta[name=description]").attr("content");
                         html = `\n<li><a href="${url}">${title}</a> ${description}</li>\n`;
                         resolve(html);
                     } else {
@@ -101,6 +103,10 @@ function renderSectionHTML(section) {
                     }
                 }
             })
+            .catch(function(error) {
+                console.log(Chalk.yellow("Request for " + fullURL + " fails with " + error.toString()));
+                reject(error);
+            });
         } else {
             reject(new Error("Could not resolve loc to a valid HTML file."));
         }
@@ -146,6 +152,7 @@ function renderSectionXML(section) {
  * 
  * @param {string} pageKey The key of the section to process.
  * @param {object} sitemapItem The data for the section.
+ * @returns {Promise} Resolves when the page is processed.
  */
 function processPage(pageKey, sitemapItem) {
     if (sitemapItem.loc != undefined) {
@@ -174,14 +181,16 @@ function processPage(pageKey, sitemapItem) {
  * @param {string} key The key of the section to process.
  * @param {object} section The section data.
  * @param {object} sitemapSection The parent section data to the key/section we are processing.
+ * @returns {Promise} Resolve when the pages are processed.
  */
 function processPageQuery(key, section, sitemapSection) {
-
     console.log(Chalk.green("  Processing a page query for " + key + " for " + section.plugin));
     if (section.plugin == "enginesis" && key == "Games") {
         enginesis.init(enginesisParameters);
+        enginesis.nodeRequest = axios;
         enginesis.siteListGames(1, 100, 2, null).then(function (enginesisResponse) {
             if (enginesisResponse != null && enginesisResponse.fn != null) {
+                console.log(Chalk.green("  results for " + key + ": " + JSON.stringify(enginesisResponse)));
                 results = enginesisResponse.results;
                 succeeded = results.status.success == "1";
                 if (succeeded && enginesisResponse.fn == "SiteListGames") {
@@ -218,6 +227,8 @@ function processPageQuery(key, section, sitemapSection) {
         .catch(function(enginesisError) {
             console.log(Chalk.red("  Enginesis siteListGames exception " + enginesisError.toString()));
         });
+    } else {
+        console.log(Chalk.green("  not the right section " + key + " for " + section.plugin));
     }
 }
 
