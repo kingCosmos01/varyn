@@ -19,6 +19,7 @@ services/deploy-config.json
 public/blog/wp-content/uploads/
 
 data/
+distrib/
 public/.well-known/
 public/games/*/
 public/lab/

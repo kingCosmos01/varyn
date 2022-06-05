@@ -130,7 +130,7 @@ function logError(message) {
             type: "string",
             describe: "path to configuration file",
             demandOption: false,
-            default: null
+            default: "./build-config.json"
         },
         "destination": {
             alias: "d",
@@ -218,6 +218,7 @@ function updateConfiguration() {
 
     return new Promise(function(resolve) {
         if (cliArgs.config != null) {
+            logInfo("ᙘ got config");
             fsExtra.pathExists(cliArgs.config)
             .then(function(configurationFileExists) {
                 if (configurationFileExists) {
@@ -238,7 +239,9 @@ function updateConfiguration() {
                     resolve();
                 }
             });
-        }    
+        } else {
+            logInfo("ᙘ no config?");
+        }
     });
 }
 
@@ -579,7 +582,7 @@ function showStats() {
  */
 function runBuild() {
     logInfo("Running build now.");
-    process.exit(0);
+    // process.exit(0);
 
     Promise.all([
         optimizeJS(configuration),
