@@ -8,7 +8,7 @@
  * @created: 13-Feb-2016
  */
 date_default_timezone_set('America/New_York');
-define('LOGFILE_PREFIX', 'enginesis_php_');
+define('LOGFILE_PREFIX', 'enginesis');
 define('ENGINESIS_SITE_NAME', 'Enginesis');
 define('ENGINESIS_SITE_ID', 0);
 define('DEBUG_ACTIVE', false);
