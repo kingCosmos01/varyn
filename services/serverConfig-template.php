@@ -11,6 +11,7 @@ date_default_timezone_set('America/New_York');
 define('LOGFILE_PREFIX', 'enginesis');
 define('ENGINESIS_SITE_NAME', 'Enginesis');
 define('ENGINESIS_SITE_ID', 0);
+define('ENGINESIS_SITE_DOMAIN', 'enginesis.com');
 define('DEBUG_ACTIVE', false);
 define('DEBUG_SESSION', false);
 define('PUBLISHING_MASTER_PASSWORD', '');
@@ -26,11 +27,11 @@ define('SESSION_PARAM_CACHE', 'engsession_params');
 
 // memcache access global table:
 $_MEMCACHE_HOSTS = [
-    '-l'  => array('port'=>11215, 'host'=>'www.enginesis-l.com'),
-    '-d'  => array('port'=>11215, 'host'=>'www.enginesis-d.com'),
-    '-q'  => array('port'=>11215, 'host'=>'www.enginesis-q.com'),
-    '-x'  => array('port'=>11215, 'host'=>'www.enginesis-x.com'),
-    ''    => array('port'=>11215, 'host'=>'www.enginesis.com')
+    '-l'  => ['port'=>11215, 'host'=>'www.enginesis-l.com'],
+    '-d'  => ['port'=>11215, 'host'=>'www.enginesis-d.com'],
+    '-q'  => ['port'=>11215, 'host'=>'www.enginesis-q.com'],
+    '-x'  => ['port'=>11215, 'host'=>'www.enginesis-x.com'],
+    ''    => ['port'=>11215, 'host'=>'www.enginesis.com']
 ];
 
 // Define a list of email addresses who will get notifications of internal bug reports:
@@ -59,5 +60,6 @@ $_MAIL_HOSTS = [
 ];
 
 // Global variables:
+$developerKey = ENGINESIS_DEVELOPER_API_KEY;
 $siteId = ENGINESIS_SITE_ID;
 $languageCode = 'en';
