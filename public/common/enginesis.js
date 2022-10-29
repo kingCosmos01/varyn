@@ -18,7 +18,7 @@
     "use strict";
 
     var enginesis = {
-        VERSION: "2.6.14",
+        VERSION: "2.6.15",
         debugging: true,
         disabled: false, // use this flag to turn off communicating with the server
         isOnline: true,  // flag to determine if we are currently able to reach Enginesis servers
@@ -3384,8 +3384,8 @@
 
     /**
      * Track a game event for game-play metrics.
-     * @param {string} category what generated the event
-     * @param {string} action what happened (LOAD, PLAY, GAMEOVER, EVENT, ZONECHG)
+     * @param {string} category what event generated the request (load, start, showAd, etc.)
+     * @param {string} action further qualifying data about the event (depends on the event.)
      * @param {string} label path in game where event occurred
      * @param {string} hitData a value related to the action, quantifying the action, if any
      * @param {function} overRideCallBackFunction
@@ -3394,9 +3394,18 @@
     enginesis.gameTrackingRecord = function (category, action, label, hitData, overRideCallBackFunction) {
         if (enginesis.isBrowserBuild) {
             try {
-                // use Google Analytics or Tag Manager if it is there (send, event, category, action, label, value)
+                if (isNull(action)) {
+                    action = this.gameIdGet().toString();
+                }
+                if (isNull(label)) {
+                    label = "";
+                }
+                if (isNull(hitData)) {
+                    hitData = "";
+                }
+                // use Google Analytics or Tag Manager if it is there (send event, category, action, label, value)
                 if (global.dataLayer != undefined) {
-                    global.dataLayer.push({"event": category, "action": action, "label": label, "value": hitData});
+                    global.dataLayer.push({"event": category, "gameid": this.gameIdGet().toString(), "action": action, "label": label, "value": hitData});
                 } else if (global.ga != undefined) {
                     global.ga("send", "event", category, action, label, hitData);
                 }
@@ -3404,7 +3413,7 @@
                 debugLog("Analytics exception " + exception.toString());
             }
         }
-        return sendRequest("GameTrackingRecord", {hit_type: "REQUEST", hit_category: category, hit_action: action, hit_label: label, hit_data: hitData}, overRideCallBackFunction);
+        return sendRequest("GameTrackingRecord", {hit_type: "game", hit_category: category, hit_action: action, hit_label: label, hit_data: hitData}, overRideCallBackFunction);
     };
 
     /**
