@@ -26,10 +26,10 @@ include_once(VIEWS_ROOT . 'header.php');
         padding: 2rem;
     }
 </style>
-<div class="container marketing">
-    <div class="panel panel-primary">
-        <div class="panel-heading">
-            <h3 class="panel-title">Experiments</h3>
+<div class="container">
+    <div class="card card-primary">
+        <div class="card-heading">
+            <h3 class="card-title">Experiments</h3>
         </div>
     </div>
     <div>

@@ -77,9 +77,7 @@ var varynApp;
 var debug = true;
 var manifest = [
     "/common/modernizr.js",
-    "/common/jquery.min.js",
-    "/common/bootstrap.min.js",
-    "/common/ie10-viewport-bug-workaround.js",
+    "/common/bootstrap.bundle.min.js",
     "//platform.twitter.com/widgets.js",
     "https://apis.google.com/js/platform.js"
 ];

@@ -21,6 +21,7 @@
 require_once('../../services/common.php');
 require_once('../../services/SocialServices.php');
 require_once('../../services/strings.php');
+require_once('../../views/sections.php');
 
 processSearchRequest();
 $stringTable = new EnginesisStringTable($siteId, $languageCode);
@@ -30,6 +31,7 @@ $pageTitle = 'Profile';
 $pageDescription = 'View your player profile or review other followers and players at Varyn.com.';
 processTrackBack();
 $showSubscribe = getPostOrRequestVar('s', '0');
+$topGamesListId = 5;
 
 $isValidSession = false;
 // $isLoggedIn // reminder this is assigned in common.php
@@ -665,11 +667,11 @@ function isValidSecurityQuestion($securityQuestion, $securityAnswer) {
 
 include_once(VIEWS_ROOT . 'header.php');
 ?>
-<div class="container marketing">
-    <div id="user_profile">
+<div class="container">
+    <div id="user_profile" class="card card-primary m-2 p-4">
 <?php
     if ($redirectedStatusMessage != '') {
-        echo('<div class="panel panel-danger"><div class="panel-heading"><h4>' . $redirectedStatusMessage . '</h4></div></div>');
+        echo('<div class="card card-danger"><div class="card-heading"><h4>' . $redirectedStatusMessage . '</h4></div></div>');
     }
     if ($debug == 1) {
         echo("<h3>Debug info:</h3><p>Page called with action $action; User name $userName; password $password; email $email; Fullname: $fullname; Loc: $location; Tag: $tagline; DOB: $dateOfBirth;</p>");
@@ -886,7 +888,7 @@ include_once(VIEWS_ROOT . 'header.php');
         <h2>Profile</h2>
         <p>You are not logged in. Login to see your profile, earn coins, appear on leader boards, and participate in our community.</p>
         <div class="row">
-            <div class="panel col-md-6 profile-login">
+            <div class="card card-light col-md-6 p-4 profile-login">
                 <form id="login" method="POST" action="/profile/">
                     <h4>Already a member? Log in:</h4>
                     <div id="errorContent" class="errorContent"><?php echo($errorMessage);?></div>
@@ -905,7 +907,7 @@ include_once(VIEWS_ROOT . 'header.php');
             </div>
             <div class="col-md-1">
             </div>
-            <div class="panel col-md-3 profile-sign-up">
+            <div class="card card-light col-md-3 p-4 profile-sign-up">
                 <h4>Not a member?</h4>
                 <input type="button" class="btn btn-primary btn-varyn" id="profile_register_now" value="Sign up with Email" onclick="profilePage.showRegistrationPopup(true);" title="Sign up with your email address" /><br/>
                 <h4>Or</h4>
@@ -918,14 +920,14 @@ include_once(VIEWS_ROOT . 'header.php');
     }
 ?>
     </div>
-    <div class="container marketing">
+    <div class="container">
 <?php
     if ($isLoggedIn) {
 ?>
         <div id="FavoriteGamesContainer">
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Favorite Games</h3>
+            <div class="card card-primary">
+                <div class="card-heading">
+                    <h3 class="card-title">Favorite Games</h3>
                 </div>
             </div>
             <div id="FavoriteGames" class="row">
@@ -933,14 +935,8 @@ include_once(VIEWS_ROOT . 'header.php');
         </div>
 <?php
     }
+    buildGamesSection($topGamesListId, 'Hot games');
 ?>
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h3 class="panel-title">Top Games</h3>
-            </div>
-        </div>
-        <div id="HomePageTopGames" class="row">
-        </div>
     </div>
     <div id="bottomAd" class="row">
 <?php
@@ -987,9 +983,9 @@ if (empty($refreshToken)) {
         profilePage = varynApp.initApp(varynProfilePage, profilePageParameters);<?php echo($refreshTokenJavaScript);?>
     });
     if (debug) {
-        head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.js', '/common/enginesis.js', '/common/ShareHelper.js', '/common/commonUtilities.js', '/common/ssoFacebook.js', '/common/ssoGoogle.js', '/common/ssoTwitter.js', '/common/varyn.js', '/common/varynProfilePage.js');
+        head.js('/common/modernizr.js', '/common/bootstrap.bundle.min.js', '/common/enginesis.js', '/common/ShareHelper.js', '/common/commonUtilities.js', '/common/ssoFacebook.js', '/common/ssoGoogle.js', '/common/ssoTwitter.js', '/common/varyn.js', '/common/varynProfilePage.js');
     } else {
-        head.js('/common/modernizr.js', '/common/jquery.min.js', '/common/bootstrap.js', '/common/enginesis.min.js', '/common/varynProfilePage.min.js');
+        head.js('/common/modernizr.js', '/common/bootstrap.bundle.min.js', '/common/enginesis.min.js', '/common/varynProfilePage.min.js');
     }
 </script>
 </body>

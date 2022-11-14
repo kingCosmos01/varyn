@@ -1,4 +1,15 @@
 <?php
+/**
+ * header.php Global header used on every page to handle the following common features:
+ * - Handle HTML meta data
+ * - Display the global nav bar
+ * - information message banner modal-message
+ * - Login pop up modal modal-login
+ * - subscribe to newsletter pop up modal-subscribe
+ * - register pop up modal-register
+ * - forgot password pop up modal-forgot-password
+ * Using this also requires footer.php to close everything
+ */
 $pagesDoNotHaveRegistrationForms = ['resetpass', 'forgotpass', 'requestConfirm'];
 if ( ! isset($isLoggedIn)) {
     $isLoggedIn = false;
@@ -157,7 +168,6 @@ if ($page == 'play') {
     <meta property="twitter:image:width" content="<?php echo($pageSocialImageWidth);?>">
     <meta property="twitter:image:height" content="<?php echo($pageSocialImageHeight);?>">
     <link href="/common/bootstrap.min.css" rel="stylesheet">
-    <link href="/common/carousel.css" rel="stylesheet">
     <link href="/common/varyn.css" rel="stylesheet">
     <?php if (isset($gameDiscoveryTag)) { echo($gameDiscoveryTag); } ?>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-YL1KFE561M"></script>
@@ -170,18 +180,18 @@ if ($page == 'play') {
     <script src="/common/head.load.min.js"></script>
 </head>
 <body>
-<div class="modal fade topmost" id="modal-message" tabindex="-1" role="dialog" aria-labelledby="modalMessageLabel">
+<div class="modal fade" id="modal-message" tabindex="-1" role="dialog" aria-labelledby="modalMessageLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content modal-content-varyn">
             <div class="modal-header">
-                <button type="button" class="close color-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h3 class="modal-title" id="modalMessageLabel"><span class="varyn-shield-icon"></span> <span id="infoMessageTitle">Message Title</span></h3>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body infoMessageArea" id="infoMessageArea">
                 <p></p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-success" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -189,12 +199,12 @@ if ($page == 'play') {
 <?php
     if ( ! in_array($page, $pagesDoNotHaveRegistrationForms)) {
 ?>
-<div class="modal fade topmost" id="modal-subscribe" tabindex="-1" role="dialog" aria-labelledby="modalSubscribeLabel">
+<div class="modal fade" id="modal-subscribe" tabindex="-1" role="dialog" aria-labelledby="modalSubscribeLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content modal-content-varyn">
             <div class="modal-header">
-                <button type="button" class="close color-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h3 class="modal-title" id="modalSubscribeLabel"><span class="varyn-shield-icon"></span> Subscribe</h3>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
                 <p>Sign up for our email updates and we will let you know when we have new games, prizes, interesting things to say. We will not abuse this privilege. <a href="/privacy/" class="text-muted small" title="Review our privacy policy" alt="Review our privacy policy">Review our privacy policy.</a></p>
@@ -208,7 +218,7 @@ if ($page == 'play') {
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-success" value="Subscribe" name="subscribe" id="subscribeButton" onclick="varynApp.popupSubscribeClicked();">Subscribe</button>
             </div>
         </div>
@@ -218,12 +228,12 @@ if ($page == 'play') {
         $hackerVerification = makeInputFormHackerToken();
         if ( ! $isLoggedIn) {
 ?>
-<div class="modal fade topmost" id="modal-login" tabindex="-1" role="dialog" aria-labelledby="modalLoginLabel">
+<div class="modal fade" id="modal-login" tabindex="-1" role="dialog" aria-labelledby="modalLoginLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content modal-content-varyn">
             <div class="modal-header">
-                <button type="button" class="close color-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h3 class="modal-title" id="modalLoginLabel"><span class="varyn-shield-icon"></span> Member Login</h3>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
                 <form id="login-form" method="POST" action="/profile/" onsubmit="return varynApp.popupLoginClicked();">
@@ -251,21 +261,21 @@ if ($page == 'play') {
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-success" value="loginButton" name="loginButton" id="loginButton" onclick="varynApp.popupLoginClicked();">Login</button>
             </div>
         </div>
     </div>
 </div>
-<div class="modal fade topmost" id="modal-register" tabindex="-1" role="dialog" aria-labelledby="modalRegisterLabel">
+<div class="modal fade" id="modal-register" tabindex="-1" role="dialog" aria-labelledby="modalRegisterLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content modal-content-varyn">
             <div class="modal-header">
-                <button type="button" class="close color-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h3 class="modal-title" id="modalRegisterLabel"><span class="varyn-shield-icon"></span> Register New Member</h3>
+                <h3 class="modal-title" id="modalRegisterLabel"><span class="varyn-shield-icon"></span> Register</h3>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
-                <p>Sign up now to track your progress, earn rewards, and compete with friends!</p>
+                <p>Sign up now to track your progress, earn rewards, and compete with friends:</p>
                 <form id="registration-form" method="POST" action="/profile/" onsubmit="return varynApp.popupRegistrationClicked();">
                     <div class="leader-1 trailer-1 left-1 right-1">
                         <div class="form-group">
@@ -298,7 +308,7 @@ if ($page == 'play') {
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-success" value="Register" name="popupregister" id="registerButton" onclick="varynApp.popupRegistrationClicked();">Register</button>
             </div>
         </div>
@@ -307,15 +317,15 @@ if ($page == 'play') {
 <?php
         }
 ?>
-<div class="modal fade topmost" id="modal-forgot-password" tabindex="-1" role="dialog" aria-labelledby="modalForgotPasswordLabel">
+<div class="modal fade" id="modal-forgot-password" tabindex="-1" role="dialog" aria-labelledby="modalForgotPasswordLabel">
     <div class="modal-dialog" role="document">
         <div class="modal-content modal-content-varyn">
             <div class="modal-header">
-                <button type="button" class="close color-white" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
                 <h3 class="modal-title" id="modalForgotPasswordLabel"><span class="varyn-shield-icon"></span> Forgot Password</h3>
+                <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
-                <p>Please identify your account. We will send email to the address set on the account to allow you to reset your password.</p>
+                <p>Please identify your account. We will send email to the address on the account to help you reset your password.</p>
                 <form id="forgot-password-form" method="POST" action="/profile/" onsubmit="return varynApp.popupForgotPasswordClicked();">
                     <div class="leader-1 trailer-1 left-2 right-2">
                         <div class="form-group">
@@ -337,7 +347,7 @@ if ($page == 'play') {
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-success" value="Reset" name="Reset" id="forgot-password-button" onclick="varynApp.popupForgotPasswordClicked();">Reset</button>
             </div>
         </div>
@@ -357,34 +367,52 @@ if ($page == 'play') {
     $newBlogPosts = 0;
     $newBlogPill = $newBlogPosts > 0 ? '&nbsp;<span class="badge badge-pill badge-success badge-nav">' . $newBlogPosts . '</span>' : '';
 ?>
-<div class="navbar-wrapper" id="varyn-navbar">
-    <div class="container">
-        <div class="navbar navbar-default navbar-static-top" role="navigation">
-            <div class="container">
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
+<div class="container navbar-wrapper" id="varyn-navbar">
+    <div class="navbar navbar-default navbar-static-top navbar-expand-sm navbar-light bg-light" role="navigation">
+        <a class="navbar-brand" href="/">
+            <img src="/images/logosmall.png" alt="Varyn small logo" />
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item navbar-item<?php if ($page == 'home') { echo(' active'); } ?>" role="presentation">
+                    <a class="nav-link" href="/">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-house" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M2 13.5V7h1v6.5a.5.5 0 0 0 .5.5h9a.5.5 0 0 0 .5-.5V7h1v6.5a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 13.5zm11-11V6l-2-2V2.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5z"/>
+                        <path fill-rule="evenodd" d="M7.293 1.5a1 1 0 0 1 1.414 0l6.647 6.646a.5.5 0 0 1-.708.708L8 2.207 1.354 8.854a.5.5 0 1 1-.708-.708L7.293 1.5z"/>
+                    </svg> Home</a>
+                </li>
+                <li class="nav-item navbar-item<?php if ($page == 'games') { echo(' active'); } ?>" role="presentation">
+                    <a class="nav-link" href="/games/">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-joystick" viewBox="0 0 16 16">
+                        <path d="M10 2a2 2 0 0 1-1.5 1.937v5.087c.863.083 1.5.377 1.5.726 0 .414-.895.75-2 .75s-2-.336-2-.75c0-.35.637-.643 1.5-.726V3.937A2 2 0 1 1 10 2z"/>
+                        <path d="M0 9.665v1.717a1 1 0 0 0 .553.894l6.553 3.277a2 2 0 0 0 1.788 0l6.553-3.277a1 1 0 0 0 .553-.894V9.665c0-.1-.06-.19-.152-.23L9.5 6.715v.993l5.227 2.178a.125.125 0 0 1 .001.23l-5.94 2.546a2 2 0 0 1-1.576 0l-5.94-2.546a.125.125 0 0 1 .001-.23L6.5 7.708l-.013-.988L.152 9.435a.25.25 0 0 0-.152.23z"/>
+                    </svg> Games<?php echo($newGamesPill);?></a>
+                </li>
+                <li class="nav-item navbar-item<?php if ($page == 'blog') { echo(' active'); } ?>" role="presentation">
+                    <a class="nav-link" href="/blog/">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-journal-richtext" viewBox="0 0 16 16">
+                        <path d="M7.5 3.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0zm-.861 1.542 1.33.886 1.854-1.855a.25.25 0 0 1 .289-.047L11 4.75V7a.5.5 0 0 1-.5.5h-5A.5.5 0 0 1 5 7v-.5s1.54-1.274 1.639-1.208zM5 9.5a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5zm0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5z"/>
+                        <path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2z"/>
+                        <path d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1z"/>
+                    </svg> Blog<?php echo($newBlogPill);?></a>
+                </li>
+                <li class="nav-item navbar-item<?php if ($page == 'profile') { echo(' active'); } ?>" role="presentation">
+                    <a class="nav-link" href="/profile/"><?php echo($userLoggedInMenuItem);?></a>
+                </li>
+            </ul>
+            <form class="navbar-form navbar-right" role="search" method="GET" action="/games/">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Search" name="q">
+                    <button type="submit" class="btn btn-default">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+                        </svg>
                     </button>
-                    <a class="navbar-brand" href="/"><img src="/images/logosmall.png" alt="Varyn small logo" /></a>
                 </div>
-                <div id="navbar" class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav">
-                        <li role="presentation"<?php if ($page == 'home') { echo(' class="active"'); } ?>><a href="/"><span class="glyphicon glyphicon-home"></span> Home</a></li>
-                        <li role="presentation"<?php if ($page == 'games') { echo(' class="active"'); } ?>><a href="/games/"><span class="glyphicon glyphicon-king"></span> Games<?php echo($newGamesPill);?></a></li>
-                        <li role="presentation"<?php if ($page == 'blog') { echo(' class="active"'); } ?>><a href="/blog/"><span class="glyphicon glyphicon-list"></span> Blog<?php echo($newBlogPill);?></a></li>
-                        <li role="presentation"<?php if ($page == 'profile') { echo(' class="active"'); } ?>><a href="/profile/"><?php echo($userLoggedInMenuItem);?></a></li>
-                    </ul>
-                    <form class="navbar-form navbar-right" role="search" method="GET" action="/games/">
-                        <div class="form-group">
-                            <input type="text" class="form-control" placeholder="Search" name="q">
-                        </div>
-                        <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
-                    </form>
-                </div>
-            </div>
+            </form>
         </div>
     </div>
 </div>

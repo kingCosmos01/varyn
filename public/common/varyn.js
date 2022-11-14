@@ -18,14 +18,9 @@ var varyn = function (parameters) {
         serverHostDomain: 'varyn' + parameters.serverStage + '.com',
         languageCode: parameters.languageCode,
         gameGroupId: parameters.gameGroupId || 0,
-        gameListIdTop: parameters.gameListIdTop || 4,
-        gameListIdNew: parameters.gameListIdNew || 5,
-        homePagePromoId: parameters.homePagePromoId || 3,
-        blogPagePromoId: parameters.blogPagePromoId || 4,
         gameListState: 1,
         userInfo: parameters.userInfo,
         authToken: parameters.authToken,
-
         minPasswordLength: 4,
         minUserNameLength: 3,
         minimumAge: 13,
@@ -371,7 +366,8 @@ var varyn = function (parameters) {
                 errorContent.innerHTML = '<p class="text-error">' + errorMessage + '</p>';
             }
             if (errorFieldElement != null) {
-                $(errorFieldElement).removeClass("popup-form-input").addClass("popup-form-input-error");
+                errorFieldElement.classList.remove("popup-form-input");
+                errorFieldElement.classList.add("popup-form-input-error");
                 errorFieldElement.focus();
             }
         },
@@ -493,6 +489,25 @@ var varyn = function (parameters) {
         },
 
         /**
+         * Helper function to get the bootstrap Modal object assigned to a Modal div element.
+         * @param {string|DOMElement} domElementOrId A DOM id or a DOM element.
+         * @returns Modal
+         */
+        getBootstrapModal: function(domElementOrId) {
+            let domElement;
+            if (typeof domElementOrId === "string") {
+                domElement = document.getElementById(domElementOrId);
+            } else {
+                domElement = domElementOrId;
+            }
+            let bootstrapModal = bootstrap.Modal.getInstance(domElement);
+            if (bootstrapModal == null) {
+                bootstrapModal = new bootstrap.Modal(domElement);
+            }
+            return bootstrapModal;
+        },
+
+        /**
          * showSubscribePopup show the popup form to capture an email address to subscribe to the newsletter.
          */
         hideSubscribePopup: function () {
@@ -504,13 +519,15 @@ var varyn = function (parameters) {
          * TODO: track if user already signed up?
          */
         showSubscribePopup: function (showFlag) {
+            const subscribeModalElement = document.getElementById("modal-subscribe");
+            const subscribeModal = this.getBootstrapModal(subscribeModalElement); // bootstrap.Modal.getInstance(subscribeModalElement);
             if (showFlag) {
                 document.getElementById("subscribe-email").value = enginesisSession.anonymousUserGetSubscriberEmail();
-                // $('#modal-subscribe').modal('show');
                 this.setPopupMessage('modal-subscribe', '', null);
                 this.trackEvent('subscribe', 'prompt', currentPage);
+                subscribeModal.show();
             } else {
-                $('#modal-subscribe').modal('hide');
+                subscribeModal.hide();
             }
         },
 
@@ -519,13 +536,15 @@ var varyn = function (parameters) {
          * for the long form go to the profile page.
          */
         showRegistrationPopup: function (showFlag) {
+            const registerModalElement = document.getElementById("modal-register");
+            const registerModal = this.getBootstrapModal(registerModalElement); // bootstrap.Modal.getInstance(registerModalElement);
             if (showFlag) {
-                $('#modal-register').modal('show');
-                this.setPopupMessage('modal-register', '', null);
-                this.onChangeRegisterUserName(document.getElementById('register-username'), 'popup_user_name_unique');
-                this.trackEvent('register', 'prompt', currentPage);
+                this.setPopupMessage("modal-register", "", null);
+                this.onChangeRegisterUserName(document.getElementById("register-username"), "popup_user_name_unique");
+                this.trackEvent("register", "prompt", currentPage);
+                registerModal.show();
             } else {
-                $('#modal-register').modal('hide');
+                registerModal.hide();
             }
         },
 
@@ -534,12 +553,15 @@ var varyn = function (parameters) {
          * for the long form go to the profile page.
          */
         showLoginPopup: function (showFlag) {
-            if (showFlag) {
-                $('#modal-login').modal('show');
-                this.setPopupMessage('modal-login', '', null);
-                this.trackEvent('login', 'prompt', currentPage);
-            } else {
-                $('#modal-login').modal('hide');
+            const loginModal = this.getBootstrapModal("modal-login");
+            if (loginModal != null) {
+                if (showFlag) {
+                    this.setPopupMessage("modal-login", "", null);
+                    this.trackEvent("login", "prompt", currentPage);
+                    loginModal.show();
+                } else {
+                    loginModal.hide();
+                }
             }
         },
 
@@ -547,40 +569,41 @@ var varyn = function (parameters) {
          * showForgotPasswordPopup show the popup form initiate forgot password flow.
          */
         showForgotPasswordPopup: function (showFlag) {
-            var forgotPasswordModal = document.getElementById('modal-forgot-password');
+            const forgotPasswordModalId = "modal-forgot-password";
+            var forgotPasswordModal = this.getBootstrapModal(forgotPasswordModalId);
             if (forgotPasswordModal != null) {
                 if (showFlag) {
-                    forgotPasswordModal.modal('show');
-                    this.setPopupMessage('modal-forgot-password', '', null);
-                    this.trackEvent('forgotpassword', 'prompt', currentPage);
+                    forgotPasswordModal.show();
+                    this.setPopupMessage(forgotPasswordModalId, "", null);
+                    this.trackEvent("forgotpassword", "prompt", currentPage);
                 } else {
-                    forgotPasswordModal.modal('hide');
+                    forgotPasswordModal.hide();
                 }
             }
         },
 
         /**
          * Find the popup DOM element and set its internal text to the message and add a CSS class if one is provided.
-         * @param popupId {string} DOM id of the element holding the message area.
-         * @param message {string} the message to show.
-         * @param className {string} optional class to add to the popupId element.
+         * @param {string} popupId DOM id of the element holding the message area.
+         * @param {string} message the message to show.
+         * @param {string} className optional class to add to the popupId element.
          */
         setPopupMessage: function (popupId, message, className) {
-            var messageClass = 'modalMessageArea',
-                messageElement = $('#' + popupId).find('.' + messageClass);
-
-            if (messageElement != null) {
-                messageElement.css('display', 'block');
-                messageElement.text(message);
+            const messageClass = 'modalMessageArea';
+            const messageElements = document.getElementById(popupId).getElementsByClassName(messageClass);
+            if (messageElements.length > 0) {
+                const messageElement = messageElements[0];
+                messageElement.style.display = "block";
+                messageElement.innerText = message;
                 if (className != null) {
-                    messageElement.attr('class', messageClass + ' ' + className);
+                    messageElement.classList.add(className);
                 }
             }
         },
 
         /**
          * Close all popups. Being not so smart, we set all popups we know of to display:none.
-         * TODO: Smarter approach would be to take all .popupFrame elements and set them to display:none.
+         * @todo: Smarter approach would be to take all .popupFrame elements and set them to display:none.
          */
         popupCloseClicked: function () {
             this.closeInfoMessagePopup();
@@ -588,7 +611,6 @@ var varyn = function (parameters) {
             this.showLoginPopup(false);
             this.showRegistrationPopup(false);
             this.showForgotPasswordPopup(false);
-            // $('.popupFrame').attr('display', 'none');
         },
 
         /**
@@ -598,14 +620,17 @@ var varyn = function (parameters) {
          * @param timeToClose - number of milliseoncds to auto-close the popup. 0 to never close automatically.
          */
         showInfoMessagePopup: function (title, message, timeToClose) {
-            var popupTitle = document.getElementById("infoMessageTitle"),
-                popupMessage = document.getElementById("infoMessageArea");
+            const popupTitle = document.getElementById("infoMessageTitle");
+            const popupMessage = document.getElementById("infoMessageArea");
+            const messageModal = this.getBootstrapModal("modal-message");
 
             popupTitle.innerText = title;
             popupMessage.innerHTML = message;
-            $('#modal-message').modal('show');
-            if (timeToClose > 0) {
-                window.setTimeout(this.closeInfoMessagePopup.bind(this), timeToClose);
+            if (messageModal != null) {
+                messageModal.show();
+                if (timeToClose > 0) {
+                    window.setTimeout(this.closeInfoMessagePopup.bind(this), timeToClose);
+                }
             }
         },
 
@@ -614,7 +639,10 @@ var varyn = function (parameters) {
          * TODO: Maybe smart to cancel the close interval if this was closed from the close button.
          */
         closeInfoMessagePopup: function () {
-            $('#modal-message').modal('hide');
+            const messageModal = this.getBootstrapModal("modal-message");
+            if (messageModal != null) {
+                messageModal.hide();
+            }
         },
 
 
@@ -677,10 +705,13 @@ var varyn = function (parameters) {
                 errorField = "register-agreement";
             }
             if (errorField != "") {
-                $(errorField).removeClass("popup-form-input").addClass("popup-form-input-error");
-                document.getElementById(errorField).focus();
-            }
-            if (errorField == "") {
+                const errorElement = document.getElementById(errorField);
+                if (errorElement != null) {
+                    errorElement.classList.remove("popup-form-input");
+                    errorElement.classList.add("popup-form-input-error");
+                    errorElement.focus();
+                }
+            } else {
                 document.getElementById("registration-form").submit();
                 this.trackEvent('register', 'submit', currentPage);
             }
@@ -707,12 +738,15 @@ var varyn = function (parameters) {
                 errorField = "login_password";
             }
             if (errorField != "") {
-                $(errorField).removeClass("popup-form-input").addClass("popup-form-input-error");
-                document.getElementById(errorField).focus();
-            }
-            if (errorField == "") {
+                const errorElement = document.getElementById(errorField);
+                if (errorElement != null) {
+                    errorElement.classList.remove("popup-form-input");
+                    errorElement.classList.add("popup-form-input-error");
+                    errorElement.focus();
+                }
+            } else {
                 document.getElementById("login-form").submit();
-                this.trackEvent('login', 'submit', currentPage);
+                this.trackEvent("login", "submit", currentPage);
             }
             return errorField == ""; // return true to submit form
         },
@@ -738,12 +772,15 @@ var varyn = function (parameters) {
                 errorField = "forgotpassword_email";
             }
             if (errorField != "") {
-                $(errorField).removeClass("popup-form-input").addClass("popup-form-input-error");
-                document.getElementById(errorField).focus();
-            }
-            if (errorField == "") {
+                const errorElement = document.getElementById(errorField);
+                if (errorElement != null) {
+                    errorElement.classList.remove("popup-form-input");
+                    errorElement.classList.add("popup-form-input-error");
+                    errorElement.focus();
+                }
+            } else {
                 document.getElementById("forgot-password-form").submit();
-                this.trackEvent('forgotpassword', 'submit', currentPage);
+                this.trackEvent("forgotpassword", "submit", currentPage);
             }
             return errorField == ""; // return true to submit form
         },
@@ -769,12 +806,15 @@ var varyn = function (parameters) {
                 errorField = "forgotpassword_email";
             }
             if (errorField != "") {
-                $(errorField).removeClass("popup-form-input").addClass("popup-form-input-error");
-                document.getElementById(errorField).focus();
+                const errorElement = document.getElementById(errorField);
+                if (errorElement != null) {
+                    errorElement.classList.remove("popup-form-input");
+                    errorElement.classList.add("popup-form-input-error");
+                    errorElement.focus();
+                }
             }
             return errorField == ""; // return true to submit form
         },
-
 
         /**
          * The submit button on the unsubscribe form was clicked. Validate user inputs on the
@@ -792,8 +832,12 @@ var varyn = function (parameters) {
                 errorField = "unsubscribe_email_form";
             }
             if (errorField != "") {
-                $(errorField).removeClass("popup-form-input").addClass("popup-form-input-error");
-                document.getElementById(errorField).focus();
+                const errorElement = document.getElementById(errorField);
+                if (errorElement != null) {
+                    errorElement.classList.remove("popup-form-input");
+                    errorElement.classList.add("popup-form-input-error");
+                    errorElement.focus();
+                }
             }
             return errorField == ""; // return true to submit form
         },
@@ -1150,9 +1194,9 @@ var varyn = function (parameters) {
                 case enginesis.supportedNetworks.Google:
                     if (callbackInfo != null) {
                         if (callbackInfo.isSignedIn.get()) {
-                            console.log("Gplus user is signed in");
+                            console.log("Google user is signed in");
                         } else {
-                            console.log("Gplus user is NOT signed in");
+                            console.log("Google user is NOT signed in");
                         }
                     }
                     break;
@@ -1246,7 +1290,7 @@ var varyn = function (parameters) {
                     element = element.target;
                 }
                 if (domIdImage == null) {
-                    domIdImage = $(element).data("target");
+                    domIdImage = element.dataset.target;
                 }
                 userName = element.value.toString();
                 if (varynApp.isChangedUserName(userName)) {
@@ -1304,7 +1348,11 @@ var varyn = function (parameters) {
          * @returns {boolean} true if the name is unique, false if it is taken.
          */
         testUserNameIsUnique: function (id) {
-            var isUnique = $('#' + id).hasClass('username-is-unique');
+            let isUnique = false;
+            const domElement = document.getElementById(id);
+            if (id != null) {
+                isUnique = domElement.classList.contains("username-is-unique");
+            }
             return isUnique;
         },
 
@@ -1642,17 +1690,6 @@ var varyn = function (parameters) {
                                 errorMessage += ' ' + results.status.extended_info;
                             }
                             varynApp.showInfoMessagePopup("Change Password", "There was a system issue while trying to reset your password: " + errorMessage, 0);
-                        }
-                        break;
-
-                    case "PromotionItemList":
-                        if (succeeded == 1) {
-                            varynApp.showHomePagePromotionModule(results.result);
-                        } else {
-                            if (results.status.extended_info != undefined) {
-                                errorMessage += ' ' + results.status.extended_info;
-                            }
-                            varynApp.showInfoMessagePopup("System error", "There was a system issue while trying to load the home page: " + errorMessage, 0);
                         }
                         break;
 

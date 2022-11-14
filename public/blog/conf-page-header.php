@@ -23,7 +23,6 @@ $description = $blog->getTopicAbstract($topicId);
     <meta name="description" content="<?php echo($description);?>">
     <meta name="author" content="Varyn">
     <link href="/common/bootstrap.min.css" rel="stylesheet">
-    <link href="/common/carousel.css" rel="stylesheet">
     <link href="/common/varyn.css" rel="stylesheet">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">

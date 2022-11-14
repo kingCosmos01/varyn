@@ -4,9 +4,36 @@
 var varynProfilePage = function (varynApp, siteConfiguration) {
     "use strict";
 
-    var enginesisSession = varynApp.getEnginesisSession(),
-        errorFieldId = "",
-        inputFocusId = "";
+    var enginesisSession = varynApp.getEnginesisSession();
+    var errorFieldId = "";
+    var inputFocusId = "";
+
+    function setElementValue(domId, value) {
+        const element = document.getElementById(domId);
+        if (element != null) {
+            element.value = value;
+        }
+    }
+
+    function getElementValue(domId) {
+        const element = document.getElementById(domId);
+        if (element != null) {
+            return element.value;
+        }
+        return null;
+    }
+
+    function toggleClass(domId, classToRemove, classToAdd) {
+        const domElement = document.getElementById(domId);
+        if (domElement != null) {
+            if (classToRemove) {
+                domElement.classList.remove(classToRemove);
+            }
+            if (classToAdd) {
+                domElement.classList.add(classToAdd);
+            }
+        }
+    }
 
     /**
      * Setup the security input fields only the first time the tab is visited
@@ -16,10 +43,10 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
         if (securityInfo == null) {
             enginesisSession.registeredUserSecurityGet(enginesisCallBack);
         } else {
-            $("#register_form_new_password").val('');
-            $("#register_form_question").val(securityInfo['security_question']);
-            $("#register_form_answer").val(securityInfo['security_answer']);
-            $('a[data-toggle="tab"]').off('shown.bs.tab');
+            setElementValue("register_form_new_password", "");
+            setElementValue("register_form_question", securityInfo['security_question']);
+            setElementValue("register_form_answer", securityInfo['security_answer']);
+            // @todo: show tab $('a[data-toggle="tab"]').off('shown.bs.tab');
         }
     }
 
@@ -197,11 +224,13 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
                 }
             }
             if (errorFieldId != '') {
-                $('#' + errorFieldId).removeClass("popup-form-input").addClass("popup-form-input-error");
+                toggleClass(errorFieldId, "popup-form-input", "popup-form-input-error");
             }
         },
 
         onPageLoadSetTabEvents: function () {
+            // @todo: learn how to set BS tabs from JavaScript
+            return;
             $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                 var whichTab = e.target.id;
                 if (whichTab == 'secure-info') {
@@ -212,13 +241,13 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
         },
 
         loginValidation: function () {
-            var userName = $("input[name=login_form_username]").val(),
-                password = $("input[name=login_form_password]").val(),
-                errorMessage = "",
-                errorField = "";
+            var userName = getElementValue("login_form_username"); // $("input[name=login_form_username]").val(),
+            var password = getElementValue("login_form_password");
+            var errorMessage = "";
+            var errorField = "";
 
-            $("#login_form_username").removeClass("popup-form-input-error").addClass("popup-form-input");
-            $("#login_form_password").removeClass("popup-form-input-error").addClass("popup-form-input");
+            toggleClass("login_form_username", "popup-form-input-error", "popup-form-input");
+            toggleClass("login_form_password", "popup-form-input-error", "popup-form-input");
             varynApp.showErrorMessage("", "");
             if (errorMessage == "" && ! varynApp.isValidUserName(userName)) {
                 errorMessage = "User name is not acceptable. Please enter your user name.";
@@ -242,17 +271,17 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
          * @returns {boolean} Returns true when form is acceptable, false if there is an error.
          */
         registerFormValidation: function () {
-            var userName = $("input[name=register_form_username]").val(),
-                password = $("input[name=register_form_password]").val(),
-                email = $("input[name=register_form_email]").val(),
-                dob = $("input[name=register_form_dob]").val(),
-                agreement = $("input[name=register_form_agreement]").val() > 1,
-                errorMessage = "",
-                errorField = "";
+            var userName = getElementValue("register_form_username");
+            var password = getElementValue("register_form_password");
+            var email = getElementValue("register_form_email");
+            var dob = getElementValue("register_form_dob");
+            var agreement = getElementValue("register_form_agreement") > 1;
+            var errorMessage = "";
+            var errorField = "";
 
-            $("#register_form_username").removeClass("popup-form-input-error").addClass("popup-form-input");
-            $("#register_form_password").removeClass("popup-form-input-error").addClass("popup-form-input");
-            $("#register_form_email").removeClass("popup-form-input-error").addClass("popup-form-input");
+            toggleClass("register_form_username", "popup-form-input-error", "popup-form-input");
+            toggleClass("register_form_password", "popup-form-input-error", "popup-form-input");
+            toggleClass("register_form_email", "popup-form-input-error", "popup-form-input");
             varynApp.showErrorMessage("", "");
             if (errorMessage == "" && ! varynApp.isValidUserName(userName)) {
                 errorMessage = "User name is not acceptable. Please enter your user name.";
@@ -286,14 +315,14 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
          * @returns {boolean} Returns true when form is acceptable, false if there is an error.
          */
         updateFormValidation: function () {
-            var userName = $("input[name=register_form_username]").val(),
-                email = $("input[name=register_form_email]").val(),
-                dob = $("input[name=register_form_dob]").val(),
-                errorMessage = "",
-                errorField = "";
+            var userName = getElementValue("register_form_username");
+            var email = getElementValue("register_form_email");
+            var dob = getElementValue("register_form_dob");
+            var errorMessage = "";
+            var errorField = "";
 
-            $("#register_form_username").removeClass("popup-form-input-error").addClass("popup-form-input");
-            $("#register_form_email").removeClass("popup-form-input-error").addClass("popup-form-input");
+            toggleClass("register_form_username", "popup-form-input-error", "popup-form-input");
+            toggleClass("register_form_email", "popup-form-input-error", "popup-form-input");
             varynApp.showErrorMessage("", "");
             if (errorMessage == "" && ! varynApp.isValidUserName(userName)) {
                 errorMessage = "User name is not acceptable. Please enter your user name.";

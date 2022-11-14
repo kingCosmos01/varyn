@@ -28,7 +28,7 @@
     $pageTitle = 'Process Request | Varyn';
     include_once(VIEWS_ROOT . 'header.php');
 ?>
-<div class="container marketing">
+<div class="container">
     <div class="panel panel-info panel-padded">
         <h1>Request</h1>
         <p>Your request is being processed.</p>
@@ -71,7 +71,7 @@
         varynApp = varyn(siteConfiguration);
     });
 
-    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js", "/common/varynResetPasswordPage.js");
+    head.js("/common/modernizr.js", "/common/bootstrap.bundle.min.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js", "/common/varynResetPasswordPage.js");
 
 </script>
 </body>

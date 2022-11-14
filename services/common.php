@@ -7,8 +7,7 @@
  *   $siteId: enginesis site_id for this website.
  *   $serverStage: stage for this instance: -l, -d, -q, or '' for Live
  *   $serverName: name of this server?
- *   $server: which enginesis server to converse with, full protocol/domain/url e.g. https://www.enginesis.com
- *   $enginesisServer: location/root URL of the enginesis server we are conversing with
+ *   $enginesisServer: which enginesis server to converse with, full protocol/domain/url e.g. https://www.enginesis.com
  *   $enginesisLogger: reference to the logging system
  *   $webServer: our (this) web server e.g. varyn.com
  *   $isLoggedIn: true if the user is logged in
@@ -343,6 +342,22 @@ function processSearchRequest() {
     }
 }
 
+/**
+ * A function to look at a string and determine if it appears to be a URL, by
+ * the patterns /, ./, http://, https://.
+ * @param string $proposedURL A string to examine.
+ * @return boolean true if it matches an expected URL pattern, false if it does not.
+ */
+function looksLikeURLPattern($proposedURL) {
+    // 
+    if ($proposedURL[0] == '/'
+    || substr_compare($proposedURL, './', 0, 2) === 0
+    || substr_compare($proposedURL, 'https://', 0, 8) === 0
+    || substr_compare($proposedURL, 'http://', 0, 7) === 0) {
+        return true;
+    }
+    return false;
+}
 /**
  * The blowfish encryption algorithm requires data length is a multiple of 8 bytes. This
  * function pads the string to the nearest 8 byte boundary.
@@ -1739,6 +1754,7 @@ $enginesis = new Enginesis($siteId, null, ENGINESIS_DEVELOPER_API_KEY, 'reportEr
 $enginesis->setCMSKey(ENGINESIS_CMS_API_KEY);
 $serverName = $enginesis->getServerName();
 $serverStage = $enginesis->getServerStage();
+$enginesisServer = $enginesis->getServiceRoot();
 // turn on errors for all stages except LIVE TODO: Remove from above when we are going live.
 setErrorReporting($serverStage != '');
 $isLoggedIn = $enginesis->isLoggedInUser();

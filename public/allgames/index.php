@@ -7,7 +7,7 @@ $search = fullyCleanString(getPostOrRequestVar('q', ''));
 $showSubscribe = getPostOrRequestVar('s', '0');
 include_once(VIEWS_ROOT . 'header.php');
 ?>
-    <div class="container marketing">
+    <div class="container">
         <?php
             if ($search != '') {
          ?>
@@ -27,7 +27,7 @@ include_once(VIEWS_ROOT . 'header.php');
         include_once(VIEWS_ROOT . 'ad-spot.php');
         ?>
         </div>
-    </div><!-- /.marketing -->
+    </div>
     <?php
     include_once(VIEWS_ROOT . 'footer.php');
     ?>
@@ -40,7 +40,7 @@ include_once(VIEWS_ROOT . 'header.php');
             varynApp.initApp(varynAllGamesPage, pageParameters);
         });
 
-        head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js", "/common/varynAllGamesPage.js");
+        head.js("/common/modernizr.js", "/common/bootstrap.bundle.min.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js", "/common/varynAllGamesPage.js");
 
     </script>
 </body>

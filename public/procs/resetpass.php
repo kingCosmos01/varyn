@@ -106,7 +106,7 @@
     $pageDescription = 'Reset user password at Varyn.com.';
 include_once(VIEWS_ROOT . 'header.php');
 ?>
-<div class="container marketing">
+<div class="container">
     <div class="row leader-3">
         <div class="col-md-4 col-md-offset-4">
             <div class="panel panel-primary">
@@ -217,7 +217,7 @@ include_once(VIEWS_ROOT . 'footer.php');
         resetPasswordPage = varynApp.initApp(varynResetPasswordPage, resetPasswordPageParameters);
     });
 
-    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js", "/common/varynResetPasswordPage.js");
+    head.js("/common/modernizr.js", "/common/bootstrap.bundle.min.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js", "/common/varynResetPasswordPage.js");
 
 </script>
 </body>

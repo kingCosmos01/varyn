@@ -7,7 +7,7 @@ $pageDescription = 'Here are the questions asked most by our users at Varyn.com.
 $showSubscribe = getPostOrRequestVar('s', '0');
 include_once(VIEWS_ROOT . 'header.php');
 ?>
-<div class="container marketing">
+<div class="container">
     <div class="panel panel-primary panel-padded">
         <h2>Frequently Asked Questions</h2>
         <p>Need help? Here are the answers to the most common questions asked by our users.</p>
@@ -26,7 +26,7 @@ include_once(VIEWS_ROOT . 'header.php');
     include_once(VIEWS_ROOT . 'ad-spot.php');
     ?>
     </div>
-</div><!-- /.marketing -->
+</div>
 <?php
 include_once(VIEWS_ROOT . 'footer.php');
 ?>

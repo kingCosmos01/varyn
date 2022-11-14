@@ -1,9 +1,11 @@
 <?php
 require_once('../services/common.php');
+require_once('../views/sections.php');
 processSearchRequest();
 $page = 'home';
 $showSubscribe = getPostOrRequestVar('s', '0');
 $extendedMessage = getPostOrRequestVar('m', null);
+$topGamesListId = 5;
 include_once(VIEWS_ROOT . 'header.php');
 ?>
     <div class="container top-promo-area">
@@ -30,14 +32,8 @@ include_once(VIEWS_ROOT . 'header.php');
             </div>
         </div>
     </div>
-    <div class="container marketing">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h3 class="panel-title">Hot Games</h3>
-            </div>
-        </div>
-        <div id="AboutPageHotGames" class="row">
-        </div>
+    <div class="container">
+        <?php buildGamesSection($topGamesListId, 'Hot games'); ?>
         <div id="bottomAd" class="row">
         <?php
         $adProvider = 'google';
@@ -108,7 +104,7 @@ include_once(VIEWS_ROOT . 'footer.php');
         varynApp.initApp(varynAboutPage, pageParameters);
     });
 
-    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/varyn.js");
+    head.js("/common/modernizr.js", "/common/bootstrap.bundle.min.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/varyn.js");
 
 </script>
 </body>

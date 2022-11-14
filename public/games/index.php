@@ -1,5 +1,6 @@
 <?php
 require_once('../../services/common.php');
+require_once('../../views/sections.php');
 $page = 'games';
 $pageTitle = 'All games at Varyn.com';
 $pageDescription = 'Check out some of the games that are in development, betas, experiments in new game play ideas, and the research and development going on at Varyn.com.';
@@ -7,20 +8,20 @@ $search = fullyCleanString(getPostOrRequestVar('q', ''));
 $showSubscribe = getPostOrRequestVar('s', '0');
 include_once(VIEWS_ROOT . 'header.php');
 ?>
-<div class="container marketing">
+<div class="container">
     <?php
     if ($search != '') {
         ?>
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h3 class="panel-title">Search for:</strong> <?php echo($search);?></h3>
+        <div class="card card-light m-4 px-4">
+            <div class="card-heading">
+                <h3 class="card-title"><small class="text-muted">Search for:</small> <?php echo($search);?></h3>
             </div>
         </div>
     <?php
+        buildSearchGamesSection($search);
     }
+    buildAllGamesSection();
     ?>
-    <div id="AllGamesArea" class="row">
-    </div>
     <div id="bottomAd" class="row">
     <?php
     $adProvider = 'google';
@@ -40,7 +41,7 @@ include_once(VIEWS_ROOT . 'footer.php');
         varynApp.initApp(varynAllGamesPage, pageParameters);
     });
 
-    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js", "/common/varynAllGamesPage.js");
+    head.js("/common/modernizr.js", "/common/bootstrap.bundle.min.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js", "/common/varynAllGamesPage.js");
 
 </script>
 </body>

@@ -1,20 +1,19 @@
 <?php
 require_once('../services/common.php');
+require_once('../views/sections.php');
 processSearchRequest();
 $showSubscribe = getPostOrRequestVar('s', '0');
 $page = 'template';
 $pageTitle = 'Varyn: Great games you can play anytime, anywhere';
 $pageDescription = 'Varyn makes games using technology that performs on the most popular platforms. Cross platform friendly technologies have created an opportunity to re-invent online games for an audience that moves seamlessly between desktop, tablet, and smart-phone.';
+$topGamesListId = 5;
 include_once(VIEWS_ROOT . 'header.php');
 ?>
-<div class="container marketing">
-    <div class="panel panel-primary panel-padded">
+<div class="container">
+    <div class="card card-primary m-2 p-4">
         <h3>Varyn Template Page</h3>
         <p>This is a template page to be used as a starting point for a new page.</p>
     </div>
-
-
-
     <div id="User-message-about-cookies">
         <h2>TO DO:</h2>
         <p>Fine print we need to show on any webpage. consider adding this to footer.php? then cookie the user if they have seen it.</p>
@@ -121,13 +120,7 @@ include_once(VIEWS_ROOT . 'header.php');
         To use Medium you must have cookies enabled.
         If you sign up with Twitter or Facebook, we’ll start you off with a network by automatically importing any followers/followees or friends already on Medium. Also, we’ll never post to Twitter or Facebook without your permission. For more info, please see Login FAQ.</p>
     </div>
-    <div class="panel panel-primary">
-        <div class="panel-heading">
-            <h3 class="panel-title">Hot Games</h3>
-        </div>
-    </div>
-    <div id="TemplatePageHotGames" class="row">
-    </div>
+    <?php buildGamesSection($topGamesListId, 'Hot games'); ?>
     <div id="bottomAd" class="row">
     <?php
     $adProvider = 'google';
@@ -153,8 +146,7 @@ include_once(VIEWS_ROOT . 'header.php');
 
         return {
             pageLoaded: function (pageViewParameters) {
-                // Load Hot Games
-                enginesisSession.gameListListGames(siteConfiguration.gameListIdTop, this.enginesisCallBack);
+                // Load the remaining page features
             },
 
             /**
@@ -173,11 +165,6 @@ include_once(VIEWS_ROOT . 'header.php');
                     switch (enginesisResponse.fn) {
                         case "NewsletterAddressAssign":
                             varynApp.handleNewsletterServerResponse(succeeded);
-                            break;
-                        case "GameListListGames":
-                            if (succeeded == 1) {
-                                varynApp.gameListGamesResponse(enginesisResponse.results.result, "TemplatePageHotGames", 15, "title");
-                            }
                             break;
                         default:
                             break;
@@ -203,7 +190,7 @@ include_once(VIEWS_ROOT . 'header.php');
         varynApp.initApp(varynTemplatePage, pageParameters);
     });
 
-    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/varyn.js");
+    head.js("/common/modernizr.js", "/common/bootstrap.bundle.min.js", "//platform.twitter.com/widgets.js", "https://apis.google.com/js/platform.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/varyn.js");
 
 </script>
 </body>

@@ -26,7 +26,7 @@ include_once(VIEWS_ROOT . 'header.php');
         </div>
     </div>
 </div>
-<div class="container marketing">
+<div class="container">
     <div id="promos_middle_header" class="content_module_header">
         <h3>Hot Games</h3>
     </div>
@@ -218,7 +218,7 @@ include_once(VIEWS_ROOT . 'header.php');
         include_once(VIEWS_ROOT . 'ad-spot.php');
         ?>
     </div>
-</div><!-- /.marketing -->
+</div>
 <?php
 include_once(VIEWS_ROOT . 'footer.php');
 ?>

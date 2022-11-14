@@ -73,8 +73,7 @@ let configuration = {
     },
     libManifest: [
         "modernizr.js",
-        "jquery.min.js",
-        "bootstrap.min.js",
+        "bootstrap.bundle.min.js",
         "ie10-viewport-bug-workaround.js",
         "enginesis.js",
         "ShareHelper.js",
@@ -85,10 +84,9 @@ let configuration = {
     jsFilesToIgnore: [ // a list of files in the js folder to skip
     ],
     libsToCopy: [
-        "bootstrap.min.js",
+        "bootstrap.bundle.min.js",
         "head.min.js",
-        "modernizr.js",
-        "jquery.min.js"
+        "modernizr.js"
     ],
     libsToCombine: [
         "commonUtilities.js",

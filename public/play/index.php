@@ -107,7 +107,7 @@ function setGameContainer ($gameInfo, $enginesisServer, $siteId, $gameId) {
 $pageTitle = $title . ' on Varyn.com';
 include_once(VIEWS_ROOT . 'header.php');
 ?>
-<div id="topContainer" class="container top-promo-area">
+<div id="topContainer" class="container">
     <div id="gameContainer" class="row"><?php echo($gameContainerHTML);?></div>
     <div id="playgame-InfoPanel" class="row">
         <div class="panel panel-default">
@@ -137,7 +137,7 @@ include_once(VIEWS_ROOT . 'header.php');
         </div>
     </div>
 </div>
-<div id="playgame-BottomPanel" class="container marketing">
+<div id="playgame-BottomPanel" class="container">
     <div class="row">
         <div class="panel panel-default">
             <div class="panel-heading">
@@ -171,7 +171,7 @@ include_once(VIEWS_ROOT . 'footer.php');
         varynApp.initApp(varynPlayPage, pageParameters);
     });
 
-    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js", "/common/varynPlayPage.js");
+    head.js("/common/modernizr.js", "/common/bootstrap.bundle.min.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js", "/common/varynPlayPage.js");
 
 </script>
 </body>

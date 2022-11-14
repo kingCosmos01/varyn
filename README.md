@@ -6,7 +6,7 @@ The site is built on:
 
  * HTML 5 and CSS 3
  * JavaScript ES5
- * Bootstrap 4
+ * Bootstrap 5
  * [PHP](https://php.net) 8.0.3
  * [node.js](https://nodejs.org) 14.16.0
  * [Enginesis](https://enginesis.com)

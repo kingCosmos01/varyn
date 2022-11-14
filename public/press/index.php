@@ -7,7 +7,7 @@ $pageTitle = 'Varyn Press Kit';
 $pageDescription = 'Find assets and collatoral here. If you are interested in working with Varyn or writing about what we do you will find what you need in this section of the website.';
 include_once(VIEWS_ROOT . 'header.php');
 ?>
-<div class="container marketing">
+<div class="container">
     <div class="row">
         <div class="panel panel-default">
             <div class="menubar col-sm-3 col-md-3 sidebar">
@@ -208,7 +208,7 @@ include_once(VIEWS_ROOT . 'header.php');
 
     head.ready(function() {
     });
-    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/varyn.js");
+    head.js("/common/modernizr.js", "/common/bootstrap.bundle.min.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/varyn.js");
 </script>
 </body>
 </html>

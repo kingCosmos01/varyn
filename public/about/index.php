@@ -1,10 +1,13 @@
 <?php
 require_once('../../services/common.php');
+require_once('../../views/sections.php');
 processSearchRequest();
 $page = 'home';
 $pageTitle = 'About Varyn';
 $pageDescription = 'Learn more about who is Varyn, our mission, and what we stand for.';
 $showSubscribe = getPostOrRequestVar('s', '0');
+$topGamesListId = 5;
+
 include_once(VIEWS_ROOT . 'header.php');
 ?>
     <div class="container top-promo-area">
@@ -31,14 +34,8 @@ include_once(VIEWS_ROOT . 'header.php');
             </div>
         </div>
     </div>
-    <div class="container marketing">
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h3 class="panel-title">Hot Games</h3>
-            </div>
-        </div>
-        <div id="AboutPageHotGames" class="row">
-        </div>
+    <div class="container">
+        <?php buildGamesSection($topGamesListId, 'Hot games'); ?>
         <div id="bottomAd" class="row">
         <?php
         $adProvider = 'google';
@@ -59,8 +56,7 @@ include_once(VIEWS_ROOT . 'header.php');
 
             return {
                 pageLoaded: function (pageViewParameters) {
-                    // Load Hot Games
-                    enginesisSession.gameListListGames(siteConfiguration.gameListIdTop, this.enginesisCallBack);
+                    // Load remaining page features
                 },
 
                 /**
@@ -79,11 +75,6 @@ include_once(VIEWS_ROOT . 'header.php');
                         switch (enginesisResponse.fn) {
                             case "NewsletterAddressAssign":
                                 varynApp.handleNewsletterServerResponse(succeeded);
-                                break;
-                            case "GameListListGames":
-                                if (succeeded == 1) {
-                                    varynApp.gameListGamesResponse(enginesisResponse.results.result, "AboutPageHotGames", 15, "title");
-                                }
                                 break;
                             default:
                                 break;
@@ -109,7 +100,7 @@ include_once(VIEWS_ROOT . 'header.php');
             varynApp.initApp(varynAboutPage, pageParameters);
         });
 
-        head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js");
+        head.js("/common/modernizr.js", "/common/bootstrap.bundle.min.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js");
 
     </script>
 </div>

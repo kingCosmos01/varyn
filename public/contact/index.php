@@ -90,79 +90,83 @@ if ($send == 'send') {
 }
 $timestamp = time();
 ?>
-<div class="container marketing">
-    <h2>Contact Varyn</h2>
-    <p>Use one of these ways to contact us:</p>
-    <div class="col-sm-8">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h5><span class="email-small"></span>&nbsp;Email Form</h5>
-            </div>
-            <div class="panel-body email-contact-form">
-                <?php if ($messageSent) {
-                        if ($errorMessage == '') { ?>
-                    <p>Your message has been sent.</p>
-                    <?php } else {
-                            echo("<p>$errorMessage</p>");
-                        } ?>
-                <?php } else { ?>
-                <form class="form-inline" method="POST">
-                    <div class="form-group">
-                        <label for="name">Name:</label><input type="text" name="name" required class="form-control" placeholder="Your name" maxlength="50"/><br/>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email:</label><input type="email" required name="email" class="form-control" placeholder="Your email address" maxlength="80"/><br/>
-                    </div>
-                    <div id="email-contact-message" class="form-group">
-                        <label for="message">Message:</label><textarea name="message" required class="form-control" maxlength="250"></textarea><br/>
-                    </div>
-                    <div class="form-group" style="float: right;">
-                        <label for="name" id="label_industry">Industry:</label><input type="text" name="industry" id="industry" class="form-control" placeholder="Industry"/><br/>
-                        <input type="text" name="accept" id="accept" placeholder="Do you agree" value="<?php echo($timestamp);?>"/><br/>
-                        <br/><input type="submit" class="btn btn-lg btn-primary" name="send" value="Send"/>
-                    </div>
-                </form>
-                <?php } ?>
+<div class="container">
+    <div class="row">
+        <div class="card card-dark m-4 p-4">
+            <h2>Contact Varyn</h2>
+            <p>Use one of these ways to contact us:</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="card card-light m-4 p-4">
+                <div class="card-heading">
+                    <h5><span class="email-small"></span>&nbsp;Email Form</h5>
+                </div>
+                <div class="card-body email-contact-form">
+                    <?php if ($messageSent) {
+                            if ($errorMessage == '') { ?>
+                        <p>Your message has been sent.</p>
+                        <?php } else {
+                                echo("<p>$errorMessage</p>");
+                            } ?>
+                    <?php } else { ?>
+                    <form class="form-inline" method="POST">
+                        <div class="form-group">
+                            <label for="name">Name:</label><input type="text" name="name" required class="form-control" placeholder="Your name" maxlength="50"/><br/>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email:</label><input type="email" required name="email" class="form-control" placeholder="Your email address" maxlength="80"/><br/>
+                        </div>
+                        <div id="email-contact-message" class="form-group">
+                            <label for="message">Message:</label><textarea name="message" required class="form-control" maxlength="250"></textarea><br/>
+                        </div>
+                        <div class="form-group" style="float: right;">
+                            <label for="name" id="label_industry">Industry:</label><input type="text" name="industry" id="industry" class="form-control" placeholder="Industry"/><br/>
+                            <input type="text" name="accept" id="accept" placeholder="Do you agree" value="<?php echo($timestamp);?>"/><br/>
+                            <br/><input type="submit" class="btn btn-lg btn-primary" name="send" value="Send"/>
+                        </div>
+                    </form>
+                    <?php } ?>
+                </div>
             </div>
         </div>
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <span class="varyn-shield-icon"></span>&nbsp;<a href="mailto:support@varyn.com&subject=Support request from Varyn.com">Contact Support</a>
+        <div class="col-sm-4">
+            <div class="card card-light m-4 p-4">
+                <div class="card-heading">
+                    <h5><span class="twitter-small"></span>&nbsp;Twitter Direct Message</h5>
+                </div>
+                <div class="card-body text-center">
+                    <button type="button" class="btn btn-lg btn-info" name="twitter-dm" onclick="onClickedTwitterButton();">@varyndev</button>
+                </div>
+            </div>
+            <div class="card card-light m-4 p-4">
+                <div class="card-heading">
+                    <h5><span class="facebook-small"></span>&nbsp;Facebook Message</h5>
+                </div>
+                <div class="card-body text-center">
+                    <button type="button" class="btn btn-lg btn-info" name="facebook-message" onclick="onClickedFacebookButton();">VarynDev</button>
+                </div>
+            </div>
+            <div class="card card-light m-4 p-4">
+                <div class="card-heading">
+                    <h5><span class="linkedin-small"></span>&nbsp;Linked-In Message</h5>
+                </div>
+                <div class="card-body text-center">
+                    <button type="button" class="btn btn-lg btn-info" name="linkedin-message" onclick="onClickedLinkedInButton();">VarynDev</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="card card-light m-4 p-4">
+                <div class="card-heading">
+                    <span class="varyn-shield-icon"></span>&nbsp;<a href="mailto:support@varyn.com&subject=Support request from Varyn.com">Contact Support</a>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-sm-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h5><span class="twitter-small"></span>&nbsp;Twitter Direct Message</h5>
-            </div>
-            <div class="panel-body text-center">
-                <button type="button" class="btn btn-lg btn-info" name="twitter-dm" onclick="onClickedTwitterButton();">@varyndev</button>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h5><span class="facebook-small"></span>&nbsp;Facebook Message</h5>
-            </div>
-            <div class="panel-body text-center">
-                <button type="button" class="btn btn-lg btn-info" name="facebook-message" onclick="onClickedFacebookButton();">VarynDev</button>
-            </div>
-        </div>
-    </div>
-    <div class="col-sm-4">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h5><span class="linkedin-small"></span>&nbsp;Linked-In Message</h5>
-            </div>
-            <div class="panel-body text-center">
-                <button type="button" class="btn btn-lg btn-info" name="linkedin-message" onclick="onClickedLinkedInButton();">VarynDev</button>
-            </div>
-        </div>
-    </div>
-</div><!-- /.container -->
-<div class="container marketing">
+</div>
+<div class="container">
     <div id="bottomAd" class="row">
     <?php
     $adProvider = 'google';
@@ -214,7 +218,7 @@ include_once(VIEWS_ROOT . 'footer.php');
         varynApp = varyn(siteConfiguration);
         varynApp.initApp(varynContactPage, pageParameters);
     });
-    head.js("/common/modernizr.js", "/common/jquery.min.js", "/common/bootstrap.min.js", "/common/ie10-viewport-bug-workaround.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js");
+    head.js("/common/modernizr.js", "/common/bootstrap.bundle.min.js", "/common/enginesis.js", "/common/ShareHelper.js", "/common/commonUtilities.js", "/common/varyn.js");
 </script>
 </body>
 </html>

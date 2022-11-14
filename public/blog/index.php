@@ -1,9 +1,11 @@
 <?php
 require_once('../../services/common.php');
+require_once('../../views/sections.php');
 processSearchRequest();
 require_once('../../services/blog.php');
 $showSubscribe = getPostOrRequestVar('s', '0');
 $page = 'blog';
+$topGamesListId = 5;
 
 $topicId = getPostOrRequestVar('tid', 0);
 // Get 3 most recent topics
@@ -46,14 +48,8 @@ include_once(VIEWS_ROOT . 'header.php');
     </div>
     <?php echo($blog->getCurrentTopicRepliesPanel());?>
 </div>
-<div class="container marketing">
-    <div class="panel panel-primary">
-        <div class="panel-heading">
-            <h3 class="panel-title">Hot Games</h3>
-        </div>
-    </div>
-    <div id="AboutPageHotGames" class="row">
-    </div>
+<div class="container">
+    <?php buildGamesSection($topGamesListId, 'Hot games'); ?>
     <div id="bottomAd" class="row">
     <?php
     $adProvider = 'google';

@@ -6,7 +6,7 @@
  */
 
 if ( ! defined('ENGINESIS_VERSION')) {
-    define('ENGINESIS_VERSION', '2.6.12');
+    define('ENGINESIS_VERSION', '2.6.13');
 }
 require_once('EnginesisErrors.php');
 if ( ! defined('SESSION_COOKIE')) {
@@ -50,6 +50,8 @@ class Enginesis {
     private $m_networkId;
     private $m_userName;
     private $m_userAccessLevel;
+    private $m_favoriteGames;
+    private $m_favoriteGamesNextCheck;
     private $m_stage;
     private $m_syncId;
     private $m_responseFormat;
@@ -79,7 +81,7 @@ class Enginesis {
      * @param string $debugFunction A function to call for debug logging, defaults to NULL. What is the signature of this function?
      */
     public function __construct ($siteId, $enginesisServer, $developerKey, $debugFunction = null) {
-        // TODO: Should initialize to false and only set when requested.
+        // @todo: Should initialize to false and only set when requested.
         $this->m_debug = true;
         $this->m_server = $this->serverName();
         $this->m_stage = $this->serverStage($this->m_server);
@@ -90,6 +92,8 @@ class Enginesis {
         $this->m_siteUserId = null;
         $this->m_networkId = 1;
         $this->m_userAccessLevel = 0;
+        $this->m_favoriteGames = null;
+        $this->m_favoriteGamesNextCheck = null;
         $this->m_isLoggedIn = false;
         $this->m_refreshedUserInfo = null;
         $this->m_syncId = 0;
@@ -283,7 +287,7 @@ class Enginesis {
      * In order to provide some flexibility with dates, our API will accept a PHP date, a Unix timestamp,
      * or a date string. This function will try to figure our what date was provided and convert what ever
      * it is into a valid MySQL date string.
-     * @param $date mixed One of PHP Date, integer, a string, or null.
+     * @param date|integer|string $date One of PHP Date, integer, a string, or null.
      * @return string a valid MySQL date
      */
     public function mySQLDate($date = null) {
@@ -460,8 +464,8 @@ class Enginesis {
         if (file_exists($secretFile)) {
             $contents = file_get_contents($secretFile);
             $auth = json_decode($contents);
-            // TODO: verify the loaded file was not tampered/spoofed.
-            // TODO: Verify this information matches the set CMS user.
+            // @todo: verify the loaded file was not tampered/spoofed.
+            // @todo: Verify this information matches the set CMS user.
         }
         if ($auth == null) {
             $auth = $authDefault;
@@ -556,8 +560,8 @@ class Enginesis {
 
     /**
      * Return the Enginesis service host domain to the Enginesis server this instance is communicating with.
-     * This is expected to be the host domain of the Enginesis services endpoint. For example <enginesis class="varyn-d com"></enginesis>when the
-
+     * This is expected to be the host domain of the Enginesis services endpoint. For example enginesis.varyn-l.com when the
+     *
      * @return string Enginesis services host domain.
      */
     public function getServiceHost() {
@@ -841,7 +845,7 @@ class Enginesis {
                         $timestamp = $refreshTokenJSON->timestamp;
                     } else {
                         $refreshToken = null;
-                        // TODO: the saved token isn't valid, some type of logging and recovery here?
+                        // @todo: the saved token isn't valid, some type of logging and recovery here?
                     }
                 } else {
                     $refreshToken = null;
@@ -872,7 +876,7 @@ class Enginesis {
 
     /**
      * Restore the user's session from the provided authentication token.
-     * TODO: This code is actually WRONG! We cannot do this on the (PHP) client. Instead, we should
+     * @todo: This code is actually WRONG! We cannot do this on the (PHP) client. Instead, we should
      * send a SessionBegin request to the Enginesis server and it will tell us this authtoken is
      * acceptable or not.
      * @param string|null $authToken
@@ -1139,7 +1143,7 @@ class Enginesis {
         if (isset($_COOKIE[SESSION_USERINFO])) {
             try {
                 $userInfo = json_decode($_COOKIE[SESSION_USERINFO]);
-                // TODO: Validate this user data make sure it was not tampered, check if expired.
+                // @todo: Validate this user data make sure it was not tampered, check if expired.
                 $this->debugInfo("decoded cookie for SESSION_USERINFO " . json_encode($userInfo), __FILE__, __LINE__);
             } catch (Exception $e) {
                 $this->setLastError('CANNOT_GET_USERINFO', 'sessionUserInfoGet could not get cookie: ' . $e->getMessage());
@@ -1458,7 +1462,7 @@ class Enginesis {
                 $serverParams['response'] = $this->m_responseFormat;
             }
             foreach ($parameters as $key => $value) {
-                $serverParams[$key] = $value; // urlencode($value); // TODO: I'm not sure we should urlencode the data as it is going into the database encoded.
+                $serverParams[$key] = $value; // urlencode($value); // @todo: I'm not sure we should urlencode the data as it is going into the database encoded.
             }
             if ( ! isset($parameters['language_code'])) {
                 $serverParams['language_code'] = $this->m_languageCode;
@@ -1494,7 +1498,7 @@ class Enginesis {
     }
 
     /**
-     * callServerAPI: Make an Enginesis API request over the WWW
+     * Make an Enginesis API request over the WWW and return the server response.
      * @param string $serviceName is the API service to call.
      * @param Array|null $parameters Key => value array of parameters e.g. array('site_id' => 100);
      * @param boolean $isSecure Set to true if this is a secured request. Secured requests require additional set up.
@@ -1526,7 +1530,7 @@ class Enginesis {
                 // invalid request to a secured service
                 $errorInfo = 'Invalid secure transaction, missing CMS key or CMS admin user authentication.';
                 $this->debugCallback($errorInfo, __FILE__, __LINE__);
-                $contents = $this->makeErrorResponse('SYSTEM_ERROR', $errorInfo, $parameters);
+                $contents = $this->makeErrorResponse(EnginesisErrors::SYSTEM_ERROR, $errorInfo, $parameters);
                 return $contents;
             }
         } else {
@@ -1573,12 +1577,12 @@ class Enginesis {
             if ( ! $succeeded) {
                 $errorInfo = 'System error: ' . $this->m_serviceEndPoint . ' replied with no data. cURL error ' .$curlError . ': ' . curl_error($ch);
                 $this->debugCallback($errorInfo, __FILE__, __LINE__);
-                $contents = $this->makeErrorResponse('SYSTEM_ERROR', $errorInfo, $parameters);
+                $contents = $this->makeErrorResponse(EnginesisErrors::SYSTEM_ERROR, $errorInfo, $parameters);
             }
             curl_close($ch);
         } else {
             $errorInfo = 'System error: unable to contact ' . $this->m_serviceEndPoint . ' or the server did not respond.';
-            $contents = $this->makeErrorResponse('SYSTEM_ERROR', $errorInfo, $parameters);
+            $contents = $this->makeErrorResponse(EnginesisErrors::SYSTEM_ERROR, $errorInfo, $parameters);
         }
         $this->debugInfo("callServerAPI response from $serviceName: $contents", __FILE__, __LINE__);
         if ($response == 'json') {
@@ -1603,7 +1607,7 @@ class Enginesis {
     /**
      * Determine if the error code is an error or a non-error state. We need this because it holds a
      * variety of different states, either null or '' to indicate no error.
-     * @param $lastErrorCode {object} either an error object or null.
+     * @param object $lastErrorCode Either an error object or null to use the last recorded error.
      * @return boolean: true if the error provided is an error, false if it is not.
      */
     public function isError ($lastErrorCode) {
@@ -1634,7 +1638,7 @@ class Enginesis {
      * This is a helper function because doing this for every API call is a bit tedious.
      *
      * @param object $enginesisResponse The enginesis response object returned from callServerAPI.
-     * @param boolean $success True/1 if API succeeded, false/0 when failed.
+     * @param boolean $success true/1 if API succeeded, false/0 when failed.
      * @param string $statusMessage Error code, empty if success is true/1.
      * @param string $extendedInfo Optional additional information about the error.
      * @return Array Array of rows if succeeded, null when failed.
@@ -1645,10 +1649,10 @@ class Enginesis {
         $extendedInfo = '';
         $resultSet = null;
         if ($enginesisResponse != null) {
-            $results = $enginesisResponse->results;
-            if ($results) {
-                $status = $results->status;
-                if ($status) {
+            if (isset($enginesisResponse->results)) {
+                $results = $enginesisResponse->results;
+                if (isset($results->status)) {
+                    $status = $results->status;
                     $success = $status->success;
                     $statusMessage = $status->message;
                     if (isset($status->extended_info)) {
@@ -1658,8 +1662,11 @@ class Enginesis {
                         if (isset($results->result)) {
                             // usually result is an array of rows.
                             $resultSet = $results->result;
+                            if (isset($resultSet->row)) {
+                                $resultSet = $resultSet->row;
+                            }
                         } elseif (isset($results->row)) {
-                            // "row" was a legacy from XML, we should not see this with JSON.
+                            // "row" was a legacy from old server implementation but some APIs still return it, particularly in edge cases and errors.
                             $resultSet = $results->row;
                         }
                     }
@@ -1681,7 +1688,7 @@ class Enginesis {
     /**
      * Return the URL of the request game image. This takes the parameters supplied and requests
      * from the back end the best fit image.
-     * TODO: this really needs to call a server-side service to perform this resolution as we need to use PHP to determine which files are available and the closest match.
+     * @todo: this really needs to call a server-side service to perform this resolution as we need to use PHP to determine which files are available and the closest match.
      *
      * @param string gameName game folder on server where the game assets are stored. Most of the game queries
      *    (GameGet, GameList, etc) return game_name and this is used as the game folder.
@@ -2064,7 +2071,7 @@ class Enginesis {
      */
     public function userRegistration ($userInfo) {
         $service = 'RegisteredUserCreate';
-        // TODO: user_name, email_address, password are required. We can send it up to the server and wait for a response but we could save time and do it here.
+        // @todo: user_name, email_address, password are required. We can send it up to the server and wait for a response but we could save time and do it here.
         $parameters = [
             'user_name' => $userInfo['user_name'],
             'password' => $userInfo['password'],
@@ -2096,10 +2103,10 @@ class Enginesis {
         if (is_array($results) && count($results) > 0) {
             $userInfoResult = $results[0];
             $cr = $userInfoResult->cr;
-            // TODO: Verify hash to make sure payload was not tampered
+            // @todo: Verify hash to make sure payload was not tampered
             $user_id = $userInfoResult->user_id;
             $secondary_password = $userInfoResult->secondary_password;
-            // TODO: If this site auto-confirms user registration then we should log the user in automatically now.
+            // @todo: If this site auto-confirms user registration then we should log the user in automatically now.
             // We know this because the server gives us the token when we are to do this.
             if (isset($userInfoResult->authtok)) {
                 $this->sessionSave($userInfoResult->authtok, $userInfoResult->user_id, $userInfoResult->user_name, $userInfoResult->site_user_id, $userInfoResult->access_level, EnginesisNetworks::Enginesis);
@@ -2163,8 +2170,8 @@ class Enginesis {
         $results = $this->setLastErrorFromResponse($enginesisResponse);
         if (is_array($results) && count($results) > 0) {
             $userInfoResult = $results[0];
-            // TODO: Verify hash to make sure payload was not tampered
-            // TODO: If this site auto-confirms user registration then we should log the user in automatically now.
+            // @todo: Verify hash to make sure payload was not tampered
+            // @todo: If this site auto-confirms user registration then we should log the user in automatically now.
             // We know this because the server gives us the token when we are to do this.
             if (isset($userInfoResult->authtok)) {
                 $this->sessionSave($userInfoResult->authtok, $userInfoResult->user_id, $userInfoResult->user_name, $userInfoResult->site_user_id, $userInfoResult->access_level, EnginesisNetworks::Enginesis);
@@ -2617,6 +2624,24 @@ class Enginesis {
     }
 
     /**
+     * Return a list of all games for a given site id.
+     * @param integer $start Query starting item index number.
+     * @param integer $numberOfItems Number of items to return.
+     * @param integer $statusId Status of games to return (2=active)
+     * @return Array An array of objects.
+     */
+    public function siteListGames ($start = 1, $numItems = 50, $statusId = 2) {
+        $service = 'SiteListGames';
+        $parameters = [
+            'start_item' => $start,
+            'num_items' => $numItems,
+            'game_status_id' => $statusId
+        ];
+        $enginesisResponse = $this->callServerAPI($service, $parameters);
+        return $this->setLastErrorFromResponse($enginesisResponse);
+    }
+
+    /**
      * Get meta data details about a specific game given its unique game identifier.
      * @param int $game_id the id of the game to get information about.
      * @return object
@@ -2698,8 +2723,22 @@ class Enginesis {
     }
 
     /**
-     * Return a list of games given a specific list id. Arbitrary curated games can be
-     * organized into lists. You need to know the list id.
+     * Return a list of games given a game list id.
+     * @param integer $gameListId A predefined game list identifier.
+     * @return Array An array of objects.
+     */
+    public function gameListListGames ($gameListId) {
+        $service = 'GameListListGames';
+        $parameters = ['game_list_id' => $gameListId];
+        $enginesisResponse = $this->callServerAPI($service, $parameters);
+        return $this->setLastErrorFromResponse($enginesisResponse);
+    }
+
+    /**
+     * Return a list of games given their game ids.
+     * @param string $listOfGameIds A list of game ids to look up, each separated by $delimiter.
+     * @param string $delimiter A single character used to separate the game ids, such as ,.
+     * @return Array An array of objects.
      */
     public function gameListByIdList ($listOfGameIds, $delimiter) {
         $service = 'GameListByIdList';
@@ -2710,6 +2749,18 @@ class Enginesis {
             $delimiter = ',';
         }
         $parameters = ['game_id_list' => $listOfGameIds, 'delimiter' => $delimiter];
+        $enginesisResponse = $this->callServerAPI($service, $parameters);
+        return $this->setLastErrorFromResponse($enginesisResponse);
+    }
+
+    /**
+     * Return a list of games given a search string.
+     * @param string $search A string to search for.
+     * @return Array An array of objects.
+     */
+    public function gameFind ($search) {
+        $service = 'GameFind';
+        $parameters = ['game_name_part' => $search];
         $enginesisResponse = $this->callServerAPI($service, $parameters);
         return $this->setLastErrorFromResponse($enginesisResponse);
     }
@@ -2764,13 +2815,70 @@ class Enginesis {
     }
 
     /**
+     * Helper function to manage the local user favorite games cache.
+     * @param integer $gameId A game id to add to the users favorite games cache.
+     */
+    private function addToUserFavoriteGamesCache($gameId) {
+        if ($this->m_favoriteGames != null && ! in_array($gameId, $this->m_favoriteGames)) {
+            array_push($this->m_favoriteGames, $gameId);
+        }
+    }
+
+    /**
+     * Helper function to manage the local user favorite games cache.
+     * @param integer $gameId A game id to remove from the users favorite games cache.
+     */
+    private function removeFromUserFavoriteGamesCache($gameId) {
+        if ($this->m_favoriteGames != null && in_array($gameId, $this->m_favoriteGames)) {
+            $index = array_search($gameid, $this->m_favoriteGames);
+            array_splice($this->m_favoriteGames, $index, 1);
+        }
+    }
+
+    /**
+     * Helper function to manage the local user favorite games cache.
+     * @param EnginesisResponse $serverResponse A list of the current favorite games delivered
+     *   from the server as a response to a favorite games query.
+     */
+    private function updateUserFavoriteGamesCache($serverResponse) {
+        $this->m_favoriteGames = [];
+        $this->m_favoriteGamesNextCheck = time() + 300; // check again in 5 minutes
+        if (count($serverResponse) > 0) {
+            for ($i = 0; $i < count($serverResponse); $i += 1) {
+                array_push($this->m_favoriteGames, $serverResponse[$i]->game_id);
+            }
+        }
+    }
+
+    /**
+     * Determine if the given gameId is a favorite game. We check the local favorite
+     * games cache and if it is still valid (within ~5 minutes since last update). If
+     * the cache is no longer valid then we query the server for the user's favorite games.
+     * @param integer $gameId Which game to check, the default is the current set game if there is one.
+     * @return bool true if it is a favorite of the current logged in user.
+     */
+    public function isUserFavoriteGame($gameId) {
+        $verifiedGameId = $this->isValidId($gameId) ? $gameId : $this->gameId;
+        if ( ! ($this->m_favoriteGames != null
+             && $this->m_favoriteGamesNextCheck != null
+             && $this->m_favoriteGamesNextCheck < (time() + 300))) {
+            $response = $this->userFavoriteGamesList();
+        }
+        return in_array($verifiedGameId, $this->m_favoriteGames);
+    }
+
+    /**
      * Return the favorite game list for the current logged in user.
      */
     public function userFavoriteGamesList() {
         $service = 'UserFavoriteGamesList';
         $parameters = [];
         $enginesisResponse = $this->callServerAPI($service, $parameters);
-        return $this->setLastErrorFromResponse($enginesisResponse);
+        $response = $this->setLastErrorFromResponse($enginesisResponse);
+        if ( ! $this->isError()) {
+            $this->updateUserFavoriteGamesCache($response);
+        }
+        return $response;
     }
 
     /**
@@ -2778,9 +2886,18 @@ class Enginesis {
      */
     public function userFavoriteGamesAssign($gameId) {
         $service = 'UserFavoriteGamesAssign';
-        $parameters = ['game_id' => $this->isValidId($gameId) ? $gameId : $this->gameId];
-        $enginesisResponse = $this->callServerAPI($service, $parameters);
-        return $this->setLastErrorFromResponse($enginesisResponse);
+        $verifiedGameId = $this->isValidId($gameId) ? $gameId : $this->gameId;
+        if ($this->isValidId($verifiedGameId)) {
+            $parameters = ['game_id' => $verifiedGameId];
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $response = $this->setLastErrorFromResponse($enginesisResponse);
+            if ( ! $this->isError()) {
+                $this->addToUserFavoriteGamesCache($verifiedGameId);
+            }
+            return $response;
+        } else {
+            return $this->makeErrorResponse(EnginesisErrors::INVALID_GAME_ID, 'Game id is not valid.', null);
+        }
     }
 
     /**
@@ -2796,24 +2913,37 @@ class Enginesis {
             'delimiter' => ','
         ];
         $enginesisResponse = $this->callServerAPI($service, $parameters);
-        return $this->setLastErrorFromResponse($enginesisResponse);
+        $response = $this->setLastErrorFromResponse($enginesisResponse);
+        if ( ! $this->isError()) {
+            $this->updateUserFavoriteGamesCache($response);
+        }
+        return $response;
     }
 
     /**
      * Remove a game from the user's favorite game list.
      */
-    public function userFavoriteGamesDelete($gameId) {
-        $service = 'UserFavoriteGamesDelete';
-        $parameters = ['game_id' => $this->isValidId($gameId) ? $gameId : $this->gameId];
-        $enginesisResponse = $this->callServerAPI($service, $parameters);
-        return $this->setLastErrorFromResponse($enginesisResponse);
+    public function userFavoriteGamesUnassign($gameId) {
+        $service = 'UserFavoriteGamesUnassign';
+        $verifiedGameId = $this->isValidId($gameId) ? $gameId : $this->gameId;
+        if ($this->isValidId($verifiedGameId)) {
+            $parameters = ['game_id' => $verifiedGameId];
+            $enginesisResponse = $this->callServerAPI($service, $parameters);
+            $response = $this->setLastErrorFromResponse($enginesisResponse);
+            if ( ! $this->isError()) {
+                $this->removeFromUserFavoriteGamesCache($verifiedGameId);
+            }
+            return $response;
+        } else {
+            return $this->makeErrorResponse(EnginesisErrors::INVALID_GAME_ID, 'Game id is not valid.', null);
+        }
     }
 
     /**
      * Remove a list of games from the user's favorite game list.
      */
-    public function userFavoriteGamesDeleteList($gameIdList) {
-        $service = 'UserFavoriteGamesDeleteList';
+    public function userFavoriteGamesUnassignList($gameIdList) {
+        $service = 'UserFavoriteGamesUnassignList';
         if (is_array($gameIdList)) {
             $gameIdList = implode(',', $gameIdList);
         }
@@ -2822,7 +2952,11 @@ class Enginesis {
             'delimiter' => ','
         ];
         $enginesisResponse = $this->callServerAPI($service, $parameters);
-        return $this->setLastErrorFromResponse($enginesisResponse);
+        $response = $this->setLastErrorFromResponse($enginesisResponse);
+        if ( ! $this->isError()) {
+            $this->updateUserFavoriteGamesCache($response);
+        }
+        return $response;
     }
 
     /**
