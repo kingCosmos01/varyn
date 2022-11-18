@@ -478,7 +478,6 @@ class Enginesis {
             if ($refreshTokenExpireTime === false || $timeNow > $refreshTokenExpireTime) {
                 // need to do a full login, we expect the parameters to be passed in
                 $CMSAccountCredentials = $this->m_cmsCredentials;
-//                echo("CMS creds " . json_encode($CMSAccountCredentials));
                 if (empty($CMSAccountCredentials) || empty($CMSAccountCredentials['user_name']) || empty($CMSAccountCredentials['password'])) {
                     $errorCode = EnginesisErrors::INVALID_LOGIN;
                     $errorMessage = 'User login failed, check user credentials.';
@@ -508,11 +507,7 @@ class Enginesis {
                     $updated = true;
                 }
             }
-        } else {
-            // assume if token not expired, then everything else is good.
-            echo("All good\n");
         }
-        //
         // if token is new/refreshed, save $auth
         if ($updated) {
             $auth['date_saved'] = date('Y-m-d H:i:s', $timeNow);
@@ -1911,7 +1906,6 @@ class Enginesis {
             'user_name' => $userName,
             'password' => $password
         ];
-//        echo("callServerAPI $service $userName, $password\n");
         $enginesisResponse = $this->callServerAPI($service, $parameters, $isSecure);
         $results = $this->setLastErrorFromResponse($enginesisResponse);
         if ($results != null) {

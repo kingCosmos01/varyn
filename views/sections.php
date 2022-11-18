@@ -104,7 +104,7 @@ function formatGameCard($gameInfo) {
           <h3 class="card-title"><?php echo($title);?></h3>
           <p class="card-text" style="min-height: 6rem;"><?php echo($gameDescription);?></p>
           <a href="<?php echo($playURL);?>" class="btn btn-md btn-success" role="button" title="Play <?php echo($title);?> Now!" alt="Play <?php echo($title);?> Now!">Play now</a>
-          <img class="favorite-button" src="/images/favorite-button-off-196.png" data-gameid="<?php echo($game_id);?>" data-favorite="false" alt="Add <?php echo($title);?> to your favorite games">
+          <img class="favorite-button" src="/images/favorite-button-off-196.png" data-gameid="<?php echo($gameId);?>" data-favorite="false" alt="Add <?php echo($title);?> to your favorite games">
       </div>
     </div>
   </div>

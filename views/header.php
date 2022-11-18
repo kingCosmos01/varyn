@@ -284,7 +284,7 @@ if ($page == 'play') {
                         </div>
                         <div class="form-group">
                             <label for="register-username">User name:</label>
-                            <input type="text" name="register-username" class="popup-form-input required username" id="register-username" placeholder="A unique user name" data-target="popup_user_name_unique" autocorrect="off" autocomplete="name" required maxlength="50" tabindex="11"/><span id="popup_user_name_unique" class="username-is-not-unique"></span>
+                            <input type="text" name="register-username" class="popup-form-input required username" id="register-username" placeholder="A unique user name" data-target="register-username-unique" autocorrect="off" autocomplete="name" required maxlength="50" tabindex="11"/><span id="register-username-unique" class="username-is-not-unique"></span>
                         </div>
                         <div class="form-group">
                             <label for="register-password">Password:</label>

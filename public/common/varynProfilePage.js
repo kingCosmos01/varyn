@@ -176,14 +176,14 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
         },
 
         setupUserNameChangeHandler: function () {
-            var registerFormUserName = document.getElementById("register_form_username");
+            var registerFormUserName = document.getElementById("register-username");
             if (registerFormUserName != null) {
                 registerFormUserName.addEventListener("change", varynApp.onChangeRegisterUserName.bind(varynApp));
                 registerFormUserName.addEventListener("input", varynApp.onChangeRegisterUserName.bind(varynApp));
                 registerFormUserName.addEventListener("propertychange", varynApp.onChangeRegisterUserName.bind(varynApp));
                 varynApp.setupRegisterUserNameOnChangeHandler();
-                varynApp.onChangeRegisterUserName(registerFormUserName, 'register_user_name_unique'); // in case field is pre-populated
-                var emailFormField = document.getElementById("register_form_email");
+                varynApp.onChangeRegisterUserName(registerFormUserName, 'register-username-unique'); // in case field is pre-populated
+                var emailFormField = document.getElementById("register-email");
                 if (emailFormField != null) {
                     emailFormField.addEventListener("change", varynApp.onChangeEmail.bind(varynApp));
                     emailFormField.addEventListener("input", varynApp.onChangeEmail.bind(varynApp));
@@ -192,10 +192,10 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
         },
 
         onClickShowPassword: function(event) {
-            var showPasswordCheckbox = document.getElementById('register_form_showpassword'),
-                passwordInput = document.getElementById('register_form_password'),
-                icon = document.getElementById('register_form_showpassword_icon'),
-                text = document.getElementById('register_form_showpassword_label'),
+            var showPasswordCheckbox = document.getElementById('register-showpassword'),
+                passwordInput = document.getElementById('register-password'),
+                icon = document.getElementById('register-showpassword-icon'),
+                text = document.getElementById('register-showpassword-label'),
                 show = false;
 
             if (showPasswordCheckbox != null) {
@@ -254,7 +254,7 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
                 errorField = "login_form_username";
             }
             if (errorMessage == "" && ! varynApp.isValidPassword(password)) {
-                errorMessage = "Password is not acceptable, at least 4 characters. Please retry your password.";
+                errorMessage = "Password is not acceptable. Please retry your password.";
                 errorField = "login_form_password";
             }
             if (errorMessage == "") {
@@ -288,7 +288,7 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
                 errorField = "register_form_username";
             }
             if (errorMessage == "" && ! varynApp.isValidPassword(password)) {
-                errorMessage = "Password is not acceptable, at least 4 characters. Please retry your password.";
+                errorMessage = "Password is not acceptable. Please retry your password.";
                 errorField = "register_form_password";
             }
             if (errorMessage == "" && ! varynApp.isValidEmail(email)) {

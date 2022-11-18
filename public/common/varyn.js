@@ -540,7 +540,7 @@ var varyn = function (parameters) {
             const registerModal = this.getBootstrapModal(registerModalElement); // bootstrap.Modal.getInstance(registerModalElement);
             if (showFlag) {
                 this.setPopupMessage("modal-register", "", null);
-                this.onChangeRegisterUserName(document.getElementById("register-username"), "popup_user_name_unique");
+                this.onChangeRegisterUserName(document.getElementById("register-username"), "register-username-unique");
                 this.trackEvent("register", "prompt", currentPage);
                 registerModal.show();
             } else {
@@ -692,7 +692,7 @@ var varyn = function (parameters) {
                 this.setPopupMessage("modal-register", "Your user name " + userName + " looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "register-username";
             }
-            if (errorField == "" && ! this.testUserNameIsUnique('popup_user_name_unique')) {
+            if (errorField == "" && ! this.testUserNameIsUnique('register-username-unique')) {
                 this.setPopupMessage("modal-register", "Your user name " + userName + " is in use by another user. Please pick a unique user name.", "popupMessageResponseError");
                 errorField = "register-username";
             }
@@ -1279,9 +1279,9 @@ var varyn = function (parameters) {
 
         /**
          * On change handler for the user name field on a registration form.
-         * Try to make sure the user name is unique.
-         * @param {object} DOM element that is changing.
-         * @param {string} DOM id that will receive update of name status either acceptable or unacceptable.
+         * Try to make sure the user name is not already registered to another account.
+         * @param {object} element that is changing.
+         * @param {string} domIdImage id that will receive update of name status either acceptable or unacceptable.
          */
         onChangeRegisterUserName: function (element, domIdImage) {
             var userName;
@@ -1293,16 +1293,12 @@ var varyn = function (parameters) {
                     domIdImage = element.dataset.target;
                 }
                 userName = element.value.toString();
-                if (varynApp.isChangedUserName(userName)) {
-                    if (userName && varynApp.isValidUserName(userName)) {
-                        waitingForUserNameReply = true;
-                        domImage = domIdImage;
-                        enginesisSession.userGetByName(userName, varynApp.onChangeRegisteredUserNameResponse.bind(varynApp));
-                    } else {
-                        this.setUserNameIsUnique(domIdImage, false);
-                    }
+                if (userName && varynApp.isValidUserName(userName)) {
+                    waitingForUserNameReply = true;
+                    domImage = domIdImage;
+                    enginesisSession.userGetByName(userName, varynApp.onChangeRegisteredUserNameResponse.bind(varynApp));
                 } else {
-                    this.setUserNameIsUnique(domIdImage, true);
+                    this.setUserNameIsUnique(domIdImage, false);
                 }
             }
         },
