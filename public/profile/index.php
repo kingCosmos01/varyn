@@ -975,7 +975,7 @@ if (empty($refreshToken)) {
     var debug = true;
 
     head.ready(function() {
-        var siteConfiguration = Object.assign(siteConfiguration, {
+        var pageConfiguration = Object.assign(siteConfiguration, {
             gameId: 0,
             gameGroupId: 0,
             gameListIdTop: 4,
@@ -992,7 +992,7 @@ if (empty($refreshToken)) {
             userInfo: '<?php echo(addslashes(json_encode($enginesis->getLoggedInUserInfo())));?>',
             isLogout: <?php echo($isLogout);?>
         };
-        varynApp = varyn(siteConfiguration);
+        varynApp = varyn(pageConfiguration);
         profilePage = varynApp.initApp(varynProfilePage, profilePageParameters);<?php echo($refreshTokenJavaScript);?>
     });
     if (debug) {
