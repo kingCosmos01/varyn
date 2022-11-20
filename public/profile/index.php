@@ -37,7 +37,7 @@ $isValidSession = false;
 // $isLoggedIn // reminder this is assigned in common.php
 $action = ''; // this value tells the page how to function.
 $showRegistrationForm = false;
-$errorMessage = '<p>&nbsp;</p>';
+$errorMessage = '';
 $errorFieldId = '';
 $inputFocusId = '';
 $redirectedStatusMessage = '';
@@ -806,13 +806,13 @@ include_once(VIEWS_ROOT . 'header.php');
             $registrationOrUpdate = 'register';
 ?>
         <h2>Register</h2>
-        <p>Let's get you registered so you can login to see your profile, earn coins, appear on leader boards, earn rewards, and participate in contests and our community. It's <i>free</i> and it's fun!</p>
+        <p>Let's get you registered so you can login to see your profile, earn coins, appear on leader boards, earn rewards, and participate in contests and our community. It's fun and it's <i>free</i>!</p>
 <?php
         }
 ?>
+        <div id="errorContent" class="errorContent"><?php echo($errorMessage);?></div>
         <div class="row">
             <div class="col-md-6 profile-login">
-                <div id="errorContent" class="errorContent"><?php echo($errorMessage);?></div>
                 <form id="register_form" method="POST" action="/profile/" onsubmit="return <?php if ($isLoggedIn) { echo('profilePage.updateFormValidation()'); } else {echo('profilePage.registerFormValidation()');} ?>;">
 <?php
     if ($isLoggedIn) {
@@ -832,11 +832,11 @@ include_once(VIEWS_ROOT . 'header.php');
     }
 ?>
                     <div class="tab-content" id="registrationTabContent">
-                        <div role="tabpanel" class="tab-pane fade p-4 show active" id="requiredInfo" aria-labelledby="required-tab">
+                        <div role="tabpanel" class="tab-pane fade py-1 px-4 show active" id="requiredInfo" aria-labelledby="required-tab">
 <?php
         if ( ! $isLoggedIn) {
 ?>
-                            <h3><span class="varyn-shield-icon"></span> Registration</h3><div class="register-login-option">Already a member? <a href="/profile/" title="Already a member? Log in with your account" alt="Already a member? Log in with your account.">Log in</a>.</div>
+                            <h3><span class="varyn-shield-icon"></span> Registration</h3>
 <?php
         }
 ?>
@@ -845,12 +845,12 @@ include_once(VIEWS_ROOT . 'header.php');
 <?php
         if ( ! $isLoggedIn) {
 ?>
-                            <div class="form-group"><label for="register_form_password">Password: <span class="required-field">*</span></label><input type="password" name="register_form_password" class="popup-form-input required password" id="register_form_password" placeholder="A secure password" autocomplete="current-password" autocorrect="off" required maxlength="20" value="<?php echo($password);?>"/><div id="optional-small-label" class="checkbox optional-small"><label for="ShowPassword" onclick="profilePage.onClickShowPassword();"><input type="checkbox" name="register_form_showpassword" id="register_form_showpassword" onclick="profilePage.onClickShowPassword();"> <span id="register_form_showpassword_label">Show</span> <span id="register_form_showpassword_icon" class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></label></div></div>
+                            <div class="form-group"><label for="register_form_password">Password: <span class="required-field">*</span></label><input type="password" name="register_form_password" class="popup-form-input required password" id="register_form_password" placeholder="A secure password" autocomplete="current-password" autocorrect="off" required maxlength="20" value="<?php echo($password);?>"/> <div class="showPasswordButton" onclick="profilePage.onClickShowPassword(this);"><span id="register_form_show_password_text">Show</span> <span id="register_form_show_password_icon" class="iconEye" aria-hidden="true"></span></div>
 <?php
         }
 ?>
                             <div class="form-group"><label for="register_form_fullname">Full name:</label><input type="text" name="register_form_fullname" class="popup-form-input fullname" id="register_form_fullname" placeholder="Your full name" autocomplete="name" autocorrect="off" maxlength="50" value="<?php echo($fullname);?>" autocomplete="on" autocorrect="off"/></div>
-                            <div class="form-group"><label for="register_form_gender">You are:</label><label><input type="radio" name="register_form_gender" value="M" <?php echo($gender == 'M' ? 'checked' : '');?>/>&nbsp;&nbsp;Male</label><label><input type="radio" name="register_form_gender" value="F" <?php echo($gender == 'F' ? 'checked' : '');?>/>&nbsp;&nbsp;Female</label><label><input type="radio" name="register_form_gender" value="U" <?php echo($gender == 'U' ? 'checked' : '');?>/>&nbsp;&nbsp;Undefined</label></div>
+                            <div class="form-group" style="display: flex;"><label for="register_form_gender">You are:</label><div class="form-group-gender"><label><input type="radio" name="register_form_gender" value="M" <?php echo($gender == 'M' ? 'checked' : '');?>/>&nbsp;&nbsp;Male</label><label><input type="radio" name="register_form_gender" value="F" <?php echo($gender == 'F' ? 'checked' : '');?>/>&nbsp;&nbsp;Female</label><label><input type="radio" name="register_form_gender" value="U" <?php echo($gender == 'U' ? 'checked' : '');?>/>&nbsp;&nbsp;Other</label></div></div>
                             <div class="form-group"><label for="register_form_dob">Date of birth:</label><input type="date" name="register_form_dob" class="popup-form-input required dob" id="register_form_dob" placeholder="Birthdate" autocomplete="bday" value="<?php echo($dateOfBirth);?>"/></div>
 <?php
         if ( ! $isLoggedIn) {
@@ -859,7 +859,11 @@ include_once(VIEWS_ROOT . 'header.php');
                                 <label for="register_form_agreement">I agree to the <a href="/tos/" target="_popup">Terms of Use</a><span class="required-field">*</span></label><br/>
                                 <span><small>No</small>&nbsp;&nbsp;<input type="range" name="register_form_agreement" class="validation-slider" id="register_form_agreement" placeholder="Slide this to Yes (all the way left) to agree" alt="Slide this to Yes (all the way left) to agree" tabindex="13" min="0" max="2" />&nbsp;&nbsp;<small>Yes</small></span>
                             </div>
-                            <div class="form-group"><input type="submit" value="Register" name="popupregister" id="registerButton" class="btn btn-success"/><span class="rememberme-container"><input type="checkbox" tabindex="4" checked="checked" name="register_form_rememberme" id="register_form_rememberme"><label for="register_form_rememberme">Remember Me</label></span></div>
+                            <div class="form-group">
+                                <input type="submit" value="Register" name="popupregister" id="registerButton" class="btn btn-success"/>
+                                <span class="rememberme-container"><input type="checkbox" tabindex="4" checked="checked" name="register_form_rememberme" id="register_form_rememberme"><label for="register_form_rememberme">Remember Me</label></span>
+                                <span class="register-login-option">Already a member? <a href="/profile/" title="Already a member? Log in with your account" alt="Already a member? Log in with your account.">Log in</a>.</span>
+                            </div>
 <?php
         } else {
 ?>
@@ -917,14 +921,19 @@ include_once(VIEWS_ROOT . 'header.php');
                         <a id="profile_forgot_password" href="#" tabindex="5" data-toggle="modal" data-target="#modal-forgot-password" onclick="profilePage.forgotPassword();">Forgot password?</a><input type="hidden" name="action" value="login" />
                     </div>
                     <div class="text-center">
-                        <a class="sub-link-group" href="/privacy/"><span class="glyphicon glyphicon-eye-open"></span> Privacy</a>
-                        <a class="sub-link-group" href="/tos/"><span class="glyphicon glyphicon-info-sign"></span> Terms</a>
+                        <a class="sub-link-group" href="/privacy/">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-incognito" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="m4.736 1.968-.892 3.269-.014.058C2.113 5.568 1 6.006 1 6.5 1 7.328 4.134 8 8 8s7-.672 7-1.5c0-.494-1.113-.932-2.83-1.205a1.032 1.032 0 0 0-.014-.058l-.892-3.27c-.146-.533-.698-.849-1.239-.734C9.411 1.363 8.62 1.5 8 1.5c-.62 0-1.411-.136-2.025-.267-.541-.115-1.093.2-1.239.735Zm.015 3.867a.25.25 0 0 1 .274-.224c.9.092 1.91.143 2.975.143a29.58 29.58 0 0 0 2.975-.143.25.25 0 0 1 .05.498c-.918.093-1.944.145-3.025.145s-2.107-.052-3.025-.145a.25.25 0 0 1-.224-.274ZM3.5 10h2a.5.5 0 0 1 .5.5v1a1.5 1.5 0 0 1-3 0v-1a.5.5 0 0 1 .5-.5Zm-1.5.5c0-.175.03-.344.085-.5H2a.5.5 0 0 1 0-1h3.5a1.5 1.5 0 0 1 1.488 1.312 3.5 3.5 0 0 1 2.024 0A1.5 1.5 0 0 1 10.5 9H14a.5.5 0 0 1 0 1h-.085c.055.156.085.325.085.5v1a2.5 2.5 0 0 1-5 0v-.14l-.21-.07a2.5 2.5 0 0 0-1.58 0l-.21.07v.14a2.5 2.5 0 0 1-5 0v-1Zm8.5-.5h2a.5.5 0 0 1 .5.5v1a1.5 1.5 0 0 1-3 0v-1a.5.5 0 0 1 .5-.5Z"/>
+                        </svg> Privacy</a>
+                        <a class="sub-link-group" href="/tos/">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                        </svg> Terms</a>
                     </div>
                 </form>
             </div>
-            <div class="col-md-1">
-            </div>
-            <div class="card card-light col-md-3 p-4 profile-sign-up">
+            <div class="card card-light col-md-4 align-self-end p-4 profile-sign-up">
                 <h4>Not a member?</h4>
                 <input type="button" class="btn btn-primary btn-varyn" id="profile_register_now" value="Sign up with Email" onclick="profilePage.showRegistrationPopup(true);" title="Sign up with your email address" /><br/>
                 <h4>Or</h4>
@@ -940,17 +949,7 @@ include_once(VIEWS_ROOT . 'header.php');
     <div class="container">
 <?php
     if ($isLoggedIn) {
-?>
-        <div id="FavoriteGamesContainer">
-            <div class="card card-primary">
-                <div class="card-heading">
-                    <h3 class="card-title">Favorite Games</h3>
-                </div>
-            </div>
-            <div id="FavoriteGames" class="row">
-            </div>
-        </div>
-<?php
+        buildFavoriteGamesSection();
     }
     buildGamesSection($topGamesListId, 'Hot games');
 ?>
@@ -976,26 +975,23 @@ if (empty($refreshToken)) {
     var debug = true;
 
     head.ready(function() {
-        var siteConfiguration = {
-                siteId: <?php echo($siteId);?>,
-                gameId: 0,
-                gameGroupId: 0,
-                serverStage: '<?php echo($serverStage);?>',
-                languageCode: navigator.language || navigator.userLanguage,
-                developerKey: '<?php echo(ENGINESIS_DEVELOPER_API_KEY);?>',
-                facebookAppId: '<?php echo($socialServiceKeys[2]['app_id']);?>',
-                googleAppId: '<?php echo($socialServiceKeys[7]['app_id']);?>',
-                twitterAppId: '<?php echo($socialServiceKeys[11]['app_id']);?>',
-                appleAppId: '<?php echo($socialServiceKeys[14]['app_id']);?>',
-                authToken: '<?php echo($authToken);?>'
-            },
-            profilePageParameters = {
-                errorFieldId: '<?php echo($errorFieldId);?>',
-                inputFocusId: '<?php echo($inputFocusId);?>',
-                showSubscribe: '<?php echo($showSubscribe);?>',
-                userInfo: '<?php echo(addslashes(json_encode($enginesis->getLoggedInUserInfo())));?>',
-                isLogout: <?php echo($isLogout);?>
-            };
+        var siteConfiguration = Object.assign(siteConfiguration, {
+            gameId: 0,
+            gameGroupId: 0,
+            gameListIdTop: 4,
+            gameListIdNew: 5,
+            facebookAppId: '<?php echo($socialServiceKeys[2]['app_id']);?>',
+            googleAppId: '<?php echo($socialServiceKeys[7]['app_id']);?>',
+            twitterAppId: '<?php echo($socialServiceKeys[11]['app_id']);?>',
+            appleAppId: '<?php echo($socialServiceKeys[14]['app_id']);?>'
+        });
+        var profilePageParameters = {
+            errorFieldId: '<?php echo($errorFieldId);?>',
+            inputFocusId: '<?php echo($inputFocusId);?>',
+            showSubscribe: '<?php echo($showSubscribe);?>',
+            userInfo: '<?php echo(addslashes(json_encode($enginesis->getLoggedInUserInfo())));?>',
+            isLogout: <?php echo($isLogout);?>
+        };
         varynApp = varyn(siteConfiguration);
         profilePage = varynApp.initApp(varynProfilePage, profilePageParameters);<?php echo($refreshTokenJavaScript);?>
     });

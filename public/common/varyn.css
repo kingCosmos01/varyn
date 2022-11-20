@@ -41,7 +41,6 @@ body {
     padding-bottom: 40px;
     color: #1d1d1d;
     font-family: "Montserrat",Helvetica,Arial,sans-serif;
-    font-size: 16px;
     line-height: 1.55em;
 }
 
@@ -124,15 +123,15 @@ body {
 }
 
 .text-micro {
-    font-size: 10px;
+    font-size: 9pt;
 }
 
 .text-small {
-    font-size: 12px;
+    font-size: 10pt;
 }
 
 .text-large {
-    font-size: 22px;
+    font-size: 18pt;
 }
 
 .indent-1 {
@@ -303,7 +302,7 @@ input [type="radio"] {
     text-align: center;
     color: #5d5d5d;
     margin-top: 0;
-    font-size: 8px;
+    font-size: 8pt;
 }
 
 .popupCover {
@@ -327,14 +326,12 @@ input [type="radio"] {
     margin: 200px auto;
     box-shadow: 0 0 5px 5px rgba(0,0,0,0.7);
     padding: 1px 8px 8px 8px;
-    font-size: larger;
     background-color: #690606;
     color: #ffffff;
     z-index: 10001;
 }
 
 .modal-content-varyn {
-    font-size: larger;
     background-color: #690006;
     color: #ffffff;
 }
@@ -405,7 +402,7 @@ input [type="radio"] {
 .color-white {
     color: #ffffff;
     opacity: .8;
-    font-size: 28px;
+    font-size: 24pt;
 }
 
 .popupFieldGroup {
@@ -657,7 +654,7 @@ footer {
 .btn-md,
 .btn-group-md > .btn {
     padding: 8px 12px;
-    font-size: 14px;
+    font-size: 12pt;
     font-weight: bold;
     line-height: 1.33;
     border-radius: 4px;
@@ -748,7 +745,7 @@ footer {
 
 .required-field {
     color: #ff0000;
-    font-size: 11px;
+    font-size: 10pt;
     vertical-align: super;
 }
 
@@ -777,16 +774,20 @@ footer {
     padding: 8px 8px 0 8px;
 }
 
-.optional-small {
-    display: inline-block;
-    margin-left: 1em;
-    color: #a7a7a7;
-    font-size: 14px;
+.form-group-gender {
+    display: inline-flex;
 }
 
-#optional-small-label label {
-    width: 80px;
-    min-width: 80px;
+.form-group-gender label {
+    min-width: 7rem;
+    width: 7rem;
+}
+
+.optional-small {
+    display: inline-block;
+    margin-left: 0;
+    color: #a7a7a7;
+    font-size: 0.5em;
 }
 
 .popup-form-input {
@@ -794,7 +795,6 @@ footer {
     margin: 8px;
     padding: 6px 12px;
     height: 34px;
-    font-size: 16px;
     color: #555555;
     border: 1px solid #cccccc;
     border-radius: 4px;
@@ -807,7 +807,7 @@ footer {
     margin: 8px;
     padding: 6px 12px;
     height: 34px;
-    font-size: 16px;
+    font-size: 12pt;
     color: #f10c04;
     border: 1px solid #ac2925;
     border-radius: 4px;
@@ -878,13 +878,13 @@ footer {
 #profile_forgot_password {
     float: right;
     padding-top: 12px;
-    font-size: 11px;
+    font-size: 10pt;
 }
 
 .loginPopup_auxLinks {
     float: right;
     padding-top: 12px;
-    font-size: 10px;
+    font-size: 8pt;
 }
 
 #user_profile {
@@ -892,18 +892,19 @@ footer {
 }
 
 .rememberme-container {
-    font-size: 11px;
+    font-size: 10pt;
     padding-left: 24px;
 }
 
 .register-login-option {
-    display: inline-block;
+    display: block;
     float: right;
-    font-size: 10px;
+    margin-top: 0.5rem;
+    font-size: 10pt;
 }
 
 .sub-link-group {
-    font-size: 12px;
+    font-size: 10pt;
     padding: 0.5rem 2rem;
 }
 
@@ -993,7 +994,7 @@ footer {
 
 .menubar a.level-1 {
     color: #444444;
-    font-size: 30px;
+    font-size: 28pt;
 }
 
 .menubar ul.level-1 {
@@ -1002,13 +1003,13 @@ footer {
 
 .menubar ul.level-2 {
     padding-left: 15px;
-    font-size: 12px;
+    font-size: 10pt;
     display: block;
     height: 100%;
 }
 
 .menubar li.level-2 {
-    font-size: 14px;
+    font-size: 12pt;
     padding: 5px 10px;
 }
 
@@ -1037,7 +1038,7 @@ footer {
 blockquote {
     padding: 5px 0;
     margin: 0;
-    font-size: 13px;
+    font-size: 12pt;
     border-left: none;
 }
 
@@ -1134,25 +1135,25 @@ blockquote {
 
 .entry-content {
     font-family: "AftaSansRegular", "Open Sans", Arial;
-    font-size: 16px;
+    font-size: 14pt;
     line-height: 1.6666;
 }
 
 .entry-content-info {
     font-family: "AftaSansItalic", "Open Sans", Arial;
-    font-size: 16px;
+    font-size: 14pt;
     font-style: italic;
     line-height: 1.6666;
 }
 
 .entry-content-strong {
     font-family: "MontserratBold";
-    font-size: 16px;
+    font-size: 14pt;
     line-height: 1.6666;
 }
 
 .wp-caption-text {
-    font-size: 11px;
+    font-size: 10pt;
     font-style: italic;
     color: #212121;
 }
@@ -1182,6 +1183,12 @@ blockquote {
 
 .register-agreement-slider {
     height: 52px;
+}
+
+.showPasswordButton {
+    display: inline-block;
+    cursor: pointer;
+    font-size: 0.5em;
 }
 
 .slider-label {
@@ -1391,7 +1398,7 @@ input[type=range].validation-slider:focus::-ms-fill-upper {
 
 .conf-promo p {
     font-family: "AftaSansRegular",Helvetica,Arial,sans-serif;
-    font-size: 14px;
+    font-size: 12pt;
     padding: 0.5em 1em;
 }
 
@@ -1430,7 +1437,7 @@ input[type=range].validation-slider:focus::-ms-fill-upper {
 
 .conf-topic-preview p {
     font-family: "AftaSansRegular",Helvetica,Arial,sans-serif;
-    font-size: 14px;
+    font-size: 12pt;
 }
 
 .badge {
@@ -1470,4 +1477,89 @@ input[type=range].validation-slider:focus::-ms-fill-upper {
 
 #accept {
     display: none;
+}
+
+.tag {
+    padding: 0.25rem 0.5rem;
+    text-decoration: none;
+    border-radius: 0.25rem;
+    border-color: #4f5057;
+    background-color: #00004b;
+    color: white;
+}
+
+.tag:hover {
+    color: #bbbbbb;
+}
+
+.iconEye {
+    display: inline-block;
+    fill: currentColor;
+    vertical-align: middle;
+    content: url("data:image/svg+xml, %3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z'/%3e%3cpath fill-rule='evenodd' d='M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z'/%3e%3c/svg%3e");
+}
+
+.iconEyeSlash {
+    display: inline-block;
+    fill: currentColor;
+    vertical-align: middle;
+    content: url("data:image/svg+xml, %3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7.028 7.028 0 0 0-2.79.588l.77.771A5.944 5.944 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.134 13.134 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755-.165.165-.337.328-.517.486l.708.709z'/%3e%3cpath fill-rule='evenodd' d='M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829l.822.822zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829z'/%3e%3cpath fill-rule='evenodd' d='M3.35 5.47c-.18.16-.353.322-.518.487A13.134 13.134 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7.029 7.029 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12-.708.708z'/%3e%3c/svg%3e");
+}
+
+.iconStar {
+    display: inline-block;
+    fill: currentColor;
+    vertical-align: middle;
+    content: url("data:image/svg+xml, %3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M2.866 14.85c-.078.444.36.791.746.593l4.39-2.256 4.389 2.256c.386.198.824-.149.746-.592l-.83-4.73 3.522-3.356c.33-.314.16-.888-.282-.95l-4.898-.696L8.465.792a.513.513 0 0 0-.927 0L5.354 5.12l-4.898.696c-.441.062-.612.636-.283.95l3.523 3.356-.83 4.73zm4.905-2.767-3.686 1.894.694-3.957a.565.565 0 0 0-.163-.505L1.71 6.745l4.052-.576a.525.525 0 0 0 .393-.288L8 2.223l1.847 3.658a.525.525 0 0 0 .393.288l4.052.575-2.906 2.77a.565.565 0 0 0-.163.506l.694 3.957-3.686-1.894a.503.503 0 0 0-.461 0z'/%3e%3c/svg%3e");
+}
+
+.iconStarFill {
+    display: inline-block;
+    fill: currentColor;
+    vertical-align: middle;
+    content: url("data:image/svg+xml, %3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M3.612 15.443c-.386.198-.824-.149-.746-.592l.83-4.73L.173 6.765c-.329-.314-.158-.888.283-.95l4.898-.696L7.538.792c.197-.39.73-.39.927 0l2.184 4.327 4.898.696c.441.062.612.636.282.95l-3.522 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256z'/%3e%3c/svg%3e");
+}
+
+.iconStarHalf {
+    display: inline-block;
+    fill: currentColor;
+    vertical-align: middle;
+    content: url("data:image/svg+xml, %3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M5.354 5.119 7.538.792A.516.516 0 0 1 8 .5c.183 0 .366.097.465.292l2.184 4.327 4.898.696A.537.537 0 0 1 16 6.32a.548.548 0 0 1-.17.445l-3.523 3.356.83 4.73c.078.443-.36.79-.746.592L8 13.187l-4.389 2.256a.52.52 0 0 1-.146.05c-.342.06-.668-.254-.6-.642l.83-4.73L.173 6.765a.55.55 0 0 1-.172-.403.58.58 0 0 1 .085-.302.513.513 0 0 1 .37-.245l4.898-.696zM8 12.027a.5.5 0 0 1 .232.056l3.686 1.894-.694-3.957a.565.565 0 0 1 .162-.505l2.907-2.77-4.052-.576a.525.525 0 0 1-.393-.288L8.001 2.223 8 2.226v9.8z'/%3e%3c/svg%3e");
+}
+
+.iconChevronRight {
+    display: inline-block;
+    fill: currentColor;
+    vertical-align: middle;
+    content: url("data:image/svg+xml, %3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+}
+
+.iconChevronLeft {
+    display: inline-block;
+    fill: currentColor;
+    vertical-align: middle;
+    content: url("data:image/svg+xml, %3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z'/%3e%3c/svg%3e");
+}
+
+.iconInfo {
+    display: inline-block;
+    fill: currentColor;
+    vertical-align: middle;
+    content: url("data:image/svg+xml, %3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z'/%3e%3cpath fill-rule='evenodd' d='m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z'/%3e%3c/svg%3e");
+}
+
+.iconPerson {
+    display: inline-block;
+    fill: currentColor;
+    vertical-align: middle;
+    content: url("data:image/svg+xml, %3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill-rule='evenodd' d='M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z'/%3e%3c/svg%3e");
+}
+
+.iconUserProfile {
+    display: inline-block;
+    border-radius: 0.25rem;
+    width: 25px;
+    max-width: 25px;
+    height: 25px;
+    max-height: 25px;
 }

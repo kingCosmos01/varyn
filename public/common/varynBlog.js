@@ -31,7 +31,7 @@ var varynBlogPage = function (varynApp, siteConfiguration) {
                     promotionItem = enginesisResponse[i];
                     promoModuleHTML += this.makePromoModule(i == 0, promotionItem);
                 }
-                promoModuleHTML += "</div><a class=\"left carousel-control\" href=\"#PromoCarousel\" role=\"button\" data-slide=\"prev\"><span class=\"glyphicon glyphicon-chevron-left\"></span><span class=\"sr-only\">Previous</span></a><a class=\"right carousel-control\" href=\"#PromoCarousel\" role=\"button\" data-slide=\"next\"><span class=\"glyphicon glyphicon-chevron-right\"></span><span class=\"sr-only\">Next</span></a>";
+                promoModuleHTML += "</div><a class=\"left carousel-control\" href=\"#PromoCarousel\" role=\"button\" data-slide=\"prev\"><span class=\"iconChevronLeft\"></span><span class=\"sr-only\">Previous</span></a><a class=\"right carousel-control\" href=\"#PromoCarousel\" role=\"button\" data-slide=\"next\"><span class=\"iconChevronRight\"></span><span class=\"sr-only\">Next</span></a>";
                 domElement.innerHTML = promoIndicatorHTML + promoModuleHTML;
             } else if (domElement != null) {
                 domElement.innerText = "There are no promotions today.";

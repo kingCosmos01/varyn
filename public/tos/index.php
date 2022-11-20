@@ -10,11 +10,12 @@ include_once(VIEWS_ROOT . 'header.php');
 <div class="container">
     <div class="card card-primary m-2 p-4">
         <h1>Terms of Use</h1>
-        <p class="copyright">Updated on 17-August-2021.</p>
+        <p class="copyright">Updated on 19-November-2022.</p>
         <h3 id="acceptance">Acceptance of Terms</h3>
         <p class="indent-2">Welcome to the web site (the "Site") of Varyn, Inc. ("Varyn"). On this web site, Varyn makes available to you a wide range of information and services. The Terms of Use apply to this website and services provided. The Terms of Use are subject to change.</p>
         <p class="indent-2">PLEASE READ THE TERMS OF USE CAREFULLY BEFORE USING THIS WEBSITE. By accessing and using this web site and services, you agree to and are bound by the terms of use described in this document ("Terms of Use"). IF YOU DO NOT AGREE TO ALL OF THE TERMS AND CONDITIONS CONTAINED IN THE TERMS OF USE, DO NOT USE THIS WEBSITE IN ANY MANNER.</p>
         <p class="indent-2">The Terms of Use are entered into by and between Varyn and you. If you are using the web site on behalf of your employer, you represent that you are authorized to accept these Terms of Use on your employer's behalf. Varyn reserves the right, at Varyn's sole discretion, to change, modify, update, add, or remove portions of the Terms of Use at any time without notice to you. Please check these Terms of Use for changes. Your continued use of this web site following the posting of changes to the Terms of Use will mean you accept those changes.</p>
+        <p class="indent-2">You agree that you are a person of the age of 13 years or older and you are of the required age based on your residence to enter into this agreement and accept these terms of use.</p>
         <h3>Use of Materials Limitations</h3>
         <p class="indent-2">All materials contained in the web site are the copyrighted property of Varyn, its subsidiaries, affiliated companies and/or third-party licensors. All trademarks, service marks, and trade names are proprietary to Varyn, or its subsidiaries or affiliated companies and/or third-part licensors.
             Unless otherwise specified, the materials and services on this web site are for your personal and non-commercial use, and you may not modify, copy, distribute, transmit, display, perform, reproduce, publish, license, create derivative works from, transfer, or sell any information, software, products or services obtained from the web site without the written permission from the copyright owner.</p>
@@ -44,7 +45,7 @@ include_once(VIEWS_ROOT . 'header.php');
         <p class="indent-2">By using this site and its services you agree to allow Varyn to record and manage data on your behalf. Varyn will use this data as required to perform its services and commitments to you and as it sees fit to offer, perform, produce, manage, and maintain the services available on this website and within the terms of this agreement. You agree to allow Varyn to use your data in anyway it sees fit in the operation of these services. Varyn will not make any of this data available to any third party. Varyn will not sell your data. Your data is yours and you can copy and use your own personal data freely as you wish within the terms of this agreement and the <a href="/privacy/">privacy policy</a>. At any time if you disagree with these terms you may delete your account and all of your personal data will be removed from the site.</p>
         <p class="indent-2">Varyn will not sell, trade, or offer any of your data to any third party at any time.</p>
         <h3 id="copyright">Copyright and Trademark Information</h3>
-        <p class="indent-2">COPYRIGHT NOTICE: Copyright &copy; 2021 Varyn, Inc., All Rights Reserved.</p>
+        <p class="indent-2">COPYRIGHT NOTICE: Copyright &copy; 2022 Varyn, Inc., All Rights Reserved.</p>
         <p class="indent-2">Third-party trademarks are used solely for distributing the games herein and no license or affiliation is implied. All copyrights are held by the respective owners.</p>
     </div>
 </div>

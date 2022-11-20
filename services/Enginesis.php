@@ -1962,7 +1962,7 @@ class Enginesis {
 
     /**
      * Logout the user clearing all internal cookies and data structures.
-     * @return bool: true if successful. If false there was an internal error (logout should never really fail.)
+     * @return boolan true if successful. If false there was an internal error (logout should never really fail.)
      */
     public function userLogout () {
         $service = 'UserLogout';
@@ -1970,7 +1970,7 @@ class Enginesis {
         $enginesisResponse = $this->callServerAPI($service, $parameters);
         $results = $this->setLastErrorFromResponse($enginesisResponse);
         $this->m_refreshToken = null;
-        setcookie(REFRESH_COOKIE, null, time() - SESSION_EXPIRE_SECONDS, '/', $this->sessionCookieDomain(), true, false);
+        setcookie(REFRESH_COOKIE, '', time() - SESSION_EXPIRE_SECONDS, '/', $this->sessionCookieDomain(), true, false);
         $this->sessionClear();
         return $results != null;
     }
@@ -2606,9 +2606,9 @@ class Enginesis {
     /**
      * Return the proper URL to use to show an avatar for a given user. The default is the default size and the current user.
      * This URL should always return an image.
-     * @param int $size
-     * @param int $userId
-     * @return string
+     * @param int $size Enginesis avatar size. 0, 1, 2.
+     * @param int $userId Enginesis user id.
+     * @return string URL to image.
      */
     public function avatarURL ($size = 0, $userId = 0) {
         if ( ! $this->isValidId($userId)) {

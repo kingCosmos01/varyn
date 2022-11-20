@@ -175,7 +175,7 @@ class EnginesisBlog
             if ($previousTopicId != null && $nextTopicId != null) {
                 $nextButtonAttribute = ' onclick="location.href=\'' . $blogPage . $nextTopicId . '\';"';
                 $previousButtonAttribute = ' onclick="location.href=\'' . $blogPage . $previousTopicId . '\';"';
-                $topicNav = '<div class="text-center"><div class="btn-group" role="group" aria-label="Navigate topics"><button type="button" class="btn btn-secondary" ' . $previousButtonAttribute . '><span class=" glyphicon glyphicon-chevron-left"></span> Previous topic</button><button type="button" class="btn btn-secondary" ' . $nextButtonAttribute . '>Next topic <span class="glyphicon glyphicon-chevron-right"></span></span></button></div></div>';
+                $topicNav = '<div class="text-center"><div class="btn-group" role="group" aria-label="Navigate topics"><button type="button" class="btn btn-secondary" ' . $previousButtonAttribute . '><span class="iconChevronLeft"></span> Previous topic</button><button type="button" class="btn btn-secondary" ' . $nextButtonAttribute . '>Next topic <span class="iconChevronRight"></span></span></button></div></div>';
             }
         } else {
             $html = '<div class="conf-topic-preview"><p>No topics available.</p></div>';

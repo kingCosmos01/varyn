@@ -847,28 +847,19 @@ var varyn = function (parameters) {
          * @param element
          */
         onClickShowPassword: function(element) {
-            var showPasswordCheckbox = document.getElementById('register-showpassword'),
-                passwordInput = document.getElementById('register-password'),
-                icon = document.getElementById('register-showpassword-icon'),
-                text = document.getElementById('register-showpassword-text'),
-                show = false;
+            var passwordInput = document.getElementById('register-password');
+            var icon = document.getElementById('register-show-password-icon');
+            var text = document.getElementById('register-show-password-text');
+            var show = icon.classList.contains("iconEyeSlash");
 
-            if (showPasswordCheckbox != null) {
-                if (passwordInput == null) {
-                    passwordInput = document.getElementById('newPassword');
-                }
-                show = passwordInput.type == 'text';
-                if (show) {
-                    showPasswordCheckbox.checked = false;
-                    passwordInput.type = 'password';
-                    icon.className = 'glyphicon glyphicon-eye-open';
-                    text.innerText = 'Show';
-                } else {
-                    showPasswordCheckbox.checked = true;
-                    passwordInput.type = 'text';
-                    icon.className = 'glyphicon glyphicon-eye-close';
-                    text.innerText = 'Hide';
-                }
+            if (show) {
+                passwordInput.type = 'password';
+                icon.className = 'iconEye';
+                text.innerText = 'Show';
+            } else {
+                passwordInput.type = 'text';
+                icon.className = 'iconEyeSlash';
+                text.innerText = 'Hide';
             }
         },
 

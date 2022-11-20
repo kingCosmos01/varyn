@@ -268,6 +268,9 @@ function buildFavoriteGamesSection() {
             </div>
         </div>
         <div class="row gy-2">
+          <p class="p-4">You do not have any favorite games. Try some of our games and if you like them click the heart 
+          <img src="/images/favorite-button-off-196.png" style="height: 25px; width: 25px;"/>  
+          icon to add them to your favorites.</p>
         </div>
     </div>
     <?php

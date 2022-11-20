@@ -288,7 +288,7 @@ if ($page == 'play') {
                         </div>
                         <div class="form-group">
                             <label for="register-password">Password:</label>
-                            <input type="password" name="register-password" class="popup-form-input required password" id="register-password" placeholder="A secure password" autocomplete="current-password" autocorrect="off" required maxlength="20" tabindex="12"/><div id="optional-small-label" class="checkbox optional-small"><label for="ShowPassword" onclick="varynApp.onClickShowPassword();"><input type="checkbox" name="ShowPassword" id="register-showpassword"> <span id="register-showpassword-text">Show</span> <span id="register-showpassword-icon" class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></label></div>
+                            <input type="password" name="register-password" class="popup-form-input required password" id="register-password" placeholder="A secure password" autocomplete="current-password" autocorrect="off" required maxlength="20" tabindex="12"/><div class="showPasswordButton" onclick="varynApp.onClickShowPassword(this);"><span id="register-show-password-text">Show</span> <span id="register-show-password-icon" class="iconEye" aria-hidden="true"></span></div>
                         </div>
                         <div class="form-group">
                             <div class="validation-slider-area">
@@ -356,11 +356,11 @@ if ($page == 'play') {
 <?php
     }
     if ($isLoggedIn) {
-        $notificationCount = 0;
+        $notificationCount = 2;
         $userNotifications = $notificationCount > 0 ? '&nbsp;<span class="badge badge-pill badge-success badge-nav">' . $notificationCount . '</span>' : '';
-        $userLoggedInMenuItem = '<span class="glyphicon glyphicon-user badge-nav"></span> Profile' . $userNotifications; // TODO: show Avatar, User-name, Reputation swatch
+        $userLoggedInMenuItem = '<img class="iconUserProfile" src="' . $enginesis->avatarURL(1) . '"></img> Profile' . $userNotifications;
     } else {
-        $userLoggedInMenuItem = '<span class="glyphicon glyphicon-user badge-nav"></span> Login';
+        $userLoggedInMenuItem = '<span class="iconPerson"></span> Login';
     }
     $newGameCount = 0;
     $newGamesPill = $newGameCount > 0 ? '&nbsp;<span class="badge badge-pill badge-success badge-nav">' . $newGameCount . '</span>' : '';
@@ -405,8 +405,8 @@ if ($page == 'play') {
             </ul>
             <form class="navbar-form navbar-right" role="search" method="GET" action="/games/">
                 <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search" name="q">
-                    <button type="submit" class="btn btn-default">
+                    <input type="text" class="form-control" placeholder="Search" name="q" aria-label="Search for games" aria-describedby="submitSearch">
+                    <button type="submit" class="btn btn-secondary input-group-button" id="submitSearch">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                             <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
                         </svg>

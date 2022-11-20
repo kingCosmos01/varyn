@@ -409,15 +409,15 @@ include_once(VIEWS_ROOT . 'header.php');
             <div class="row w-auto post-item bg-post">
                 <div class="col-md-1 post-left-column">
                     <img class="avatarThumbnail" src="images/avatar_tmp.jpg" />
-                    <div class="post-actions">
-                        <span class="glyphicon glyphicon-star-empty"></span><span class="glyphicon glyphicon-star-empty"></span><span class="glyphicon glyphicon-star varyn-red"></span><span class="glyphicon glyphicon-star varyn-red"></span>
+                    <div class="varyn-red post-actions">
+                        <span class="iconEye"></span><span class="iconEyeSlash"></span><span class="iconStar"></span><span class="iconStarFill"></span><span class="iconStarHalf"></span>
                     </div>
                 </div>
                 <div class="col">
                     <div class="post-info"><strong>Dark Matters</strong> &bull; <span class="post-date">14-Jan-2016 4:48 PM</span></div>
                     <h2>This is the title of the article</h2>
                     <div class="post-meta">
-                        517 words, 8 minute read time. Tags: <kbd>keyword</kbd> <kbd>post</kbd> 
+                        517 words, 8 minute read time. Tags: <a class="tag" href="#" title="Search for more posts with keyword">keyword</a> <a class="tag" href="#" title="Search for more posts with post">post</a>
                     </div>
                 </div>
                 <div class="col-md-11 post-content">
