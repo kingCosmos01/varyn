@@ -1653,17 +1653,16 @@ class Enginesis {
                     if (isset($status->extended_info)) {
                         $extendedInfo = $status->extended_info;
                     }
-                    if ($success) {
-                        if (isset($results->result)) {
-                            // usually result is an array of rows.
-                            $resultSet = $results->result;
-                            if (isset($resultSet->row)) {
-                                $resultSet = $resultSet->row;
-                            }
-                        } elseif (isset($results->row)) {
-                            // "row" was a legacy from old server implementation but some APIs still return it, particularly in edge cases and errors.
-                            $resultSet = $results->row;
+                    // if the service failed but returned a result we still want it
+                    if (isset($results->result)) {
+                        // usually result is an array of rows.
+                        $resultSet = $results->result;
+                        if (isset($resultSet->row)) {
+                            $resultSet = $resultSet->row;
                         }
+                    } elseif (isset($results->row)) {
+                        // "row" was a legacy from old server implementation but some APIs still return it, particularly in edge cases and errors.
+                        $resultSet = $results->row;
                     }
                 } else {
                     $statusMessage = EnginesisErrors::SERVER_RESPONSE_NOT_VALID;
@@ -2338,10 +2337,14 @@ class Enginesis {
 
     /**
      * Trigger the forgot password procedure. The server will reset the user's password and
-     *   send an email to the email address on record to follow a link to reset the password.
-     * @param $userName: string the user's name
-     * @param $email_address: string the user's email address
-     * @return bool: true if the process was started, false if there was an error.
+     * send an email to the email address on record to follow a link to reset the password.
+     * Either user name or email address are required, not both. The backend will use the
+     * value supplied to look up the account since both email address and user name are
+     * required to be unique.
+     * @param string $userName the user's name
+     * @param string $email_address the user's email address
+     * @return null|object: Enginesis response object with the user's temporary password if
+     * the request succeeded, or an Enginesis error if the process failed.
      */
     public function userForgotPassword ($userName, $email_address) {
         $service = 'RegisteredUserForgotPassword';
@@ -2351,7 +2354,7 @@ class Enginesis {
         if (is_array($results) && count($results) > 0) {
             $result = $results[0];
         } else {
-            $result = null;
+            $result = $results;
             $this->debugCallback('userForgotPassword failed: ' . $this->m_lastError['message'] . ' / ' . $this->m_lastError['extended_info'], __FILE__, __LINE__);
         }
         return $result;

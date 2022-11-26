@@ -209,7 +209,7 @@ if ($page == 'play') {
             <div class="modal-body">
                 <p>Sign up for our email updates and we will let you know when we have new games, prizes, interesting things to say. We will not abuse this privilege. <a href="/privacy/" class="text-muted small" title="Review our privacy policy" alt="Review our privacy policy">Review our privacy policy.</a></p>
                 <form id="subscribe-form">
-                    <div class="form-group leader-1 trailer-1 left-2 right-2">
+                    <div class="leader-1 trailer-1 left-2 right-2">
                         <label for="subscribe-email">Email address</label>
                         <input type="email" name="subscribe-email" class="form-control required" id="subscribe-email" placeholder="Your email address" autocapitalize="off" autocorrect="off" autocomplete="email" />
                     </div>
@@ -239,19 +239,19 @@ if ($page == 'play') {
                 <form id="login-form" method="POST" action="/profile/" onsubmit="return varynApp.popupLoginClicked();">
                     <div class="leader-1 trailer-1 left-2 right-2">
                         <div class="form-group">
-                            <label for="login_username">User name:</label>
-                            <input type="text" id="login_username" name="login_username" tabindex="17" maxlength="20" class="popup-form-input required" autocorrect="off" autocomplete="name"/>
+                            <label for="login-username">User name:</label>
+                            <input type="text" id="login-username" name="login-username" tabindex="17" maxlength="20" class="form-control popup-form-input required" autocorrect="off" autocomplete="name"/>
                         </div>
                         <div class="form-group">
                             <label for="login_password">Password:</label>
-                            <input type="password" id="login_password" name="login_password" tabindex="18" maxlength="20" class="popup-form-input required" />
+                            <input type="password" id="login-password" name="login-password" tabindex="18" maxlength="20" class="form-control popup-form-input required" />
                         </div>
                         <div class="form-group">
-                            <input type="text" name="login_email" class="popup-form-address-input" />
+                            <input type="text" name="login-email" class="popup-form-address-input" />
                             <input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
-                            <span class="rememberme-container"><input type="checkbox" tabindex="20" checked="checked" name="login_rememberme" id="login_rememberme"><label for="login_rememberme">Remember Me</label></span>
-                            <div class="loginPopup_auxLinks">
-                                <a id="loginPopup_forgot_password" href="#" onclick="varynApp.popupCloseClicked(); varynApp.showForgotPasswordPopup(1);" tabindex="21">Forgot password?</a><br/>Not a member? <a id="loginPopup_signup" href="#" onclick="varynApp.popupCloseClicked(); varynApp.showRegistrationPopup(1);" tabindex="22">Sign up!</a>
+                            <span class="rememberme-container"><input type="checkbox" tabindex="20" checked="checked" name="login-rememberme" id="login-rememberme"><label for="login-rememberme">Remember Me</label></span>
+                            <div class="loginPopup-auxLinks">
+                                <a id="loginPopup-forgot-password" href="#" onclick="varynApp.popupCloseClicked(); varynApp.showForgotPasswordPopup(1);" tabindex="21">Forgot password?</a><br/>Not a member? <a id="loginPopup_signup" href="#" onclick="varynApp.popupCloseClicked(); varynApp.showRegistrationPopup(1);" tabindex="22">Sign up!</a>
                             </div>
                             <input type="hidden" name="action" value="popuplogin" />
                         </div>
@@ -278,28 +278,42 @@ if ($page == 'play') {
                 <p>Sign up now to track your progress, earn rewards, and compete with friends:</p>
                 <form id="registration-form" method="POST" action="/profile/" onsubmit="return varynApp.popupRegistrationClicked();">
                     <div class="leader-1 trailer-1 left-1 right-1">
-                        <div class="form-group">
-                            <label for="register-email">Email:</label>
-                            <input type="email" name="register-email" class="popup-form-input required email" id="register-email" placeholder="Your email address" autocapitalize="off" autocorrect="off" autocomplete="email" required maxlength="80" tabindex="10"/>
-                        </div>
-                        <div class="form-group">
-                            <label for="register-username">User name:</label>
-                            <input type="text" name="register-username" class="popup-form-input required username" id="register-username" placeholder="A unique user name" data-target="register-username-unique" autocorrect="off" autocomplete="name" required maxlength="50" tabindex="11"/><span id="register-username-unique" class="username-is-not-unique"></span>
-                        </div>
-                        <div class="form-group">
-                            <label for="register-password">Password:</label>
-                            <input type="password" name="register-password" class="popup-form-input required password" id="register-password" placeholder="A secure password" autocomplete="current-password" autocorrect="off" required maxlength="20" tabindex="12"/><div class="showPasswordButton" onclick="varynApp.onClickShowPassword(this);"><span id="register-show-password-text">Show</span> <span id="register-show-password-icon" class="iconEye" aria-hidden="true"></span></div>
-                        </div>
-                        <div class="form-group">
-                            <div class="validation-slider-area">
-                                <label for="register-agreement">I agree to the <a href="/tos/" target="_popup">Terms of Use</a></label>
-                                <div class="register-agreement-slider"><small class="slider-label">No</small><input type="range" name="register-agreement" class="validation-slider" id="register-agreement" placeholder="Slide this all the way left to agree" tabindex="13" min="0" max="2" /><small class="slider-label">Yes</small></div>
+                        <div class="row">
+                            <div class="col-auto">
+                                <label for="register-email">Email:</label>
+                                <input type="email" name="register-email" class="form-control popup-form-input required email" id="register-email" placeholder="Your email address" autocapitalize="off" autocorrect="off" autocomplete="email" required maxlength="80"/>
+                            </div>
+                            <div class="col-auto">
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="row">
+                            <div class="col-auto">
+                                <label for="register-username">User name:</label>
+                                <input type="text" name="register-username" class="form-control popup-form-input required username" id="register-username" placeholder="A unique user name" data-target="register-username-unique" autocorrect="off" autocomplete="name" required maxlength="50" aria-label="Your username" aria-describedby="register-username-unique"/>
+                            </div>
+                            <div class="col-auto align-self-center justify-self-end">
+                                <span id="register-username-unique" class="username-is-not-unique"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-auto">
+                                <label for="register-password">Password:</label>
+                                <input type="password" name="register-password" class="form-control popup-form-input required password" id="register-password" placeholder="A secure password" autocomplete="current-password" autocorrect="off" required maxlength="20" aria-label="Your password" aria-describedby="show-password-button"/>
+                            </div>
+                            <div class="col-auto align-self-center justify-self-end">
+                                <div class="showPasswordButton" id="show-password-button" onclick="varynApp.onClickRegisterShowPassword(this);"><span id="register-show-password-text" class="text-white ">Show</span> <span id="register-show-password-icon" class="iconEye text-white" aria-hidden="true"></span></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="validation-slider-area">
+                                <label for="register-agreement">I agree to the <a class="link-light" href="/tos/" target="_popup">Terms of Service</a></label>
+                                <div class="register-agreement-slider"><small class="slider-label">No</small><input type="range" name="register-agreement" class="form-control validation-slider" id="register-agreement" placeholder="Slide this all the way left to agree" min="0" max="2" /><small class="slider-label">Yes</small></div>
+                            </div>
+                        </div>
+                        <div class="row">
                             <input type="text" name="emailaddress" class="popup-form-address-input" />
                             <input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
-                            <span class="rememberme-container"><input type="checkbox" checked="checked" name="register-rememberme" id="register-rememberme" tabindex="16"><label for="register-rememberme">Remember Me</label></span>
+                            <span class="rememberme-container"><input type="checkbox" checked="checked" name="register-rememberme" id="register-rememberme"><label for="register-rememberme">Remember Me</label></span>
                             <input type="hidden" name="action" value="popupregister" />
                         </div>
                     </div>
@@ -329,12 +343,12 @@ if ($page == 'play') {
                 <form id="forgot-password-form" method="POST" action="/profile/" onsubmit="return varynApp.popupForgotPasswordClicked();">
                     <div class="leader-1 trailer-1 left-2 right-2">
                         <div class="form-group">
-                            <label for="forgotpassword_username">User name:</label>
-                            <input type="text" id="forgotpassword_username" name="forgotpassword_username" tabindex="23" maxlength="20" class="popup-form-input required"  placeholder="Your user name" autocorrect="off" autocomplete="name"/>
+                            <label for="forgot-password-username">User name:</label>
+                            <input type="text" id="forgot-password-username" name="forgot-password-username" tabindex="23" maxlength="20" class="form-control popup-form-input required"  placeholder="Your user name" autocorrect="off" autocomplete="name"/>
                         </div>
                         <div class="form-group">
-                            <label for="forgotpassword_email">Email:</label>
-                            <input type="email" id="forgotpassword_email" name="forgotpassword_email" tabindex="24" maxlength="80" class="popup-form-input required email" placeholder="Your email address" autocapitalize="off" autocorrect="off" autocomplete="email"/>
+                            <label for="forgot-password-email">Email:</label>
+                            <input type="email" id="forgot-password-email" name="forgot-password-email" tabindex="24" maxlength="80" class="form-control popup-form-input required email" placeholder="Your email address" autocapitalize="off" autocorrect="off" autocomplete="email"/>
                         </div>
                         <div class="form-group">
                             <input type="hidden" name="action" value="forgotpassword" />
@@ -348,7 +362,7 @@ if ($page == 'play') {
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-success" value="Reset" name="Reset" id="forgot-password-button" onclick="varynApp.popupForgotPasswordClicked();">Reset</button>
+                <button type="button" class="btn btn-success" value="Request" name="Request" id="forgot-password-button" onclick="varynApp.popupForgotPasswordClicked();">Request</button>
             </div>
         </div>
     </div>

@@ -515,7 +515,7 @@ var varyn = function (parameters) {
         },
 
         /**
-         * showSubscribePopup show the popup form to capture an email address to subscribe to the newsletter.
+         * Show the popup form to capture an email address to subscribe to the newsletter.
          * TODO: track if user already signed up?
          */
         showSubscribePopup: function (showFlag) {
@@ -532,7 +532,7 @@ var varyn = function (parameters) {
         },
 
         /**
-         * showRegistrationPopup show the popup form to capture an new quick registration. This is a short form,
+         * Show the popup form to capture an new quick registration. This is a short form,
          * for the long form go to the profile page.
          */
         showRegistrationPopup: function (showFlag) {
@@ -542,6 +542,7 @@ var varyn = function (parameters) {
                 this.setPopupMessage("modal-register", "", null);
                 this.onChangeRegisterUserName(document.getElementById("register-username"), "register-username-unique");
                 this.trackEvent("register", "prompt", currentPage);
+                this.setupRegisterUserNameOnChangeHandler();
                 registerModal.show();
             } else {
                 registerModal.hide();
@@ -590,9 +591,12 @@ var varyn = function (parameters) {
          */
         setPopupMessage: function (popupId, message, className) {
             const messageClass = 'modalMessageArea';
-            const messageElements = document.getElementById(popupId).getElementsByClassName(messageClass);
-            if (messageElements.length > 0) {
-                const messageElement = messageElements[0];
+            let messageElement = document.getElementById(popupId);
+            if (messageElement != null) {
+                const messageElements = messageElement.getElementsByClassName(messageClass);
+                if (messageElements.length > 0) {
+                    messageElement = messageElements[0];
+                }    
                 messageElement.style.display = "block";
                 messageElement.innerText = message;
                 if (className != null) {
@@ -645,7 +649,6 @@ var varyn = function (parameters) {
             }
         },
 
-
         /**
          * The submit button was clicked on the subscribe popup. Validate user inputs before we
          * attempt to submit the request with the server. Will set focus to a field in error. This
@@ -689,11 +692,11 @@ var varyn = function (parameters) {
                 errorField = "register-email";
             }
             if (errorField == "" && ! this.isValidUserName(userName)) {
-                this.setPopupMessage("modal-register", "Your user name " + userName + " looks bad. Can you try again?", "popupMessageResponseError");
+                this.setPopupMessage("modal-register", "User name " + userName + " looks bad. Can you try again?", "popupMessageResponseError");
                 errorField = "register-username";
             }
             if (errorField == "" && ! this.testUserNameIsUnique('register-username-unique')) {
-                this.setPopupMessage("modal-register", "Your user name " + userName + " is in use by another user. Please pick a unique user name.", "popupMessageResponseError");
+                this.setPopupMessage("modal-register", "User name " + userName + " is in use by another user. Please pick a unique user name.", "popupMessageResponseError");
                 errorField = "register-username";
             }
             if (errorField == "" && ! this.isValidPassword(password)) {
@@ -701,7 +704,7 @@ var varyn = function (parameters) {
                 errorField = "register-password";
             }
             if (errorField == "" && agreement < 2) {
-                this.setPopupMessage("modal-register", "You must agree with the terms of use or you cannot register.", "popupMessageResponseError");
+                this.setPopupMessage("modal-register", "You must agree with the terms of service or you cannot register.", "popupMessageResponseError");
                 errorField = "register-agreement";
             }
             if (errorField != "") {
@@ -725,17 +728,17 @@ var varyn = function (parameters) {
          * @returns {boolean} true if ok to submit the form
          */
         popupLoginClicked: function () {
-            var password = document.getElementById("login_password").value.toString(),
-                userName = document.getElementById("login_username").value.toString(),
+            var password = document.getElementById("login-password").value.toString(),
+                userName = document.getElementById("login-username").value.toString(),
                 errorField = "";
 
             if (errorField == "" && ! this.isValidUserName(userName)) {
                 this.setPopupMessage("modal-login", "Your user name " + userName + " looks bad. Can you try again?", "popupMessageResponseError");
-                errorField = "login_username";
+                errorField = "login-username";
             }
             if (errorField == "" && ! this.isValidPassword(password)) {
                 this.setPopupMessage("modal-login", "Your password looks bad. Can you try again?", "popupMessageResponseError");
-                errorField = "login_password";
+                errorField = "login-password";
             }
             if (errorField != "") {
                 const errorElement = document.getElementById(errorField);
@@ -759,19 +762,27 @@ var varyn = function (parameters) {
          * @returns {boolean} true if ok to submit the form
          */
         popupForgotPasswordClicked: function () {
-            var email = document.getElementById("forgotpassword_email").value.toString(),
-                userName = document.getElementById("forgotpassword_username").value.toString(),
-                errorField = "";
+            var email = document.getElementById("forgot-password-email").value.toString();
+            var userName = document.getElementById("forgot-password-username").value.toString();
+            var errorField = "";
+            var errorMessage = "";
+            var messageElementId = "modal-forgot-password";
+            var messageClass = "popupMessageResponseError";
 
-            if (errorField == "" && ! this.isValidUserName(userName)) {
-                this.setPopupMessage("modal-forgot-password", "Your user name '" + userName + "' looks bad. Can you try again?", "popupMessageResponseError");
-                errorField = "forgotpassword_username";
+            if (userName.length > 0 && ! this.isValidUserName(userName)) {
+                errorMessage = "Your user name '" + userName + "' looks bad. Can you try again?";
+                errorField = "forgot-password-username";
             }
-            if (errorField == "" && ! this.isValidEmail(email)) {
-                this.setPopupMessage("modal-forgot-password", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
-                errorField = "forgotpassword_email";
+            if (errorField == "" && email.length > 0 && ! this.isValidEmail(email)) {
+                errorMessage = "Your email " + email + " looks bad. Can you try again?";
+                errorField = "forgot-password-email";
+            }
+            if (errorField == "" && userName.length == 0 && email.length == 0) {
+                errorMessage = "You must provide either your user name or your email address.";
+                errorField = "forgot-password-username";
             }
             if (errorField != "") {
+                this.setPopupMessage(messageElementId, errorMessage, messageClass);
                 const errorElement = document.getElementById(errorField);
                 if (errorElement != null) {
                     errorElement.classList.remove("popup-form-input");
@@ -793,19 +804,27 @@ var varyn = function (parameters) {
          * @returns {boolean} true if ok to submit the form
          */
         formForgotPasswordClicked: function () {
-            var email = document.getElementById("forgotpassword_email_form").value.toString(),
-                userName = document.getElementById("forgotpassword_username_form").value.toString(),
-                errorField = "";
+            var email = document.getElementById("forgot-password-email-form").value.toString();
+            var userName = document.getElementById("forgot-password-username-form").value.toString();
+            var errorField = "";
+            var errorMessage = "";
+            var messageElementId = "formMessageArea";
+            var messageClass = "popupMessageResponseError";
 
-            if (errorField == "" && ! this.isValidUserName(userName)) {
-                this.setPopupMessage("forgot-password-form", "Your user name '" + userName + "' looks bad. Can you try again?", "popupMessageResponseError");
-                errorField = "forgotpassword_username";
+            if (userName.length > 0 && ! this.isValidUserName(userName)) {
+                errorMessage = "Your user name '" + userName + "' looks bad. Can you try again?";
+                errorField = "forgot-password-username-form";
             }
-            if (errorField == "" && ! this.isValidEmail(email)) {
-                this.setPopupMessage("forgot-password-form", "Your email " + email + " looks bad. Can you try again?", "popupMessageResponseError");
-                errorField = "forgotpassword_email";
+            if (errorField == "" && email.length > 0 && ! this.isValidEmail(email)) {
+                errorMessage = "Your email " + email + " looks bad. Can you try again?";
+                errorField = "forgot-password-email-form";
+            }
+            if (errorField == "" && userName.length == 0 && email.length == 0) {
+                errorMessage = "You must provide either your user name or your email address.";
+                errorField = "forgot-password-username-form";
             }
             if (errorField != "") {
+                this.setPopupMessage(messageElementId, errorMessage, messageClass);
                 const errorElement = document.getElementById(errorField);
                 if (errorElement != null) {
                     errorElement.classList.remove("popup-form-input");
@@ -813,7 +832,7 @@ var varyn = function (parameters) {
                     errorElement.focus();
                 }
             }
-            return errorField == ""; // return true to submit form
+            return errorField == ""; // return true to submit form if there were no errors
         },
 
         /**
@@ -846,7 +865,7 @@ var varyn = function (parameters) {
          * If the show password UI element is activated then toggle the state of the password input.
          * @param element
          */
-        onClickShowPassword: function(element) {
+        onClickRegisterShowPassword: function(element) {
             var passwordInput = document.getElementById('register-password');
             var icon = document.getElementById('register-show-password-icon');
             var text = document.getElementById('register-show-password-text');

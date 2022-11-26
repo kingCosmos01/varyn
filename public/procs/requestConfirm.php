@@ -1,35 +1,35 @@
 <?php
-    /**
-     * Handle a request approval.
-     *  - Friend request
-     *  - Team request
-     *  - Quest request
-     * @Date: 1/11/16
-     */
-    require_once('../../services/common.php');
-    $debug = (int) strtolower(getPostOrRequestVar('debug', 0));
-    $page = 'requestConfirmation';
-    processSearchRequest();
-    processTrackBack();
-    $user_id = getPostOrRequestVar('u', 0);
-    $site_id = getPostOrRequestVar('s', 0);
-    $token = getPostOrRequestVar('t', '');
-    $requestId = getPostOrRequestVar('r', '');
-    $approval = getPostOrRequestVar('a', '');
-    $action = getPostOrRequestVar('action', '');
-    $errorMessage = '';
+/**
+ * Handle a request approval.
+ *  - Friend request
+ *  - Team request
+ *  - Quest request
+ * @Date: 1/11/16
+ */
+require_once('../../services/common.php');
+$debug = (int) strtolower(getPostOrRequestVar('debug', 0));
+$page = 'requestConfirmation';
+processSearchRequest();
+processTrackBack();
+$user_id = getPostOrRequestVar('u', 0);
+$site_id = getPostOrRequestVar('s', 0);
+$token = getPostOrRequestVar('t', '');
+$requestId = getPostOrRequestVar('r', '');
+$approval = getPostOrRequestVar('a', '');
+$action = getPostOrRequestVar('action', '');
+$errorMessage = '';
 
-    if ($isLoggedIn) {
-        $userInfo = $enginesis->getLoggedInUserInfo();
-        $authToken = $userInfo->authtok;
-        $user_id = $userInfo->user_id; // only use the user_id that is logged in
-        $site_id = $userInfo->site_id;
-    }
-    $pageTitle = 'Process Request | Varyn';
-    include_once(VIEWS_ROOT . 'header.php');
+if ($isLoggedIn) {
+    $userInfo = $enginesis->getLoggedInUserInfo();
+    $authToken = $userInfo->authtok;
+    $user_id = $userInfo->user_id; // only use the user_id that is logged in
+    $site_id = $userInfo->site_id;
+}
+$pageTitle = 'Process Request | Varyn';
+include_once(VIEWS_ROOT . 'header.php');
 ?>
 <div class="container">
-    <div class="panel panel-info panel-padded">
+    <div class="card card-info p-4">
         <h1>Request</h1>
         <p>Your request is being processed.</p>
         <p><a href="/profile/">Profile</a></p>

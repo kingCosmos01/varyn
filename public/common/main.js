@@ -611,19 +611,19 @@ function facebookUserIsStillValid (facebookName, facebookId)
 
 function setHeaderProfileLoggedinUser ()
 {
-    var headerProfileDiv = document.getElementById("header_profile");
+    var headerProfileDiv = document.getElementById("header-profile");
     var userInfoObject = getExtendedUserInfo();
     if (headerProfileDiv != null && userInfoObject != null) {
-        var setDocElement = document.getElementById("header_user_profile_img");
+        var setDocElement = document.getElementById("header-user-profile-img");
         if (setDocElement != null) {
             setDocElement.title = userInfoObject["user_name"];
             setDocElement.src = "";
         }
-        setDocElement = document.getElementById("header_username");
+        setDocElement = document.getElementById("header-username");
         if (setDocElement != null) {
             setDocElement.innerText = userInfoObject["user_name"];
         }
-        setDocElement = document.getElementById("header_siterank");
+        setDocElement = document.getElementById("header-siterank");
         if (setDocElement != null) {
             setDocElement.innerText = userInfoObject["site_rank"];
         }

@@ -43,9 +43,9 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
         if (securityInfo == null) {
             enginesisSession.registeredUserSecurityGet(enginesisCallBack);
         } else {
-            setElementValue("register_form_new_password", "");
-            setElementValue("register_form_question", securityInfo['security_question']);
-            setElementValue("register_form_answer", securityInfo['security_answer']);
+            setElementValue("register-form-new-password", "");
+            setElementValue("register-form-question", securityInfo['security_question']);
+            setElementValue("register-form-answer", securityInfo['security_answer']);
             // @todo: show tab $('a[data-toggle="tab"]').off('shown.bs.tab');
         }
     }
@@ -134,8 +134,8 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
         },
 
         setupUserLogin: function() {
-            if (document.getElementById('profile_forgot_password')) {
-                document.getElementById('profile_forgot_password').addEventListener('click', this.forgotPassword.bind(this));
+            if (document.getElementById('profile-forgot-password')) {
+                document.getElementById('profile-forgot-password').addEventListener('click', this.forgotPassword.bind(this));
             }
             if (document.getElementById('facebook-connect-button')) {
                 document.getElementById('facebook-connect-button').addEventListener('click', this.loginFacebook.bind(this));
@@ -157,8 +157,8 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
                 enableFlag = true;
             }
             var isDisabled = ! enableFlag;
-            if (document.getElementById('profile_register_now')) {
-                document.getElementById('profile_register_now').disabled = isDisabled;
+            if (document.getElementById('profile-register-now')) {
+                document.getElementById('profile-register-now').disabled = isDisabled;
             }
             if (document.getElementById('login-button')) {
                 document.getElementById('login-button').disabled = isDisabled;
@@ -176,7 +176,7 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
         },
 
         setupUserNameChangeHandler: function () {
-            var registerFormUserName = document.getElementById("register-username");
+            var registerFormUserName = document.getElementById("register-form-username");
             if (registerFormUserName != null) {
                 registerFormUserName.addEventListener("change", varynApp.onChangeRegisterUserName.bind(varynApp));
                 registerFormUserName.addEventListener("input", varynApp.onChangeRegisterUserName.bind(varynApp));
@@ -191,10 +191,27 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
             }
         },
 
-        onClickShowPassword: function(event) {
-            var passwordInput = document.getElementById("register_form_password");
-            var icon = document.getElementById("register_form_show_password_icon");
-            var text = document.getElementById("register_form_show_password_text");
+        onClickRegisterShowPassword: function(event) {
+            var passwordInput = document.getElementById("register-form-password");
+            var icon = document.getElementById("register-form-show-password-icon");
+            var text = document.getElementById("register-form-show-password-text");
+            var show = icon.classList.contains("iconEyeSlash");
+
+            if (show) {
+                passwordInput.type = 'password';
+                icon.className = 'iconEye';
+                text.innerText = 'Show';
+            } else {
+                passwordInput.type = 'text';
+                icon.className = 'iconEyeSlash';
+                text.innerText = 'Hide';
+            }
+        },
+
+        onClickLoginShowPassword: function(event) {
+            var passwordInput = document.getElementById("login-form-password");
+            var icon = document.getElementById("login-form-show-password-icon");
+            var text = document.getElementById("login-form-show-password-text");
             var show = icon.classList.contains("iconEyeSlash");
 
             if (show) {
@@ -235,21 +252,21 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
         },
 
         loginValidation: function () {
-            var userName = getElementValue("login_form_username"); // $("input[name=login_form_username]").val(),
-            var password = getElementValue("login_form_password");
+            var userName = getElementValue("login-form-username"); // $("input[name=login-form-username]").val(),
+            var password = getElementValue("login-form-password");
             var errorMessage = "";
             var errorField = "";
 
-            toggleClass("login_form_username", "popup-form-input-error", "popup-form-input");
-            toggleClass("login_form_password", "popup-form-input-error", "popup-form-input");
+            toggleClass("login-form-username", "popup-form-input-error", "popup-form-input");
+            toggleClass("login-form-password", "popup-form-input-error", "popup-form-input");
             varynApp.showErrorMessage("", "");
             if (errorMessage == "" && ! varynApp.isValidUserName(userName)) {
                 errorMessage = "User name is not acceptable. Please enter your user name.";
-                errorField = "login_form_username";
+                errorField = "login-form-username";
             }
             if (errorMessage == "" && ! varynApp.isValidPassword(password)) {
                 errorMessage = "Password is not acceptable. Please retry your password.";
-                errorField = "login_form_password";
+                errorField = "login-form-password";
             }
             if (errorMessage == "") {
                 // good enough to send to the server for more validation
@@ -265,37 +282,37 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
          * @returns {boolean} Returns true when form is acceptable, false if there is an error.
          */
         registerFormValidation: function () {
-            var userName = getElementValue("register_form_username");
-            var password = getElementValue("register_form_password");
-            var email = getElementValue("register_form_email");
-            var dob = getElementValue("register_form_dob");
-            var agreement = getElementValue("register_form_agreement") > 1;
+            var userName = getElementValue("register-form-username");
+            var password = getElementValue("register-form-password");
+            var email = getElementValue("register-form-email");
+            var dob = getElementValue("register-form-dob");
+            var agreement = getElementValue("register-form-agreement") > 1;
             var errorMessage = "";
             var errorField = "";
 
-            toggleClass("register_form_username", "popup-form-input-error", "popup-form-input");
-            toggleClass("register_form_password", "popup-form-input-error", "popup-form-input");
-            toggleClass("register_form_email", "popup-form-input-error", "popup-form-input");
+            toggleClass("register-form-username", "popup-form-input-error", "popup-form-input");
+            toggleClass("register-form-password", "popup-form-input-error", "popup-form-input");
+            toggleClass("register-form-email", "popup-form-input-error", "popup-form-input");
             varynApp.showErrorMessage("", "");
             if (errorMessage == "" && ! varynApp.isValidUserName(userName)) {
                 errorMessage = "User name is not acceptable. Please enter your user name.";
-                errorField = "register_form_username";
+                errorField = "register-form-username";
             }
             if (errorMessage == "" && ! varynApp.isValidPassword(password)) {
                 errorMessage = "Password is not acceptable. Please retry your password.";
-                errorField = "register_form_password";
+                errorField = "register-form-password";
             }
             if (errorMessage == "" && ! varynApp.isValidEmail(email)) {
                 errorMessage = "Email " + email + " doesn't look right. Please enter a proper email address.";
-                errorField = "register_form_email";
+                errorField = "register-form-email";
             }
             if (errorField == "" && ! varynApp.isValidDateOfBirth(dob)) {
                 errorMessage = "You must be at least 13 years of age to register an account on this site.";
-                errorField = "register_form_dob";
+                errorField = "register-form-dob";
             }
             if (errorField == "" && ! agreement) {
                 errorMessage = "You must agree with the terms of service or you cannot register.";
-                errorField = "register_form_agreement";
+                errorField = "register-form-agreement";
             }
             if (errorMessage != "") {
                 varynApp.showErrorMessage(errorMessage, errorField);
@@ -309,30 +326,30 @@ var varynProfilePage = function (varynApp, siteConfiguration) {
          * @returns {boolean} Returns true when form is acceptable, false if there is an error.
          */
         updateFormValidation: function () {
-            var userName = getElementValue("register_form_username");
-            var email = getElementValue("register_form_email");
-            var dob = getElementValue("register_form_dob");
+            var userName = getElementValue("register-form-username");
+            var email = getElementValue("register-form-email");
+            var dob = getElementValue("register-form-dob");
             var errorMessage = "";
             var errorField = "";
 
-            toggleClass("register_form_username", "popup-form-input-error", "popup-form-input");
-            toggleClass("register_form_email", "popup-form-input-error", "popup-form-input");
+            toggleClass("register-form-username", "popup-form-input-error", "popup-form-input");
+            toggleClass("register-form-email", "popup-form-input-error", "popup-form-input");
             varynApp.showErrorMessage("", "");
             if (errorMessage == "" && ! varynApp.isValidUserName(userName)) {
                 errorMessage = "User name is not acceptable. Please enter your user name.";
-                errorField = "register_form_username";
+                errorField = "register-form-username";
             }
-            if (errorMessage == "" && varynApp.isChangedUserName(userName) && ! varynApp.testUserNameIsUnique('register_user_name_unique')) {
+            if (errorMessage == "" && varynApp.isChangedUserName(userName) && ! varynApp.testUserNameIsUnique('register-user-name-unique')) {
                 errorMessage = "User name is in use by someone else. Please select a unique user name.";
-                errorField = "register_form_username";
+                errorField = "register-form-username";
             }
             if (errorMessage == "" && ! varynApp.isValidEmail(email)) {
                 errorMessage = "Email " + email + " doesn't look right. Please enter a proper email address.";
-                errorField = "register_form_email";
+                errorField = "register-form-email";
             }
             if (errorField == "" && ! varynApp.isValidDateOfBirth(dob)) {
                 errorMessage = "You must be at least 13 years of age to register an account on this site.";
-                errorField = "register_form_dob";
+                errorField = "register-form-dob";
             }
             // TODO:
             // Location, tagline, about-me all are valid strings, no crazy html crap (b/i/strong emojis are ok)

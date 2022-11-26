@@ -112,17 +112,17 @@ if ($networkId > 1) {
 $action = strtolower(getPostOrRequestVar('action', ''));
 if ($action == 'login' && ! $isLoggedIn) {
     // User issued a login request we expect user-name and password
-    $userName = getPostVar('login_form_username');
-    $password = getPostVar('login_form_password');
-    $rememberMe = valueToBoolean(getPostVar('login_form_rememberme', false));
+    $userName = getPostVar('login-form-username');
+    $password = getPostVar('login-form-password');
+    $rememberMe = valueToBoolean(getPostVar('login-form-rememberme', false));
     // @todo: verify the honeypot and form generation to help avoid bot attacks
-    // if (verifyFormHacks(['login_form_email', 'all-clear'])) {
-    // $thisFieldMustBeEmpty = getPostVar('login_form_email', null);
+    // if (verifyFormHacks(['login-form-email', 'all-clear'])) {
+    // $thisFieldMustBeEmpty = getPostVar('login-form-email', null);
     // $hackerToken = getPostVar('all-clear', ''); // this field must contain the token
     if ($userName == '' && $password == '') {
-        $userName = getPostVar('login_username');
-        $password = getPostVar('login_password');
-        $rememberMe = valueToBoolean(getPostVar('login_rememberme', false));
+        $userName = getPostVar('login-username');
+        $password = getPostVar('login-password');
+        $rememberMe = valueToBoolean(getPostVar('login-rememberme', false));
     }
     $userInfo = $enginesis->userLogin($userName, $password, $rememberMe);
     if ($userInfo == null) {
@@ -133,7 +133,7 @@ if ($action == 'login' && ! $isLoggedIn) {
         } else {
             $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::NAME_PASSWORD_MISMATCH) . '</p>';
         }
-        $inputFocusId = 'login_form_username';
+        $inputFocusId = 'login-form-username';
     } else {
         $isLoggedIn = true;
         $cr = $userInfo->cr;
@@ -147,7 +147,7 @@ if ($action == 'login' && ! $isLoggedIn) {
 } elseif ($action == 'signup' && ! $isLoggedIn) {
     // user requested to sign up, show the registration form
     $showRegistrationForm = true;
-    $inputFocusId = 'register_form_email';
+    $inputFocusId = 'register-form-email';
 } elseif ($action == 'popupregister' && ! $isLoggedIn) {
     // user completed the short registration form
     if (verifyFormHacks(['emailaddress', 'all-clear'])) {
@@ -184,29 +184,29 @@ if ($action == 'login' && ! $isLoggedIn) {
                 switch ($errorCode) {
                     case EnginesisErrors::NAME_IN_USE:
                         $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NAME_IN_USE);
-                        $inputFocusId = 'register_form_username';
-                        $errorFieldId = 'register_form_username';
+                        $inputFocusId = 'register-form-username';
+                        $errorFieldId = 'register-form-username';
                         break;
                     case EnginesisErrors::EMAIL_IN_USE:
                         $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_EMAIL_IN_USE);
-                        $inputFocusId = 'register_form_email';
-                        $errorFieldId = 'register_form_email';
+                        $inputFocusId = 'register-form-email';
+                        $errorFieldId = 'register-form-email';
                         break;
                     case EnginesisErrors::REGISTRATION_INVALID:
                         $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_INVALID);
-                        $inputFocusId = 'register_form_username';
-                        $errorFieldId = 'register_form_username';
+                        $inputFocusId = 'register-form-username';
+                        $errorFieldId = 'register-form-username';
                         break;
                     default:
                         $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERROR, ['error' => $errorCode]);
-                        $inputFocusId = 'register_form_email';
+                        $inputFocusId = 'register-form-email';
                         break;
                 }
                 $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . $errorInfo . '</p>';
                 $showRegistrationForm = true;
             } else {
                 $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ACCEPTED) . '</p>';
-                $inputFocusId = 'login_form_username';
+                $inputFocusId = 'login-form-username';
             }
         } else {
             debugLog("Registering a new user invalid form: " . implode(', ', $invalidFields));
@@ -224,16 +224,16 @@ if ($action == 'login' && ! $isLoggedIn) {
 } elseif ($action == 'register' && ! $isLoggedIn) {
     // user completed the full page registration form
     if (verifyFormHacks(['emailaddress', 'all-clear'])) {
-        $userName = getPostVar("register_form_username", '');
-        $password = getPostVar("register_form_password", '');
-        $email = getPostVar("register_form_email", '');
-        $fullname = getPostVar("register_form_fullname", '');
-        $location = getPostVar("register_form_location", '');
-        $tagline = getPostVar("register_form_tagline", '');
-        $dateOfBirth = getPostVar("register_form_dob", '');
-        $gender = getPostVar("register_form_gender", 'U');
-        $agreement = checkPostedAgreement("register_form_agreement");
-        $rememberMe = valueToBoolean(getPostVar('register_form_rememberme', false));
+        $userName = getPostVar("register-form-username", '');
+        $password = getPostVar("register-form-password", '');
+        $email = getPostVar("register-form-email", '');
+        $fullname = getPostVar("register-form-fullname", '');
+        $location = getPostVar("register-form-location", '');
+        $tagline = getPostVar("register-form-tagline", '');
+        $dateOfBirth = getPostVar("register-form-dob", '');
+        $gender = getPostVar("register-form-gender", 'U');
+        $agreement = checkPostedAgreement("register-form-agreement");
+        $rememberMe = valueToBoolean(getPostVar('register-form-rememberme', false));
         $parameters = [
             'user_name' => $userName,
             'password' => $password,
@@ -256,36 +256,36 @@ if ($action == 'login' && ! $isLoggedIn) {
                 switch ($errorCode) {
                     case EnginesisErrors::NAME_IN_USE:
                         $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NAME_IN_USE);
-                        $inputFocusId = 'register_form_username';
-                        $errorFieldId = 'register_form_username';
+                        $inputFocusId = 'register-form-username';
+                        $errorFieldId = 'register-form-username';
                         break;
                     case EnginesisErrors::EMAIL_IN_USE:
                         $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_EMAIL_IN_USE);
-                        $inputFocusId = 'register_form_email';
-                        $errorFieldId = 'register_form_email';
+                        $inputFocusId = 'register-form-email';
+                        $errorFieldId = 'register-form-email';
                         break;
                     case EnginesisErrors::REGISTRATION_INVALID:
                         $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_INVALID);
-                        $inputFocusId = 'register_form_username';
-                        $errorFieldId = 'register_form_username';
+                        $inputFocusId = 'register-form-username';
+                        $errorFieldId = 'register-form-username';
                         break;
                     default:
                         $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERROR, ['error' => $errorCode]);
-                        $inputFocusId = 'register_form_email';
+                        $inputFocusId = 'register-form-email';
                         break;
                 }
                 $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . $errorInfo . '</p>';
                 $showRegistrationForm = true;
             } else {
                 $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ACCEPTED) . '</p>';
-                $inputFocusId = 'login_form_username';
+                $inputFocusId = 'login-form-username';
             }
         } else {
             debugLog("Registering a new user bad form " . implode(', ', $invalidFields));
             debugLog("Registering a new user parameters: " . implode(', ', $parameters));
             // @todo: handle invalid fields by showing UI, but try to set the focus on the first field in error.
             $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, ['fields' => implode(', ', $invalidFields)]) . '</p>';
-            $inputFocusId = 'register_form_email';
+            $inputFocusId = 'register-form-email';
             $showRegistrationForm = true;
         }
     } else {
@@ -311,7 +311,7 @@ if ($action == 'login' && ! $isLoggedIn) {
             } else {
                 // [user_id] => 10241 [site_id] => 106 [user_name] => varyn2 [real_name] => varyn2 [site_user_id] => [dob] => 2004-04-10 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-04-10 20:07:55 [date_updated] => [source_site_id] => 106 [last_login] => 2016-04-16 14:09:27 [login_count] => 24 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 2 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [friend_count] => 0 [comment_count] => 0 [notification_count] => 0 ) ) [outparams] => Array ( ) [status] => stdClass Object ( [success] => 1 [message] => ) [passthru] => stdClass Object ( [fn] => RegisteredUserGetEx [site_id] => 106 [logged_in_user_id] => 10241 [get_user_id] => NULL [site_user_id] => NULL [language_code] => en [state_seq] => 1 ) ) ) stdClass Object ( [user_id] => 10241 [site_id] => 106 [user_name] => varyn2 [real_name] => varyn2 [site_user_id] => [dob] => 2004-04-10 [gender] => F [city] => [state] => [zipcode] => [country_code] => [email_address] => john@varyn.com [mobile_number] => [im_id] => [agreement] => 1 [img_url] => [about_me] => [date_created] => 2016-04-10 20:07:55 [date_updated] => [source_site_id] => 106 [last_login] => 2016-04-16 14:09:27 [login_count] => 24 [tagline] => [additional_info] => [reg_confirmed] => 1 [user_status_id] => 2 [site_currency_value] => 0 [site_experience_points] => 0 [view_count] => 0 [friend_count] => 0 [comment_count] => 0 [notification_count] => 0
                 $showRegistrationForm = true;
-                $inputFocusId = 'register_form_email';
+                $inputFocusId = 'register-form-email';
                 $userName = $userInfo->user_name;
                 $originalUserName = $userName; // if changed we need to check for name clash
                 $email = $userInfo->email_address;
@@ -338,21 +338,21 @@ if ($action == 'login' && ! $isLoggedIn) {
             if ( ! ($thisFieldMustBeEmpty === '' && validateInputFormHackerToken($hackerToken))) {
                 $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REG_INFO_INCOMPLETE, null) . '</p>';
                 debugLog("profile.php error in user update fails hacker test: " . implode(',', [$thisFieldMustBeEmpty, $hackerToken, validateInputFormHackerToken($hackerToken)]));
-                $inputFocusId = 'register_form_email';
+                $inputFocusId = 'register-form-email';
             } else {
                 $userRegistrationDataChanged = true; // @todo: set for when we want to optimize these updates and only save when something changed.
                 $userSecurityDataChanged = true;     // @todo: for now just save it.
                 $regenerateToken = false;
                 if ($userRegistrationDataChanged) {
-                    $userName = getPostVar("register_form_username", '');
-                    $email = getPostVar("register_form_email", '');
-                    $fullname = getPostVar("register_form_fullname", '');
-                    $location = getPostVar("register_form_location", '');
-                    $tagline = getPostVar("register_form_tagline", '');
-                    $dateOfBirth = getPostVar("register_form_dob", '');
-                    $gender = getPostVar("register_form_gender", 'U');
-                    $cellphone = getPostVar("register_form_phone", '');
-                    $aboutMe = getPostVar("register_form_aboutme", '');
+                    $userName = getPostVar("register-form-username", '');
+                    $email = getPostVar("register-form-email", '');
+                    $fullname = getPostVar("register-form-fullname", '');
+                    $location = getPostVar("register-form-location", '');
+                    $tagline = getPostVar("register-form-tagline", '');
+                    $dateOfBirth = getPostVar("register-form-dob", '');
+                    $gender = getPostVar("register-form-gender", 'U');
+                    $cellphone = getPostVar("register-form-phone", '');
+                    $aboutMe = getPostVar("register-form-aboutme", '');
                     $parameters = [
                         'user_name' => $userName,
                         'email_address' => $email,
@@ -379,22 +379,22 @@ if ($action == 'login' && ! $isLoggedIn) {
                                 switch ($errorCode) {
                                     case EnginesisErrors::NAME_IN_USE:
                                         $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NAME_IN_USE);
-                                        $inputFocusId = 'register_form_username';
-                                        $errorFieldId = 'register_form_username';
+                                        $inputFocusId = 'register-form-username';
+                                        $errorFieldId = 'register-form-username';
                                         break;
                                     case EnginesisErrors::EMAIL_IN_USE:
                                         $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_EMAIL_IN_USE);
-                                        $inputFocusId = 'register_form_email';
-                                        $errorFieldId = 'register_form_email';
+                                        $inputFocusId = 'register-form-email';
+                                        $errorFieldId = 'register-form-email';
                                         break;
                                     case EnginesisErrors::REGISTRATION_INVALID:
                                         $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_INVALID);
-                                        $inputFocusId = 'register_form_username';
-                                        $errorFieldId = 'register_form_username';
+                                        $inputFocusId = 'register-form-username';
+                                        $errorFieldId = 'register-form-username';
                                         break;
                                     default:
                                         $errorInfo = $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERROR, ['error' => $errorCode]);
-                                        $inputFocusId = 'register_form_email';
+                                        $inputFocusId = 'register-form-email';
                                         break;
                                 }
                                 $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_NOT_ACCEPTED) . ' ' . $errorInfo . '</p>';
@@ -428,14 +428,14 @@ if ($action == 'login' && ! $isLoggedIn) {
                     } else {
                         // @todo: handle invalid fields by showing UI, set focus to first field in error
                         $showRegistrationForm = true;
-                        $inputFocusId = 'register_form_email';
+                        $inputFocusId = 'register-form-email';
                         $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, ['fields' => implode(', ', $invalidFields)]) . '</p>';
                     }
                 }
                 if ($inputFocusId == '' && $userSecurityDataChanged) {
                     $securityQuestionId = 1;
-                    $securityQuestion = getPostVar('register_form_question', '');
-                    $securityAnswer = getPostVar('register_form_answer', '');
+                    $securityQuestion = getPostVar('register-form-question', '');
+                    $securityAnswer = getPostVar('register-form-answer', '');
                     if (isValidSecurityQuestion($securityQuestion, $securityAnswer)) {
                         $invalidFields = $enginesis->registeredUserSecurityValidation($userId, $cellphone, $securityQuestionId, $securityQuestion, $securityAnswer);
                         if ($invalidFields == null) {
@@ -444,19 +444,19 @@ if ($action == 'login' && ! $isLoggedIn) {
                         } else {
                             // handle invalid fields by showing UI
                             $showRegistrationForm = true;
-                            $inputFocusId = 'register_form_email';
+                            $inputFocusId = 'register-form-email';
                             $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::REGISTRATION_ERRORS_FIELDS, ['fields' => implode(', ', $invalidFields)]) . '</p>';
                         }
                     } else {
                         $showRegistrationForm = true;
-                        $inputFocusId = 'register_form_email';
+                        $inputFocusId = 'register-form-email';
                         $errorMessage = '<p class="text-error">' . $stringTable->lookup(EnginesisUIStrings::SECURITY_ERRORS_FIELDS, null) . '</p>';
                     }
                 }
                 if ($inputFocusId == '') {
                     $errorMessage = '<p class="text-success">' . $stringTable->lookup(EnginesisUIStrings::REG_INFO_UPDATED, null) . '</p>';
                     // If the password changed then start the reset password process.
-                    $newPassword = getPostVar("register_form_new_password", '');
+                    $newPassword = getPostVar("register-form-new_password", '');
                     if ($newPassword != '') {
                         $updateResult = $enginesis->registeredUserRequestPasswordChange();
                     }
@@ -467,45 +467,52 @@ if ($action == 'login' && ! $isLoggedIn) {
 } elseif ($action == 'forgotpassword') {
     // user completed the Forgot Password form, initiate a forgot password flow.
     if (verifyFormHacks(['emailaddress', 'all-clear'])) {
-        $userName = getPostVar("forgotpassword_username", '');
-        $email = getPostVar("forgotpassword_email", '');
-        $result = $enginesis->userForgotPassword($userName, $email);
-        if ($result != null) {
-            if (isset($result->user_id) && $result->user_id > 0) {
-                $errorMessage = '<p class="text-info">' . $stringTable->lookup(EnginesisUIStrings::REG_RESET_PASSWORD, null) . '</p>';
-                $inputFocusId = 'login_form_username';
-            } else {
-                $result = null;
+        $userName = getPostVar(["forgot-password-username", "forgot-password-username-form"], '');
+        $email = getPostVar(["forgot-password-email", "forgot-password-email-form"], '');
+        if (isValidUserName($userName) || checkEmailAddress($email)) {
+            $result = $enginesis->userForgotPassword($userName, $email);
+            if ($result != null) {
+                if (isset($result->user_id) && $result->user_id > 0) {
+                    $errorMessage = '<p class="text-info">' . $stringTable->lookup(EnginesisUIStrings::REG_RESET_PASSWORD, null) . '</p>';
+                    $inputFocusId = 'login-form-username';
+                } else {
+                    $errorMessage = '<p class="text-error">Unexpected service response.<br/>Please check your entry or contact support.</p>';
+                    $result = null;
+                }
             }
-        }
-        if ($result == null) {
-            $error = $enginesis->getLastError();
-            $errorCode = $error['message'];
-            $info = '';
-            if ( ! empty($userName)) {
-                $info = $userName;
+            // @todo: Edge case, the query can return results AND and error if server fails to send email.
+            if ($result == null) {
+                $error = $enginesis->getLastError();
+                $errorCode = $error['message'];
+                $info = '';
+                if ( ! empty($userName)) {
+                    $info = $userName;
+                }
+                if ( ! empty($email)) {
+                    $info = ($info == '' ? '' : ', ') . $email;
+                }
+                if ($info != '') {
+                    $info = '(' . htmlentities($info) . ')';
+                }
+                $errorMessage = '<p class="text-error">' . errorToLocalString($errorCode) . '<br/>Please check your entry ' . $info . ' or contact support.</p>';
+                $inputFocusId = 'profile-forgot-password';
             }
-            if ( ! empty($email)) {
-                $info = ($info == '' ? '' : ', ') . $email;
-            }
-            if ($info != '') {
-                $info = '(' . htmlentities($info) . ')';
-            }
-            $errorMessage = '<p class="text-error">' . errorToLocalString($errorCode) . '<br/>Please check your entry ' . $info . ' or contact support.</p>';
-            $inputFocusId = 'profile_forgot_password';
+        } else {
+            // bad parameters
+            $errorMessage = '<p class="text-error">You must provide either your user name or your email address to request a password reset.</p>';
         }
     } else {
         debugLog("profile.php forgotpassword form submission failed the hacker test.");
         $errorCode = EnginesisErrors::SERVICE_ERROR;
         $errorMessage = '<p class="text-error">' . errorToLocalString($errorCode) . '<br/>Please check your entry or contact support.</p>';
-        $inputFocusId = 'profile_forgot_password';
+        $inputFocusId = 'profile-forgot-password';
     }
 } elseif ($action == 'resetpassword') {
     // user requested a Password Reset, initiate a forgot password flow.
     $result = $enginesis->userResetPassword();
     if ($result) {
         $errorMessage = '<p class="text-info">' . $stringTable->lookup(EnginesisUIStrings::REG_COMPLETE_RESET_MESSAGE, null) . '</p>';
-        $inputFocusId = 'login_form_username';
+        $inputFocusId = 'login-form-username';
     } else {
         $error = $enginesis->getLastError();
         $errorCode = $error['message'];
@@ -526,7 +533,7 @@ if ($action == 'login' && ! $isLoggedIn) {
             $info .= $info == '' ? '' : '. ';
             $errorMessage = '<p class="text-error">' . errorToLocalString($errorCode) . '<br/>' . $info . '. Please check your entry.</p>';
         }
-        $inputFocusId = 'profile_forgot_password';
+        $inputFocusId = 'profile-forgot-password';
     }
 } elseif ($action == 'resendconfirm') {
     // User did not confirm registration or it expired, issue a new registration confirmation request.
@@ -668,7 +675,7 @@ function isValidSecurityQuestion($securityQuestion, $securityAnswer) {
 include_once(VIEWS_ROOT . 'header.php');
 ?>
 <div class="container">
-    <div id="user_profile" class="card card-primary m-2 p-4">
+    <div id="user-profile" class="card card-primary m-2 p-4">
 <?php
     if ($redirectedStatusMessage != '') {
         echo('<div class="card card-danger"><div class="card-heading"><h4>' . $redirectedStatusMessage . '</h4></div></div>');
@@ -812,7 +819,7 @@ include_once(VIEWS_ROOT . 'header.php');
 ?>
         <div id="errorContent" class="errorContent"><?php echo($errorMessage);?></div>
         <div class="row">
-            <div class="col-md-6 profile-login">
+            <div class="col profile-login">
                 <form id="register_form" method="POST" action="/profile/" onsubmit="return <?php if ($isLoggedIn) { echo('profilePage.updateFormValidation()'); } else {echo('profilePage.registerFormValidation()');} ?>;">
 <?php
     if ($isLoggedIn) {
@@ -840,34 +847,96 @@ include_once(VIEWS_ROOT . 'header.php');
 <?php
         }
 ?>
-                            <div class="form-group"><label for="register_form_email">Email: <span class="required-field">*</span></label><input type="email" name="register_form_email" class="popup-form-input required email" id="register_form_email" placeholder="Your email address" autocomplete="email" autocorrect="off" autocapitalize="off" required maxlength="80" value="<?php echo($email);?>"/></div>
-                            <div class="form-group"><label for="register_form_username">User name: <span class="required-field">*</span></label><input type="text" name="register_form_username" class="popup-form-input required username" id="register_form_username" placeholder="A unique user name" autocomplete="username" autocorrect="off" required maxlength="50" value="<?php echo($userName);?>" data-target="register_user_name_unique"/><span id="register_user_name_unique" class="username-is-not-unique"></span></div>
+                            <div class="row m-2 g-2">
+                                <div class="col-4">
+                                    <div class="form-floating">
+                                        <input type="email" name="register-form-email" class="form-control required email" id="register-form-email" placeholder="Your@email.address" autocomplete="email" autocorrect="off" autocapitalize="off" required maxlength="80" value="<?php echo($email);?>"/>
+                                        <label for="register-form-email">Email: <span class="required-field">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-2">
+                                </div>
+                            </div>
+                            <div class="row m-2 g-2">
+                                <div class="col-4">
+                                    <div class="form-floating">
+                                        <input type="text" name="register-form-username" class="form-control required username" id="register-form-username" placeholder="A unique user name" autocomplete="username" autocorrect="off" required maxlength="50" value="<?php echo($userName);?>" data-target="register-form-username-unique"/>
+                                        <label for="register-form-username">User name: <span class="required-field">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-2">
+                                    <span id="register-form-username-unique" class="username-is-not-unique" style="margin-top: 1rem;"></span>
+                                </div>
+                            </div>
 <?php
         if ( ! $isLoggedIn) {
 ?>
-                            <div class="form-group"><label for="register_form_password">Password: <span class="required-field">*</span></label><input type="password" name="register_form_password" class="popup-form-input required password" id="register_form_password" placeholder="A secure password" autocomplete="current-password" autocorrect="off" required maxlength="20" value="<?php echo($password);?>"/> <div class="showPasswordButton" onclick="profilePage.onClickShowPassword(this);"><span id="register_form_show_password_text">Show</span> <span id="register_form_show_password_icon" class="iconEye" aria-hidden="true"></span></div>
+                            <div class="row m-2 g-2">
+                                <div class="col-4">
+                                    <div class="form-floating">
+                                        <input type="password" name="register-form-password" class="form-control required password" id="register-form-password" placeholder="A secure password" autocomplete="current-password" autocorrect="off" required maxlength="20" value="<?php echo($password);?>"/>
+                                        <label for="register-form-password">Password: <span class="required-field">*</span></label>
+                                    </div>
+                                </div>
+                                <div class="col-2">
+                                    <div class="showPasswordButton" style="margin-top: 1rem;" onclick="profilePage.onClickRegisterShowPassword(this);"><span id="register-form-show-password-text">Show</span> <span id="register-form-show-password-icon" class="iconEye" aria-hidden="true"></span></div>
+                                </div>
+                            </div>
 <?php
         }
 ?>
-                            <div class="form-group"><label for="register_form_fullname">Full name:</label><input type="text" name="register_form_fullname" class="popup-form-input fullname" id="register_form_fullname" placeholder="Your full name" autocomplete="name" autocorrect="off" maxlength="50" value="<?php echo($fullname);?>" autocomplete="on" autocorrect="off"/></div>
-                            <div class="form-group" style="display: flex;"><label for="register_form_gender">You are:</label><div class="form-group-gender"><label><input type="radio" name="register_form_gender" value="M" <?php echo($gender == 'M' ? 'checked' : '');?>/>&nbsp;&nbsp;Male</label><label><input type="radio" name="register_form_gender" value="F" <?php echo($gender == 'F' ? 'checked' : '');?>/>&nbsp;&nbsp;Female</label><label><input type="radio" name="register_form_gender" value="U" <?php echo($gender == 'U' ? 'checked' : '');?>/>&nbsp;&nbsp;Other</label></div></div>
-                            <div class="form-group"><label for="register_form_dob">Date of birth:</label><input type="date" name="register_form_dob" class="popup-form-input required dob" id="register_form_dob" placeholder="Birthdate" autocomplete="bday" value="<?php echo($dateOfBirth);?>"/></div>
+                            <div class="row m-2 g-2">
+                                <div class="col-4">
+                                    <div class="form-floating">
+                                        <input type="text" name="register-form-fullname" class="form-control fullname" id="register-form-fullname" placeholder="Your full name" autocomplete="name" autocorrect="off" maxlength="50" value="<?php echo($fullname);?>" autocomplete="on" autocorrect="off"/>
+                                        <label for="register-form-fullname">Full name:</label>
+                                    </div>
+                                </div>
+                                <div class="col-2">
+                                </div>
+                            </div>
+                            <div class="row m-2 g-2">
+                                <label for="register-form-gender" class="col-1">You are:</label>
+                                <div class="col-5 form-group-gender"><label><input type="radio" name="register-form-gender" value="M" <?php echo($gender == 'M' ? 'checked' : '');?>/>&nbsp;&nbsp;Male</label><label><input type="radio" name="register-form-gender" value="F" <?php echo($gender == 'F' ? 'checked' : '');?>/>&nbsp;&nbsp;Female</label><label><input type="radio" name="register-form-gender" value="U" <?php echo($gender == 'U' ? 'checked' : '');?>/>&nbsp;&nbsp;Other</label></div>
+                            </div>
+                            <div class="row m-2 g-2">
+                                <div class="col-4">
+                                    <label for="register-form-dob">Date of birth:</label>
+                                    <input type="date" name="register-form-dob" class="popup-form-input required dob" id="register-form-dob" placeholder="Birthdate" autocomplete="bday" value="<?php echo($dateOfBirth);?>"/>
+                                </div>
+                                <div class="col-2">
+                                </div>
+                            </div>
 <?php
         if ( ! $isLoggedIn) {
 ?>
-                            <div class="validation-slider-area" style="max-width: 380px;">
-                                <label for="register_form_agreement">I agree to the <a href="/tos/" target="_popup">Terms of Use</a><span class="required-field">*</span></label><br/>
-                                <span><small>No</small>&nbsp;&nbsp;<input type="range" name="register_form_agreement" class="validation-slider" id="register_form_agreement" placeholder="Slide this to Yes (all the way left) to agree" alt="Slide this to Yes (all the way left) to agree" tabindex="13" min="0" max="2" />&nbsp;&nbsp;<small>Yes</small></span>
+                            <div class="row m-2 g-2">
+                                <div class="col-4 text-center">
+                                    <label for="register-form-agreement">I agree to the <a href="/tos/" target="_popup">Terms of Service</a><span class="required-field">*</span></label><br/>
+                                    <span><small>No</small>&nbsp;&nbsp;<input type="range" name="register-form-agreement" class="validation-slider" id="register-form-agreement" placeholder="Slide this to Yes (all the way left) to agree" alt="Slide this to Yes (all the way left) to agree" min="0" max="2" />&nbsp;&nbsp;<small>Yes</small></span>
+                                </div>
+                                <div class="col-2">
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <input type="submit" value="Register" name="popupregister" id="registerButton" class="btn btn-success"/>
-                                <span class="rememberme-container"><input type="checkbox" tabindex="4" checked="checked" name="register_form_rememberme" id="register_form_rememberme"><label for="register_form_rememberme">Remember Me</label></span>
-                                <span class="register-login-option">Already a member? <a href="/profile/" title="Already a member? Log in with your account" alt="Already a member? Log in with your account.">Log in</a>.</span>
+                            <div class="row m-2 g-2">
+                                <div class="col-4 text-center">
+                                    <input type="submit" value="Register" name="popupregister" id="registerButton" class="btn btn-lg btn-success"/>
+                                </div>
+                                <div class="col-2">
+                                </div>
+                            </div>
+                            <div class="row m-2 g-2">
+                                <div class="col-3">
+                                    <span class="rememberme-container"><input type="checkbox" checked="checked" name="register-form-rememberme" id="register-form-rememberme"><label for="register-form-rememberme">&nbsp;&nbsp;Remember Me</label></span>
+                                </div>
+                                <div class="col-3">
+                                    <span class="register-login-option">Already a member? <a href="/profile/" title="Already a member? Log in with your account" alt="Already a member? Log in with your account.">Log in</a>.</span>
+                                </div>
                             </div>
 <?php
         } else {
 ?>
-                            <div class="form-group"><input type="submit" value="Update" name="popupregister" id="registerButton" class="btn btn-success"/><button value="Cancel" name="popupcancel" id="registerCancel" class="btn btn-danger" style="margin-left: 2em;" onclick="profilePage.cancelUpdate(event);">Cancel</button></div>
+                            <div><input type="submit" value="Update" name="popupregister" id="registerButton" class="btn btn-success"/><button value="Cancel" name="popupcancel" id="registerCancel" class="btn btn-danger" style="margin-left: 2em;" onclick="profilePage.cancelUpdate(event);">Cancel</button></div>
 <?php
         }
 ?>
@@ -879,18 +948,18 @@ include_once(VIEWS_ROOT . 'header.php');
                         <div role="tabpanel" class="tab-pane fade p-4" id="extendedInfo" aria-labelledby="extended-tab">
                             <p>Manage info about you to share with others:</p>
                             <img class="avatarThumbnail" src="<?php echo($enginesis->avatarURL(0, $userInfo->user_id));?>"/>
-                            <div class="form-group"><label for="register_form_location">Location:</label><input type="text" name="register_form_location" class="popup-form-input required location" id="register_form_location" placeholder="Where are you?" autocomplete="on" maxlength="80" value="<?php echo($location);?>"/></div>
-                            <div class="form-group"><label for="register_form_tagline">Tag line:</label><input type="text" name="register_form_tagline" class="popup-form-input required tagline" id="register_form_tagline" placeholder="Your tag line" autocomplete="on" maxlength="50" value="<?php echo($tagline);?>"/></div>
-                            <div class="form-group"><label for="register_form_aboutme">About me:</label><textarea class="form-control" name="register_form_aboutme" id="register_form_aboutme" placeholder="About me" maxlength="500" rows="4"><?php echo($aboutMe);?></textarea></div>
+                            <div class="form-group"><label for="register-form-location">Location:</label><input type="text" name="register-form-location" class="popup-form-input required location" id="register-form-location" placeholder="Where are you?" autocomplete="on" maxlength="80" value="<?php echo($location);?>"/></div>
+                            <div class="form-group"><label for="register-form-tagline">Tag line:</label><input type="text" name="register-form-tagline" class="popup-form-input required tagline" id="register-form-tagline" placeholder="Your tag line" autocomplete="on" maxlength="50" value="<?php echo($tagline);?>"/></div>
+                            <div class="form-group"><label for="register-form-aboutme">About me:</label><textarea class="form-control" name="register-form-aboutme" id="register-form-aboutme" placeholder="About me" maxlength="500" rows="4"><?php echo($aboutMe);?></textarea></div>
                         </div>
                         <div role="tabpanel" class="tab-pane fade p-4" id="securityInfo" aria-labelledby="security-tab">
                             <p>Manage security settings for your account:</p>
                             <div class="form-group">
                                 <input type="button" id="change_password" onclick="profilePage.changePassword();" value="Change Password" class="btn btn-info"/>
                             </div>
-                            <div class="form-group"><label for="register_form_question">Your question:</label><input type="text" name="register_form_question" class="form-control" id="register_form_question" placeholder="Security question" autocomplete="on" maxlength="80" value="<?php echo($securityQuestion);?>"/></div>
-                            <div class="form-group"><label for="register_form_answer">Your answer:</label><input type="text" name="register_form_answer" class="form-control" id="register_form_answer" placeholder="Security answer" autocomplete="on" maxlength="80" value="<?php echo($securityAnswer);?>"/></div>
-                            <div class="form-group"><label for="register_form_phone">Mobile number:</label><input type="tel" name="register_form_phone" class="form-control cellphone" id="register_form_phone" placeholder="Mobile number" autocorrect="off" autocomplete="tel" maxlength="20" value="<?php echo($cellphone);?>"/></div>
+                            <div class="form-group"><label for="register-form-question">Your question:</label><input type="text" name="register-form-question" class="form-control" id="register-form-question" placeholder="Security question" autocomplete="on" maxlength="80" value="<?php echo($securityQuestion);?>"/></div>
+                            <div class="form-group"><label for="register-form-answer">Your answer:</label><input type="text" name="register-form-answer" class="form-control" id="register-form-answer" placeholder="Security answer" autocomplete="on" maxlength="80" value="<?php echo($securityAnswer);?>"/></div>
+                            <div class="form-group"><label for="register-form-phone">Mobile number:</label><input type="tel" name="register-form-phone" class="form-control cellphone" id="register-form-phone" placeholder="Mobile number" autocorrect="off" autocomplete="tel" maxlength="20" value="<?php echo($cellphone);?>"/></div>
                         </div>
 <?php
     }
@@ -902,44 +971,73 @@ include_once(VIEWS_ROOT . 'header.php');
 <?php
     } else {
         if ($inputFocusId == '') {
-            $inputFocusId = 'login_form_username';
+            $inputFocusId = 'login-form-username';
         }
         $hackerVerification = makeInputFormHackerToken();
 ?>
         <h2>Profile</h2>
         <p>You are not logged in. Login to see your profile, earn coins, appear on leader boards, and participate in our community.</p>
         <div class="row">
-            <div class="card card-light col-md-6 p-4 profile-login">
+            <div class="card card-light col col-md-6 col-sm-12 p-4 m-2">
+                <h4>Already a member? Log in:</h4>
+                <div id="errorContent" class="errorContent"><?php echo($errorMessage);?></div>
                 <form id="login" method="POST" action="/profile/">
-                    <h4>Already a member? Log in:</h4>
-                    <div id="errorContent" class="errorContent"><?php echo($errorMessage);?></div>
-                    <div class="form-group">
-                        <label for="login_form_username">User name:</label><input type="text" id="login_form_username" name="login_form_username" tabindex="1" maxlength="20" class="popup-form-input" value="<?php echo($userName);?>" autocorrect="off" autocomplete="username"/><br/>
-                        <label for="login_form_password">Password:</label><input type="password" id="login_form_password" name="login_form_password" tabindex="2" maxlength="20" class="popup-form-input" value="<?php echo($password);?>" /><br/>
-                        <input type="button" class="btn btn-success" id="login-button" title="Login" value="Login >" tabindex="3" onclick="profilePage.loginValidation();" /><input type="text" name="login_form_email" class="popup-form-address-input" /><input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
-                        <span class="rememberme-container"><input type="checkbox" tabindex="4" checked="checked" name="login_form_rememberme" id="login_form_rememberme"><label for="login_form_rememberme">Remember Me</label></span>
-                        <a id="profile_forgot_password" href="#" tabindex="5" data-toggle="modal" data-target="#modal-forgot-password" onclick="profilePage.forgotPassword();">Forgot password?</a><input type="hidden" name="action" value="login" />
-                    </div>
-                    <div class="text-center">
-                        <a class="sub-link-group" href="/privacy/">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-incognito" viewBox="0 0 16 16">
-                            <path fill-rule="evenodd" d="m4.736 1.968-.892 3.269-.014.058C2.113 5.568 1 6.006 1 6.5 1 7.328 4.134 8 8 8s7-.672 7-1.5c0-.494-1.113-.932-2.83-1.205a1.032 1.032 0 0 0-.014-.058l-.892-3.27c-.146-.533-.698-.849-1.239-.734C9.411 1.363 8.62 1.5 8 1.5c-.62 0-1.411-.136-2.025-.267-.541-.115-1.093.2-1.239.735Zm.015 3.867a.25.25 0 0 1 .274-.224c.9.092 1.91.143 2.975.143a29.58 29.58 0 0 0 2.975-.143.25.25 0 0 1 .05.498c-.918.093-1.944.145-3.025.145s-2.107-.052-3.025-.145a.25.25 0 0 1-.224-.274ZM3.5 10h2a.5.5 0 0 1 .5.5v1a1.5 1.5 0 0 1-3 0v-1a.5.5 0 0 1 .5-.5Zm-1.5.5c0-.175.03-.344.085-.5H2a.5.5 0 0 1 0-1h3.5a1.5 1.5 0 0 1 1.488 1.312 3.5 3.5 0 0 1 2.024 0A1.5 1.5 0 0 1 10.5 9H14a.5.5 0 0 1 0 1h-.085c.055.156.085.325.085.5v1a2.5 2.5 0 0 1-5 0v-.14l-.21-.07a2.5 2.5 0 0 0-1.58 0l-.21.07v.14a2.5 2.5 0 0 1-5 0v-1Zm8.5-.5h2a.5.5 0 0 1 .5.5v1a1.5 1.5 0 0 1-3 0v-1a.5.5 0 0 1 .5-.5Z"/>
-                        </svg> Privacy</a>
-                        <a class="sub-link-group" href="/tos/">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
-                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                            <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
-                        </svg> Terms</a>
+                    <div class="container">
+                        <div class="row m-2 g-2">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="text" id="login-form-username" name="login-form-username" class="form-control required" value="<?php echo($userName);?>" autocorrect="off" autocomplete="username" placeholder="Your user name"/>
+                                    <label for="login-form-username">User name:</label>
+                                </div>
+                            </div>
+                            <div class="col-1">
+                            </div>
+                        </div>
+                        <div class="row m-2 g-2">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="password" id="login-form-password" name="login-form-password" class="form-control" value="<?php echo($password);?>" placeholder="Your password" autocomplete="current-password" autocorrect="off" required/>
+                                    <label for="login-form-password">Password:</label>
+                                </div>
+                            </div>
+                            <div class="col-1">
+                                <div class="showPasswordButton" style="margin-top: 1rem; margin-right: -1rem;" onclick="profilePage.onClickLoginShowPassword(this);"><span id="login-form-show-password-text">Show</span> <span id="login-form-show-password-icon" class="iconEye" aria-hidden="true"></span></div>
+                            </div>
+                        </div>
+                        <div class="row m-2 g-2">
+                            <input type="button" class="btn btn-success" id="login-button" title="Login" value="Login >" onclick="profilePage.loginValidation();" /><input type="text" name="login-form-email" class="popup-form-address-input" /><input type="hidden" name="all-clear" value="<?php echo($hackerVerification);?>" />
+                        </div>
+                        <div class="row m-2 g-2">
+                            <div class="col align-self-start">
+                                <span class="rememberme-container"><input type="checkbox" checked="checked" name="login-form-rememberme" id="login-form-rememberme"><label for="login-form-rememberme">&nbsp;&nbsp;Remember Me</label></span>
+                            </div>
+                            <div class="col align-self-end">
+                                <a id="profile-forgot-password" href="#" data-toggle="modal" data-target="#modal-forgot-password" onclick="profilePage.forgotPassword();">Forgot password?</a><input type="hidden" name="action" value="login" />
+                            </div>
+                        </div>
+                        <div class="row m-2 g-2">
+                            <div class="text-center pt-4">
+                                <a class="sub-link-group" href="/privacy/">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-incognito" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="m4.736 1.968-.892 3.269-.014.058C2.113 5.568 1 6.006 1 6.5 1 7.328 4.134 8 8 8s7-.672 7-1.5c0-.494-1.113-.932-2.83-1.205a1.032 1.032 0 0 0-.014-.058l-.892-3.27c-.146-.533-.698-.849-1.239-.734C9.411 1.363 8.62 1.5 8 1.5c-.62 0-1.411-.136-2.025-.267-.541-.115-1.093.2-1.239.735Zm.015 3.867a.25.25 0 0 1 .274-.224c.9.092 1.91.143 2.975.143a29.58 29.58 0 0 0 2.975-.143.25.25 0 0 1 .05.498c-.918.093-1.944.145-3.025.145s-2.107-.052-3.025-.145a.25.25 0 0 1-.224-.274ZM3.5 10h2a.5.5 0 0 1 .5.5v1a1.5 1.5 0 0 1-3 0v-1a.5.5 0 0 1 .5-.5Zm-1.5.5c0-.175.03-.344.085-.5H2a.5.5 0 0 1 0-1h3.5a1.5 1.5 0 0 1 1.488 1.312 3.5 3.5 0 0 1 2.024 0A1.5 1.5 0 0 1 10.5 9H14a.5.5 0 0 1 0 1h-.085c.055.156.085.325.085.5v1a2.5 2.5 0 0 1-5 0v-.14l-.21-.07a2.5 2.5 0 0 0-1.58 0l-.21.07v.14a2.5 2.5 0 0 1-5 0v-1Zm8.5-.5h2a.5.5 0 0 1 .5.5v1a1.5 1.5 0 0 1-3 0v-1a.5.5 0 0 1 .5-.5Z"/>
+                                </svg> Privacy</a>
+                                <a class="sub-link-group" href="/tos/">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16">
+                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                    <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                                </svg> Terms</a>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
-            <div class="card card-light col-md-4 align-self-end p-4 profile-sign-up">
+            <div class="card card-light col col-lg-5 col-md-5 col-sm-12 p-4 m-2 align-self-end">
                 <h4>Not a member?</h4>
-                <input type="button" class="btn btn-primary btn-varyn" id="profile_register_now" value="Sign up with Email" onclick="profilePage.showRegistrationPopup(true);" title="Sign up with your email address" /><br/>
+                <input type="button" class="btn btn-primary btn-varyn m-2" id="profile-register-now" value="Sign up with Email" onclick="profilePage.showRegistrationPopup(true);" title="Sign up with your email address" /><br/>
                 <h4>Or</h4>
-                <input type="button" class="btn btn-primary btn-facebook" id="facebook-connect-button" value="Login with Facebook" title="Login with your Facebook account" aria-label="Login with your Facebook account" role="button">
-                <input type="button" class="btn btn-primary btn-gapi-signin" id="gapi-signin-button" value="Sign in with Google" title="Sign in with your Google account" aria-label="Sign in with your Google account" role="button">
-                <input type="button" class="btn btn-primary btn-twitter-signin" id="twitter-signin-button" value="Sign in with Twitter" title="Sign in with your Twitter account" aria-label="Sign in with your Twitter account" role="button">
+                <input type="button" class="btn btn-primary btn-facebook m-2" id="facebook-connect-button" value="Login with Facebook" title="Login with your Facebook account" aria-label="Login with your Facebook account" role="button">
+                <input type="button" class="btn btn-primary btn-gapi-signin m-2" id="gapi-signin-button" value="Sign in with Google" title="Sign in with your Google account" aria-label="Sign in with your Google account" role="button">
+                <input type="button" class="btn btn-primary btn-twitter-signin m-2" id="twitter-signin-button" value="Sign in with Twitter" title="Sign in with your Twitter account" aria-label="Sign in with your Twitter account" role="button">
             </div>
         </div>
 <?php

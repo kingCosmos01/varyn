@@ -2956,7 +2956,7 @@
      *  * `forgotPassword` = the page users go to reset their password
      *  * `login` = the page users go to log in
      *  * `privacy` = the page holding the privacy policy
-     *  * `terms` = the page holding the terms of use/service policy
+     *  * `terms` = the page holding the terms of service policy
      *  * `play` = the page where to play a game
      * @returns {object} object holding the set of server URLs.
      */

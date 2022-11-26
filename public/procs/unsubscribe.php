@@ -19,15 +19,14 @@ if ($action == 'unsubscribe') {
     // process request
     if (verifyFormHacks(['emailaddress', 'all-clear'])) {
         if (checkEmailAddress($email)) {
-            $isSuccess = $enginesis->newsletterAddressDelete($email);
-            if ( ! $isSuccess) {
-                $errorCode = $enginesis->getLastErrorCode();
-                if ($errorCode == EnginesisErrors::NOT_SUBSCRIBED) {
-                    $errorCode = "This email address was not subscribed.";
-                }
-                $errorMessage = "<p class=\"text-error\">Email $emailClean has issues, please check your entry. $errorCode</p>";
-            } else {
+            $results = $enginesis->newsletterAddressDelete($email);
+            $errorCode = $enginesis->getLastErrorCode();
+            if ($errorCode == EnginesisErrors::NOT_SUBSCRIBED) {
+                $errorMessage = "<p class=\"text-error\">Email $emailClean was not subscribed.</p>";
+            } elseif ($errorCode == EnginesisErrors::NO_ERROR) {
                 $errorMessage = "<p class=\"text-success\">Email $emailClean has been unsubscribed.</p>";
+            } else {
+                $errorMessage = "<p class=\"text-error\">Email $emailClean has issues, please check your entry. $errorCode</p>";
             }
         } else {
             $errorMessage = "<p class=\"text-error\">Email '$emailClean' doesn't appear to be subscribed. Try again?</p>";
@@ -42,24 +41,24 @@ if ($action == 'unsubscribe') {
 include_once(VIEWS_ROOT . 'header.php');
 ?>
 <div class="container">
-    <div class="row leader-3">
-        <div class="col-md-4 col-md-offset-4">
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    <h1 class="panel-title">Unsubscribe</h1>
+    <div class="row p-4 justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h1 class="card-title">Unsubscribe</h1>
                 </div>
-                <div class="panel-body">
+                <div class="card-body">
                     <form id="unsubscribe-form" method="POST" action="/procs/unsubscribe.php" onsubmit="return varynApp.formUnsubscribeClicked();">
                         <div class="popupMessageArea">
                             <?php echo($errorMessage);?>
                         </div>
                         <?php echo($errorMessage);?>
                         <p>Please identify your account by entering your email address. We will unsubscribe you from all Varyn communications.</p>
-                        <div class="form-group">
+                        <div class="p-2">
                             <label for="unsubscribe_email_form">Email:</label>
                             <input type="email" id="unsubscribe_email_form" name="email" tabindex="1" maxlength="80" class="popup-form-input required email" placeholder="Your email address" autocapitalize="off" autocorrect="off" autocomplete="email" value="<?php echo($email);?>"/>
                         </div>
-                        <div class="form-group">
+                        <div class="text-center p-2">
                             <input type="submit" class="btn btn-success" id="unsubscribe-button" value="Unsubscribe" tabindex="25"/>
                             <input type="hidden" name="action" value="unsubscribe" />
                             <input type="text" name="emailaddress" class="popup-form-address-input" />

@@ -24,7 +24,7 @@ include_once(VIEWS_ROOT . 'header.php');
 
 <li><a href="/privacy/">Privacy Policy</a> Varyn privacy policy. Varyn is concerned for your privacy and protecting your data. We put forward this policy on data privacy to help you understand what we do and what control you have.</li>
 
-<li><a href="/tos/">Terms of Use</a> Varyn terms of service regarding the use of this website. Please review these terms of use before using this website.</li>
+<li><a href="/tos/">Terms of Service</a> Varyn terms of service regarding the use of this website. Please review these terms of service before using this website.</li>
   </ul>
 </div>
 <div id="section-Games">

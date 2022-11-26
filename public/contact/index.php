@@ -122,7 +122,7 @@ $timestamp = time();
                             <label for="message">Message:</label><textarea name="message" required class="form-control" maxlength="250"></textarea><br/>
                         </div>
                         <div class="form-group" style="float: right;">
-                            <label for="name" id="label_industry">Industry:</label><input type="text" name="industry" id="industry" class="form-control" placeholder="Industry"/><br/>
+                            <label for="name" id="label-industry">Industry:</label><input type="text" name="industry" id="industry" class="form-control" placeholder="Industry"/><br/>
                             <input type="text" name="accept" id="accept" placeholder="Do you agree" value="<?php echo($timestamp);?>"/><br/>
                             <br/><input type="submit" class="btn btn-lg btn-primary" name="send" value="Send"/>
                         </div>

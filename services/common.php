@@ -223,8 +223,8 @@ function getServiceProtocol () {
  * Return a variable that was posted from a form, or in the REQUEST object (GET or COOKIES), or a default if not found.
  * This way POST is the primary concern but if not found will fallback to the other methods.
  * @param string|array $varName variable to read from request. If array, iterates array of strings until the first entry returns a result.
- * @param mixed $defaultValue A value to return if the parameter is not provided in teh request.
- * @return mixed The value of the parameter.
+ * @param mixed $defaultValue A value to return if the parameter is not provided in the request.
+ * @return mixed The value of the parameter or $defaultValue.
  */
 function getPostOrRequestVar ($varName, $defaultValue = NULL) {
     $value = null;
@@ -254,12 +254,29 @@ function getPostOrRequestVar ($varName, $defaultValue = NULL) {
 
 /**
  * Return a variable that was posted from a form, or a default if not found.
- * @param $varName
- * @param null $defaultValue
- * @return null
+ * @param string|array $varName variable to read from POST. If array, iterates array of strings until the first entry returns a result.
+ * @param mixed $defaultValue A value to return if the parameter is not provided in the POST.
+ * @return mixed The value of the parameter or $defaultValue.
  */
 function getPostVar ($varName, $defaultValue = NULL) {
-    return isset($_POST[$varName]) ? $_POST[$varName] : $defaultValue;
+    if (is_array($varName)) {
+        for ($i = 0; $i < count($varName); $i ++) {
+            $value = getPostVar($varName[$i], null);
+            if ($value != null) {
+                break;
+            }
+        }
+        if ($value == null) {
+            $value = $defaultValue;
+        }
+    } else {
+        if (isset($_POST[$varName])) {
+            $value = $_POST[$varName];
+        } else {
+            $value = $defaultValue;
+        }
+    }
+    return $value;
 }
 
 /**
@@ -1303,7 +1320,7 @@ function validateGender ($gender) {
 
 /**
  * Given an email address test to see if it appears to be valid.
- * @param $email {string} an email address to check
+ * @param string $email an email address to check
  * @return bool true if we think the email address looks valid, otherwise false.
  */
 function checkEmailAddress ($email) {

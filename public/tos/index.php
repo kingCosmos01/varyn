@@ -2,20 +2,20 @@
 require_once('../../services/common.php');
 processSearchRequest();
 $page = 'home';
-$pageTitle = 'Terms of Use';
-$pageDescription = 'Varyn terms of service regarding the use of this website. Please review these terms of use before using this website.';
+$pageTitle = 'Terms of Service';
+$pageDescription = 'Varyn terms of service regarding the use of this website. Please review these terms of service before using this website.';
 $showSubscribe = getPostOrRequestVar('s', '0');
 include_once(VIEWS_ROOT . 'header.php');
 ?>
 <div class="container">
     <div class="card card-primary m-2 p-4">
-        <h1>Terms of Use</h1>
+        <h1>Terms of Service</h1>
         <p class="copyright">Updated on 19-November-2022.</p>
         <h3 id="acceptance">Acceptance of Terms</h3>
-        <p class="indent-2">Welcome to the web site (the "Site") of Varyn, Inc. ("Varyn"). On this web site, Varyn makes available to you a wide range of information and services. The Terms of Use apply to this website and services provided. The Terms of Use are subject to change.</p>
-        <p class="indent-2">PLEASE READ THE TERMS OF USE CAREFULLY BEFORE USING THIS WEBSITE. By accessing and using this web site and services, you agree to and are bound by the terms of use described in this document ("Terms of Use"). IF YOU DO NOT AGREE TO ALL OF THE TERMS AND CONDITIONS CONTAINED IN THE TERMS OF USE, DO NOT USE THIS WEBSITE IN ANY MANNER.</p>
-        <p class="indent-2">The Terms of Use are entered into by and between Varyn and you. If you are using the web site on behalf of your employer, you represent that you are authorized to accept these Terms of Use on your employer's behalf. Varyn reserves the right, at Varyn's sole discretion, to change, modify, update, add, or remove portions of the Terms of Use at any time without notice to you. Please check these Terms of Use for changes. Your continued use of this web site following the posting of changes to the Terms of Use will mean you accept those changes.</p>
-        <p class="indent-2">You agree that you are a person of the age of 13 years or older and you are of the required age based on your residence to enter into this agreement and accept these terms of use.</p>
+        <p class="indent-2">Welcome to the web site (the "Site") of Varyn, Inc. ("Varyn"). On this web site, Varyn makes available to you a wide range of information and services. The Terms of Service apply to this website and services provided. The Terms of Service are subject to change.</p>
+        <p class="indent-2">PLEASE READ THE TERMS OF SERVICE CAREFULLY BEFORE USING THIS WEBSITE. By accessing and using this web site and services, you agree to and are bound by the terms of service described in this document ("Terms of Service"). IF YOU DO NOT AGREE TO ALL OF THE TERMS AND CONDITIONS CONTAINED IN THE TERMS OF SERVICE, DO NOT USE THIS WEBSITE IN ANY MANNER.</p>
+        <p class="indent-2">The Terms of Service are entered into by and between Varyn and you. If you are using the web site on behalf of your employer, you represent that you are authorized to accept these Terms of Service on your employer's behalf. Varyn reserves the right, at Varyn's sole discretion, to change, modify, update, add, or remove portions of the Terms of Service at any time without notice to you. Please check these Terms of Service for changes. Your continued use of this web site following the posting of changes to the Terms of Service will mean you accept those changes.</p>
+        <p class="indent-2">You agree that you are a person of the age of 13 years or older and you are of the required age based on your residence to enter into this agreement and accept these terms of service.</p>
         <h3>Use of Materials Limitations</h3>
         <p class="indent-2">All materials contained in the web site are the copyrighted property of Varyn, its subsidiaries, affiliated companies and/or third-party licensors. All trademarks, service marks, and trade names are proprietary to Varyn, or its subsidiaries or affiliated companies and/or third-part licensors.
             Unless otherwise specified, the materials and services on this web site are for your personal and non-commercial use, and you may not modify, copy, distribute, transmit, display, perform, reproduce, publish, license, create derivative works from, transfer, or sell any information, software, products or services obtained from the web site without the written permission from the copyright owner.</p>
