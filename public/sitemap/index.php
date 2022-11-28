@@ -8,7 +8,7 @@ $showSubscribe = getPostOrRequestVar('s', '0');
 include_once(VIEWS_ROOT . 'header.php');
 ?>
 <div class="container">
-    <div class="card card-primary m-2 p-4">
+    <div class="card m-2 p-4">
         <div id="sitemap">
 <h2>Varyn.com Site Map</h2>
 <div id="section-Varyn">

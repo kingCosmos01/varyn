@@ -11,9 +11,9 @@ include_once(VIEWS_ROOT . 'header.php');
         <?php
             if ($search != '') {
          ?>
-        <div class="panel panel-primary">
-            <div class="panel-heading">
-                <h3 class="panel-title">Search for:</strong> <?php echo($search);?></h3>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Search for:</strong> <?php echo($search);?></h3>
             </div>
         </div>
         <?php

@@ -110,7 +110,7 @@ include_once(VIEWS_ROOT . 'header.php');
     <div class="row leader-3">
         <div class="col-md-4 col-md-offset-4">
             <div class="card">
-                <div class="card-heading">
+                <div class="card-header">
                     <h1 class="card-title">Change Password</h1>
                 </div>
                 <div class="card-body">

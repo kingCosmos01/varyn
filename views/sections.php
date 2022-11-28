@@ -160,6 +160,55 @@ function buildGamesSection($gamesListId, $sectionTitle) {
 }
 
 /**
+ * Render the HTML for a list of games related to a gine game id.
+ * @param integer $gameId The game to query related games to.
+ * @param string $sectionTitle A title to show above the section.
+ */
+function buildRelatedGamesSection($gameId, $sectionTitle) {
+  global $enginesis;
+  $errorMessage = '';
+  $items = 0;
+  $gamesListId = 4; // Temp for now, but user gameId instead
+  ?>
+    <div id="section-cards" class="px-0 py-2">
+        <div class="row w-auto mb-2">
+            <div class="card card-dark">
+                <h4 class="my-1 py-1"><?php echo($sectionTitle);?></h4>
+            </div>
+        </div>
+        <div class="row gy-2">
+  <?php
+  if ($enginesis) {
+    $serverResponse = $enginesis->gameListListGames($gamesListId); // @todo: gameListRelatedGames();
+    if ($serverResponse === null) {
+      $error = $enginesis->getLastError();
+      $errorMessage = $error['message'] . ': ' . $error['extended_info'];
+    } else {
+      $items = count($serverResponse);
+      if ($items > 0) {
+        for ($item = 0; $item < $items; $item += 1) {
+          $gameInfo = $serverResponse[$item];
+          echo(formatGameCard($gameInfo));
+          echo("\n");
+        }
+      } else {
+        $errorMessage = "There are no games matching this query. Try again later.";
+      }
+    }
+  } else {
+      $errorMessage = "The service appears to be offline at the moment. Please try again later or contact us for assistance.";
+  }
+  if ($errorMessage != '') {
+    $errorMessage = "<p class=\"p-5 text-error\">$errorMessage</p>\n";
+    echo($errorMessage);
+  }
+  ?>
+        </div>
+    </div>
+    <?php
+}
+
+/**
  * Render the HTML for the All Games section. This renders all games available.
  */
 function buildAllGamesSection() {

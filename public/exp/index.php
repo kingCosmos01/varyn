@@ -11,54 +11,16 @@ processTrackBack();
 $showSubscribe = getPostOrRequestVar('s', '0');
 include_once(VIEWS_ROOT . 'header.php');
 ?>
-<style>
-    div.exp {
-        display: flex;
-        flex-direction: row;
-        justify-content: center;
-    }
-    div.exp.ul {
-        max-inline-size: max-content;
-        margin-inline: auto;
-    }
-    #exp > * {
-        flex: 1 1 33%;
-        padding: 2rem;
-    }
-</style>
 <div class="container">
-    <div class="card card-primary">
-        <div class="card-heading">
+    <div class="card m-4">
+        <div class="card-header">
             <h3 class="card-title">Experiments</h3>
         </div>
-    </div>
-    <div>
-        This <code>div</code> demonstrates using flex-box arrangement of 3 evenly spaced elements:
-    </div>
-    <div id="exp" class="exp">
-        <div id="section-side">
-            <p style="text-align: center;"><strong>1</strong></p>
-            <p>This is an area where we explain things about what is going on with this selection of games.</p>
+        <div class="card-body">
+            <p>There is nothing to show here right now.</p>
         </div>
-        <div id="section-1">
-            <p style="text-align: center;"><strong>2</strong></p>
-            <p>This is a list of games.</p>
-            <ul>
-                <li>Game 1</li>
-                <li>Game 2</li>
-                <li>Game 3</li>
-                <li>Game 4</li>
-            </ul>
-        </div>
-        <div id="section-2">
-            <p style="text-align: center;"><strong>3</strong></p>
-            <p>This is another list of games.</p>
-            <ul>
-                <li>Game 5</li>
-                <li>Game 6</li>
-                <li>Game 7</li>
-                <li>Game 8</li>
-            </ul>
+        <div class="card-footer">
+            <p>Check back later.</p>
         </div>
     </div>
 </div>

@@ -8,7 +8,7 @@ $showSubscribe = getPostOrRequestVar('s', '0');
 include_once(VIEWS_ROOT . 'header.php');
 ?>
 <div class="container">
-    <div class="panel panel-primary panel-padded panel-gutter-2">
+    <div class="card p-4 g-2">
         {pagecontent}
     </div>
 </div>

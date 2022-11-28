@@ -8,6 +8,7 @@
     `leaderboard`: show the game leader board
 */
 require_once('../../services/common.php');
+require_once('../../views/sections.php');
 processSearchRequest();
 $page = 'play';
 $pageView = getPostOrRequestVar(['v', 'view'], 'play');
@@ -110,8 +111,8 @@ include_once(VIEWS_ROOT . 'header.php');
 <div id="topContainer" class="container">
     <div id="gameContainer" class="row"><?php echo($gameContainerHTML);?></div>
     <div id="playgame-InfoPanel" class="row">
-        <div class="panel panel-default">
-            <div class="panel-body">
+        <div class="card">
+            <div class="card-body">
                 <div id="gameInfo">
                 <?php
                 if ($receivedGameInfo) {
@@ -138,15 +139,12 @@ include_once(VIEWS_ROOT . 'header.php');
     </div>
 </div>
 <div id="playgame-BottomPanel" class="container">
-    <div class="row">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3 class="panel-title">Other games you may like:</h3>
-            </div>
-        </div>
-    </div>
-    <div id="PlayPageGamesArea" class="row">
-    </div>
+<?php
+    if ($isLoggedIn) {
+        buildFavoriteGamesSection();
+    }
+    buildRelatedGamesSection($gameId, 'Games similar to ' . $title);
+?>
     <div id="bottomAd" class="row">
     <?php
     $adProvider = 'google';

@@ -6,13 +6,13 @@ $showSubscribe = getPostOrRequestVar('s', '0');
 include_once(VIEWS_ROOT . 'header.php');
 ?>
 <div class="container">
-    <div class="jumbotron">
+    <div class="card card-alt-dark m-4 p-4">
         <h1>Varyn's Style Guide</h1>
-        <p>This page serves as the site CSS style guide. Use it to demonstrate how styles are applied. If you add new styles or patterns, please update the HTML in this document to demonstrate the new styles.</p>
+        <p class="fs-5">This page serves as the site CSS style guide. Use it to demonstrate how styles are applied. If you add new styles or patterns, please update the HTML in this document to demonstrate the new styles.</p>
         <p>
             <a class="btn btn-lg btn-primary" href="https://getbootstrap.com/css/" role="button">View Bootstrap docs &raquo;</a>
         </p>
-        <span class="entry-content text-micro">
+        <span class="entry-content fs-6">
             All ideas and designs included here and on this website are copyright &copy; 2022 Varyn, Inc.
         </span>
     </div>
@@ -33,7 +33,7 @@ include_once(VIEWS_ROOT . 'header.php');
         </ul>
     </div>
     <div class="row w-auto my-4">
-        <div id="section-modal" class="card card-default p-4">
+        <div id="section-modal" class="card p-4">
             <h2>Modal Popups</h2>
             <div>
             <button type="button" class="btn btn-success btn-lg" onclick="varynApp.showInfoMessagePopup('Message title', 'You clicked the message modal. It will close in 3 sec.', 3000);">Message</button>
@@ -52,7 +52,7 @@ include_once(VIEWS_ROOT . 'header.php');
         </div>
     </div>
     <div class="row w-auto my-2">
-        <div id="section-headers" class="card card-default div-padded">
+        <div id="section-headers" class="card card-light div-padded">
             <h1>Headers, such as this H1</h1>
             <h2>Style Guide H2</h2>
             <h3>Style Guide H3</h3>
@@ -62,7 +62,7 @@ include_once(VIEWS_ROOT . 'header.php');
         </div>
     </div>
     <div class="row w-auto my-2">
-        <div id="section-text" class="card card-default div-padded">
+        <div id="section-text" class="card div-padded">
             <h2>Paragraphs &amp; Lists</h2>
             <p class="lead">&lt;P class="lead"&gt;: Make a paragraph stand out by adding <code>.lead</code> class to the paragraph tag.</p>
             <p>&lt;P&gt;: Members of the OGC would agree that, to quote from <q>The Importance of Going <q>Open</q></q> (<a href="https://portal.opengeospatial.org/files/?artifact_id=6211&version=2&format=pdf">https://portal.opengeospatial.org/files/?artifact_id=6211&version=2&format=pdf</a>), <q>It is incumbent upon buyers of geoprocessing software, data and services to carefully review their requirements and then draft interoperability architecture documents that lead to purchase of solutions that implement the appropriate OGC Standards. This can be done piecemeal, one upgrade or add-on at a time, or, if it is time for the organization to put a whole new solution in place, it can be done comprehensively, all at once. OGC and OGC's members can help by examining use cases and explaining where <kbd>open</kbd> interfaces can be specified into the architecture on which procurements will be based.</q></p>
@@ -119,7 +119,7 @@ include_once(VIEWS_ROOT . 'header.php');
         </div>
     </div>
     <div class="row w-auto my-2">
-        <div id="section-typography" class="card card-default div-padded">
+        <div id="section-typography" class="card div-padded">
             <h2>Typography &amp; Colors</h2>
             <p>
                 Montserrat - ABC - xyz - 1234567890
@@ -205,7 +205,7 @@ include_once(VIEWS_ROOT . 'header.php');
         </div>
     </div>
     <div class="row w-auto my-2">
-        <div id="section-images" class="card card-default div-padded">
+        <div id="section-images" class="card div-padded">
             <h2>Images</h2>
             <p>This is how images are done.</p>
             <p>Icons on light background:</p>
@@ -317,7 +317,7 @@ include_once(VIEWS_ROOT . 'header.php');
         </div>
     </div>
     <div class="row w-auto my-2">
-        <div id="section-tables" class="card card-default div-padded">
+        <div id="section-tables" class="card div-padded">
             <h2>Tables</h2>
             <table class="table table-hover table-striped">
                 <caption>Optional table caption.</caption>
@@ -365,7 +365,7 @@ include_once(VIEWS_ROOT . 'header.php');
         </div>
     </div>
     <div class="row w-auto my-2">
-        <div id="section-code" class="card card-default div-padded">
+        <div id="section-code" class="card card-light div-padded">
             <h2>Code</h2>
             <pre><code class="javascript">  completed = function( event ) {
             // readyState === "complete" is good enough for us to call the dom ready in oldIE
@@ -378,7 +378,7 @@ include_once(VIEWS_ROOT . 'header.php');
         </div>
     </div>
     <div class="row w-auto my-2">
-        <div id="section-forms" class="card card-default div-padded">
+        <div id="section-forms" class="card card-light div-padded">
             <h2>Forms</h2>
             <form>
                 <div class="form-group">
@@ -404,7 +404,7 @@ include_once(VIEWS_ROOT . 'header.php');
         </div>
     </div>
     <div class="row w-auto my-2">
-        <div id="section-posts" class="card card-default div-padded">
+        <div id="section-posts" class="card div-padded">
             <h2>Posts &amp; Item Lists</h2>
             <div class="row w-auto post-item bg-post">
                 <div class="col-md-1 post-left-column">

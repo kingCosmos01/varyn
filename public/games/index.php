@@ -13,7 +13,7 @@ include_once(VIEWS_ROOT . 'header.php');
     if ($search != '') {
         ?>
         <div class="card card-light m-4 px-4">
-            <div class="card-heading">
+            <div class="card-header">
                 <h3 class="card-title"><small class="text-muted">Search for:</small> <?php echo($search);?></h3>
             </div>
         </div>

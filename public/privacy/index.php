@@ -8,7 +8,7 @@ $showSubscribe = getPostOrRequestVar('s', '0');
 include_once(VIEWS_ROOT . 'header.php');
 ?>
 <div class="container">
-    <div class="card card-primary m-2 p-4">
+    <div class="card m-2 p-4">
         <h1>Privacy Policy</h1>
         <p class="copyright">Updated on 25-June-2021.</p>
         <p>This document sets forth the Varyn Online Privacy Policy (the Privacy Policy) for this web site, www.varyn.com (the Site).

@@ -1402,24 +1402,25 @@ input[type=range].validation-slider:focus::-ms-fill-upper {
 }
 
 .conf-topic {
-
+    padding: 1rem 1rem;
 }
 
 .conf-comment {
-
+    padding: 1rem 1rem;
 }
 
 .conf-reply {
-
+    padding: 1rem 1rem;
 }
 
 .conf-replies-container {
-    padding: 0 15px 1em 15px;
+    padding: 0 0.5rem 1em 0.5rem;
 }
 
 .conf-topic-preview {
     text-align: left;
-    padding-bottom: 1em;
+    margin: 0.5rem;
+    padding: 1rem;
 }
 
 .conf-topic-preview h4 {

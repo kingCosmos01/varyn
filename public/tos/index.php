@@ -8,7 +8,7 @@ $showSubscribe = getPostOrRequestVar('s', '0');
 include_once(VIEWS_ROOT . 'header.php');
 ?>
 <div class="container">
-    <div class="card card-primary m-2 p-4">
+    <div class="card m-2 p-4">
         <h1>Terms of Service</h1>
         <p class="copyright">Updated on 19-November-2022.</p>
         <h3 id="acceptance">Acceptance of Terms</h3>

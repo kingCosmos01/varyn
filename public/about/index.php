@@ -12,7 +12,7 @@ include_once(VIEWS_ROOT . 'header.php');
 ?>
     <div class="container top-promo-area">
         <div class="row">
-            <div id="about-varyn" class="col-sm-8">
+            <div id="about-varyn" class="col-sm-8 p-4">
                 <img src="/images/VarynCardLogo_md.png" width="200" height="200" alt="Varyn card logo" align="left" style="margin-right: 20px;"/>
                 <h1>About Varyn</h1><br />
                 <p>Varyn is all about fun! We want to bring you the best games we can make and the best games we can find, and we want you to be able to play these games with very little getting in your way.

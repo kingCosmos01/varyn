@@ -9,8 +9,8 @@ include_once(VIEWS_ROOT . 'header.php');
 ?>
 <div class="container">
     <div class="row">
-        <div class="panel panel-default">
-            <div class="menubar col-sm-3 col-md-3 sidebar">
+        <div class="card p-4 m-4">
+<!--        <div class="menubar col-sm-3 col-md-3 sidebar">
                 <div class="menu section">
                     <ul class="nav nav-sidebar">
                         <li id="root-item" class="level-0">
@@ -23,7 +23,7 @@ include_once(VIEWS_ROOT . 'header.php');
                                         <li id="company-name-projects-item" class="level-2"><a id="company-name-projects-link" href="#company-name-projects" class="level-2">Projects</a></li>
                                         <li id="company-name-videos-item" class="level-2"><a id="company-name-videos-link" href="#company-name-videos" class="level-2">Videos</a></li>
                                         <li id="company-name-logo-icon-item" class="level-2"><a id="company-name-images-link" href="#company-name-images" class="level-2">Images, Logo &amp; Icon</a></li>
-                                        <!-- <li id="company-name-awards-recognition-item" class="level-2"><a id="company-name-awards-recognition-link" href="#company-name-awards-recognition" class="level-2">Awards &amp; Recognition</a></li> -->
+                                        <li id="company-name-awards-recognition-item" class="level-2"><a id="company-name-awards-recognition-link" href="#company-name-awards-recognition" class="level-2">Awards &amp; Recognition</a></li>
                                         <li id="company-name-selected-articles-item" class="level-2"><a id="company-name-selected-articles-link" href="#company-name-selected-articles" class="level-2">Articles &amp; Quotes</a></li>
                                         <li id="company-name-additional-links-item" class="level-2"><a id="company-name-additional-links-link" href="#company-name-additional-links" class="level-2">Additional Links</a></li>
                                         <li id="company-name-team-item" class="level-2"><a id="company-name-team-link" href="#company-name-team" class="level-2">Team &amp; Contacts</a></li>
@@ -33,7 +33,7 @@ include_once(VIEWS_ROOT . 'header.php');
                         </li>
                     </ul>
                 </div>
-            </div>
+            </div> -->
             <div role='content' class='content'>
                 <div role="content" class="content col-sm-9 col-sm-offset-3 col-md-9 col-md-offset-3 main">
                     <h1 id="company-name" class="col-md-12"><img src="/images/varyn-shield-96x96.png" width="120" height="120" alt="Varyn, Inc. Logo"><img src="/images/VarynCardLogo_sm.png" width="200" height="200" alt="Varyn, Inc. Logo"></h1>
@@ -113,11 +113,12 @@ include_once(VIEWS_ROOT . 'header.php');
                         <div id="projects">
                             <h2 id="company-name-projects">Projects</h2>
                             <ul>
-                                <li><a href="http://varyn.com/play/1083">Match Master 3000</a></li>
-                                <li><a href="projects/exampleproject/">Real Housewives Memory Challenge</a></li>
-                                <li><a href="projects/exampleproject/">Top Chef Memory Challenge</a></li>
-                                <li><a href="projects/exampleproject/">Stranded!</a></li>
-                                <li><a href="projects/exampleproject/">Closest to the Pin</a></li>
+                                <li><a href="http://varyn.com/play/airtower">Air Tower</a></li>
+                                <li><a href="http://varyn.com/play/MatchMaster3000">Match Master 3000</a></li>
+                                <li>Real Housewives Memory Challenge (game no longer at BravoTV)</li>
+                                <li>Top Chef Memory Challenge (game no longer at BravoTV)</li>
+                                <li><a href="http://varyn.com/play/stranded">Stranded!</a></li>
+                                <li><a href="http://varyn.com/play/closestToThePin">Closest to the Pin</a> (requires Flash)</li>
                             </ul>
                         </div>
                     </div>

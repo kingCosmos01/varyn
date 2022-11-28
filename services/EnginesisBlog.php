@@ -138,7 +138,7 @@ class EnginesisBlog
 
     public function getCurrentTopicListPreview($topicList, $topicSelected = 1, $numberOfTopics = 2, $topicsNotToShow = array()) {
         $html = '';
-        $header = '<div class="panel panel-primary"><div class="panel-heading"><h4 class="panel-title">Recent topics:</h4></div></div>';
+        $header = '<div class="card card-dark"><div class="card-header"><h5 class="card-title">Recent topics:</h5></div></div>';
         $topicNav = '';
         if ($topicList != null && count($topicList) > 0) {
             $countTopicsAvailable = count($topicList);
@@ -196,9 +196,9 @@ class EnginesisBlog
             $replyConditional = '<p>There are ' . $numReplies . ' replies. <button>Show</button> | <button>Reply</button></p>';
         }
         $html = '<div class="row conf-replies-container">
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    <h3 class="panel-title">Replies</h3>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Replies</h3>
                 </div>
             </div>' . $replyConditional . '</div>';
         */

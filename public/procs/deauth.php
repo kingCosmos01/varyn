@@ -23,6 +23,7 @@ $origin = getHTTPOrigin();
 debugLog('deauth for ' . $network_name . ' called from ' . $origin . ' with ' . implode(',', $_POST));
 $pageTitle = 'Delete your ' . $network_name . ' account from Varyn.com';
 $pageDescription = 'A request to delete your account data from Varyn.com must be originated from the ' . $network_name . ' website.';
+$callbackURL = 'https://www.varyn.com/procs/deauth.php';
 
 if ($debug) {
     // debug set up so we can test without invoking Facebook
@@ -49,7 +50,7 @@ if ( ! empty($signed_request)) {
         if ($serverResponse == null) {
             $errorCode = $enginesis->getLastErrorCode();
             $response = [
-                'url' => 'https://www.varyn.com/procs/deauth.php',
+                'url' => $callbackURL,
                 'confirmation_code' => ''
             ];
             echo json_encode($response);
@@ -59,7 +60,7 @@ if ( ! empty($signed_request)) {
             $request_date = $deletionRequest->deletion_date;
             // generate a unique code for the deletion request so the user can come back and ask about it
             // page to query status
-            $status_url = 'https://www.varyn.com/procs/deauth.php?ccode=' . $confirmation_code;
+            $status_url = $callbackURL . '?ccode=' . $confirmation_code;
             $response = [
                 'url' => $status_url,
                 'confirmation_code' => $confirmation_code
@@ -109,11 +110,11 @@ if ($showPage) {
 <div class="container">
     <div class="row leader-3">
         <div class="col-md-4 col-md-offset-4">
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    <h1 class="panel-title">Delete <?php echo($network_name);?> Account</h1>
+            <div class="card">
+                <div class="caqrd-header">
+                    <h1 class="card-title">Delete <?php echo($network_name);?> Account</h1>
                 </div>
-                <div class="panel-body">
+                <div class="card-body">
                     <?php if ($request_status == 'UNKNOWN') { ?>
                     <p>You did not provide enough information to determine your data deletion status. Review your request and try again.</p>
                     <p><small><?php echo($pageDescription);?></small></p>

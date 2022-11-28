@@ -675,10 +675,10 @@ function isValidSecurityQuestion($securityQuestion, $securityAnswer) {
 include_once(VIEWS_ROOT . 'header.php');
 ?>
 <div class="container">
-    <div id="user-profile" class="card card-primary m-2 p-4">
+    <div id="user-profile" class="card m-2 p-4">
 <?php
     if ($redirectedStatusMessage != '') {
-        echo('<div class="card card-danger"><div class="card-heading"><h4>' . $redirectedStatusMessage . '</h4></div></div>');
+        echo('<div class="card text-bg-danger"><div class="card-body"><p class="card-text">' . $redirectedStatusMessage . '</p></div></div>');
     }
     if ($debug == 1) {
         echo("<h3>Debug info:</h3><p>Page called with action $action; User name $userName; password $password; email $email; Fullname: $fullname; Loc: $location; Tag: $tagline; DOB: $dateOfBirth;</p>");
@@ -803,11 +803,6 @@ include_once(VIEWS_ROOT . 'header.php');
 ?>
         <h2>Profile Update</h2>
         <p>Update the attributes of your user registration.</p>
-            <ul class="nav nav-tabs col-md-6" role="tablist">
-                <li role="presentation" class="active"><a href="#basicInfo" id="basic-info" role="tab" aria-controls="basicInfo" data-toggle="tab">Basic Info</a></li>
-                <li role="presentation"><a href="#extendedInfo" id="extended-info" role="tab" aria-controls="extendedInfo" data-toggle="tab">Extended Info</a></li>
-                <li role="presentation"><a href="#secureInfo" id="secure-info" role="tab" aria-controls="secureInfo" data-toggle="tab">Security</a></li>
-            </ul>
 <?php
         } else {
             $registrationOrUpdate = 'register';

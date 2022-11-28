@@ -8,7 +8,7 @@ $showSubscribe = getPostOrRequestVar('s', '0');
 include_once(VIEWS_ROOT . 'header.php');
 ?>
 <div class="container">
-    <div class="panel panel-primary panel-padded">
+    <div class="card m-4 p-4">
         <h2>Frequently Asked Questions</h2>
         <p>Need help? Here are the answers to the most common questions asked by our users.</p>
         <ul class="faq">

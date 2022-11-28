@@ -29,7 +29,7 @@ include_once(VIEWS_ROOT . 'header.php');
 ?>
 <div class="container">
     <div class="row conf-topic-container">
-        <div id="conf-topic" class="col-sm-8">
+        <div id="conf-topic" class="conf-topic col-sm-8">
             <?php echo($blog->getTopicContentAsHTML($topicId));?>
         </div>
         <div id="conf-sidebar" class="col-md-4">
