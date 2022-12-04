@@ -436,7 +436,7 @@ class Enginesis {
     }
 
     /**
-     * Return the private authentication token to be used for server-to-server secured trancactions.
+     * Return the private authentication token to be used for server-to-server secured transactions.
      * Any secured service should use this function to get the CMS user authentication token. The
      * setter function `setCMSKey()` must be called before this in order to set the required credentials.
      *
@@ -448,33 +448,40 @@ class Enginesis {
         $auth = null;
         $updated = false;
         $timeNow = time();
-        $secretFile = $this->m_serverPaths['DATA'] . '.enginesis_auth.json';
-        $authDefault = [
-            'user_id' => 0,
-            'user_name' => 'user',
-            'access_level' => 0,
-            'auth_token' => '',
-            'auth_token_expires' => '',
-            'refresh_token' => '',
-            'refresh_token_expires' => '',
-            'date_saved' => ''
-        ];
+        $secretFile = $this->m_serverPaths['PRIVATE'] . '.enginesis_auth.json';
 
         // load existing file
         if (file_exists($secretFile)) {
             $contents = file_get_contents($secretFile);
             $auth = json_decode($contents);
-            // @todo: verify the loaded file was not tampered/spoofed.
+            // Verify the loaded file was not tampered/spoofed.
+            $cr = md5($auth->date_saved . $auth->user_id . $auth->user_name . $auth->access_level . $this->m_siteId);
+            if ($cr != $auth->cr) {
+                $errorCode = EnginesisErrors::INVALID_DATA;
+                $errorMessage = 'Saved hash does not agree with saved content.';
+            }
             // @todo: Verify this information matches the set CMS user.
         }
         if ($auth == null) {
-            $auth = $authDefault;
+            $auth = json_decode(<<<EOD
+            {
+                "user_id":0,
+                "user_name":"",
+                "access_level":0,
+                "auth_token":"",
+                "auth_token_expires":"1999-12-31 21:21:21",
+                "refresh_token":"",
+                "refresh_token_expires":"1999-12-31 21:21:21",
+                "date_saved":"1999-12-31 21:21:21",
+                "cr":""
+            }
+            EOD);    
         }
         // determine if existing token is still valid
-        $authTokenExpireTime = strtotime($auth['auth_token_expires']);
+        $authTokenExpireTime = strtotime($auth->auth_token_expires);
         if ($authTokenExpireTime === false || $timeNow > $authTokenExpireTime) {
             // auth token is expired, determine if refresh token is valid
-            $refreshTokenExpireTime = strtotime($auth['refresh_token_expires']);
+            $refreshTokenExpireTime = strtotime($auth->refresh_token_expires);
             if ($refreshTokenExpireTime === false || $timeNow > $refreshTokenExpireTime) {
                 // need to do a full login, we expect the parameters to be passed in
                 $CMSAccountCredentials = $this->m_cmsCredentials;
@@ -488,18 +495,18 @@ class Enginesis {
                         $errorMessage = 'User login failed, check user credentials.';
                     } else {
                         $updated = true;
-                        $auth['user_id'] = intval($userInfo->user_id, 10);
-                        $auth['user_name'] = $userInfo->user_name;
-                        $auth['access_level'] = intval($userInfo->access_level, 10);
-                        $auth['auth_token'] = $userInfo->authtok;
-                        $auth['auth_token_expires'] = $userInfo->session_expires;
-                        $auth['refresh_token'] = $userInfo->refresh_token;
-                        $auth['refresh_token_expires'] = $userInfo->expires;
+                        $auth->user_id = intval($userInfo->user_id, 10);
+                        $auth->user_name = $userInfo->user_name;
+                        $auth->access_level = intval($userInfo->access_level, 10);
+                        $auth->auth_token = $userInfo->authtok;
+                        $auth->auth_token_expires = $userInfo->session_expires;
+                        $auth->refresh_token = $userInfo->refresh_token;
+                        $auth->refresh_token_expires = $userInfo->expires;
                     }
                 }
             } else {
                 // need to do a session refresh
-                $userInfo = $this->adminSessionRefresh($auth['user_id'], $auth['refresh_token']);
+                $userInfo = $this->adminSessionRefresh($auth->user_id, $auth->refresh_token);
                 if ($userInfo == null) {
                     $errorCode = EnginesisErrors::INVALID_TOKEN;
                     $errorMessage = 'Authentication token invalid or expired and refresh token invalid or expired.';
@@ -510,19 +517,28 @@ class Enginesis {
         }
         // if token is new/refreshed, save $auth
         if ($updated) {
-            $auth['date_saved'] = date('Y-m-d H:i:s', $timeNow);
+            $auth->date_saved = date('Y-m-d H:i:s', $timeNow);
+            $auth->cr = md5($auth->date_saved . $auth->user_id . $auth->user_name . $auth->access_level . $this->m_siteId);
             $contents = json_encode($auth);
-            $writeStatus = file_put_contents($secretFile, $contents);
-            if ($writeStatus === false) {
+            try {
+                $errorLevel = error_reporting();
+                error_reporting($errorLevel & ~E_WARNING);
+                $writeStatus = file_put_contents($secretFile, $contents);
+                if ($writeStatus === false) {
+                    $errorCode = EnginesisErrors::FILE_WRITE_FAILED;
+                    $errorMessage = 'Unable to store authentication on the server, check file privs.';
+                }
+                error_reporting($errorLevel);
+            } catch (Exception $exception) {
                 $errorCode = EnginesisErrors::FILE_WRITE_FAILED;
-                $errorMessage = 'Unable to store authentication on the server, check file privs.';
+                $errorMessage = 'Unable to store authentication on the server, ' . $exception->getMessage();
             }
         }
         if ($errorCode != EnginesisErrors::NO_ERROR) {
             $this->setLastError($errorCode, $errorMessage);
             $this->debugInfo("getCMSAuthToken error $errorCode:$errorMessage result " . json_encode($auth), __FILE__, __LINE__);
         }
-        return $auth['auth_token'];
+        return $auth->auth_token;
     }
 
     /**
@@ -1388,6 +1404,25 @@ class Enginesis {
     }
 
     /**
+     * Return a string of parameter key/value pairs, but remove any sensitive information from the output.
+     * @param Array An array or object of key/value pairs to log.
+     * @return string A string representation of the parameters.
+     */
+    public function logSafeParameters($parameters) {
+        $sensitiveParameters = ['authtok', 'authtoken', 'token', 'refresh_token', 'password', 'secondary_password', 'apikey', 'developer_key'];
+        $logParams = '';
+        if (is_array($parameters) && count($parameters) > 0) {
+            foreach ($parameters as $key => $value) {
+                if (in_array($key, $sensitiveParameters)) {
+                    $value = 'XXXXX';
+                }
+                $logParams .= (strlen($logParams) > 0 ? ', ' : 'parameters: ') . $key . '=' . $value;
+            }
+        }
+        return $logParams;
+    }
+
+    /**
      * Encode a key/value array into URL parameters. `key=value&key=value&...`.
      * @param array $data A key/value array.
      * @return string a URL parameter query string.
@@ -1533,7 +1568,7 @@ class Enginesis {
             if ($authenticationToken != null && $this->m_authTokenWasValidated) {
                 // Move authentication token to header so it is not sent in body
                 $headers[] = 'Authentication: Bearer ' . $authenticationToken;
-                // weed it out of passed in parameters if it is there so it doesnt appear in logs
+                // weed it out of passed in parameters if it is there so it doesn't appear in logs
                 unset($parameters['authtok']);
                 unset($parameters['token']);
             }
@@ -1541,7 +1576,7 @@ class Enginesis {
         $isLocalhost = serverStage() == '-l';
         $url = $this->m_serviceEndPoint;
         $setSSLCertificate = startsWith(strtolower($url), 'https://');
-        $this->debugInfo("Calling $serviceName on $url with " . json_encode($parameters), __FILE__, __LINE__);
+        $this->debugInfo("Calling $serviceName on $url with " . $this->logSafeParameters($parameters), __FILE__, __LINE__);
         $ch = curl_init($url);
         if ($ch) {
             $referrer = $this->m_serviceProtocol . '://' . $this->getServerName() . $this->currentPagePath();
@@ -2373,23 +2408,35 @@ class Enginesis {
     }
 
     /**
-     * Start a user delete request. Must be logged in as a CMS user to do this.
-     * @param string confirmation code.
-     * @return Array Array of rows if succeeded, null when failed.
+     * Start a user delete request. Either provide and Enginesis user id
+     * as a parameter or call `$enginesis->setSiteUserId($network_id, $site_user_id)`
+     * to set the network user to delete. Must be logged in as a CMS user to do this.
+     * @param integer|null A user id to delete. If null, use the registered network site user id.
+     * @return Array Server response if succeeded, Enginesis error when failed.
      */
-    public function registeredUserDelete ($userId) {
+    public function registeredUserDelete ($userId = null) {
         $service = 'RegisteredUserDelete';
         $isSecure = true;
-        if ($userId < 9999) {
-            $userId = $this->m_userId;
+        $parameters = null;
+        if ( ! empty($this->m_siteUserId) && $this->m_networkId != 1) {
+            $parameters = [
+                'user_id_to_delete' => 0,
+                'site_user_id' => $this->m_siteUserId,
+                'network_id' => $this->m_networkId
+            ];
+        } elseif ($this->isValidId($userId)) {
+            $parameters = [
+                'user_id_to_delete' => $this->m_userId,
+                'site_user_id' => '',
+                'network_id' => 0
+            ];
         }
-        $parameters = [
-            'user_id_to_delete' => $userId,
-            'site_user_id' => $this->m_siteUserId,
-            'network_id' => $this->m_networkId
-        ];
-        $enginesisResponse = $this->callServerAPI($service, $parameters, $isSecure);
-        return $this->setLastErrorFromResponse($enginesisResponse);
+        if ($parameters != null) {
+            $enginesisResponse = $this->callServerAPI($service, $parameters, $isSecure);
+            return $this->setLastErrorFromResponse($enginesisResponse);
+        } else {
+            return $this->makeErrorResponse(EnginesisErrors::INVALID_USER_ID, 'User id is not valid.', null);
+        }
     }
 
     /**

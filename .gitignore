@@ -14,17 +14,17 @@ ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 node_modules/
+
+# Enginesis private files
 services/serverConfig.php
 services/deploy-config.json
 public/blog/wp-content/uploads/
-
 data/
 distrib/
 public/.well-known/
 public/games/*/
 public/lab/
 public/resources/
-
+private/
 services/lib/vendor
-
 sitedev/test/*.xml

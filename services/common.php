@@ -1758,6 +1758,25 @@ function debugToString($value) {
     return json_encode($value);
 }
 
+/**
+ * Return a string of parameter key/value pairs, but remove any sensitive information from the output.
+ * @param Array An array or object of key/value pairs to log.
+ * @return string A string representation of the parameters.
+ */
+function logSafeParameters($parameters) {
+    $sensitiveParameters = ['authtok', 'authtoken', 'token', 'refresh_token', 'password', 'secondary_password', 'apikey', 'developer_key'];
+    $logParams = '';
+    if (is_array($parameters) && count($parameters) > 0) {
+        foreach ($parameters as $key => $value) {
+            if (in_array($key, $sensitiveParameters)) {
+                $value = 'XXXXX';
+            }
+            $logParams .= (strlen($logParams) > 0 ? ', ' : 'parameters: ') . $key . '=' . $value;
+        }
+    }
+    return $logParams;
+}
+
 // "Global" PHP variables available to all scripts. See also serverConfig.php.
 $enginesisLogger = new LogMessage([
     'log_active' => true,
@@ -1768,7 +1787,7 @@ $enginesisLogger = new LogMessage([
 $page = '';
 $webServer = '';
 $enginesis = new Enginesis($siteId, null, ENGINESIS_DEVELOPER_API_KEY, 'reportError');
-$enginesis->setCMSKey(ENGINESIS_CMS_API_KEY);
+$enginesis->setCMSKey(ENGINESIS_CMS_API_KEY, $CMSUserLogins[0]['user_name'], $CMSUserLogins[0]['password']);
 $serverName = $enginesis->getServerName();
 $serverStage = $enginesis->getServerStage();
 $enginesisServer = $enginesis->getServiceRoot();

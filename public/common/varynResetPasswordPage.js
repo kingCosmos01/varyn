@@ -6,8 +6,7 @@ var varynResetPasswordPage = function (varynApp, siteConfiguration) {
 
     var enginesisSession = varynApp.getEnginesisSession(),
         errorFieldId = "",
-        inputFocusId = "",
-        varynResetPasswordPageReference = this;
+        inputFocusId = "";
 
     /**
      * Callback to handle responses from Enginesis.
@@ -42,21 +41,34 @@ var varynResetPasswordPage = function (varynApp, siteConfiguration) {
         },
 
         setupPasswordChangeHandler: function () {
-            $('#newPassword').on('change', this.passwordChangeHandler.bind(this));
-            $('#newPassword').on('input', this.passwordChangeHandler.bind(this));
-            $('#newPassword').on('propertychange', this.passwordChangeHandler.bind(this));
-            $('#retypePassword').on('change', this.passwordChangeHandler.bind(this));
-            $('#retypePassword').on('input', this.passwordChangeHandler.bind(this));
-            $('#retypePassword').on('propertychange', this.passwordChangeHandler.bind(this));
-            this.passwordChangeHandler();
+            var newPasswordElement = document.getElementById("newPassword");
+            if (newPasswordElement != null) {
+                newPasswordElement.addEventListener("change", this.passwordChangeHandler.bind(this));
+                newPasswordElement.addEventListener("input", this.passwordChangeHandler.bind(this));
+                newPasswordElement.addEventListener("propertychange", this.passwordChangeHandler.bind(this));
+                this.passwordChangeHandler();
+            }
         },
 
         onPageLoadSetFocus: function () {
+            var pageElement;
             if (inputFocusId != "") {
-                document.getElementById(inputFocusId).focus();
+                pageElement = document.getElementById(inputFocusId);
+                if (pageElement != null) {
+                    pageElement.focus();
+                }
+            } else {
+                pageElement = document.getElementById("newPassword");
+                if (pageElement != null) {
+                    pageElement.focus();
+                }
             }
             if (errorFieldId != "") {
-                $('#' + errorFieldId).removeClass("popup-form-input").addClass("popup-form-input-error");
+                pageElement = document.getElementById(errorFieldId);
+                if (pageElement != null) {
+                    pageElement.classList.remove("popup-form-input");
+                    pageElement.classList.add("popup-form-input-error");
+                }
             }
         },
 
@@ -77,6 +89,23 @@ var varynResetPasswordPage = function (varynApp, siteConfiguration) {
                 passwordElement.classList.add('password-no-match');
                 passwordElement.style.display = "inline-block";
                 buttonElement.classList.add('disabled');
+            }
+        },
+
+        onClickShowNewPassword: function(event) {
+            var passwordInput = document.getElementById("newPassword");
+            var icon = document.getElementById("reset-show-password-icon");
+            var text = document.getElementById("reset-show-password-text");
+            var show = icon.classList.contains("iconEyeSlash");
+
+            if (show) {
+                passwordInput.type = 'password';
+                icon.className = 'iconEye';
+                text.innerText = 'Show';
+            } else {
+                passwordInput.type = 'text';
+                icon.className = 'iconEyeSlash';
+                text.innerText = 'Hide';
             }
         }
     }

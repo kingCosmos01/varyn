@@ -5,37 +5,31 @@
  * @date: 5/10/2016
  */
 
-require_once 'lib/vendor/facebook/autoload.php';
-
 define ('FACEBOOK_SESSION_KEY', 'engfbsession');
 
-
-class SocialServicesFacebook extends SocialServices
-{
+class SocialServicesFacebook extends SocialServices {
     private $fb = null;
     private $appId = '';
     private $appSecret = '';
     private $isLoggedIn = false;
     private $SDKVersion = 'v6.0';
+    private $graphVersion = 'v2.5';
 
     public function __construct () {
         global $socialServiceKeys; // from serverConfig.
-        $this->appId = $socialServiceKeys[EnginesisNetworks::Facebook]['app_id'];
-        $this->appSecret = $socialServiceKeys[EnginesisNetworks::Facebook]['app_secret'];
-        $this->setNetworkId(EnginesisNetworks::Facebook);
-        $this->m_networkName = 'Facebook';
-        $this->fb = new Facebook\Facebook([
-            'app_id' => $this->appId,
-            'app_secret' => $this->appSecret,
-            'default_graph_version' => $this->SDKVersion
-        ]);
+        $this->setNetworkId(EnginesisNetworks::Facebook, $socialServiceKeys[EnginesisNetworks::Facebook]['service']);
+        $this->appId = $socialServiceKeys[$this->m_networkId]['app_id'];
+        $this->appSecret = $socialServiceKeys[$this->m_networkId]['app_secret'];
         if (isset($_SESSION[FACEBOOK_SESSION_KEY])) {
-            $accessToken = $_SESSION[FACEBOOK_SESSION_KEY];
-            $this->m_accessToken = (string) $accessToken;
-            $this->fb->setDefaultAccessToken($this->m_accessToken);
+            $this->m_accessToken = (string) $_SESSION[FACEBOOK_SESSION_KEY];
         }
     }
 
+    /**
+     * Parse a Facebook API signature and return its data if the signature is valid.
+     * @param string $signed_request Something Facebook sent as a signed request.
+     * @return string|null The data if the signature is valid, otherwise null.
+     */
     public function parseSignedRequest($signed_request) {
         list($encoded_signature, $payload) = explode('.', $signed_request, 2);
         $signature = base64URLDecode($encoded_signature);
@@ -51,6 +45,11 @@ class SocialServicesFacebook extends SocialServices
         return $data;
     }
 
+    /**
+     * Mock function to create a fake signed request for testing purposes.
+     * @param string $payload Some data to sign.
+     * @return string A Facebook signed request of $payload.
+     */
     public function testSignRequest($payload) {
         $payload = base64URLEncode($payload);
         $signature = hash_hmac('sha256', $payload, $this->appSecret, $raw = true);
@@ -58,20 +57,41 @@ class SocialServicesFacebook extends SocialServices
     }
 
     /**
+     * Get raw signed request from POST input.
+     *
+     * @return string|null
+     */
+    public function getRawSignedRequestFromPost() {
+        if (isset($_POST['signed_request'])) {
+            return $_POST['signed_request'];
+        }
+        return null;
+    }
+
+    /**
+     * Get raw signed request from cookie set from the Javascript SDK.
+     *
+     * @return string|null
+     */
+    public function getRawSignedRequestFromCookie() {
+        if (isset($_COOKIE['fbsr_' . $this->app->getId()])) {
+            return $_COOKIE['fbsr_' . $this->app->getId()];
+        }
+        return null;
+    }
+
+    /**
      * Perform all necessary steps to log user in and get their basic info.
-     * TODO: extendToken?
-     * @return {object} User info object
+     * @return object User info object
      */
     public function connectSSO () {
         $userInfo = null;
-        if ($this->fb) {
+        if ($this->isLoggedIn) {
+            $userInfo = $this->currentUserInfo();
+        } else {
+            $this->login();
             if ($this->isLoggedIn) {
                 $userInfo = $this->currentUserInfo();
-            } else {
-                $this->login();
-                if ($this->isLoggedIn) {
-                    $userInfo = $this->currentUserInfo();
-                }
             }
         }
         return $userInfo;
@@ -81,9 +101,6 @@ class SocialServicesFacebook extends SocialServices
      * Invoke the network's login procedure.
      */
     public function login () {
-        if ( ! $this->fb) {
-            return false;
-        }
         if ( ! empty($this->m_accessToken)) {
             $this->isLoggedIn = true;
             return true;
@@ -147,10 +164,7 @@ class SocialServicesFacebook extends SocialServices
      * Log any current user out of the current network.
      */
     public function logout () {
-        if ( ! $this->fb) {
-            return false;
-        }
-        // TODO:
+        // @todo:
         return false;
     }
 
@@ -160,9 +174,6 @@ class SocialServicesFacebook extends SocialServices
      * Enginesis: array('user_name' => $userName, 'email_address' => $email, 'real_name' => $realName, 'gender' => $gender, 'agreement' => $agreement);
      */
     public function currentUserInfo () {
-        if ( ! $this->fb) {
-            return false;
-        }
         $error = '';
         $errorMessage = '';
         $userInfo = null;
@@ -209,10 +220,7 @@ class SocialServicesFacebook extends SocialServices
     }
 
     public function getFriends () {
-        if ( ! $this->fb) {
-            return null;
-        }
-        // TODO:
+        // @todo:
         return null;
     }
 
@@ -238,7 +246,7 @@ class SocialServicesFacebook extends SocialServices
     }
 
     public function deleteApp () {
-        // TODO:
+        // @todo:
         return false;
     }
 

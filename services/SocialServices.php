@@ -59,8 +59,9 @@ class SocialServices
         $this->setNetworkId($networkId);
     }
 
-    public function setNetworkId ($networkId) {
+    public function setNetworkId ($networkId, $networkName = null) {
         $this->m_networkId = $networkId;
+        $this->m_networkName = $networkName;
     }
 
     public function getNetworkId () {
@@ -79,7 +80,7 @@ class SocialServices
         if ($this->m_lastErrorCode == '') {
             return null;
         } else {
-            return array('code' => $this->m_lastErrorCode, 'message' => $this->m_lastErrorMessage);
+            return ['code' => $this->m_lastErrorCode, 'message' => $this->m_lastErrorMessage];
         }
     }
 
