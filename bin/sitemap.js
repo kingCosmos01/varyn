@@ -117,7 +117,7 @@ function renderSectionHTML(section) {
  * Render an XML element representing the section as part of a sitemap.
  * @param {object} section A specification of a single page in the site index. Expected format is:
  *   {
- *     "loc": "/path/from/webiste/root",
+ *     "loc": "/path/from/website/root",
  *     "changefreq": "monthly",
  *     "priority": 0.8
  *   }
@@ -190,7 +190,7 @@ function processPageQuery(key, section, sitemapSection) {
         enginesis.nodeRequest = axios;
         enginesis.siteListGames(1, 100, 2, null).then(function (enginesisResponse) {
             if (enginesisResponse != null && enginesisResponse.fn != null) {
-                console.log(Chalk.green("  results for " + key + ": " + JSON.stringify(enginesisResponse)));
+                // console.log(Chalk.green("  results for " + key + ": " + JSON.stringify(enginesisResponse)));
                 results = enginesisResponse.results;
                 succeeded = results.status.success == "1";
                 if (succeeded && enginesisResponse.fn == "SiteListGames") {

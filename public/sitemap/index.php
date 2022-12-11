@@ -8,7 +8,7 @@ $showSubscribe = getPostOrRequestVar('s', '0');
 include_once(VIEWS_ROOT . 'header.php');
 ?>
 <div class="container">
-    <div class="card m-2 p-4">
+    <div class="card p-4 g-2">
         <div id="sitemap">
 <h2>Varyn.com Site Map</h2>
 <div id="section-Varyn">
@@ -46,7 +46,7 @@ include_once(VIEWS_ROOT . 'header.php');
 
 <li><a href="/play/mahJonggClassic">Classic Mah Jongg</a> Mah jongg is a solitaire game where you are challenged to remove all pieces from the board by matching pairs of unblocked tiles.</li>
 
-<li><a href="/play/BaseballJuiced">Baseball Juiced</a> Choose your personal training method and swing for the record books. Can you make it into the Hall of Fame?</li>
+<li><a href="/play/snaccoli">Snaccoli</a> Guide your little snake around the yard, eat yummy things to grow, avoid bad things, and don't go beyond the fence.</li>
 
 <li><a href="/play/karoshisuicidesalaryman">Karoshi Suicide</a> Lost all your money? Fine, now you lose your life! Punish this pawn of industry by pushing him down a path of destruction!</li>
 
