@@ -6,6 +6,7 @@ function formatPromotionItem($isActive, $promotion) {
   $title = $promotion->promotion_item_title;
   $caption = $promotion->promotion_item_description;
   $image = $promotion->promotion_item_img;
+  $linkType = $promotion->promotion_item_type_id;
   $link = $promotion->promotion_item_link;
   $linkTitle = $promotion->promotion_item_link_title;
   $carouselItem = '<div class="carousel-item' . ($isActive ? ' active' : '') . '">';
@@ -13,11 +14,10 @@ function formatPromotionItem($isActive, $promotion) {
   $carouselItem .= '<div class="carousel-caption d-none d-md-block">';
   $carouselItem .= '<h3>' . $title . '</h3>';
   $carouselItem .= '<p class="sliderCaption">' . $caption . '</p>';
-  if (looksLikeURLPattern($link)) {
+  if ($linkType == 4 || $linkType == 1) {
     $carouselItem .= '<p><a class="btn btn-md btn-success" href="' . $link . '" role="button">' . $linkTitle . '</a></p>';
-  } else {
-    // @todo: if it is not a URL then we expect it to be the complete HTML
-    $carouselItem .= '<p><button type="button" class="btn btn-md btn-success" data-bs-toggle="modal" data-bs-target="#modal-subscribe" onclick="' . $link . '">' . $linkTitle . '</button></p>';
+  } elseif ($linkType == 9) {
+    $carouselItem .= $link;
   }
   $carouselItem .= '</div></div></div>';
   return $carouselItem;
